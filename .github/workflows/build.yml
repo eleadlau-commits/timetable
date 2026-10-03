@@ -1,0 +1,81 @@
+# Builds the Android app (APK) and publishes the web version to GitHub Pages
+# every time you upload changes, or when you press "Run workflow" on the Actions tab.
+
+name: Build app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write   # to attach the APK to a release
+  pages: write      # to publish the web version
+  id-token: write
+
+concurrency:
+  group: build
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Android app (APK)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install Capacitor
+        run: npm install
+
+      - name: Create the Android project
+        run: npx cap add android
+
+      - name: Generate app icons
+        continue-on-error: true   # falls back to the default icon if this fails
+        run: npx --yes @capacitor/assets generate --android --iconBackgroundColor '#3d5afe' --iconBackgroundColorDark '#3d5afe'
+
+      - name: Copy the app into the Android project
+        run: npx cap sync android
+
+      - name: Build the APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Name the APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk Timetable.apk
+
+      - name: Publish it as a release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Timetable (build ${{ github.run_number }})
+          body: Open this page on your Android phone, tap **Timetable.apk** to download it, then open the file to install.
+          files: Timetable.apk
+          make_latest: true
+
+  website:
+    name: Web version (GitHub Pages)
+    runs-on: ubuntu-latest
+    # Only works once Pages is switched on (Settings → Pages → Source: GitHub Actions).
+    # Until then this job fails without affecting the APK.
+    continue-on-error: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: www
+      - id: deploy
+        uses: actions/deploy-pages@v4
