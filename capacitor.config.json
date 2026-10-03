@@ -1,0 +1,13 @@
+{
+  "appId": "io.github.timetable.app",
+  "appName": "Timetable",
+  "webDir": "www",
+  "android": {
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
+  "plugins": {
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}
