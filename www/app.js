@@ -1,4 +1,5 @@
 import { parseICS, expandEvents } from './ics.js';
+import { lookupPlace } from './places.js';
 
 const K = {
   url: 'tt.url',
@@ -7,9 +8,13 @@ const K = {
   updated: 'tt.updated',
   source: 'tt.source',
   view: 'tt.view',
+  prefs: 'tt.prefs',
 };
 const DAY = 86400000;
 const STALE_MS = 30 * 60 * 1000;
+const HOUR_PX = 52; // keep in sync with .wk-col background in styles.css
+const VIEWS = ['day', 'week', 'agenda'];
+const PALETTE = [0, 22, 42, 95, 140, 172, 198, 222, 255, 285, 320];
 const QR_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
 // True inside the Android app. There, Capacitor routes fetch() through native code,
 // so the university server can't block it and the relay/QR options aren't needed.
@@ -32,11 +37,33 @@ const $ = (s) => document.querySelector(s);
 let events = [];
 let calName = '';
 let selected = startOfDay(new Date());
-let view = store.get(K.view) === 'agenda' ? 'agenda' : 'day';
+let view = VIEWS.includes(store.get(K.view)) ? store.get(K.view) : 'day';
 let busy = false;
 let forceSetup = false;
 let pendingRelay = null;
 let lastRefreshFailed = false;
+let prefs = loadPrefs();
+let currentSession = null;
+let editingModule = null;
+let noteTimer;
+
+/* ---------- personal settings: hidden modules, names, colours, notes ---------- */
+
+function emptyPrefs() {
+  return { hidden: {}, names: {}, colours: {}, notes: {}, places: {}, mapsArea: '' };
+}
+
+function loadPrefs() {
+  try {
+    return { ...emptyPrefs(), ...JSON.parse(store.get(K.prefs) || '{}') };
+  } catch {
+    return emptyPrefs();
+  }
+}
+
+function savePrefs() {
+  if (!store.set(K.prefs, JSON.stringify(prefs))) toast("Couldn't save that change on this device.");
+}
 
 /* ---------- dates & formatting ---------- */
 
@@ -48,6 +75,7 @@ function sameDay(a, b) {
 }
 const fmtTime = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 const fmtDate = (d, month = 'long') => d.toLocaleDateString([], { day: 'numeric', month });
+const timeRange = (e) => (e.allDay ? 'All day' : `${fmtTime(e.start)}–${fmtTime(e.end)}`);
 
 function dayLabel(d) {
   const diff = Math.round((startOfDay(d) - startOfDay(new Date())) / DAY);
@@ -86,17 +114,21 @@ function el(tag, attrs = {}, ...kids) {
     else n.setAttribute(k, v === true ? '' : v);
   }
   for (const kid of kids.flat()) {
-    if (kid == null || kid === false) continue;
+    if (kid == null || kid === false || kid === '') continue;
     n.append(kid instanceof Node ? kid : document.createTextNode(String(kid)));
   }
   return n;
 }
 
-function pinIcon() {
+const ICONS = {
+  pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+  note: '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
+};
+function icon(name) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('aria-hidden', 'true');
-  svg.innerHTML = '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>';
+  svg.innerHTML = ICONS[name];
   return svg;
 }
 
@@ -109,54 +141,135 @@ function toast(msg) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 4000);
 }
 
-/* ---------- event presentation ---------- */
+/* ---------- modules & presentation ---------- */
 
-// Same module code → same colour, e.g. "ECON1011 Lecture" and "ECON1011 Seminar".
-function hueFor(title) {
-  const m = title.match(/\b[A-Z]{2,5}\s?\d{3,5}[A-Z]?\b/);
-  const key = (m ? m[0] : title).replace(/\s/g, '');
+// Sessions are grouped into modules by their code (e.g. "ECON1011"), or by title if there's no code.
+const CODE_RE = /\b[A-Z]{2,5}\s?\d{3,5}[A-Z]?\b/;
+function moduleKey(title) {
+  const m = title.match(CODE_RE);
+  return m ? m[0].replace(/\s/g, '') : title.trim();
+}
+
+function hueFor(key) {
   let h = 0;
   for (const c of key) h = (h * 31 + c.charCodeAt(0)) >>> 0;
   return h % 360;
 }
 
-const KINDS = ['Lecture', 'Seminar', 'Tutorial', 'Practical', 'Workshop', 'Lab', 'Exam', 'Drop-in', 'Fieldwork'];
+const moduleHue = (key) => prefs.colours[key] ?? hueFor(key);
+const nameOf = (e) => prefs.names[e.module] || e.title;
+const shortName = (e) => prefs.names[e.module] || e.module;
+const isShown = (e) => !prefs.hidden[e.module];
+
+const KINDS = ['Lecture', 'Seminar', 'Tutorial', 'Practical', 'Workshop', 'Lab', 'Exam', 'Drop-in', 'Fieldwork']
+  .map((k) => [k, new RegExp(`\\b${k}`, 'i')]);
+
 function kindOf(e) {
-  const inTitle = KINDS.find((k) => new RegExp(`\\b${k}`, 'i').test(e.title));
-  if (inTitle) return ''; // already visible in the title
-  return KINDS.find((k) => new RegExp(`\\b${k}`, 'i').test(e.description.slice(0, 300))) || '';
+  for (const [k, re] of KINDS) if (re.test(e.title)) return k;
+  const desc = e.description.slice(0, 300);
+  for (const [k, re] of KINDS) if (re.test(desc)) return k;
+  return '';
 }
 
-function eventsOn(d) {
+// Badge for a card: the session type, unless the displayed name already says it.
+function badgeFor(e) {
+  if (e.cancelled) return 'Cancelled';
+  const k = kindOf(e);
+  return k && !new RegExp(`\\b${k}`, 'i').test(nameOf(e)) ? k : '';
+}
+
+const ONLINE_RE = /\b(online|teams|zoom|virtual|remote|collaborate)\b/i;
+const isPhysical = (location) => !!location && !/https?:\/\//.test(location) && !ONLINE_RE.test(location);
+
+// The building part of a location: room codes like "CLC013" removed, as they confuse map
+// searches. Locations that are only a code stay as they are.
+function buildingOf(location) {
+  const building = location.replace(/\b[A-Z]{1,5}\d{2,4}[A-Z]?\b/g, '').replace(/\s{2,}/g, ' ').replace(/[\s,;–-]+$/, '').trim();
+  return building || location.trim();
+}
+
+// The full building name the user typed for this location, if any.
+const placeName = (location) => (isPhysical(location) ? prefs.places[buildingOf(location)] || '' : '');
+
+// The building from the built-in list of room codes (places.js), if the location has a known code.
+const knownPlace = (location) => (isPhysical(location) ? lookupPlace(location) : null);
+
+// Short building name to show next to the location: what the user typed, else the built-in name.
+function buildingName(location) {
+  return placeName(location).split(',')[0].trim() || knownPlace(location)?.building || '';
+}
+
+// Location as shown on cards: the timetable's text, plus the building name when it adds something.
+function placeLabel(location) {
+  const full = buildingName(location);
+  return full && !location.toLowerCase().includes(full.toLowerCase()) ? `${location} · ${full}` : location;
+}
+
+function placeLink(location) {
+  if (!location) return null;
+  const url = location.match(/https?:\/\/\S+/);
+  if (url) return url[0];
+  if (!isPhysical(location)) return null;
+  const typed = placeName(location);
+  const known = knownPlace(location);
+  let query;
+  if (typed) {
+    const area = prefs.mapsArea && !typed.toLowerCase().includes(prefs.mapsArea.toLowerCase()) ? prefs.mapsArea : '';
+    query = [typed, area].filter(Boolean).join(', ');
+  } else if (known) {
+    // Coordinates put the pin exactly on the building rather than wherever a text search lands.
+    query = `${known.lat},${known.lng}`;
+  } else {
+    query = [buildingOf(location), prefs.mapsArea].filter(Boolean).join(', ');
+  }
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+function eventsOn(d, includeHidden = false) {
   const from = startOfDay(d);
   const to = addDays(from, 1);
   return events.filter((e) =>
+    (includeHidden || isShown(e)) &&
     e.start < to && (e.end > from || (e.end.getTime() === e.start.getTime() && e.start >= from))
   );
 }
 
-function card(e, now, openKeys, extra) {
+function card(e, now, extra) {
   const past = e.end <= now;
   const live = e.start <= now && now < e.end && !e.cancelled;
-  const kind = e.cancelled ? 'Cancelled' : kindOf(e);
+  const badge = badgeFor(e);
+  const link = placeLink(e.location);
+  const note = prefs.notes[e.key];
   return el('article', {
     class: `card${past ? ' past' : ''}${live ? ' now' : ''}${e.cancelled ? ' cancelled' : ''}`,
-    style: `--h:${hueFor(e.title)}`,
+    style: `--h:${moduleHue(e.module)}`,
+    role: 'button',
+    tabindex: '0',
+    onclick: () => openSession(e),
+    onkeydown: (ev) => {
+      if (ev.target === ev.currentTarget && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); openSession(e); }
+    },
   },
     el('div', { class: 'time' },
       e.allDay ? el('span', {}, 'All day') : [el('span', {}, fmtTime(e.start)), el('span', {}, fmtTime(e.end))]
     ),
     el('div', { class: 'body' },
-      el('div', { class: 'title' }, el('span', { class: 'title-text' }, e.title), kind && el('span', { class: 'badge' }, kind)),
-      e.location && el('div', { class: 'meta' }, pinIcon(), el('span', {}, e.location)),
+      el('div', { class: 'title' }, el('span', { class: 'title-text' }, nameOf(e)), badge && el('span', { class: 'badge' }, badge)),
+      e.location && (link
+        ? el('a', { class: 'meta', href: link, target: '_blank', rel: 'noopener', onclick: (ev) => ev.stopPropagation() },
+            icon('pin'), el('span', {}, placeLabel(e.location)))
+        : el('div', { class: 'meta' }, icon('pin'), el('span', {}, placeLabel(e.location)))),
+      note && el('div', { class: 'meta note' }, icon('note'), el('span', {}, note.split('\n')[0])),
       live && el('div', { class: 'pill' }, `Now · until ${fmtTime(e.end)}`),
-      extra,
-      e.description && el('details', { class: 'more', 'data-key': e.key, open: openKeys.has(e.key) },
-        el('summary', {}, 'Details'),
-        el('p', {}, e.description)
-      )
+      extra
     )
   );
+}
+
+function hiddenNote(count) {
+  if (!count) return null;
+  return el('button', { type: 'button', class: 'link-btn hidden-note', onclick: openModules },
+    `${count} hidden session${count > 1 ? 's' : ''} · Manage modules`);
 }
 
 /* ---------- rendering ---------- */
@@ -172,15 +285,14 @@ function render() {
   renderStatus();
   if (showSetup) return;
 
-  const openKeys = new Set([...document.querySelectorAll('details.more[open]')].map((d) => d.dataset.key));
   for (const b of document.querySelectorAll('.seg button')) b.setAttribute('aria-selected', String(b.dataset.view === view));
-  $('#day-view').hidden = view !== 'day';
-  $('#agenda-view').hidden = view !== 'agenda';
-  if (view === 'day') renderDay(openKeys);
-  else renderAgenda(openKeys);
+  for (const v of VIEWS) $(`#${v}-view`).hidden = v !== view;
+  if (view === 'day') renderDay();
+  else if (view === 'week') renderWeek();
+  else renderAgenda();
 }
 
-function renderDay(openKeys) {
+function renderDay() {
   const now = new Date();
   const today = startOfDay(now);
   const week = startOfWeek(selected);
@@ -208,22 +320,133 @@ function renderDay(openKeys) {
   $('#today-btn').hidden = sameDay(selected, today);
 
   const list = $('#day-list');
-  const items = eventsOn(selected);
+  const all = eventsOn(selected, true);
+  const items = all.filter(isShown);
+  const hidden = hiddenNote(all.length - items.length);
   if (!items.length) {
     const weekend = selected.getDay() === 0 || selected.getDay() === 6;
-    list.replaceChildren(el('div', { class: 'empty' },
-      el('b', {}, weekend ? 'Nothing scheduled' : 'No classes'),
-      el('div', {}, 'Swipe or use the arrows to see other days.')
-    ));
+    list.replaceChildren(...[
+      el('div', { class: 'empty' },
+        el('b', {}, weekend ? 'Nothing scheduled' : 'No classes'),
+        el('div', {}, 'Swipe or use the arrows to see other days.')
+      ),
+      hidden,
+    ].filter(Boolean));
     return;
   }
   const next = sameDay(selected, today) ? items.find((e) => e.start > now && !e.cancelled) : null;
   list.replaceChildren(...items.map((e) =>
-    card(e, now, openKeys, e === next && el('div', { class: 'pill next' }, `Next · ${inTime(e.start - now)}`))
-  ));
+    card(e, now, e === next && el('div', { class: 'pill next' }, `Next · ${inTime(e.start - now)}`))
+  ), ...[hidden].filter(Boolean));
 }
 
-function renderAgenda(openKeys) {
+// Places overlapping sessions side by side: each block gets a lane and a lane count.
+function layoutLanes(blocks) {
+  blocks.sort((a, b) => a.top - b.top || b.bottom - a.bottom);
+  let cluster = [];
+  let clusterEnd = -1;
+  const flush = () => {
+    const laneEnds = [];
+    for (const b of cluster) {
+      let lane = laneEnds.findIndex((end) => end <= b.top);
+      if (lane < 0) { lane = laneEnds.length; laneEnds.push(0); }
+      laneEnds[lane] = b.bottom;
+      b.lane = lane;
+    }
+    for (const b of cluster) b.lanes = laneEnds.length;
+    cluster = [];
+  };
+  for (const b of blocks) {
+    if (cluster.length && b.top >= clusterEnd) flush();
+    cluster.push(b);
+    clusterEnd = Math.max(clusterEnd, b.bottom);
+  }
+  if (cluster.length) flush();
+  return blocks;
+}
+
+function renderWeek() {
+  const now = new Date();
+  const today = startOfDay(now);
+  const week = startOfWeek(selected);
+  $('#week-label').textContent = `${fmtDate(week, 'short')} – ${fmtDate(addDays(week, 6), 'short')}`;
+  $('#this-week-btn').hidden = sameDay(week, startOfWeek(today));
+
+  // Weekdays always; Saturday and Sunday only when something's on.
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = addDays(week, i);
+    const items = eventsOn(d);
+    if (i < 5 || items.length) days.push({ d, items });
+  }
+
+  // Minutes from the start of `day`, clamped to that day.
+  const mins = (t, day) => (t >= addDays(day, 1) ? 1440 : t <= day ? 0 : t.getHours() * 60 + t.getMinutes());
+
+  let startH = 9;
+  let endH = 17;
+  let anyTimed = false;
+  for (const { d, items } of days) {
+    for (const e of items) {
+      if (e.allDay) continue;
+      anyTimed = true;
+      startH = Math.min(startH, Math.floor(mins(e.start, d) / 60));
+      endH = Math.max(endH, Math.ceil(mins(e.end, d) / 60));
+    }
+  }
+  const hours = endH - startH;
+  const px = (m) => ((m - startH * 60) / 60) * HOUR_PX;
+
+  const head = el('div', { class: 'wk-row wk-head' }, el('span'), days.map(({ d }) =>
+    el('button', {
+      type: 'button',
+      class: `wk-day${sameDay(d, today) ? ' today' : ''}`,
+      'aria-label': `Open ${d.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' })}`,
+      onclick: () => { selected = d; view = 'day'; store.set(K.view, view); render(); },
+    }, el('span', {}, d.toLocaleDateString([], { weekday: 'short' })), el('b', {}, d.getDate()))
+  ));
+
+  const anyAllDay = days.some(({ items }) => items.some((e) => e.allDay));
+  const allDayRow = anyAllDay && el('div', { class: 'wk-row wk-allday' },
+    el('span', { class: 'wk-gutter' }, 'all day'),
+    days.map(({ items }) => el('div', { class: 'wk-cell' }, items.filter((e) => e.allDay).map((e) =>
+      el('button', { type: 'button', class: 'wk-chip', style: `--h:${moduleHue(e.module)}`, onclick: () => openSession(e) }, shortName(e))
+    )))
+  );
+
+  const hourLabels = el('div', { class: 'wk-hours' }, Array.from({ length: hours }, (_, i) =>
+    el('span', { style: `top:${i * HOUR_PX}px` }, new Date(2000, 0, 1, startH + i).toLocaleTimeString([], { hour: 'numeric' }))
+  ));
+
+  const columns = days.map(({ d, items }) => {
+    const blocks = layoutLanes(items.filter((e) => !e.allDay).map((e) => {
+      const top = mins(e.start, d);
+      return { e, top, bottom: Math.max(mins(e.end, d), top + 20) };
+    }));
+    const col = el('div', { class: `wk-col${sameDay(d, today) ? ' today' : ''}` }, blocks.map(({ e, top, bottom, lane, lanes }) => {
+      const kind = kindOf(e);
+      return el('button', {
+        type: 'button',
+        class: `blk${e.cancelled ? ' cancelled' : ''}${e.end <= now ? ' past' : ''}`,
+        style: `--h:${moduleHue(e.module)};--lane:${lane};--lanes:${lanes};top:${px(top)}px;height:${Math.max(18, px(bottom) - px(top) - 2)}px`,
+        'aria-label': `${nameOf(e)}, ${timeRange(e)}${e.location ? `, ${e.location}` : ''}`,
+        onclick: () => openSession(e),
+      }, el('b', {}, shortName(e)), kind && el('small', {}, kind), e.location && el('small', {}, e.location));
+    }));
+    if (sameDay(d, today)) {
+      const m = now.getHours() * 60 + now.getMinutes();
+      if (m >= startH * 60 && m <= endH * 60) col.append(el('div', { class: 'now-line', style: `top:${px(m)}px` }));
+    }
+    return col;
+  });
+
+  const body = el('div', { class: 'wk-row wk-body', style: `height:${hours * HOUR_PX}px` }, hourLabels, columns);
+  const grid = el('div', { class: 'wk', style: `--cols:${days.length}` }, head, allDayRow, body);
+  const empty = !anyTimed && !anyAllDay && el('div', { class: 'empty' }, el('b', {}, 'Nothing scheduled this week'));
+  $('#week-grid').replaceChildren(...[empty, grid].filter(Boolean));
+}
+
+function renderAgenda() {
   const now = new Date();
   const today = startOfDay(now);
   const box = $('#agenda-list');
@@ -234,7 +457,7 @@ function renderAgenda(openKeys) {
     if (!items.length) continue;
     out.push(
       el('h3', { class: 'agenda-day' }, `${dayLabel(d)} · ${fmtDate(d, 'short')}`),
-      el('div', { class: 'list' }, items.map((e) => card(e, now, openKeys)))
+      el('div', { class: 'list' }, items.map((e) => card(e, now)))
     );
   }
   if (!out.length) {
@@ -264,6 +487,167 @@ function setBusy(on) {
   $('#load-btn').textContent = on ? 'Loading…' : 'Load timetable';
 }
 
+/* ---------- session details, notes & module editing ---------- */
+
+function openSession(e) {
+  currentSession = e;
+  fillSession();
+  $('#ses-note').value = prefs.notes[e.key] || '';
+  $('#ses-place-name').value = placeName(e.location);
+  $('#ses-place-name').placeholder = isPhysical(e.location) ? buildingOf(e.location) : '';
+  $('#ses-place-edit').open = false;
+  $('#session-dialog').showModal();
+}
+
+function fillSession() {
+  const e = currentSession;
+  if (!e) return;
+  $('#session-dialog').style.setProperty('--h', moduleHue(e.module));
+  $('#ses-title').textContent = nameOf(e);
+  const original = $('#ses-original');
+  original.textContent = e.title;
+  original.hidden = !prefs.names[e.module];
+  $('#ses-when').textContent = `${e.start.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' })} · ${timeRange(e)}${e.cancelled ? ' · Cancelled' : ''}`;
+  $('#ses-place').hidden = !e.location;
+  $('#ses-place-text').textContent = placeLabel(e.location);
+  $('#ses-place-edit').hidden = !isPhysical(e.location);
+  const typed = placeName(e.location);
+  const known = knownPlace(e.location);
+  const detail = $('#ses-place-detail');
+  detail.textContent = known && !typed
+    ? [known.room, `${known.building}, ${known.address}`].filter(Boolean).join(' · ')
+    : '';
+  detail.hidden = !detail.textContent;
+  showMap(known && !typed ? known : null);
+  $('#ses-place-summary').textContent = typed
+    ? `Building: ${typed} (change)`
+    : known ? 'Wrong building? Type the right one' : 'Unknown building? Type its full name';
+  const link = placeLink(e.location);
+  const directions = $('#ses-directions');
+  directions.hidden = !link;
+  if (link) {
+    directions.href = link;
+    directions.textContent = link.startsWith('https://www.google.com/maps') ? 'Directions' : 'Open link';
+  }
+  $('#ses-desc').textContent = e.description;
+  $('#ses-desc').hidden = !e.description;
+}
+
+// Small OpenStreetMap preview with a pin on the building. Needs internet; collapses when offline.
+function showMap(place) {
+  const frame = $('#ses-map');
+  if (!place || !navigator.onLine) {
+    frame.hidden = true;
+    frame.removeAttribute('src');
+    return;
+  }
+  const { lat, lng } = place;
+  const bbox = [lng - 0.0013, lat - 0.0005, lng + 0.0013, lat + 0.0005].map((n) => n.toFixed(5)).join(',');
+  const src = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
+  if (frame.getAttribute('src') !== src) frame.src = src;
+  frame.title = `Map showing ${place.building}`;
+  frame.hidden = false;
+}
+
+function saveNote() {
+  clearTimeout(noteTimer);
+  if (!currentSession) return;
+  const text = $('#ses-note').value.trim();
+  const key = currentSession.key;
+  if ((prefs.notes[key] || '') === text) return;
+  if (text) prefs.notes[key] = text;
+  else delete prefs.notes[key];
+  savePrefs();
+}
+
+function openModules() {
+  renderModules();
+  $('#modules-dialog').showModal();
+}
+
+function renderModules() {
+  const now = new Date();
+  const mods = new Map();
+  for (const e of events) {
+    let m = mods.get(e.module);
+    if (!m) mods.set(e.module, (m = { key: e.module, upcoming: 0 }));
+    if (e.start > now && !e.cancelled) m.upcoming++;
+  }
+  const label = (key) => prefs.names[key] || key;
+  const sorted = [...mods.values()].sort((a, b) => label(a.key).localeCompare(label(b.key)));
+  const box = $('#modules-list');
+  if (!sorted.length) {
+    box.replaceChildren(el('p', { class: 'hint' }, 'No modules yet.'));
+    return;
+  }
+  box.replaceChildren(...sorted.map(({ key, upcoming }) => {
+    const shown = !prefs.hidden[key];
+    return el('div', { class: `mod-row${shown ? '' : ' off'}` },
+      el('button', { type: 'button', class: 'mod-main', onclick: () => openModule(key) },
+        el('span', { class: 'mod-swatch', style: `--h:${moduleHue(key)}`, 'aria-hidden': 'true' }),
+        el('span', { class: 'mod-text' },
+          el('b', {}, label(key)),
+          el('small', {}, [prefs.names[key] ? key : '', `${upcoming} upcoming`].filter(Boolean).join(' · '))
+        )
+      ),
+      el('label', { class: 'switch' },
+        el('input', {
+          type: 'checkbox',
+          checked: shown,
+          'aria-label': `Show ${label(key)}`,
+          onchange: (ev) => {
+            if (ev.target.checked) delete prefs.hidden[key];
+            else prefs.hidden[key] = true;
+            savePrefs();
+            afterModuleChange();
+          },
+        }),
+        el('span', { class: 'slider', 'aria-hidden': 'true' })
+      )
+    );
+  }));
+}
+
+function openModule(key) {
+  editingModule = key;
+  const sample = events.find((e) => e.module === key);
+  const example = $('#mod-example');
+  example.textContent = sample && sample.title !== key ? `For sessions like “${sample.title}”.` : '';
+  example.hidden = !example.textContent;
+  $('#mod-name').value = prefs.names[key] || '';
+  $('#mod-name').placeholder = key;
+  $('#mod-show').checked = !prefs.hidden[key];
+  renderSwatches();
+  $('#module-dialog').showModal();
+}
+
+function renderSwatches() {
+  const key = editingModule;
+  const current = prefs.colours[key];
+  const options = [{ hue: hueFor(key), auto: true }, ...PALETTE.map((hue) => ({ hue }))];
+  $('#mod-swatches').replaceChildren(...options.map((o) => el('button', {
+    type: 'button',
+    class: 'swatch',
+    style: `--h:${o.hue}`,
+    role: 'radio',
+    'aria-checked': String(o.auto ? current == null : current === o.hue),
+    'aria-label': o.auto ? 'Automatic colour' : `Colour ${PALETTE.indexOf(o.hue) + 1}`,
+    onclick: () => {
+      if (o.auto) delete prefs.colours[key];
+      else prefs.colours[key] = o.hue;
+      savePrefs();
+      renderSwatches();
+      afterModuleChange();
+    },
+  }, o.auto ? 'A' : '')));
+}
+
+function afterModuleChange() {
+  render();
+  if ($('#modules-dialog').open) renderModules();
+  if ($('#session-dialog').open) fillSession();
+}
+
 /* ---------- loading data ---------- */
 
 class AppError extends Error {
@@ -285,6 +669,7 @@ function applyCalendar(text) {
   const cal = parseICS(text);
   const now = new Date();
   events = expandEvents(cal.events, addDays(now, -200), addDays(now, 400));
+  for (const e of events) e.module = moduleKey(e.title);
   calName = cal.name || '';
 }
 
@@ -445,7 +830,9 @@ async function showQR(raw) {
 function openSettings() {
   $('#set-link').value = store.get(K.url) || '';
   $('#set-relay').value = store.get(K.relay) || '';
+  $('#set-area').value = prefs.mapsArea;
   $('#set-clear').hidden = store.get(K.ics) == null;
+  $('#set-modules').hidden = !events.length;
   showError('#settings-error', null);
   $('#settings').showModal();
 }
@@ -464,6 +851,17 @@ function saveRelay() {
   }
 }
 
+function onSwipe(target, fn) {
+  let sx = 0;
+  let sy = 0;
+  target.addEventListener('touchstart', (e) => { sx = e.changedTouches[0].clientX; sy = e.changedTouches[0].clientY; }, { passive: true });
+  target.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - sx;
+    const dy = e.changedTouches[0].clientY - sy;
+    if (Math.abs(dx) > 60 && Math.abs(dy) < 45) fn(dx < 0 ? 1 : -1);
+  }, { passive: true });
+}
+
 function wire() {
   $('#settings-btn').addEventListener('click', openSettings);
   $('#refresh-btn').addEventListener('click', () => refresh());
@@ -475,25 +873,22 @@ function wire() {
       render();
     });
   }
-  $('#prev-week').addEventListener('click', () => { selected = addDays(selected, -7); render(); });
-  $('#next-week').addEventListener('click', () => { selected = addDays(selected, 7); render(); });
+  const move = (days) => { selected = addDays(selected, days); render(); };
+  $('#prev-week').addEventListener('click', () => move(-7));
+  $('#next-week').addEventListener('click', () => move(7));
+  $('#wk-prev').addEventListener('click', () => move(-7));
+  $('#wk-next').addEventListener('click', () => move(7));
   $('#today-btn').addEventListener('click', () => { selected = startOfDay(new Date()); render(); });
+  $('#this-week-btn').addEventListener('click', () => { selected = startOfDay(new Date()); render(); });
 
-  // Swipe left/right on the day view to change day.
-  const dayView = $('#day-view');
-  let sx = 0;
-  let sy = 0;
-  dayView.addEventListener('touchstart', (e) => { sx = e.changedTouches[0].clientX; sy = e.changedTouches[0].clientY; }, { passive: true });
-  dayView.addEventListener('touchend', (e) => {
-    const dx = e.changedTouches[0].clientX - sx;
-    const dy = e.changedTouches[0].clientY - sy;
-    if (Math.abs(dx) > 60 && Math.abs(dy) < 45) { selected = addDays(selected, dx < 0 ? 1 : -1); render(); }
-  }, { passive: true });
+  onSwipe($('#day-view'), (dir) => move(dir));
+  onSwipe($('#week-view'), (dir) => move(dir * 7));
   document.addEventListener('keydown', (e) => {
-    if ($('#main-view').hidden || view !== 'day' || document.querySelector('dialog[open]')) return;
+    if ($('#main-view').hidden || view === 'agenda' || document.querySelector('dialog[open]')) return;
     if (e.target.matches?.('input, textarea')) return;
-    if (e.key === 'ArrowLeft') { selected = addDays(selected, -1); render(); }
-    if (e.key === 'ArrowRight') { selected = addDays(selected, 1); render(); }
+    const step = view === 'week' ? 7 : 1;
+    if (e.key === 'ArrowLeft') move(-step);
+    if (e.key === 'ArrowRight') move(step);
   });
 
   // Setup screen
@@ -541,12 +936,15 @@ function wire() {
     showQR($('#set-link').value || store.get(K.url));
   });
   $('#set-import').addEventListener('click', () => $('#file-input').click());
+  $('#set-modules').addEventListener('click', openModules);
+  $('#set-area').addEventListener('input', (e) => { prefs.mapsArea = e.target.value.trim(); savePrefs(); });
   $('#set-relay').addEventListener('change', saveRelay);
   $('#set-clear').addEventListener('click', () => {
-    if (!confirm('Remove your timetable and link from this device?')) return;
-    for (const k of [K.url, K.ics, K.updated, K.source]) store.set(k, null);
+    if (!confirm('Remove your timetable, link, notes and module settings from this device?')) return;
+    for (const k of [K.url, K.ics, K.updated, K.source, K.prefs]) store.set(k, null);
     events = [];
     calName = '';
+    prefs = emptyPrefs();
     $('#link-input').value = '';
     $('#settings').close();
     render();
@@ -567,6 +965,47 @@ function wire() {
       toast(e.code === 'not-calendar' ? "That file isn't a calendar (.ics) file." : "Couldn't read that file.");
     }
   });
+
+  // Session details
+  $('#ses-note').addEventListener('input', () => { clearTimeout(noteTimer); noteTimer = setTimeout(saveNote, 400); });
+  $('#session-dialog').addEventListener('close', () => { saveNote(); currentSession = null; showMap(null); render(); });
+  $('#ses-module').addEventListener('click', () => { if (currentSession) openModule(currentSession.module); });
+  $('#ses-place-name').addEventListener('input', (ev) => {
+    if (!currentSession || !isPhysical(currentSession.location)) return;
+    const building = buildingOf(currentSession.location);
+    const name = ev.target.value.trim();
+    if (name) prefs.places[building] = name;
+    else delete prefs.places[building];
+    savePrefs();
+    fillSession();
+    render();
+  });
+
+  // Module editor
+  $('#mod-name').addEventListener('input', (e) => {
+    const name = e.target.value.trim();
+    if (name) prefs.names[editingModule] = name;
+    else delete prefs.names[editingModule];
+    savePrefs();
+    afterModuleChange();
+  });
+  $('#mod-show').addEventListener('change', (e) => {
+    if (e.target.checked) delete prefs.hidden[editingModule];
+    else prefs.hidden[editingModule] = true;
+    savePrefs();
+    afterModuleChange();
+  });
+  $('#mod-reset').addEventListener('click', () => {
+    delete prefs.names[editingModule];
+    delete prefs.colours[editingModule];
+    delete prefs.hidden[editingModule];
+    savePrefs();
+    $('#mod-name').value = '';
+    $('#mod-show').checked = true;
+    renderSwatches();
+    afterModuleChange();
+  });
+  $('#module-dialog').addEventListener('close', () => { editingModule = null; });
 
   for (const btn of document.querySelectorAll('[data-close]')) {
     btn.addEventListener('click', () => btn.closest('dialog').close());

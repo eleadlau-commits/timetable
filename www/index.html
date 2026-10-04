@@ -35,6 +35,7 @@
   <main id="main-view" hidden>
     <div class="seg" role="tablist" aria-label="View">
       <button role="tab" type="button" data-view="day" aria-selected="true">Day</button>
+      <button role="tab" type="button" data-view="week" aria-selected="false">Week</button>
       <button role="tab" type="button" data-view="agenda" aria-selected="false">Upcoming</button>
     </div>
 
@@ -53,6 +54,20 @@
         <button class="link-btn" id="today-btn" type="button">Back to today</button>
       </div>
       <div class="list" id="day-list"></div>
+    </section>
+
+    <section id="week-view" hidden>
+      <div class="weekhead">
+        <button class="icon-btn ghost" id="wk-prev" type="button" aria-label="Previous week">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h2 id="week-label"></h2>
+        <button class="link-btn" id="this-week-btn" type="button">This week</button>
+        <button class="icon-btn ghost" id="wk-next" type="button" aria-label="Next week">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      <div id="week-grid"></div>
     </section>
 
     <section id="agenda-view" hidden>
@@ -124,6 +139,11 @@
       <button class="btn" id="set-qr" type="button" data-web-only>Send to phone</button>
     </div>
     <button class="btn" id="set-import" type="button">Import .ics file</button>
+    <button class="btn" id="set-modules" type="button">Modules: colours, names and hiding</button>
+
+    <label class="label" for="set-area">Area for map searches</label>
+    <input id="set-area" type="text" autocomplete="off" placeholder="e.g. your university's name and town">
+    <p class="hint small">Added to room names when you tap a location, so Maps finds the right building.</p>
 
     <details class="advanced" data-web-only>
       <summary>Advanced: personal relay</summary>
@@ -146,6 +166,71 @@
     <p class="hint">Point your phone's camera at this code. It opens the app with your link filled in.</p>
     <div class="qr" id="qr"></div>
     <p class="hint small">Only scan this with your own phone, because the code contains your private timetable link.</p>
+  </div>
+</dialog>
+
+<dialog id="session-dialog">
+  <div class="dialog-body">
+    <div class="dialog-head">
+      <h2 id="ses-title"></h2>
+      <button class="icon-btn ghost" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="ses-original" id="ses-original" hidden></p>
+    <div class="ses-row">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span id="ses-when"></span>
+    </div>
+    <div class="ses-row" id="ses-place">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+      <span id="ses-place-text"></span>
+      <a class="btn small" id="ses-directions" target="_blank" rel="noopener">Directions</a>
+    </div>
+    <p class="ses-place-detail" id="ses-place-detail" hidden></p>
+    <iframe class="ses-map" id="ses-map" title="Map" loading="lazy" referrerpolicy="no-referrer" hidden></iframe>
+    <details class="place-edit" id="ses-place-edit">
+      <summary id="ses-place-summary">Unknown building? Type its full name</summary>
+      <label class="label" for="ses-place-name">Full building name</label>
+      <input id="ses-place-name" type="text" autocomplete="off">
+      <p class="hint small">Used for directions and shown on every session in this building. Add the town if Maps still finds the wrong place.</p>
+    </details>
+    <p class="ses-desc" id="ses-desc"></p>
+    <label class="label" for="ses-note">Your notes</label>
+    <textarea id="ses-note" rows="3" placeholder="e.g. bring laptop, problem set 2 due"></textarea>
+    <p class="hint small">Saved on this device as you type.</p>
+    <button class="btn" id="ses-module" type="button">Colour, name or hide this module</button>
+  </div>
+</dialog>
+
+<dialog id="modules-dialog">
+  <div class="dialog-body">
+    <div class="dialog-head">
+      <h2>Modules</h2>
+      <button class="icon-btn ghost" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="hint">Tap a module to rename it or change its colour. Switch one off to hide its sessions.</p>
+    <div class="mod-list" id="modules-list"></div>
+  </div>
+</dialog>
+
+<dialog id="module-dialog">
+  <div class="dialog-body">
+    <div class="dialog-head">
+      <h2>Edit module</h2>
+      <button class="icon-btn ghost" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="hint" id="mod-example"></p>
+    <label class="label" for="mod-name">Display name</label>
+    <input id="mod-name" type="text" autocomplete="off">
+    <div class="label">Colour</div>
+    <div class="swatches" id="mod-swatches" role="radiogroup" aria-label="Colour"></div>
+    <label class="check"><input type="checkbox" id="mod-show"> Show in my timetable</label>
+    <button class="btn danger" id="mod-reset" type="button">Reset to default</button>
   </div>
 </dialog>
 

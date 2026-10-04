@@ -2,13 +2,14 @@
 // The timetable data is kept by the app in localStorage, and requests for it
 // (to the university or the relay) always go straight to the network.
 
-const CACHE = 'timetable-v1';
+const CACHE = 'timetable-v4';
 const SHELL = [
   './',
   './index.html',
   './styles.css',
   './app.js',
   './ics.js',
+  './places.js',
   './manifest.webmanifest',
   './icons/icon-192.png',
   './icons/icon-512.png',
