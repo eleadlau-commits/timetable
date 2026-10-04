@@ -2,6 +2,9 @@
   "appId": "io.github.timetable.app",
   "appName": "Timetable",
   "webDir": "www",
+  "server": {
+    "allowNavigation": ["www.openstreetmap.org"]
+  },
   "android": {
     "adjustMarginsForEdgeToEdge": "auto"
   },
