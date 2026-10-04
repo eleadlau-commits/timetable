@@ -403,7 +403,7 @@ a.meta span { text-decoration: underline; text-decoration-color: var(--line); te
 
 .label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
 .field { display: flex; gap: 8px; }
-input[type="url"], input[type="text"], textarea {
+input[type="url"], input[type="text"], input[type="datetime-local"], select, textarea {
   flex: 1;
   width: 100%;
   min-width: 0;
@@ -416,7 +416,7 @@ input[type="url"], input[type="text"], textarea {
   font-size: 16px; /* prevents iOS zoom on focus */
 }
 textarea { min-height: 84px; resize: vertical; line-height: 1.4; }
-input[type="url"]:focus, input[type="text"]:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
+input[type="url"]:focus, input[type="text"]:focus, input[type="datetime-local"]:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: transparent; }
 
 .btn {
   padding: 12px 16px;
@@ -559,6 +559,38 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; }
 .advanced summary { cursor: pointer; font-weight: 600; font-size: 15px; padding: 4px 0; }
 .advanced .hint { margin: 8px 0 10px; }
+
+.dialog-body .group { display: grid; gap: 6px; }
+.dialog-body .group .label { margin: 6px 0 0; }
+.dialog-body .group .label:first-child { margin-top: 0; }
+.dialog-body .group .hint.small { margin: 0; }
+.advanced .group { margin-top: 10px; }
+
+/* Reminders */
+.sub-head { font-size: 16px; margin-top: 8px; }
+.rem-list { display: grid; }
+.rem-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.rem-row:last-child { border-bottom: 0; }
+.rem-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rem-text b { font-weight: 600; overflow-wrap: anywhere; }
+.rem-text small { font-size: 13px; color: var(--muted); }
+.rem-row svg { width: 18px; height: 18px; }
+
+/* Campus card */
+.card-panel { display: grid; gap: 12px; }
+/* Always black on white, even in dark mode, so scanners can read it. */
+.card-code { padding: 18px 12px; border-radius: 12px; background: #fff; }
+.card-code svg { display: block; width: 100%; height: 130px; stroke: none; fill: initial; }
+.card-code .hint { color: #5f6678; text-align: center; }
+.card-number {
+  text-align: center;
+  font: 600 22px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.12em;
+  overflow-wrap: anywhere;
+}
+.dialog-body .card-type { margin: -10px 0 0; text-align: center; }
+.card-scan { display: grid; gap: 10px; }
+.card-scan video { width: 100%; max-height: 50vh; border-radius: 12px; background: #000; object-fit: cover; }
 
 .qr {
   justify-self: center;

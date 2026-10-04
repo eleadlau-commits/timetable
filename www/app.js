@@ -1,5 +1,7 @@
+
 import { parseICS, expandEvents } from './ics.js';
 import { lookupPlace } from './places.js';
+import { FORMATS, drawableFormat, checkBarcode, barcodeSVG } from './barcode.js';
 
 const K = {
   url: 'tt.url',
@@ -16,6 +18,8 @@ const HOUR_PX = 52; // keep in sync with .wk-col background in styles.css
 const VIEWS = ['day', 'week', 'agenda'];
 const PALETTE = [0, 22, 42, 95, 140, 172, 198, 222, 255, 285, 320];
 const QR_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+// Fallback barcode reader for phones whose browser has no built-in BarcodeDetector.
+const ZXING_LIB = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
 // True inside the Android app. There, Capacitor routes fetch() through native code,
 // so the university server can't block it and the relay/QR options aren't needed.
 const NATIVE = !!window.Capacitor?.isNativePlatform?.();
@@ -50,7 +54,14 @@ let noteTimer;
 /* ---------- personal settings: hidden modules, names, colours, notes ---------- */
 
 function emptyPrefs() {
-  return { hidden: {}, names: {}, colours: {}, notes: {}, places: {}, mapsArea: '' };
+  return {
+    hidden: {}, names: {}, colours: {}, notes: {}, places: {}, mapsArea: '',
+    // lead: minutes before every class (0 = off); sessions: per-session override by session key;
+    // custom: the user's own one-off reminders, { id, title, at (ms) }.
+    reminders: { lead: 0, sessions: {}, custom: [] },
+    // The scanned campus card barcode, { format, value }.
+    card: null,
+  };
 }
 
 function loadPrefs() {
@@ -123,6 +134,7 @@ function el(tag, attrs = {}, ...kids) {
 const ICONS = {
   pin: '<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
   note: '<path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/>',
+  trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
 };
 function icon(name) {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -283,6 +295,7 @@ function render() {
   $('#refresh-btn').hidden = showSetup || !store.get(K.url);
   $('#cal-name').textContent = !showSetup && calName ? calName : 'Timetable';
   renderStatus();
+  tickReminders();
   if (showSetup) return;
 
   for (const b of document.querySelectorAll('.seg button')) b.setAttribute('aria-selected', String(b.dataset.view === view));
@@ -496,6 +509,8 @@ function openSession(e) {
   $('#ses-place-name').value = placeName(e.location);
   $('#ses-place-name').placeholder = isPhysical(e.location) ? buildingOf(e.location) : '';
   $('#ses-place-edit').open = false;
+  $('#ses-remind-wrap').hidden = e.allDay || e.cancelled || e.start <= new Date();
+  $('#ses-remind').value = String(prefs.reminders.sessions[e.key] ?? 'default');
   $('#session-dialog').showModal();
 }
 
@@ -646,6 +661,364 @@ function afterModuleChange() {
   render();
   if ($('#modules-dialog').open) renderModules();
   if ($('#session-dialog').open) fillSession();
+}
+
+/* ---------- reminders ---------- */
+
+const LEADS = [
+  [0, 'Off'], [5, '5 minutes before'], [10, '10 minutes before'], [15, '15 minutes before'],
+  [30, '30 minutes before'], [60, '1 hour before'], [120, '2 hours before'],
+];
+const MAX_SCHEDULED = 60; // Android keeps the next reminders only; the list is rebuilt as time passes.
+// Only present in the Android app. The web version can remind you only while it's open.
+const Notifier = window.Capacitor?.Plugins?.LocalNotifications;
+let syncChain = Promise.resolve();
+let syncedSig = '';
+let channelMade = false;
+const firedWeb = new Set();
+
+// Minutes before a session that its reminder goes off (0 = none): its own setting, else the general one.
+const leadFor = (e) => prefs.reminders.sessions[e.key] ?? prefs.reminders.lead;
+
+// Every reminder due after `from`, soonest first: class reminders, then the user's own.
+function reminderList(from) {
+  const out = [];
+  for (const e of events) {
+    if (!isShown(e) || e.cancelled || e.allDay) continue;
+    const lead = leadFor(e);
+    const at = new Date(e.start.getTime() - lead * 60000);
+    if (!lead || at <= from) continue;
+    out.push({
+      id: `s:${e.key}`,
+      at,
+      title: nameOf(e),
+      body: [`Starts at ${fmtTime(e.start)}`, e.location && placeLabel(e.location)].filter(Boolean).join(' · '),
+    });
+  }
+  for (const r of prefs.reminders.custom) {
+    const at = new Date(r.at);
+    if (at > from) out.push({ id: `c:${r.id}`, at, title: r.title, body: 'Reminder' });
+  }
+  return out.sort((a, b) => a.at - b.at).slice(0, MAX_SCHEDULED);
+}
+
+function notificationId(str) {
+  let h = 7;
+  for (const c of str) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return (h % 2147483646) + 1;
+}
+
+// Replaces the phone's scheduled notifications with the current list (Android app only).
+async function doSync() {
+  if (!Notifier) return;
+  try {
+    const granted = (await Notifier.checkPermissions()).display === 'granted';
+    const list = granted ? reminderList(new Date()) : [];
+    const sig = list.map((r) => `${r.id}@${+r.at}|${r.title}|${r.body}`).join('\n');
+    if (sig === syncedSig) return;
+    if (!channelMade) {
+      await Notifier.createChannel({ id: 'reminders', name: 'Reminders', description: 'Class and personal reminders', importance: 4, visibility: 1 }).catch(() => {});
+      channelMade = true;
+    }
+    const { notifications } = await Notifier.getPending();
+    if (notifications.length) await Notifier.cancel({ notifications: notifications.map(({ id }) => ({ id })) });
+    if (list.length) {
+      await Notifier.schedule({
+        notifications: list.map((r) => ({
+          id: notificationId(r.id),
+          title: r.title,
+          body: r.body,
+          channelId: 'reminders',
+          schedule: { at: r.at, allowWhileIdle: true },
+        })),
+      });
+    }
+    syncedSig = sig;
+  } catch { /* try again on the next render */ }
+}
+
+function syncReminders() {
+  syncChain = syncChain.then(doSync);
+}
+
+function showReminderWeb(r) {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    try { new Notification(r.title, { body: r.body, icon: 'icons/icon-192.png' }); return; } catch { /* use the toast */ }
+  }
+  toast(`${r.title} · ${r.body}`);
+}
+
+// Web version: show reminders that came due in the last few minutes while the app was open.
+function checkWebReminders() {
+  if (Notifier) return;
+  const now = Date.now();
+  for (const r of reminderList(new Date(now - 3 * 60000))) {
+    const id = `${r.id}@${+r.at}`;
+    if (+r.at > now || firedWeb.has(id)) continue;
+    firedWeb.add(id);
+    showReminderWeb(r);
+  }
+}
+
+function tickReminders() {
+  syncReminders();
+  checkWebReminders();
+}
+
+async function allowNotifications() {
+  if (Notifier) {
+    try {
+      let p = await Notifier.checkPermissions();
+      if (p.display !== 'granted') p = await Notifier.requestPermissions();
+      if (p.display === 'granted') { syncReminders(); return true; }
+    } catch { /* fall through to the message */ }
+    toast('Notifications are blocked. Turn them on in Android Settings → Apps → Timetable → Notifications.');
+    return false;
+  }
+  if ('Notification' in window && Notification.permission === 'default') {
+    try { await Notification.requestPermission(); } catch { /* the toast fallback still works */ }
+  }
+  return true;
+}
+
+function saveReminders() {
+  savePrefs();
+  syncReminders();
+}
+
+function toLocalInput(d) {
+  const p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+function openReminders() {
+  const now = Date.now();
+  const kept = prefs.reminders.custom.filter((r) => r.at > now);
+  if (kept.length !== prefs.reminders.custom.length) { prefs.reminders.custom = kept; saveReminders(); }
+  $('#rem-lead').value = String(prefs.reminders.lead);
+  $('#rem-title').value = '';
+  $('#rem-when').value = toLocalInput(new Date(Math.ceil((now + 3600000) / 3600000) * 3600000));
+  showError('#rem-error', null);
+  renderReminders();
+  $('#reminders-dialog').showModal();
+}
+
+function renderReminders() {
+  const list = [...prefs.reminders.custom].sort((a, b) => a.at - b.at);
+  $('#rem-list').replaceChildren(...(list.length
+    ? list.map((r) => el('div', { class: 'rem-row' },
+        el('div', { class: 'rem-text' },
+          el('b', {}, r.title),
+          el('small', {}, new Date(r.at).toLocaleString([], { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }))),
+        el('button', {
+          type: 'button',
+          class: 'icon-btn ghost',
+          'aria-label': `Delete reminder ${r.title}`,
+          onclick: () => {
+            prefs.reminders.custom = prefs.reminders.custom.filter((x) => x.id !== r.id);
+            saveReminders();
+            renderReminders();
+          },
+        }, icon('trash'))))
+    : [el('p', { class: 'hint small' }, 'No personal reminders yet.')]));
+}
+
+async function addReminder() {
+  const title = $('#rem-title').value.trim();
+  const at = new Date($('#rem-when').value);
+  if (!title) return showError('#rem-error', 'Type what you want to be reminded about.');
+  if (Number.isNaN(+at)) return showError('#rem-error', 'Pick a date and time.');
+  if (at <= new Date()) return showError('#rem-error', 'That time has already passed.');
+  showError('#rem-error', null);
+  prefs.reminders.custom.push({ id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), title, at: +at });
+  saveReminders();
+  $('#rem-title').value = '';
+  renderReminders();
+  await allowNotifications();
+  toast(`Reminder set for ${at.toLocaleString([], { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}`);
+}
+
+/* ---------- campus card ---------- */
+
+let replacingCard = false;
+let scan = null; // { stream, timer } while the camera is looking for a barcode
+let wakeLock = null;
+let detector; // the browser's BarcodeDetector, or null once we know to use the ZXing fallback
+let zxing = null;
+
+// Barcodes found in a video frame, image or canvas: [{ value, format }].
+async function readCodes(source) {
+  if (detector === undefined) {
+    try { detector = 'BarcodeDetector' in window ? new window.BarcodeDetector() : null; } catch { detector = null; }
+  }
+  if (detector) {
+    try {
+      return (await detector.detect(source)).map((b) => ({ value: b.rawValue, format: b.format }));
+    } catch { detector = null; }
+  }
+  if (!window.ZXing) await loadScript(ZXING_LIB);
+  const Z = window.ZXing;
+  if (!zxing) {
+    const hints = new Map();
+    hints.set(Z.DecodeHintType.POSSIBLE_FORMATS, [
+      Z.BarcodeFormat.CODE_128, Z.BarcodeFormat.CODE_39, Z.BarcodeFormat.CODABAR,
+      Z.BarcodeFormat.ITF, Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.QR_CODE,
+    ]);
+    hints.set(Z.DecodeHintType.TRY_HARDER, true);
+    zxing = { reader: new Z.MultiFormatReader(), hints, canvas: document.createElement('canvas') };
+  }
+  const w = source.videoWidth || source.width;
+  const h = source.videoHeight || source.height;
+  const scale = Math.min(1, 1280 / w);
+  zxing.canvas.width = Math.round(w * scale);
+  zxing.canvas.height = Math.round(h * scale);
+  zxing.canvas.getContext('2d').drawImage(source, 0, 0, zxing.canvas.width, zxing.canvas.height);
+  try {
+    const bitmap = new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(zxing.canvas)));
+    const r = zxing.reader.decode(bitmap, zxing.hints);
+    return [{ value: r.getText(), format: Z.BarcodeFormat[r.getBarcodeFormat()] }];
+  } catch {
+    return []; // nothing readable in this frame
+  }
+}
+
+// Saves the first barcode we can redraw. Returns true if one was saved.
+function acceptCodes(codes) {
+  for (const c of codes) {
+    const format = drawableFormat(c.format);
+    if (!format || !c.value) continue;
+    try {
+      checkBarcode(format, c.value);
+    } catch (e) {
+      showError('#card-error', e.message);
+      continue;
+    }
+    saveCard(format, c.value);
+    return true;
+  }
+  if (codes.length) {
+    const name = String(codes[0].format).replace(/_/g, ' ').toLowerCase();
+    showError('#card-error', `That's a ${name} barcode, which this app can't redraw. Keep looking for the long thin barcode, or type the number instead.`);
+  }
+  return false;
+}
+
+function saveCard(format, value) {
+  // Code 39 and Codabar only have capital letters; lower case typed in means the same thing.
+  prefs.card = { format, value: format === 'code_128' ? value : value.toUpperCase() };
+  savePrefs();
+  stopScan();
+  replacingCard = false;
+  showError('#card-error', null);
+  renderCard();
+  toast('Campus card saved');
+}
+
+async function startScan() {
+  showError('#card-error', null);
+  if (!navigator.mediaDevices?.getUserMedia) {
+    showError('#card-error', "This device can't open the camera here. Choose a photo of the card instead.");
+    return;
+  }
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+  } catch {
+    showError('#card-error', "Couldn't open the camera. Allow camera access for this app, or choose a photo of the card instead.");
+    return;
+  }
+  const video = $('#card-video');
+  video.srcObject = stream;
+  await video.play().catch(() => {});
+  $('#card-scan').hidden = false;
+  const s = { stream, timer: 0 };
+  scan = s;
+  const tick = async () => {
+    if (scan !== s) return;
+    if (video.readyState >= 2) {
+      try {
+        if (acceptCodes(await readCodes(video))) return;
+      } catch {
+        if (scan === s) {
+          stopScan();
+          showError('#card-error', "Couldn't start the barcode reader. It needs an internet connection the first time. You can also choose a photo or type the number.");
+        }
+        return;
+      }
+    }
+    if (scan === s) s.timer = setTimeout(tick, 250);
+  };
+  tick();
+}
+
+function stopScan() {
+  if (scan) {
+    clearTimeout(scan.timer);
+    for (const t of scan.stream.getTracks()) t.stop();
+    scan = null;
+  }
+  const video = $('#card-video');
+  video.srcObject = null;
+  $('#card-scan').hidden = true;
+}
+
+async function readPhoto(file) {
+  showError('#card-error', null);
+  try {
+    const bitmap = await createImageBitmap(file);
+    const codes = await readCodes(bitmap);
+    bitmap.close?.();
+    if (!acceptCodes(codes) && !codes.length) {
+      showError('#card-error', "Couldn't find a barcode in that photo. Take it closer, in good light, with the barcode filling most of the picture. Or type the number instead.");
+    }
+  } catch {
+    showError('#card-error', "Couldn't read barcodes on this device. Check your internet connection and try again, or type the number instead.");
+  }
+}
+
+function saveTypedCard() {
+  const format = $('#card-format').value;
+  const value = $('#card-manual').value.trim();
+  try {
+    checkBarcode(format, value);
+  } catch (e) {
+    showError('#card-error', e.message);
+    return;
+  }
+  saveCard(format, value);
+}
+
+async function keepAwake(on) {
+  try {
+    if (on && !wakeLock) wakeLock = await navigator.wakeLock?.request('screen');
+    else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch { wakeLock = null; }
+}
+
+function renderCard() {
+  const c = prefs.card;
+  const showing = !!c && !replacingCard;
+  $('#card-show').hidden = !showing;
+  $('#card-add').hidden = showing;
+  $('#card-back').hidden = !c;
+  if (!showing) return;
+  const box = $('#card-code');
+  try {
+    box.replaceChildren(barcodeSVG(c.format, c.value));
+  } catch {
+    box.replaceChildren(el('p', { class: 'hint' }, "This barcode can't be drawn. Scan the card again."));
+  }
+  // Codabar's start/stop letters (A–D) aren't part of the printed number.
+  $('#card-number').textContent = c.format === 'codabar' ? c.value.replace(/^[A-D](.+)[A-D]$/, '$1') : c.value;
+  $('#card-type').textContent = FORMATS[c.format] || '';
+}
+
+function openCard() {
+  replacingCard = false;
+  showError('#card-error', null);
+  renderCard();
+  $('#card-dialog').showModal();
+  keepAwake(true);
 }
 
 /* ---------- loading data ---------- */
@@ -940,11 +1313,12 @@ function wire() {
   $('#set-area').addEventListener('input', (e) => { prefs.mapsArea = e.target.value.trim(); savePrefs(); });
   $('#set-relay').addEventListener('change', saveRelay);
   $('#set-clear').addEventListener('click', () => {
-    if (!confirm('Remove your timetable, link, notes and module settings from this device?')) return;
+    if (!confirm('Remove your timetable, link, notes and module settings from this device? Your campus card stays.')) return;
     for (const k of [K.url, K.ics, K.updated, K.source, K.prefs]) store.set(k, null);
     events = [];
     calName = '';
-    prefs = emptyPrefs();
+    prefs = { ...emptyPrefs(), card: prefs.card };
+    if (prefs.card) savePrefs();
     $('#link-input').value = '';
     $('#settings').close();
     render();
@@ -1006,6 +1380,64 @@ function wire() {
     afterModuleChange();
   });
   $('#module-dialog').addEventListener('close', () => { editingModule = null; });
+
+  // Reminders
+  const fillOptions = (select, options) => select.replaceChildren(...options.map(([v, label]) => el('option', { value: v }, label)));
+  fillOptions($('#rem-lead'), LEADS);
+  fillOptions($('#ses-remind'), [['default', 'Same as my other classes'], ...LEADS.map(([v, label]) => [v, v ? label : 'No reminder'])]);
+  $('#reminders-btn').addEventListener('click', openReminders);
+  $('#rem-lead').addEventListener('change', async (e) => {
+    prefs.reminders.lead = +e.target.value;
+    saveReminders();
+    if (prefs.reminders.lead) await allowNotifications();
+  });
+  $('#rem-add').addEventListener('click', addReminder);
+  $('#rem-title').addEventListener('keydown', (e) => { if (e.key === 'Enter') addReminder(); });
+  $('#ses-remind').addEventListener('change', async (e) => {
+    if (!currentSession) return;
+    const key = currentSession.key;
+    if (e.target.value === 'default') delete prefs.reminders.sessions[key];
+    else prefs.reminders.sessions[key] = +e.target.value;
+    saveReminders();
+    if (+e.target.value) await allowNotifications();
+  });
+
+  // Campus card
+  $('#card-btn').addEventListener('click', openCard);
+  $('#card-camera').addEventListener('click', startScan);
+  $('#card-stop').addEventListener('click', stopScan);
+  $('#card-photo').addEventListener('click', () => $('#card-photo-input').click());
+  $('#card-photo-input').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (file) readPhoto(file);
+  });
+  $('#card-save').addEventListener('click', saveTypedCard);
+  $('#card-manual').addEventListener('keydown', (e) => { if (e.key === 'Enter') saveTypedCard(); });
+  $('#card-replace').addEventListener('click', () => {
+    replacingCard = true;
+    showError('#card-error', null);
+    renderCard();
+  });
+  $('#card-back').addEventListener('click', () => {
+    stopScan();
+    replacingCard = false;
+    showError('#card-error', null);
+    renderCard();
+  });
+  $('#card-remove').addEventListener('click', () => {
+    if (!confirm('Remove the campus card from this phone?')) return;
+    prefs.card = null;
+    savePrefs();
+    replacingCard = false;
+    renderCard();
+  });
+  $('#card-dialog').addEventListener('close', () => {
+    stopScan();
+    keepAwake(false);
+    replacingCard = false;
+  });
+  for (const [v, label] of Object.entries(FORMATS)) $('#card-format').append(el('option', { value: v }, label));
 
   for (const btn of document.querySelectorAll('[data-close]')) {
     btn.addEventListener('click', () => btn.closest('dialog').close());

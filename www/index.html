@@ -27,6 +27,12 @@
     <button class="icon-btn" id="refresh-btn" type="button" aria-label="Refresh timetable" hidden>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/></svg>
     </button>
+    <button class="icon-btn" id="reminders-btn" type="button" aria-label="Reminders">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0c0 6 2.5 8 2.5 8h-17S6 15 6 9z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>
+    </button>
+    <button class="icon-btn" id="card-btn" type="button" aria-label="Campus card">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M6 9v6M8.5 9v6M11.5 9v6M13.5 9v6M16.5 9v6M18 9v6"/></svg>
+    </button>
     <button class="icon-btn" id="settings-btn" type="button" aria-label="Settings">
       <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
     </button>
@@ -199,6 +205,10 @@
     <label class="label" for="ses-note">Your notes</label>
     <textarea id="ses-note" rows="3" placeholder="e.g. bring laptop, problem set 2 due"></textarea>
     <p class="hint small">Saved on this device as you type.</p>
+    <div class="group" id="ses-remind-wrap">
+      <label class="label" for="ses-remind">Reminder for this session</label>
+      <select id="ses-remind"></select>
+    </div>
     <button class="btn" id="ses-module" type="button">Colour, name or hide this module</button>
   </div>
 </dialog>
@@ -234,7 +244,78 @@
   </div>
 </dialog>
 
+<dialog id="reminders-dialog">
+  <div class="dialog-body">
+    <div class="dialog-head">
+      <h2>Reminders</h2>
+      <button class="icon-btn ghost" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <label class="label" for="rem-lead">Remind me before every class</label>
+    <select id="rem-lead"></select>
+    <p class="hint small">To change one session only, tap it in your timetable. Hidden modules and cancelled sessions don't send reminders.</p>
+
+    <h3 class="sub-head">Your own reminders</h3>
+    <div class="rem-list" id="rem-list"></div>
+    <label class="label" for="rem-title">What</label>
+    <input id="rem-title" type="text" autocomplete="off" placeholder="e.g. Hand in economics essay">
+    <label class="label" for="rem-when">When</label>
+    <input id="rem-when" type="datetime-local">
+    <div class="error" id="rem-error" role="alert" hidden></div>
+    <button class="btn primary" id="rem-add" type="button">Add reminder</button>
+    <p class="hint small" data-web-only>In the web version, reminders only appear while the app is open. The Android app sends them as notifications even when it's closed.</p>
+  </div>
+</dialog>
+
+<dialog id="card-dialog">
+  <div class="dialog-body">
+    <div class="dialog-head">
+      <h2>Campus card</h2>
+      <button class="icon-btn ghost" type="button" data-close aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="card-panel" id="card-show" hidden>
+      <div class="card-code" id="card-code"></div>
+      <div class="card-number" id="card-number"></div>
+      <p class="hint small card-type" id="card-type"></p>
+      <p class="hint">Turn your screen brightness up and hold the phone flat under the scanner.</p>
+      <div class="row">
+        <button class="btn" id="card-replace" type="button">Scan again</button>
+        <button class="btn danger" id="card-remove" type="button">Remove card</button>
+      </div>
+    </div>
+
+    <div class="card-panel" id="card-add" hidden>
+      <p class="hint">Scan the barcode on your campus card so you can show it on your phone if you lose the card. It's stored only on this phone.</p>
+      <div class="card-scan" id="card-scan" hidden>
+        <video id="card-video" playsinline muted></video>
+        <p class="hint small">Hold the barcode flat, in good light, so it fills the middle of the picture.</p>
+        <button class="btn" id="card-stop" type="button">Stop camera</button>
+      </div>
+      <button class="btn primary" id="card-camera" type="button">Scan with camera</button>
+      <button class="btn" id="card-photo" type="button">Use a photo of the card</button>
+      <details class="advanced">
+        <summary>Type the number instead</summary>
+        <div class="group">
+          <label class="label" for="card-manual">Number under the barcode</label>
+          <input id="card-manual" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <label class="label" for="card-format">Barcode type</label>
+          <select id="card-format"></select>
+          <p class="hint small">If you're not sure, try Code 128 first, then check the shop or library scanner reads it.</p>
+          <button class="btn primary" id="card-save" type="button">Save card</button>
+        </div>
+      </details>
+      <div class="error" id="card-error" role="alert" hidden></div>
+      <button class="btn" id="card-back" type="button" hidden>Back to my card</button>
+    </div>
+  </div>
+</dialog>
+
 <input type="file" id="file-input" accept=".ics,text/calendar" hidden>
+<input type="file" id="card-photo-input" accept="image/*" hidden>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
