@@ -56,8 +56,10 @@ This only affects the web version, not the Android app. Browsers only let a web 
 - **Durham room codes.** The app has a built-in list of Durham University room codes (in `www/places.js`), so `CLC013` shows as *Calman Learning Centre*, and its details show *Arnold Wolfendale Lecture Theatre*. It covers 45 buildings and was built from [AccessAble's Durham guides](https://www.accessable.co.uk/durham-university/learning-spaces) in October 2026.
 - **Maps.** Session details show a small map with a pin on the building. Tapping a room, or **Directions**, opens Google Maps with a pin at the building's exact position (from OpenStreetMap). For a location the app doesn't recognise, open the session and type the building's full name under *Unknown building?*. It's remembered for every session there. You can also use this to correct a building the list gets wrong.
 - **Modules.** In **Settings → Modules**, or via *Colour, name or hide this module* on a session, you can rename a module (for example "ECON1011" to "Microeconomics"), pick its colour, or hide it.
+- **Reminders.** Tap the bell to get a notification before every class (5 minutes to 2 hours before), and to add your own reminders, such as essay deadlines. To change the reminder for one session only, open that session. The Android app sends reminders even when it's closed. The web version can only show them while it's open.
+- **Campus card.** Tap the card icon and scan the barcode on your campus card with the camera, from a photo, or by typing the number. The app then shows the barcode on screen in case you lose the card.
 
-Notes, module settings and building names you type are stored only on your phone.
+Notes, module settings, reminders, the campus card and building names you type are stored only on your phone.
 
 ## Updating the app
 
