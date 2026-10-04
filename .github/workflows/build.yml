@@ -39,6 +39,12 @@ jobs:
       - name: Create the Android project
         run: npx cap add android
 
+      # The campus card scanner needs the camera.
+      - name: Allow camera access
+        run: |
+          sed -i 's#<application#<uses-permission android:name="android.permission.CAMERA" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n\n    <application#' android/app/src/main/AndroidManifest.xml
+          grep -n "CAMERA" android/app/src/main/AndroidManifest.xml
+
       - name: Generate app icons
         continue-on-error: true   # falls back to the default icon if this fails
         run: npx --yes @capacitor/assets generate --android --iconBackgroundColor '#3d5afe' --iconBackgroundColorDark '#3d5afe'
