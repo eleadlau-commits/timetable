@@ -1,0 +1,16 @@
+{
+  "id": "timetable",
+  "name": "Timetable",
+  "description": "Your university timetable on your phone.",
+  "version": "2.0.0",
+  "lang": "en",
+  "theme": {
+    "accent": "#3d5afe",
+    "accentDark": "#8c9eff",
+    "background": "#f5f6fa",
+    "backgroundDark": "#0f1117"
+  },
+  "native": {
+    "appId": "io.github.timetable.app"
+  }
+}

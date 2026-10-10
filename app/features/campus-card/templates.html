@@ -1,0 +1,38 @@
+<template id="window">
+  <div class="card-window">
+    <div class="card-panel" data-part="show" hidden>
+      <div class="card-code" data-part="code"></div>
+      <div class="card-number" data-part="number"></div>
+      <p class="hint small card-type" data-part="type"></p>
+      <p class="hint">Turn your screen brightness up and hold the phone flat under the scanner.</p>
+      <div class="row">
+        <button class="btn" data-part="replace" type="button">Scan again</button>
+        <button class="btn danger" data-part="remove" type="button">Remove card</button>
+      </div>
+    </div>
+
+    <div class="card-panel" data-part="add" hidden>
+      <p class="hint">Scan the barcode on your campus card so you can show it on your phone if you lose the card. It's stored only on this phone.</p>
+      <div class="card-scan" data-part="scan" hidden>
+        <video data-part="video" playsinline muted></video>
+        <p class="hint small">Hold the barcode flat, in good light, so it fills the middle of the picture.</p>
+        <button class="btn" data-part="stop" type="button">Stop camera</button>
+      </div>
+      <button class="btn primary" data-part="camera" type="button">Scan with camera</button>
+      <button class="btn" data-part="photo" type="button">Use a photo of the card</button>
+      <details class="advanced">
+        <summary>Type the number instead</summary>
+        <div class="group">
+          <label class="label" for="card-manual">Number under the barcode</label>
+          <input id="card-manual" data-part="manual" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false">
+          <label class="label" for="card-format">Barcode type</label>
+          <select id="card-format" data-part="format"></select>
+          <p class="hint small">If you're not sure, try Code 128 first, then check the shop or library scanner reads it.</p>
+          <button class="btn primary" data-part="save" type="button">Save card</button>
+        </div>
+      </details>
+      <div class="error" data-part="error" role="alert" hidden></div>
+      <button class="btn" data-part="back" type="button" hidden>Back to my card</button>
+    </div>
+  </div>
+</template>

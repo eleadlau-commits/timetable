@@ -1,0 +1,17 @@
+{
+  "name": "Campus card",
+  "description": "Scan your campus card's barcode and show it on your phone if you lose the card.",
+  "version": "2.0.0",
+  "main": "CampusCard.js",
+  "styles": ["campus-card.css"],
+  "templates": "templates.html",
+  "native": {
+    "android": {
+      "permissions": ["CAMERA"],
+      "features": [{ "name": "android.hardware.camera", "required": false }]
+    },
+    "ios": {
+      "plist": { "NSCameraUsageDescription": "The camera is used to scan the barcode on your campus card." }
+    }
+  }
+}

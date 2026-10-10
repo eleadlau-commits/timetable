@@ -1,0 +1,8 @@
+{
+  "name": "Sessions",
+  "description": "Shows each class as a card, and its details when you tap it.",
+  "version": "2.0.0",
+  "main": "Sessions.js",
+  "styles": ["sessions.css"],
+  "requires": ["timetable"]
+}

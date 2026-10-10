@@ -1,38 +1,56 @@
-# Timetable app
+# Timetable app (built with Folio)
 
-A personal timetable app for a Durham University student. It reads the university's iCal export link (.ics), stores it on the phone, and shows Day, Week and Upcoming views. It also has notes, module colours, names and hiding, and maps for Durham room codes.
+A timetable app for a Durham University student and a few friends. It reads the university's calendar export link (`.ics`) and shows Day, Week and Upcoming views, plus notes, module colours/names/hiding, maps of Durham rooms, reminders and a campus card barcode.
 
-## How it's built and released
+It's built with **Folio**, a small framework in `folio/` where every feature is a folder in `app/features/` and a compiler (`python build.py`) assembles the app. **Read `folio/README.md` before changing anything.** It explains slots, services, events, feature.json, storage and the rules.
 
-- `www/` is the whole app: plain HTML, CSS and JavaScript modules. There's no build step, framework or npm packages in the app itself.
-- The Android app is `www/` wrapped by Capacitor (`capacitor.config.json`). `CapacitorHttp` is enabled, so `fetch()` goes through native code and the university server's CORS rules don't apply in the APK.
-- The web version (for iPhone) is `www/` published to GitHub Pages. There, CORS can block the timetable link, so the optional relay in `relay/` exists for that case.
-- Releasing is done by `.github/workflows/build.yml` on every push to `main`. It builds the APK, attaches it to a GitHub Release, and deploys Pages.
-- `signing/debug.keystore` is created by the first build and committed by the workflow. **Never delete or replace it**, or the next APK won't install over the old one and the user loses their notes and settings.
-- The user isn't a developer. They don't use git locally; they upload files through the GitHub website (**Add file → Upload files**). When handing over changes, list exactly which files changed and give step-by-step upload instructions.
-- Reminders use `@capacitor/local-notifications` (in `package.json`) via `window.Capacitor.Plugins.LocalNotifications`. In the web version they only show while the app is open. The workflow adds Android's `CAMERA` permission for the campus card scanner, because the Android project is generated fresh on every build.
+## Who you're working with
 
-## Files
+The owner isn't a developer. They describe what they want, and Claude builds it. So:
+- **Explain in plain English** what changed and how to try it.
+- **At the end, list exactly which files changed**, and how to get them onto GitHub. They use GitHub Desktop or upload through the GitHub website.
+- **Keep their friends' data safe.** Never rename a saved key. Bring old data across with `this.storage.once(...)`.
 
-| File | Purpose |
-|---|---|
-| `www/index.html` | All screens and dialogs (setup, day/week/agenda views, settings, session details, modules) |
-| `www/app.js` | App logic: loading/refreshing the calendar, rendering, settings, notes, modules, maps |
-| `www/ics.js` | iCalendar parser and recurrence expansion (RRULE, EXDATE, RECURRENCE-ID, time zones) |
-| `www/places.js` | Durham room code → building table with names, streets and map coordinates, plus `lookupPlace()` |
-| `www/barcode.js` | Draws the saved campus card barcode (Code 128, Code 39, Codabar) as SVG |
-| `www/styles.css` | Styles, with light and dark mode via CSS variables on `:root` |
-| `www/sw.js` | Service worker for offline use in the web version |
+## How to work on it
 
-## Conventions
+1. **New feature?** Run `python build.py new-feature <id> --requires sessions`, then fill it in. Don't grow an existing feature for something new.
+2. **Stay in the feature's folder.** Change `folio/` only for something every app would need, such as a new framework slot or helper. If you do, update `folio/README.md` and bump `folio/VERSION`.
+3. **Connect through slots, services and events, never by importing another feature's files.** The compiler rejects imports outside a feature's folder.
+4. **Handle missing features.** `this.use()` can return null, and slots can be empty.
+5. **Write tests** for rules in `tests/*.test.js`. Keep rules in small files without screen code so they're testable.
+6. **Run `python build.py test`** and fix everything before handing over. It includes the delete-a-folder test.
+7. **Check it in a browser** with `python build.py serve --test`, which uses the sample data in `app/tests/seed.js`.
+8. **Update the docs:** the feature's `README.md`, the table below, and `README.md` for anything people see.
 
-- **When you change anything in `www/`, bump `CACHE` in `www/sw.js`** (e.g. `timetable-v4` → `timetable-v5`). If you don't, the web version keeps serving the old files.
-- New files in `www/` must be added to the `SHELL` list in `www/sw.js`.
-- Everything the user creates is stored in `localStorage`. The keys are prefixed `tt.`, and notes, module names, colours, hidden modules and typed building names are in `tt.prefs` (see `emptyPrefs()` in `app.js`). Don't rename keys, or existing users lose their data. Add new fields to `emptyPrefs()` instead.
-- Elements marked `data-web-only` or `data-native-only` are shown only in the web version or only in the Android app (`NATIVE` in `app.js`).
-- Build the DOM with the `el()` helper in `app.js`, not `innerHTML`, because calendar text is untrusted.
-- Room data came from AccessAble's Durham learning-spaces guides, and map positions from OpenStreetMap (October 2026). To fix or add a room or building, edit `BUILDINGS`, `PREFIXES` or `ROOMS` in `www/places.js`.
+## Features
 
-## Testing locally
+In start order. `python build.py list` shows the same, and `dist/report.html` maps every slot, service and event.
 
-Run `python -m http.server 8000 --directory www` and open http://localhost:8000. To test with sample data, put an `.ics` file in `www/` and load it via `http://localhost:8000/yourfile.ics`. Delete it afterwards.
+| Feature | What it does | Requires (uses) | Adds to | Offers |
+|---|---|---|---|---|
+| `campus-card` | Scan and show the campus card barcode | | header button | |
+| `timetable` | Loads and saves the timetable, setup screen | | header button + status, settings | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
+| `sessions` | Session cards and the details window | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
+| `day-view` | Day view | sessions | views | |
+| `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
+| `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
+| `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings | |
+| `maps` | Building names, map preview, directions | sessions (durham-rooms) | session.location/details, settings | |
+| `modules` | Rename, recolour or hide modules | sessions | session.name/colour/filter/details, settings | |
+| `notes` | Notes on sessions | sessions | session.card/details | |
+| `reminders` | Class and personal reminders | sessions | header button, session.details | |
+| `upcoming` | Next four weeks (view id `agenda`) | sessions | views | |
+| `week-view` | Week grid | sessions (day-view) | views | |
+
+## Releasing
+
+- **On GitHub:** every push to `main` runs `.github/workflows/build.yml`. Tests run first, and if they fail nothing is released. Then the APK goes to Releases and the web version to GitHub Pages.
+- **The Android project** is made fresh on every build, in `dist/`. Packages, permissions and Capacitor settings come from each feature's `feature.json` (`native`).
+- **The signing key:** `signing/debug.keystore` is made by the first build and committed by the workflow. **Never delete or replace it**, or new APKs won't install over old ones and people lose their data.
+- **The version:** the app's version is in `app/app.json`. Bump it for releases people should notice.
+
+## Things to know
+
+- **Version 1 data:** before Folio, data was saved under `tt.*` keys. Each feature brings its part across once (`import-from-v1`). Keep that code.
+- **Timetable downloads:** `CapacitorHttp` is on in the Android app (timetable's `feature.json`), so downloads aren't blocked there. In the web version they can be, which is what `web-relay` is for.
+- **Durham room data:** from AccessAble and OpenStreetMap, October 2026. To change it, edit `app/features/durham-rooms/places.js` and its tests.
