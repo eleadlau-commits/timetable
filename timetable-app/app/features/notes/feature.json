@@ -1,0 +1,8 @@
+{
+  "name": "Notes",
+  "description": "Your own notes on any session, like \"bring laptop\".",
+  "version": "2.0.0",
+  "main": "Notes.js",
+  "styles": ["notes.css"],
+  "requires": ["sessions"]
+}

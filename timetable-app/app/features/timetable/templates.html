@@ -1,0 +1,32 @@
+<template id="setup">
+  <div class="setup">
+    <div class="panel">
+      <h2>Connect your timetable</h2>
+      <p class="hint">Your university can export your timetable as a personal calendar link. You switch the export on once, copy the link, and paste it here. After that the app keeps itself up to date.</p>
+      <ol class="steps">
+        <li><span><b>Open your timetable</b> on the university website and sign in. This is often easiest on a laptop.</span></li>
+        <li><span><b>Find the export option.</b> It may be called <i>Export</i>, <i>Subscribe</i>, <i>Sync to calendar</i>, <i>iCal</i> or <i>Add to Google/Outlook</i>, and is often behind a calendar or share icon.</span></li>
+        <li><span><b>Confirm the export</b> when it asks you to. This creates your personal link.</span></li>
+        <li><span><b>Copy the link.</b> It usually starts with <code>webcal://</code> or <code>https://</code> and often ends in <code>.ics</code>. On a phone, press and hold the link and choose <i>Copy link</i>.</span></li>
+        <li><span><b>Paste it below</b> and tap <i>Load timetable</i>.</span></li>
+      </ol>
+
+      <label class="label" for="timetable-link">Timetable link</label>
+      <div class="field">
+        <input id="timetable-link" data-part="link" type="url" inputmode="url" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="webcal://… or https://…">
+        <button class="btn" data-part="paste" type="button">Paste</button>
+      </div>
+      <p class="received" data-part="received" hidden>Link received. Check it, then tap <i>Load timetable</i>.</p>
+      <div class="error" data-part="error" role="alert" hidden></div>
+      <button class="btn primary block" data-part="load" type="button">Load timetable</button>
+      <p class="hint small">Keep this link private, because anyone who has it can see your timetable. The app stores it only on this device.</p>
+    </div>
+
+    <div class="panel">
+      <h3>Other ways to get the link in</h3>
+      <div class="alt" data-part="extras"></div>
+    </div>
+
+    <button class="btn block back" data-part="back" type="button" hidden>Back to my timetable</button>
+  </div>
+</template>

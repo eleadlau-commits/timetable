@@ -1,0 +1,8 @@
+{
+  "name": "Modules",
+  "description": "Rename modules, choose their colours, or hide the ones you don't go to.",
+  "version": "2.0.0",
+  "main": "Modules.js",
+  "styles": ["modules.css"],
+  "requires": ["sessions"]
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Timetable",
+  "description": "Loads your timetable from your university's calendar link and keeps it up to date.",
+  "version": "2.0.0",
+  "main": "Timetable.js",
+  "styles": ["timetable.css"],
+  "templates": "templates.html",
+  "native": {
+    "capacitor": {
+      "plugins": {
+        "CapacitorHttp": { "enabled": true }
+      }
+    }
+  }
+}

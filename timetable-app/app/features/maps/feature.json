@@ -1,0 +1,14 @@
+{
+  "name": "Maps",
+  "description": "Shows where each session is, with a map and directions in Google Maps.",
+  "version": "2.0.0",
+  "main": "Maps.js",
+  "styles": ["maps.css"],
+  "requires": ["sessions"],
+  "uses": ["durham-rooms"],
+  "native": {
+    "capacitor": {
+      "server": { "allowNavigation": ["www.openstreetmap.org"] }
+    }
+  }
+}

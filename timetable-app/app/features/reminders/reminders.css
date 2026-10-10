@@ -1,0 +1,7 @@
+.rem-list { display: grid; }
+.rem-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--line); }
+.rem-row:last-child { border-bottom: 0; }
+.rem-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.rem-text b { font-weight: 600; overflow-wrap: anywhere; }
+.rem-text small { font-size: 13px; color: var(--muted); }
+.rem-row svg { width: 18px; height: 18px; }
