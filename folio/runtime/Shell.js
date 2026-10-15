@@ -1,14 +1,22 @@
-// The app's frame: the top bar, the tabs between views, full-screen pages (such as a setup
-// screen), and the Settings window. Features fill it through the framework's own slots:
+// The app's frame: the top bar, the tab bar between views at the bottom, full-screen pages
+// (such as a setup screen), and the Settings window. Features fill it through the framework's
+// own slots:
 //
 //   'header.buttons'  { id, label, icon, order, onClick(), visible?(), busy?() }
 //   'header.status'   { order, text() }               short text under the app's name
-//   'views'           { id, label, order, mount(container), render(), step?(direction), visible?() }
+//   'views'           { id, label, icon?, order, mount(container), render(), step?(direction),
+//                       visible?(), topBar?, default?, open?(id) }
 //   'settings'        { id, title?, order, render() }   a section in the Settings window
+//
+// A view with `topBar: false` hides the top bar and draws its own header, on the page's dark
+// top. `default: true` makes it the view the app opens on. A view that holds views of its own
+// (such as a planner with Day and Week) can have `open(id)`: show that inner view and return
+// true, so selectView('day') still works.
 //
 // See folio/README.md for details and examples.
 
 import { el, icon, dialog, toggle, hint, onSwipe } from './ui.js';
+import { TabBar } from './TabBar.js';
 
 export class Shell {
   constructor(app) {
@@ -21,17 +29,15 @@ export class Shell {
     this.title = el('h1', {}, app.config.name);
     this.status = el('div', { class: 'sub' });
     this.actions = el('div', { class: 'actions' });
-    this.tabs = el('div', { class: 'seg', role: 'tablist', 'aria-label': 'View' });
+    this.tabBar = new TabBar((id) => this.selectView(id));
     this.viewHost = el('div', { class: 'view-host' });
     this.empty = el('div', { class: 'empty', hidden: true });
     this.screenHost = el('div', { class: 'screen-host', hidden: true });
-    this.main = el('main', {}, this.tabs, this.viewHost, this.empty);
+    this.main = el('main', {}, this.viewHost, this.empty);
+    this.topbar = el('header', { class: 'topbar' }, el('div', { class: 'titles' }, this.title, this.status), this.actions);
 
     const root = document.getElementById('folio-root') || document.body.appendChild(el('div', { id: 'folio-root' }));
-    root.replaceChildren(el('div', { class: 'app' },
-      el('header', { class: 'topbar' }, el('div', { class: 'titles' }, this.title, this.status), this.actions),
-      this.screenHost,
-      this.main));
+    root.replaceChildren(el('div', { class: 'app' }, this.topbar, this.screenHost, this.main), this.tabBar.element);
 
     app.slot('header.buttons').add({ id: 'settings', label: 'Settings', icon: 'gear', order: 1000, onClick: () => this.openSettings() }, 'folio');
 
@@ -74,15 +80,26 @@ export class Shell {
   get currentView() {
     const views = this.views;
     const saved = this.prefs.get('view');
-    return views.find((v) => v.id === saved) || views[0] || null;
+    return views.find((v) => v.id === saved) || views.find((v) => v.default) || views[0] || null;
   }
 
-  // Switches to a view. Returns false if no view with that id is installed.
+  // Switches to a view, or to the view that holds an inner view with that id (see open()).
+  // Returns false if there's no such view.
   selectView(id) {
-    if (!this.views.some((v) => v.id === id)) return false;
-    this.prefs.set('view', id);
+    const slot = this.app.slot('views');
+    const views = this.views;
+    const view = views.find((v) => v.id === id) || views.find((v) => v.open && slot.run(v, (x) => x.open(id), false) === true);
+    if (!view) return false;
+    this.prefs.set('view', view.id);
     this.render();
     return true;
+  }
+
+  // When the app starts: if the saved view is an inner view (say 'day' from an older version),
+  // open the view that holds it.
+  restoreView() {
+    const saved = this.prefs.get('view');
+    if (saved && !this.views.some((v) => v.id === saved)) this.selectView(saved);
   }
 
   step(direction) {
@@ -99,6 +116,9 @@ export class Shell {
     this.screenHost.hidden = !screen;
     this.main.hidden = !!screen;
     if (screen) {
+      this.topbar.hidden = false;
+      this.tabBar.element.hidden = true;
+      document.body.classList.remove('gradient', 'has-tabbar');
       if (this.screenHost.firstChild !== screen.node) this.screenHost.replaceChildren(screen.node);
       return;
     }
@@ -131,14 +151,10 @@ export class Shell {
     const views = this.views;
     const current = this.currentView;
 
-    this.tabs.hidden = views.length < 2;
-    this.tabs.style.setProperty('--tabs', views.length);
-    this.tabs.replaceChildren(...views.map((v) => el('button', {
-      type: 'button',
-      role: 'tab',
-      'aria-selected': String(v === current),
-      onclick: () => this.selectView(v.id),
-    }, v.label)));
+    const ownHeader = current?.topBar === false;
+    this.topbar.hidden = ownHeader;
+    document.body.classList.toggle('gradient', ownHeader);
+    this.tabBar.render(views, current);
 
     for (const v of views) {
       let section = this.sections.get(v);

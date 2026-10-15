@@ -1,0 +1,7 @@
+{
+  "name": "Planner",
+  "description": "One tab for your timetable views: Day, Week and Upcoming.",
+  "version": "1.0.0",
+  "main": "Planner.js",
+  "styles": ["planner.css"]
+}

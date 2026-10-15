@@ -1,6 +1,6 @@
-// Library: a card at the top of today's Day view showing how busy Bill Bryson Library is, with
-// free seats on each floor. Read from the library's public occupancy page every few minutes
-// while the card is on screen. No booking.
+// Library: a card on Home showing how busy Bill Bryson Library is, with free seats on each
+// floor. Read from the library's public occupancy page every few minutes while the card is on
+// screen. No booking.
 //
 // In the Android app the page is read directly. In the web version the university's server may
 // block that (CORS), so it goes through the personal relay if one is set up.
@@ -14,6 +14,7 @@ import { SOURCE, textOf, readOccupancy, busyness } from './occupancy.js';
 
 const { el } = ui;
 const FRESH = 5 * time.MINUTE;
+const TOO_OLD = 2 * time.HOUR; // an older reading isn't shown as if it were current
 
 export default class Library extends Feature {
   start() {
@@ -24,7 +25,7 @@ export default class Library extends Feature {
     this.tried = 0;
     this.open = this.storage.get('open', false);
 
-    this.add('day.cards', { order: 10, render: (day) => this.card(day) });
+    this.add('home.top', { order: 10, render: () => this.card() });
     this.add('settings', { id: 'library', title: 'Library', order: 70, render: () => this.settingsSection() });
   }
 
@@ -59,22 +60,27 @@ export default class Library extends Feature {
     }
   }
 
-  // One line when folded (the default): name, how busy, free seats and a thin bar. Tap it to
-  // unfold the floors. Folded or unfolded is remembered.
-  card(day) {
-    if (!this.show || !time.sameDay(day, new Date())) return null;
+  // Folded (the default): name, how busy, free seats and a bar. Tap it to unfold the floors.
+  // Folded or unfolded is remembered. Without a recent reading, Home shows "Missing content"
+  // with the reason instead.
+  card() {
+    if (!this.show) return { missing: 'the library card is switched off', action: () => this.app.shell.openSettings() };
     if (!this.loading && Date.now() - this.tried > FRESH && navigator.onLine) this.load();
 
-    const o = this.last?.occupancy;
+    const recent = this.last && Date.now() - this.last.at < TOO_OLD;
+    if (!recent && !this.loading) {
+      const blocked = this.failed === 'blocked' && navigator.onLine;
+      return { missing: this.missingReason(), action: () => (blocked ? this.app.shell.openSettings() : this.load()) };
+    }
+    const o = recent ? this.last.occupancy : null;
     const band = o && busyness(o.free, o.seats);
-    const summary = el('summary', {},
-      el('div', { class: 'lib-line' },
-        el('b', {}, 'Library'),
+    const summary = el('summary', { 'aria-label': o ? `Bill Bryson Library, ${band.label}, ${o.free} seats free` : 'Bill Bryson Library' },
+      el('span', { class: 'lib-line' },
+        el('span', { class: 'lib-name' }, 'Library'),
         band
-          ? el('span', { class: `lib-band ${band.id}` }, band.label)
-          : el('span', { class: 'lib-free' }, this.loading ? 'Checking…' : 'Not available'),
-        el('span', { class: 'lib-free lib-push' }, o ? `${o.free} free` : ''),
-        el('span', { class: 'lib-chevron', 'aria-hidden': 'true' }, ui.icon('right'))),
+          ? el('span', { class: `lib-tag ${band.id}` }, band.label)
+          : el('span', { class: 'lib-free' }, 'Checking…'),
+        o && el('span', { class: 'lib-free lib-push' }, el('strong', {}, o.free), ' seats free')),
       o && this.bar(o.free, o.seats));
 
     const check = el('button', {
@@ -86,7 +92,7 @@ export default class Library extends Feature {
       : [this.loading ? 'Checking how busy Bill Bryson Library is…' : this.problem()];
 
     const card = el('details', {
-      class: 'lib-card panel',
+      class: 'lib-card',
       ontoggle: (e) => { this.open = e.target.open; this.storage.set('open', this.open); },
     },
       summary,
@@ -108,11 +114,20 @@ export default class Library extends Feature {
         f.zones.map((z) => `${z.name} ${z.free}`).join(' · ')));
   }
 
-  // A bar that fills up as the library fills up.
+  // A bar that fills up as the library fills up, with a dot where it ends and a dotted line
+  // for the seats still free.
   bar(free, seats) {
     const taken = seats ? Math.round(100 * (1 - free / seats)) : 100;
-    return el('div', { class: `lib-bar ${busyness(free, seats).id}`, role: 'img', 'aria-label': `${taken}% of seats taken` },
-      el('i', { style: `width:${taken}%` }));
+    return el('span', { class: `lib-bar ${busyness(free, seats).id}`, role: 'img', 'aria-label': `${taken}% of seats taken` },
+      el('i', { class: 'lib-fill', style: `width:${taken}%` }), el('i', { class: 'lib-dot' }), el('i', { class: 'lib-rest' }));
+  }
+
+  // Why there's no card: a few words for Home's "Missing content" box.
+  missingReason() {
+    if (!navigator.onLine) return "you're offline";
+    if (this.failed === 'blocked') return 'the library site is blocked here (see Settings → Advanced)';
+    if (this.failed === 'unreadable') return "couldn't read the library's page";
+    return "couldn't reach the library's website";
   }
 
   problem() {
@@ -130,7 +145,7 @@ export default class Library extends Feature {
 
   settingsSection() {
     return el('label', { class: 'lib-setting' },
-      el('span', {}, 'Show how busy Bill Bryson Library is on today\'s Day view'),
+      el('span', {}, 'Show how busy Bill Bryson Library is on Home'),
       ui.toggle({
         checked: this.show,
         label: 'Show the library card',

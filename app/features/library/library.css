@@ -1,47 +1,50 @@
-/* How busy colours: green for plenty of seats, amber, orange, then red for full. */
-:root {
-  --lib-quiet: hsl(145 55% 40%);
-  --lib-average: hsl(40 85% 45%);
-  --lib-busy: hsl(22 85% 50%);
-  --lib-track: hsl(220 15% 90%);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --lib-quiet: hsl(145 45% 55%);
-    --lib-average: hsl(40 80% 60%);
-    --lib-busy: hsl(22 85% 62%);
-    --lib-track: hsl(220 12% 24%);
-  }
-}
+/* The library card on Home. "Busy" and "Full" are orange; quieter times are calm. */
 
-.lib-card { margin: 0 0 12px; padding: 10px 14px; }
-.lib-card > summary { list-style: none; cursor: pointer; }
+.lib-card {
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.lib-card > summary { list-style: none; cursor: pointer; display: flex; flex-direction: column; gap: 10px; }
 .lib-card > summary::-webkit-details-marker { display: none; }
-.lib-line { display: flex; align-items: center; gap: 10px; }
+.lib-card > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 6px; }
+.lib-line { display: flex; align-items: center; gap: 8px; }
+.lib-name { font-size: 15px; font-weight: 600; }
 .lib-push { margin-left: auto; }
-.lib-chevron { display: flex; color: var(--muted); transition: transform 0.15s; }
-.lib-chevron svg { width: 18px; height: 18px; }
-.lib-card[open] .lib-chevron { transform: rotate(90deg); }
-.lib-status { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+.lib-free { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.lib-free strong { font-size: 17px; font-weight: 600; color: var(--text); }
+
+/* The tag: orange when busy or full, calm otherwise */
+.lib-tag {
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text-2);
+}
+.lib-tag.busy, .lib-tag.full { background: var(--busy-soft); color: var(--busy-ink); }
+
+/* The bar: filled part, a dot where it ends, then a dotted line for what's free */
+.lib-bar { display: flex; align-items: center; width: 100%; height: 10px; }
+.lib-bar i { display: block; flex: none; }
+.lib-fill { height: 4px; border-radius: 2px; background: var(--accent); min-width: 2px; }
+.lib-dot { width: 10px; height: 10px; margin-left: -4px; border-radius: 5px; background: var(--accent); }
+.lib-rest { flex: 1 !important; height: 0; margin-left: 4px; border-top: 3px dotted var(--free-line); }
+.lib-bar.busy .lib-fill, .lib-bar.busy .lib-dot, .lib-bar.full .lib-fill, .lib-bar.full .lib-dot { background: var(--busy); }
+.lib-bar.full .lib-rest { display: none; }
+
+/* Unfolded: when it was checked, and each floor */
+.lib-status { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 8px; }
 .lib-status .hint.small { margin: 0; }
 .lib-check { width: 32px; height: 32px; flex: none; }
 
-.lib-bar { height: 6px; margin: 8px 0 2px; border-radius: 999px; background: var(--lib-track); overflow: hidden; }
-.lib-bar i { display: block; height: 100%; border-radius: inherit; background: var(--lib-quiet); }
-.lib-bar.average i { background: var(--lib-average); }
-.lib-bar.busy i { background: var(--lib-busy); }
-.lib-bar.full i { background: var(--danger); }
-
-.lib-free { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
-.lib-band { font-weight: 650; color: var(--lib-quiet); }
-.lib-band.average, .lib-count.average { color: var(--lib-average); }
-.lib-band.busy, .lib-count.busy { color: var(--lib-busy); }
-.lib-band.full, .lib-count.full { color: var(--danger); }
-
-.lib-floor { padding: 10px 0 2px; border-top: 1px solid var(--line); margin-top: 8px; }
+.lib-floor { display: grid; gap: 6px; padding: 10px 0 2px; border-top: 1px solid var(--line); margin-top: 8px; }
 .lib-row { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; }
-.lib-count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--lib-quiet); }
-.lib-zones.hint.small { margin-top: 2px; }
+.lib-count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-2); }
+.lib-count.busy { color: var(--busy-ink); }
+.lib-count.full { color: var(--danger); }
+.lib-zones.hint.small { margin-top: 0; }
 
 .lib-setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; }
 .lib-card a { color: var(--accent); font-size: 14px; }

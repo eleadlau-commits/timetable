@@ -5,6 +5,7 @@
   "main": "CampusCard.js",
   "styles": ["campus-card.css"],
   "templates": "templates.html",
+  "uses": ["home"],
   "native": {
     "android": {
       "permissions": ["CAMERA"],

@@ -1,15 +1,42 @@
 .card-window { display: grid; gap: 12px; }
 .card-panel { display: grid; gap: 12px; }
 /* Always black on white, even in dark mode, so scanners can read it. */
-.card-code { padding: 18px 12px; border-radius: 12px; background: #fff; }
+.card-code { padding: 18px 12px; border-radius: 12px; background: var(--paper); }
 .card-code svg { display: block; width: 100%; height: 130px; stroke: none; fill: initial; }
-.card-code .hint { color: #5f6678; text-align: center; }
+.card-code .hint { color: var(--paper-ink); text-align: center; }
 .card-number {
   text-align: center;
-  font: 600 22px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font: 500 22px/1.2 var(--font-mono);
   letter-spacing: 0.12em;
   overflow-wrap: anywhere;
 }
 .dialog-body .card-type { margin: -10px 0 0; text-align: center; }
 .card-scan { display: grid; gap: 10px; }
-.card-scan video { width: 100%; max-height: 50vh; border-radius: 12px; background: #000; object-fit: cover; }
+.card-scan video { width: 100%; max-height: 50vh; border-radius: 12px; background: var(--top); object-fit: cover; }
+
+/* On Home: a narrow card, barcode running down it. The barcode stays dark on white in both
+   themes so a scanner can read it. */
+.card-home {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  min-height: 0;
+  padding: 12px;
+  border: 0;
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.card-home:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.card-home-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; text-align: left; }
+.card-home-code { flex: 1; min-height: 0; display: block; padding: 4px; border-radius: 6px; background: var(--paper); }
+.card-home-code svg { display: block; width: 100%; height: 100%; stroke: none; fill: initial; }
+.card-home-number {
+  font: 500 10px/1.2 var(--font-mono);
+  color: var(--muted);
+  text-align: center;
+  overflow-wrap: anywhere;
+}

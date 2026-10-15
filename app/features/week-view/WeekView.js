@@ -38,14 +38,18 @@ function layoutLanes(blocks) {
 export default class WeekView extends Feature {
   start() {
     this.sessions = this.use('sessions');
-    this.add('views', {
+    // Inside the Planner tab if it's installed, otherwise a tab of its own.
+    const view = {
       id: 'week',
       label: 'Week',
+      icon: 'calendar',
       order: 20,
       mount: (container) => this.mount(container),
       render: () => this.render(),
       step: (direction) => this.move(direction * 7),
-    });
+    };
+    if (this.use('planner')) this.add('planner.views', view);
+    else this.add('views', view);
   }
 
   move(days) {

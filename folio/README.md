@@ -25,13 +25,14 @@ Folio is for small personal and group apps: schedules, trackers, lists, notes, f
 ```
 build.py                 run this: python build.py
 folio/                   the framework (knows nothing about any particular app)
-  runtime/               the code that runs inside every app
+  runtime/               the code that runs inside every app (App, Shell, TabBar, ui, time…)
   compiler/folioc.py     the compiler
   templates/feature/     what `new-feature` copies
   tests/                 the framework's own tests
 app/
-  app.json               the app's name, version, colours and phone app id
+  app.json               the app's name, version, colours, fonts and phone app id
   icons/                 the app's icons
+  fonts/                 the app's own fonts (.woff2), listed in app.json
   features/              one folder per feature
   tests/seed.js          sample data used by the automatic tests
 dist/                    the compiled app (made by the compiler, never edited)
@@ -155,10 +156,15 @@ export default class Notes extends Feature {
 
 | Slot | Item | Where it appears |
 |---|---|---|
-| `views` | `{ id, label, order, mount(container), render(), step?(direction), visible?() }` | Tabs at the top. `mount` runs once and `render` on every redraw. `step(±1)` is called on swipes and arrow keys. |
+| `views` | `{ id, label, icon?, order, mount(container), render(), step?(direction), visible?(), topBar?, default?, open?(id) }` | Tabs in the bar at the bottom, with an icon (a name from `ui.ICONS`) above the label. `mount` runs once and `render` on every redraw. `step(±1)` is called on swipes and arrow keys. See **Views** below. |
 | `header.buttons` | `{ id, label, icon, order, onClick(), visible?(), busy?() }` | Round buttons in the top bar. `icon` is a name from `ui.ICONS` or SVG drawing. `busy()` makes it spin. |
 | `header.status` | `{ order, text() }` | The small grey line under the app's name. "offline" is added automatically. |
 | `settings` | `{ id, title?, order, render() }` | A section in the Settings window. Return `null` or `false` to show nothing. |
+
+**Views.** The tab bar appears once there are two or more views. The current tab is filled in the accent colour, and a line along the top of the bar glows above it.
+- `topBar: false` hides the top bar while the view is shown, and puts the view on the page's dark top (`--page`). The view then draws its own header. It can still offer the top-bar buttons by reading the `header.buttons` slot, and open Settings with `this.app.shell.openSettings()`.
+- `default: true` makes it the view the app opens on, until the person picks another tab (the last tab is remembered).
+- `open(id)` is for a view that holds views of its own, like a Planner with Day and Week inside. Return `true` if you have an inner view with that id (and show it). Then `app.shell.selectView('day')` opens the Planner on Day, and someone whose saved view was `day` lands there too.
 
 The framework's own Settings sections, **Features** (switch features on and off for this phone) and **About** (version and problems), always come last.
 
@@ -168,7 +174,7 @@ The framework's own Settings sections, **Features** (switch features on and off 
 |---|---|
 | `app:ready` | Every feature has started. |
 | `app:resume` | The app came back to the screen. |
-| `app:tick` | Once a minute while the app is on screen. |
+| `app:tick` | At the start of every minute while the app is on screen (so a clock changes with the phone's). |
 | `app:online` / `app:offline` | The connection came back or dropped. |
 
 **Order:** `order` numbers sort items from low to high, and the default is 50. Leave gaps (10, 20, 30) so new features can slot in between.
@@ -179,7 +185,25 @@ The framework's own Settings sections, **Features** (switch features on and off 
 
 `time`: `MINUTE`, `HOUR`, `DAY`, `startOfDay`, `addDays`, `startOfWeek`, `sameDay`, `formatTime`, `formatDate`, `formatLongDate`, `formatDateTime`, `dayLabel`, `ago`, `inTime`, `toLocalInput`.
 
-Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`, `small`), `icon-btn` (`ghost`), `link-btn`, `panel`, `hint` (`small`), `label`, `field`, `row`, `stack`, `group`, `error`, `empty`, `list`, `advanced` (for `<details>`), `check`, `switch`, `sub-head`. Colours are CSS variables: `--bg`, `--surface`, `--surface-2`, `--text`, `--muted`, `--line`, `--accent`, `--accent-soft`, `--danger`, `--radius`, `--shadow`. Light and dark mode are automatic.
+Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`, `small`), `icon-btn` (`ghost`), `link-btn`, `panel`, `hint` (`small`), `label`, `field`, `row`, `stack`, `group`, `error`, `empty`, `list`, `advanced` (for `<details>`), `check`, `switch`, `sub-head`.
+
+**Colours and fonts are CSS variables. Never write a colour of your own in a feature's CSS.** Light and dark mode follow the phone's setting automatically.
+
+| Variable | What it's for |
+|---|---|
+| `--bg`, `--page` | The page colour, and the page background (a dark top fading into `--bg`) |
+| `--top`, `--on-top`, `--on-top-muted`, `--on-top-soft` | The dark top of the page, and text, grey text and button backgrounds on it |
+| `--surface`, `--surface-2` | Cards, the tab bar and windows; a slightly darker fill for buttons |
+| `--text`, `--text-2`, `--muted` | Text, secondary text, grey text |
+| `--fade-1`, `--fade-2`, `--fade-3` | Later items in a list, each one fainter |
+| `--line` | Dividers |
+| `--accent`, `--accent-ink`, `--accent-soft` | The app's colour, text on it, a light tint of it |
+| `--tab-ink`, `--tab-glow` | Tabs that aren't selected, and the line above the selected tab |
+| `--busy`, `--busy-ink`, `--busy-soft`, `--free-line` | "Busy" bars and tags, and the dotted line for what's free |
+| `--danger`, `--danger-soft` | Mistakes and warnings |
+| `--paper`, `--paper-ink` | White and near-black in both themes, behind barcodes and QR codes so scanners can read them |
+| `--font`, `--font-mono` | The app's font, and the font for clocks and numbers |
+| `--radius`, `--shadow` | Corner radius of cards (14 px) and their shadow |
 
 ## 7. Saving data
 
@@ -244,7 +268,10 @@ The compiler only needs Python 3.9 or newer. The browser tests also need Chrome 
    });
    ```
    `assert` has `ok`, `equal`, `deepEqual`, `match`, `throws`. Put rules that don't need the screen in their own small file, so they're easy to test.
-3. **Whole-app test:** the app is started with the sample data from `app/tests/seed.js`. The test opens every view and the first item in it, then Settings, then each top-bar button. Any problem fails the test.
+3. **Whole-app test:** the app is started with the sample data from `app/tests/seed.js`. The test opens every view and the first item in it, then Settings, then each top-bar button. Any problem fails the test. It runs once on the first screen, then once starting on each view listed in app.json, which is how inner views (like Day inside a Planner) get checked too. The seed can read the `#view=` part of the address to pick the view:
+   ```json
+   "tests": { "startViews": ["day", "week"] }
+   ```
 4. **Delete-a-folder test:** the same check again, once without each feature, and once with no features at all.
 
 On GitHub, these run before every release. If anything fails, nothing is released.
@@ -271,8 +298,23 @@ On GitHub, these run before every release. If anything fails, nothing is release
      "theme": { "accent": "#00897b", "accentDark": "#4db6ac" },
      "native": { "appId": "io.github.studyplanner.app" } }
    ```
+   `theme` can set `accent`, `background` (the page) and `top` (the dark top of the page), each with a `…Dark` partner for dark mode, plus `font` and `monoFont` (CSS font lists). Anything left out keeps Folio's own colours.
+
+   **Fonts:** to ship your own fonts so they work offline, put `.woff2` files in `app/fonts/` and list them:
+   ```json
+   "fonts": [{ "family": "IBM Plex Sans", "weight": 400, "file": "ibm-plex-sans-latin-400-normal.woff2" }]
+   ```
+   The compiler copies them into the app and writes the `@font-face` rules. Then use the family in `theme.font`.
 3. Add icons to `app/icons/`: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, and `icon-only.png` (1024×1024, for the phone app).
 4. Create features with `python build.py new-feature …`. Features that aren't tied to one app can be copied between apps, such as campus-card.
 5. Optionally, add `app/tests/seed.js` with sample data for the tests.
 
 Folio's version is in `folio/VERSION`. When the framework changes in a way features notice, the version goes up and the change is described here.
+
+**What changed in 1.1.0:**
+- The tabs between views moved from the top to a bar at the bottom. Views can have an `icon`, and can hide the top bar (`topBar: false`), be the default (`default: true`) or hold inner views (`open(id)`).
+- New colours and more colour variables (see [6](#6-helpers-ui-and-time)), and a page background with a dark top (`--page`).
+- Apps can ship their own fonts (`app/fonts/` and `"fonts"` in app.json), and set `theme.font`, `theme.monoFont`, `theme.top` and `theme.topDark`.
+- `app:tick` now comes at the start of every minute.
+- The whole-app test starts on the first screen, then on each view in app.json's `tests.startViews` (it used to be a fixed list).
+- New icons: `menu`, `people`, `person`, `calendar`, `house`, `dots`. Icons are drawn with 1.8 px lines.
