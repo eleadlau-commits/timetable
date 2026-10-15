@@ -35,7 +35,7 @@ CAPACITOR_VERSION = '^7.0.0'
 
 # Slots and events the framework itself provides (see folio/runtime/Shell.js and App.js).
 FRAMEWORK_SLOTS = {
-    'views': 'Screens you switch between with the tabs at the top.',
+    'views': 'Screens you switch between with the tab bar at the bottom.',
     'header.buttons': 'Buttons in the top bar.',
     'header.status': 'Short text under the app name.',
     'settings': 'Sections in the Settings window.',

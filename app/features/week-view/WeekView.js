@@ -41,6 +41,7 @@ export default class WeekView extends Feature {
     this.add('views', {
       id: 'week',
       label: 'Week',
+      icon: 'calendar',
       order: 20,
       mount: (container) => this.mount(container),
       render: () => this.render(),

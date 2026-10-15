@@ -99,3 +99,11 @@ test('el() treats outside text as text, never as code', () => {
   assert.equal(node.querySelector('img'), null);
   assert.equal(node.textContent, '<img src=x onerror=alert(1)>ab');
 });
+
+test('the tab bar glows above the middle of the current tab', async () => {
+  const { glowAt } = await import('folio/TabBar.js');
+  assert.equal(glowAt(0, 4), 12.5);
+  assert.equal(glowAt(1, 4), 37.5);
+  assert.equal(glowAt(3, 4), 87.5);
+  assert.equal(glowAt(-1, 4), 50); // no tab selected
+});

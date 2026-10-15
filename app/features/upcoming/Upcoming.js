@@ -12,6 +12,7 @@ export default class Upcoming extends Feature {
     this.add('views', {
       id: 'agenda',
       label: 'Upcoming',
+      icon: 'clock',
       order: 30,
       mount: (container) => { this.box = container; },
       render: () => this.render(),

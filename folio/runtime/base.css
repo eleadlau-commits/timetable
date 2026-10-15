@@ -160,27 +160,54 @@ body.gradient { background: var(--bg) var(--page) top / 100% 100lvh no-repeat; }
 .icon-btn.spin svg { animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Tabs between views */
-.seg {
-  display: grid;
-  grid-template-columns: repeat(var(--tabs, 3), 1fr);
-  gap: 4px;
-  padding: 4px;
-  margin: 4px 0 12px;
-  border-radius: 12px;
-  background: var(--surface-2);
+/* ---- Tab bar between views, at the bottom ---- */
+
+@property --glow-x { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
+
+body.has-tabbar .app { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  padding: 8px 12px max(12px, env(safe-area-inset-bottom));
+  background: var(--surface);
+  transition: --glow-x 0.3s ease;
 }
-.seg button {
+/* A soft line along the top, strongest above the current tab. */
+.tab-glow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent calc(var(--glow-x) - 40%), var(--tab-glow) var(--glow-x), transparent calc(var(--glow-x) + 58%));
+}
+.tabs { display: flex; gap: 4px; max-width: 560px; margin: 0 auto; }
+.tab {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0;
   border: 0;
-  padding: 8px;
-  border-radius: 9px;
+  border-radius: 14px;
   background: transparent;
-  color: var(--muted);
+  color: var(--tab-ink);
   font: inherit;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
 }
-.seg button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.tab svg { width: 22px; height: 22px; }
+.tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 .link-btn {
   border: 0;
@@ -339,6 +366,7 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
   left: 50%;
   bottom: calc(20px + env(safe-area-inset-bottom));
   z-index: 50;
+  margin-bottom: var(--toast-lift, 0px);
   max-width: calc(100vw - 32px);
   padding: 10px 16px;
   border-radius: 12px;
@@ -352,8 +380,10 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
   transition: opacity 0.2s, transform 0.2s;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
+body.has-tabbar { --toast-lift: 76px; }
 
 @media (prefers-reduced-motion: reduce) {
   .icon-btn.spin svg { animation: none; }
   .toast { transition: none; }
+  .tabbar { transition: none; }
 }

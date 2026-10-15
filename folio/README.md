@@ -25,7 +25,7 @@ Folio is for small personal and group apps: schedules, trackers, lists, notes, f
 ```
 build.py                 run this: python build.py
 folio/                   the framework (knows nothing about any particular app)
-  runtime/               the code that runs inside every app
+  runtime/               the code that runs inside every app (App, Shell, TabBar, ui, time…)
   compiler/folioc.py     the compiler
   templates/feature/     what `new-feature` copies
   tests/                 the framework's own tests
@@ -156,10 +156,15 @@ export default class Notes extends Feature {
 
 | Slot | Item | Where it appears |
 |---|---|---|
-| `views` | `{ id, label, order, mount(container), render(), step?(direction), visible?() }` | Tabs at the top. `mount` runs once and `render` on every redraw. `step(±1)` is called on swipes and arrow keys. |
+| `views` | `{ id, label, icon?, order, mount(container), render(), step?(direction), visible?(), topBar?, default?, open?(id) }` | Tabs in the bar at the bottom, with an icon (a name from `ui.ICONS`) above the label. `mount` runs once and `render` on every redraw. `step(±1)` is called on swipes and arrow keys. See **Views** below. |
 | `header.buttons` | `{ id, label, icon, order, onClick(), visible?(), busy?() }` | Round buttons in the top bar. `icon` is a name from `ui.ICONS` or SVG drawing. `busy()` makes it spin. |
 | `header.status` | `{ order, text() }` | The small grey line under the app's name. "offline" is added automatically. |
 | `settings` | `{ id, title?, order, render() }` | A section in the Settings window. Return `null` or `false` to show nothing. |
+
+**Views.** The tab bar appears once there are two or more views. The current tab is filled in the accent colour, and a line along the top of the bar glows above it.
+- `topBar: false` hides the top bar while the view is shown, and puts the view on the page's dark top (`--page`). The view then draws its own header. It can still offer the top-bar buttons by reading the `header.buttons` slot, and open Settings with `this.app.shell.openSettings()`.
+- `default: true` makes it the view the app opens on, until the person picks another tab (the last tab is remembered).
+- `open(id)` is for a view that holds views of its own, like a Planner with Day and Week inside. Return `true` if you have an inner view with that id (and show it). Then `app.shell.selectView('day')` opens the Planner on Day, and someone whose saved view was `day` lands there too.
 
 The framework's own Settings sections, **Features** (switch features on and off for this phone) and **About** (version and problems), always come last.
 
@@ -301,3 +306,9 @@ On GitHub, these run before every release. If anything fails, nothing is release
 5. Optionally, add `app/tests/seed.js` with sample data for the tests.
 
 Folio's version is in `folio/VERSION`. When the framework changes in a way features notice, the version goes up and the change is described here.
+
+**What changed in 1.1.0:**
+- The tabs between views moved from the top to a bar at the bottom. Views can have an `icon`, and can hide the top bar (`topBar: false`), be the default (`default: true`) or hold inner views (`open(id)`).
+- New colours and more colour variables (see [6](#6-helpers-ui-and-time)), and a page background with a dark top (`--page`).
+- Apps can ship their own fonts (`app/fonts/` and `"fonts"` in app.json), and set `theme.font`, `theme.monoFont`, `theme.top` and `theme.topDark`.
+- New icons: `menu`, `people`, `person`, `calendar`, `house`, `dots`. Icons are drawn with 1.8 px lines.

@@ -13,6 +13,7 @@ export default class DayView extends Feature {
     this.add('views', {
       id: 'day',
       label: 'Day',
+      icon: 'calendar',
       order: 10,
       mount: (container) => this.mount(container),
       render: () => this.render(),
