@@ -267,10 +267,19 @@ class Project:
         app.setdefault('description', '')
         app.setdefault('lang', 'en')
         theme = app.setdefault('theme', {})
-        theme.setdefault('accent', '#3d5afe')
-        theme.setdefault('accentDark', '#8c9eff')
-        theme.setdefault('background', '#f5f6fa')
-        theme.setdefault('backgroundDark', '#0f1117')
+        theme.setdefault('accent', '#6b3fa0')
+        theme.setdefault('accentDark', '#8457c0')
+        theme.setdefault('background', '#e2dfe7')
+        theme.setdefault('backgroundDark', '#1f1c23')
+        theme.setdefault('top', '#1f1c23')
+        theme.setdefault('topDark', '#110f14')
+        fonts = app.setdefault('fonts', [])
+        if not isinstance(fonts, list) or not all(isinstance(f, dict) and f.get('family') and f.get('file') for f in fonts):
+            log.error('app.json "fonts" must be a list of { "family", "file", "weight"?, "style"? }.')
+            return None
+        for f in fonts:
+            if not (self.app_dir / 'fonts' / f['file']).is_file():
+                log.warn(f'app/fonts/{f["file"]} is missing, so {f["family"]} falls back to the phone\'s own font.')
         app.setdefault('native', {}).setdefault('appId', f"io.folio.{app['id'].replace('-', '')}")
         icons = self.app_dir / 'icons'
         for name in ('icon-192.png', 'icon-512.png', 'apple-touch-icon.png'):
@@ -512,6 +521,12 @@ class Project:
         if (self.app_dir / 'icons').is_dir():
             shutil.copytree(self.app_dir / 'icons', web / 'icons',
                             ignore=shutil.ignore_patterns('icon-only.png'))
+        if app['fonts']:
+            (web / 'fonts').mkdir()
+            for f in app['fonts']:
+                source = self.app_dir / 'fonts' / f['file']
+                if source.is_file():
+                    shutil.copy2(source, web / 'fonts' / f['file'])
         test_files = []
         if test:
             test_files = self._test_page(web, included)
@@ -578,10 +593,20 @@ class Project:
 
     def _css(self, app: dict, included: list[FeatureInfo]) -> str:
         theme = app['theme']
+        faces = ''.join(
+            f'@font-face {{ font-family: {json.dumps(f["family"])}; src: url({json.dumps("fonts/" + f["file"])}) format("woff2"); '
+            f'font-weight: {f.get("weight", 400)}; font-style: {f.get("style", "normal")}; font-display: swap; }}\n'
+            for f in app['fonts'])
+        light = {'--accent': theme['accent'], '--bg': theme['background'], '--top': theme['top']}
+        dark = {'--accent': theme['accentDark'], '--bg': theme['backgroundDark'], '--top': theme['topDark']}
+        for key, var in (('font', '--font'), ('monoFont', '--font-mono')):
+            if theme.get(key):
+                light[var] = theme[key]
+        css = lambda values: ' '.join(f'{k}: {v};' for k, v in values.items())
         parts = [(self.runtime / 'base.css').read_text('utf-8'),
-                 '/* ---- Theme from app/app.json ---- */\n'
-                 f':root {{ --accent: {theme["accent"]}; }}\n'
-                 f'@media (prefers-color-scheme: dark) {{ :root {{ --accent: {theme["accentDark"]}; }} }}\n']
+                 '/* ---- Theme and fonts from app/app.json ---- */\n' + faces
+                 + f':root {{ {css(light)} }}\n'
+                 f'@media (prefers-color-scheme: dark) {{ :root {{ {css(dark)} }} }}\n']
         for f in included:
             for style in f.manifest.get('styles', []):
                 parts.append(f'/* ---- feature: {f.id} ({style}) ---- */\n' + (f.path / style).read_text('utf-8'))
@@ -616,8 +641,8 @@ class Project:
             'lang': html.escape(app['lang']),
             'name': html.escape(app['name']),
             'description': html.escape(app['description']),
-            'background': html.escape(app['theme']['background']),
-            'backgroundDark': html.escape(app['theme']['backgroundDark']),
+            'background': html.escape(app['theme']['top']),
+            'backgroundDark': html.escape(app['theme']['topDark']),
             'importmap': self._import_map(test),
             'entry': 'start.js',
             'templates': templates,
@@ -634,8 +659,8 @@ class Project:
             'start_url': './',
             'scope': './',
             'display': 'standalone',
-            'background_color': app['theme']['background'],
-            'theme_color': app['theme']['accent'],
+            'background_color': app['theme']['top'],
+            'theme_color': app['theme']['top'],
             'icons': [
                 {'src': 'icons/icon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
                 {'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any'},

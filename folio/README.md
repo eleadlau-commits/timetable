@@ -30,8 +30,9 @@ folio/                   the framework (knows nothing about any particular app)
   templates/feature/     what `new-feature` copies
   tests/                 the framework's own tests
 app/
-  app.json               the app's name, version, colours and phone app id
+  app.json               the app's name, version, colours, fonts and phone app id
   icons/                 the app's icons
+  fonts/                 the app's own fonts (.woff2), listed in app.json
   features/              one folder per feature
   tests/seed.js          sample data used by the automatic tests
 dist/                    the compiled app (made by the compiler, never edited)
@@ -179,7 +180,24 @@ The framework's own Settings sections, **Features** (switch features on and off 
 
 `time`: `MINUTE`, `HOUR`, `DAY`, `startOfDay`, `addDays`, `startOfWeek`, `sameDay`, `formatTime`, `formatDate`, `formatLongDate`, `formatDateTime`, `dayLabel`, `ago`, `inTime`, `toLocalInput`.
 
-Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`, `small`), `icon-btn` (`ghost`), `link-btn`, `panel`, `hint` (`small`), `label`, `field`, `row`, `stack`, `group`, `error`, `empty`, `list`, `advanced` (for `<details>`), `check`, `switch`, `sub-head`. Colours are CSS variables: `--bg`, `--surface`, `--surface-2`, `--text`, `--muted`, `--line`, `--accent`, `--accent-soft`, `--danger`, `--radius`, `--shadow`. Light and dark mode are automatic.
+Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`, `small`), `icon-btn` (`ghost`), `link-btn`, `panel`, `hint` (`small`), `label`, `field`, `row`, `stack`, `group`, `error`, `empty`, `list`, `advanced` (for `<details>`), `check`, `switch`, `sub-head`.
+
+**Colours and fonts are CSS variables. Never write a colour of your own in a feature's CSS.** Light and dark mode follow the phone's setting automatically.
+
+| Variable | What it's for |
+|---|---|
+| `--bg`, `--page` | The page colour, and the page background (a dark top fading into `--bg`) |
+| `--top`, `--on-top`, `--on-top-muted`, `--on-top-soft` | The dark top of the page, and text, grey text and button backgrounds on it |
+| `--surface`, `--surface-2` | Cards, the tab bar and windows; a slightly darker fill for buttons |
+| `--text`, `--text-2`, `--muted` | Text, secondary text, grey text |
+| `--fade-1`, `--fade-2`, `--fade-3` | Later items in a list, each one fainter |
+| `--line` | Dividers |
+| `--accent`, `--accent-ink`, `--accent-soft` | The app's colour, text on it, a light tint of it |
+| `--tab-ink`, `--tab-glow` | Tabs that aren't selected, and the line above the selected tab |
+| `--busy`, `--busy-ink`, `--busy-soft`, `--free-line` | "Busy" bars and tags, and the dotted line for what's free |
+| `--danger`, `--danger-soft` | Mistakes and warnings |
+| `--font`, `--font-mono` | The app's font, and the font for clocks and numbers |
+| `--radius`, `--shadow` | Corner radius of cards (14 px) and their shadow |
 
 ## 7. Saving data
 
@@ -271,6 +289,13 @@ On GitHub, these run before every release. If anything fails, nothing is release
      "theme": { "accent": "#00897b", "accentDark": "#4db6ac" },
      "native": { "appId": "io.github.studyplanner.app" } }
    ```
+   `theme` can set `accent`, `background` (the page) and `top` (the dark top of the page), each with a `…Dark` partner for dark mode, plus `font` and `monoFont` (CSS font lists). Anything left out keeps Folio's own colours.
+
+   **Fonts:** to ship your own fonts so they work offline, put `.woff2` files in `app/fonts/` and list them:
+   ```json
+   "fonts": [{ "family": "IBM Plex Sans", "weight": 400, "file": "ibm-plex-sans-latin-400-normal.woff2" }]
+   ```
+   The compiler copies them into the app and writes the `@font-face` rules. Then use the family in `theme.font`.
 3. Add icons to `app/icons/`: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, and `icon-only.png` (1024×1024, for the phone app).
 4. Create features with `python build.py new-feature …`. Features that aren't tied to one app can be copied between apps, such as campus-card.
 5. Optionally, add `app/tests/seed.js` with sample data for the tests.

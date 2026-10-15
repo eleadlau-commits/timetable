@@ -6,7 +6,7 @@
 .card-code .hint { color: #5f6678; text-align: center; }
 .card-number {
   text-align: center;
-  font: 600 22px/1.2 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font: 500 22px/1.2 var(--font-mono);
   letter-spacing: 0.12em;
   overflow-wrap: anywhere;
 }
