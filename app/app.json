@@ -22,5 +22,8 @@
   ],
   "native": {
     "appId": "io.github.timetable.app"
+  },
+  "tests": {
+    "startViews": ["planner", "day", "week", "agenda", "spots", "more"]
   }
 }

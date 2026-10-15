@@ -1,0 +1,22 @@
+// Spots: a tab that says what's coming. It has no content yet.
+//
+// Saved data: none.
+
+import { Feature, ui } from 'folio';
+
+const { el } = ui;
+
+export default class Spots extends Feature {
+  start() {
+    this.add('views', {
+      id: 'spots',
+      label: 'Spots',
+      icon: 'pin',
+      order: 30,
+      mount: (container) => container.append(el('div', { class: 'empty' },
+        el('b', {}, 'Coming soon'),
+        el('div', {}, 'Study spaces and places on campus will be here.'))),
+      render: () => {},
+    });
+  }
+}

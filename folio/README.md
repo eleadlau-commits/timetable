@@ -268,7 +268,10 @@ The compiler only needs Python 3.9 or newer. The browser tests also need Chrome 
    });
    ```
    `assert` has `ok`, `equal`, `deepEqual`, `match`, `throws`. Put rules that don't need the screen in their own small file, so they're easy to test.
-3. **Whole-app test:** the app is started with the sample data from `app/tests/seed.js`. The test opens every view and the first item in it, then Settings, then each top-bar button. Any problem fails the test.
+3. **Whole-app test:** the app is started with the sample data from `app/tests/seed.js`. The test opens every view and the first item in it, then Settings, then each top-bar button. Any problem fails the test. It runs once on the first screen, then once starting on each view listed in app.json, which is how inner views (like Day inside a Planner) get checked too. The seed can read the `#view=` part of the address to pick the view:
+   ```json
+   "tests": { "startViews": ["day", "week"] }
+   ```
 4. **Delete-a-folder test:** the same check again, once without each feature, and once with no features at all.
 
 On GitHub, these run before every release. If anything fails, nothing is released.
@@ -313,4 +316,5 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 - New colours and more colour variables (see [6](#6-helpers-ui-and-time)), and a page background with a dark top (`--page`).
 - Apps can ship their own fonts (`app/fonts/` and `"fonts"` in app.json), and set `theme.font`, `theme.monoFont`, `theme.top` and `theme.topDark`.
 - `app:tick` now comes at the start of every minute.
+- The whole-app test starts on the first screen, then on each view in app.json's `tests.startViews` (it used to be a fixed list).
 - New icons: `menu`, `people`, `person`, `calendar`, `house`, `dots`. Icons are drawn with 1.8 px lines.

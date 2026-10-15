@@ -1030,7 +1030,8 @@ def run_tests(project: Project, args) -> int:
         log.title('')
         log.title('3. The whole app works: every view, a session, Settings and each button')
         all_ids = [f.id for f in details['included']]
-        for view in ('day', 'week', 'agenda'):
+        ok = check_app('starting on the first screen', server) and ok
+        for view in details['app'].get('tests', {}).get('startViews', []):
             ok = check_app(f'starting on {view}', server, f'index.html#view={view}') and ok
         server.shutdown()
 
