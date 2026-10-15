@@ -5,8 +5,9 @@ Loads the timetable from the university's calendar export link (`.ics`), saves i
 ## What it adds
 
 - The **setup screen**: instructions, the link box with a Paste button, and "Other ways to get the link in".
-- A **refresh button** in the top bar.
-- **"Updated 5 min ago"** under the app name.
+- **Refresh timetable** in the menu.
+- **"Updated 5 min ago"** at the top of the menu and next to view titles (`header.status`).
+- **On the More tab** (`more.items`): a Calendar link row that opens Settings.
 - A **Timetable section in Settings**: change the link, import an `.ics` file, or remove the timetable.
 
 ## What it offers other features
