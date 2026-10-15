@@ -10,13 +10,18 @@ export function clockParts(date, locale = undefined) {
 }
 
 // What a Home slot shows, from what its items gave back (in order): the elements to show, or,
-// if there are none, why not. An item gives an element, a short text saying what's missing,
-// or null to leave the place to the others.
+// if there are none, why not. An item gives an element; or what's missing, as a short text or as
+// { missing: text, action?() } (tapping the placeholder then runs action); or null to leave the
+// place to the others.
 export function slotContent(results) {
-  const shown = results.filter((r) => r != null && r !== false && typeof r !== 'string');
-  if (shown.length) return { shown, missing: null };
-  const reason = results.find((r) => typeof r === 'string' && r);
-  return { shown: [], missing: reason || '' };
+  const isMissing = (r) => typeof r === 'string' || (r && typeof r === 'object' && 'missing' in r && !(r instanceof Node));
+  const shown = results.filter((r) => r != null && r !== false && !isMissing(r));
+  if (shown.length) return { shown, missing: null, action: null };
+  const first = results.find((r) => isMissing(r) && (typeof r === 'string' ? r : r.missing));
+  if (!first) return { shown: [], missing: '', action: null };
+  return typeof first === 'string'
+    ? { shown: [], missing: first, action: null }
+    : { shown: [], missing: first.missing, action: first.action || null };
 }
 
 // "Missing content: add your timetable", or just "Missing content".

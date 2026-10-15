@@ -30,7 +30,7 @@
   border: 0;
   border-radius: 50%;
   background: hsl(var(--h) 65% var(--stripe-l, 52%));
-  color: #fff;
+  color: var(--paper);
   font: inherit;
   font-size: 12px;
   font-weight: 700;

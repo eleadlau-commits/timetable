@@ -34,18 +34,18 @@ body.gradient.has-tabbar .app:has(.home:not([hidden])) { padding-bottom: calc(60
 .home-now { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-top: 8px; text-align: center; }
 .home-date { font-size: 15px; font-weight: 500; color: var(--on-top-muted); letter-spacing: 0.02em; }
 .home-clock {
-  font: 500 clamp(64px, 24vw, 96px)/1 var(--font-mono);
+  font: 500 clamp(56px, min(24vw, 11dvh), 96px)/1 var(--font-mono);
   letter-spacing: -2px;
   color: var(--on-top);
   font-variant-numeric: tabular-nums;
 }
 .home-clock small { font-size: 0.25em; letter-spacing: 0; margin-left: 6px; }
-.home-next { font-size: 14px; color: var(--on-top-muted); min-height: 1.45em; }
-.home-next .home-missing { padding: 0; border: 0; background: none; color: var(--on-top-muted); opacity: 0.8; }
+.home-next { max-width: 100%; min-width: 0; font-size: 14px; color: var(--on-top-muted); min-height: 1.45em; }
+.home-next .home-missing { min-height: 0; padding: 0; border: 0; color: var(--on-top-muted); opacity: 0.8; }
 
 .home-gap { flex: 1; }
 
-.home-block { display: flex; gap: 12px; height: clamp(240px, 38dvh, 320px); }
+.home-block { display: flex; gap: 12px; height: clamp(200px, 34dvh, 320px); flex: none; }
 .home-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 .home-side { width: 104px; flex: none; display: flex; flex-direction: column; }
 .home-side > * { flex: 1; min-height: 0; }
@@ -63,7 +63,12 @@ body.gradient.has-tabbar .app:has(.home:not([hidden])) { padding-bottom: calc(60
   font-size: 13px;
   text-align: center;
   overflow-wrap: anywhere;
+  background: none;
+  font: inherit;
+  font-size: 13px;
 }
+button.home-missing { cursor: pointer; }
+button.home-missing:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* The menu */
 .home-menu-list { display: grid; }
@@ -84,3 +89,9 @@ body.gradient.has-tabbar .app:has(.home:not([hidden])) { padding-bottom: calc(60
 .home-menu-row svg { color: var(--muted); }
 .home-menu-row.spin svg { animation: spin 0.9s linear infinite; }
 @media (prefers-reduced-motion: reduce) { .home-menu-row.spin svg { animation: none; } }
+
+/* Short phones: a little less space between things, so everything fits above the tab bar. */
+@media (max-height: 700px) {
+  .home { gap: 12px; }
+  .home-now { padding-top: 0; gap: 4px; }
+}

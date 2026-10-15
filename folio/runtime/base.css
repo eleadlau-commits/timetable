@@ -36,6 +36,8 @@
   --on-top-soft: rgb(255 255 255 / .14);
   --danger: #c62828;
   --danger-soft: #fdecec;
+  --paper: #ffffff;              /* stays white in dark mode too, behind barcodes and QR codes */
+  --paper-ink: #1d1a21;
   --shadow: 0 1px 2px rgb(29 26 33 / .05), 0 6px 18px rgb(29 26 33 / .06);
   --radius: 14px;
   color-scheme: light;

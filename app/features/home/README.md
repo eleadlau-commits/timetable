@@ -7,7 +7,7 @@ The screen the app opens on. It has its own header instead of the top bar, the d
 - **The Home tab** (view id `home`), the default tab.
 - **Header:** *Menu* (three lines) opens a list of the buttons that used to be in the top bar: refresh, reminders, campus card, Settings… (whatever features add to `header.buttons`), with the "Updated 5 min ago" line above them. *Friends* only appears if a feature offers a `friends` service (none does yet). *Account* opens Settings.
 - **Date and clock:** today's date, and the time in IBM Plex Mono, 96 px. It changes at the start of every minute (`app:tick`). On a 12-hour phone, AM/PM is shown small after the time.
-- **Places for other features** (slots it defines). Each item is `{ order, render() }`, and `render()` gives back an element to show, a short text saying what's missing (e.g. `'add your timetable'`), or `null` to leave the place to other items.
+- **Places for other features** (slots it defines). Each item is `{ order, render() }`, and `render()` gives back an element to show; or what's missing, as a short text (e.g. `'add your timetable'`) or as `{ missing: 'scan your campus card', action() }` to make the placeholder tappable; or `null` to leave the place to other items.
 
   | Slot | Where | Filled by |
   |---|---|---|

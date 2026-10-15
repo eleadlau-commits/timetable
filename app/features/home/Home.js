@@ -1,8 +1,8 @@
 // Home: the screen the app opens on. Its own header (menu, friends, account), today's date, a
 // big clock, and below a flexible gap, places where other features add cards.
 //
-// Slots it defines (each item: { order, render() }; render gives back an element, a short
-// text saying what's missing, or null):
+// Slots it defines (each item: { order, render() }; render gives back an element, what's
+// missing as a short text or { missing, action?() }, or null):
 //   home.next   the line under the clock
 //   home.top    a wide card above the bottom block (the library)
 //   home.main   the left column of the bottom block (date strip and lecture card)
@@ -21,13 +21,13 @@ const { el } = ui;
 export default class Home extends Feature {
   start() {
     this.defineSlot('home.next',
-      'The line under the clock on Home. Item: { order, render() → element, a short text saying what is missing, or null }.');
+      'The line under the clock on Home. Item: { order, render() → element; or what is missing, as text or { missing, action?() }; or null }.');
     this.defineSlot('home.top',
-      'A wide card on Home, above the bottom block. Item: { order, render() → element, a short text saying what is missing, or null }.');
+      'A wide card on Home, above the bottom block. Item: { order, render() → element; or what is missing, as text or { missing, action?() }; or null }.');
     this.defineSlot('home.main',
-      'The left column of the bottom block on Home. Item: { order, render() → element, a short text saying what is missing, or null }.');
+      'The left column of the bottom block on Home. Item: { order, render() → element; or what is missing, as text or { missing, action?() }; or null }.');
     this.defineSlot('home.side',
-      'The narrow right column of the bottom block on Home. Item: { order, render() → element, a short text saying what is missing, or null }.');
+      'The narrow right column of the bottom block on Home. Item: { order, render() → element; or what is missing, as text or { missing, action?() }; or null }.');
     this.add('views', {
       id: 'home',
       label: 'Home',
@@ -76,9 +76,11 @@ export default class Home extends Feature {
 
   // Draws a slot's items, or a placeholder if none of them has anything to show.
   fill(name, box) {
-    const { shown, missing } = slotContent(this.slot(name).items.map((item) => this.slot(name).run(item, (x) => x.render(), null)));
+    const slot = this.slot(name);
+    const { shown, missing, action } = slotContent(slot.items.map((item) => slot.run(item, (x) => x.render(), null)));
     box.classList.toggle('is-missing', !shown.length);
     if (shown.length) box.replaceChildren(...shown);
+    else if (action) box.replaceChildren(el('button', { type: 'button', class: 'home-missing', onclick: () => action() }, missingText(missing)));
     else box.replaceChildren(el('div', { class: 'home-missing' }, missingText(missing)));
   }
 

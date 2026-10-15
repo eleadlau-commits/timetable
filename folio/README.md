@@ -201,6 +201,7 @@ Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`,
 | `--tab-ink`, `--tab-glow` | Tabs that aren't selected, and the line above the selected tab |
 | `--busy`, `--busy-ink`, `--busy-soft`, `--free-line` | "Busy" bars and tags, and the dotted line for what's free |
 | `--danger`, `--danger-soft` | Mistakes and warnings |
+| `--paper`, `--paper-ink` | White and near-black in both themes, behind barcodes and QR codes so scanners can read them |
 | `--font`, `--font-mono` | The app's font, and the font for clocks and numbers |
 | `--radius`, `--shadow` | Corner radius of cards (14 px) and their shadow |
 

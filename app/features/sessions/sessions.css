@@ -72,7 +72,7 @@ a.meta span { text-decoration: underline; text-decoration-color: var(--line); te
   padding: 2px 9px;
   border-radius: 999px;
   background: hsl(var(--h) 65% var(--stripe-l));
-  color: #fff;
+  color: var(--paper);
   font-size: 12px;
   font-weight: 700;
 }

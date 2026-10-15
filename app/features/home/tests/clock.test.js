@@ -15,12 +15,18 @@ test('the clock keeps AM/PM apart on 12-hour phones', () => {
 
 test('a Home place shows what its items gave', () => {
   const card = document.createElement('div');
-  assert.deepEqual(slotContent([null, card, 'add your timetable']), { shown: [card], missing: null });
+  assert.deepEqual(slotContent([null, card, 'add your timetable']), { shown: [card], missing: null, action: null });
 });
 
 test('a Home place with nothing to show says why', () => {
-  assert.deepEqual(slotContent([null, 'add your timetable']), { shown: [], missing: 'add your timetable' });
-  assert.deepEqual(slotContent([]), { shown: [], missing: '' });
+  assert.deepEqual(slotContent([null, 'add your timetable']), { shown: [], missing: 'add your timetable', action: null });
+  assert.deepEqual(slotContent([]), { shown: [], missing: '', action: null });
   assert.equal(missingText('add your timetable'), 'Missing content: add your timetable');
   assert.equal(missingText(''), 'Missing content');
+});
+
+test('a missing place can say what to do about it', () => {
+  const action = () => {};
+  assert.deepEqual(slotContent([null, { missing: 'scan your campus card', action }]),
+    { shown: [], missing: 'scan your campus card', action });
 });
