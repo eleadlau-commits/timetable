@@ -1,5 +1,5 @@
 // Planner: a tab that holds views of the timetable (Day, Week, Upcoming), with a switch between
-// them on the dark area at the top. Each of those views is its own feature, added to the
+// them under the title. Each of those views is its own feature, added to the
 // 'planner.views' slot. Without Planner they show up as tabs of their own.
 //
 // Service 'planner': present while Planner is running, so views know to add themselves here.

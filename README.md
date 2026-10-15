@@ -8,7 +8,7 @@ GitHub builds the app for you, so you don't need to install anything. You get:
 
 ## Features
 
-The app has five tabs along the bottom: **Planner · Home · Study · Spots · More**. It opens on Home. The menu (top left) has quick buttons, and the person icon (top right) opens Settings. It follows your phone's light or dark setting.
+The app has five tabs along the bottom: **Study · Planner · Home · Spots · More**. It opens on Home. The menu (top left) has quick buttons, and the person icon (top right) opens Settings. It follows your phone's light or dark setting.
 
 | Feature | What it does |
 |---|---|

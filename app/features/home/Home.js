@@ -28,6 +28,7 @@ export default class Home extends Feature {
       icon: 'home',
       order: 20,
       start: true,
+      darkHead: true,
       hideTitle: true,
       mount: (container, { head }) => this.mount(container, head),
       render: () => this.render(),

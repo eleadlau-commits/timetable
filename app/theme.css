@@ -28,9 +28,15 @@
   --accent-soft: #efe7f8;
   --tab-ink: #2e2440;         /* tabs that aren't selected */
   --glow: #2e2440;            /* the line above the selected tab */
-  --busy: #ec7a12;            /* library bar */
-  --busy-ink: #a34c00;        /* "Busy" tag */
+  --plenty: #2f9e5b;          /* library: plenty of seats (bar, tag text, tag background) */
+  --plenty-ink: #1d6b3c;
+  --plenty-soft: #e2f4e8;
+  --busy: #ec7a12;            /* library: fairly busy */
+  --busy-ink: #a34c00;
   --busy-soft: #fdebd9;
+  --full: #d93025;            /* library: busy or full */
+  --full-ink: #a3201a;
+  --full-soft: #fce4e2;
   --free-line: #cfcad6;       /* library: the dotted line for free seats */
   --barcode-bg: transparent;  /* the barcode sits straight on the white card */
   --danger: #b3261e;
@@ -61,9 +67,15 @@
     --accent-soft: rgb(132 87 192 / .22);
     --tab-ink: #c9aee6;
     --glow: #b48ad6;
+    --plenty: #4cc27a;
+    --plenty-ink: #8fe0ae;
+    --plenty-soft: rgb(76 194 122 / .18);
     --busy: #ec7a12;
     --busy-ink: #ffb877;
     --busy-soft: rgb(236 122 18 / .18);
+    --full: #f0645a;
+    --full-ink: #ff9c94;
+    --full-soft: rgb(240 100 90 / .18);
     --free-line: #5a5361;
     --barcode-bg: #ffffff;    /* a white inset, so the barcode stays scannable */
     --danger: #ff8a80;

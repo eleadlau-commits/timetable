@@ -16,7 +16,7 @@ export default class Study extends Feature {
       id: 'study',
       label: 'Study',
       icon: 'book',
-      order: 30,
+      order: 5,
       subtitle: () => 'Places to study',
       mount: (container) => {
         this.box = el('div', { class: 'study-cards' });

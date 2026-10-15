@@ -107,9 +107,22 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
   justify-content: space-between;
   align-items: center;
   padding: calc(10px + env(safe-area-inset-top)) var(--gutter) 6px;
-  background: var(--top);
+  background: linear-gradient(180deg, var(--top), var(--top-2));
   color: var(--on-top);
 }
+/* Under the top bar, the dark area fades into the page, unless the view's title is on it too. */
+.topbar::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 16px;
+  background: linear-gradient(180deg, var(--top-2), var(--bg));
+  pointer-events: none;
+}
+.dark-head > .topbar { background: var(--top); }
+.dark-head > .topbar::after { display: none; }
 .top-btn {
   width: 44px;
   height: 44px;
@@ -131,14 +144,15 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
 .view { flex: 1; display: flex; flex-direction: column; }
 .screen-host { padding: 0 var(--gutter); }
 
-/* Each view's title, on the dark area. Views can add more there (mount's `head`). */
-.page-head {
-  position: relative;
+/* Each view's title. Views can add more there (mount's `head`). It's on the page, or on the
+   dark area for views that ask for that (darkHead). */
+.page-head { position: relative; padding: 22px var(--gutter) 0; color: var(--text); }
+.dark-head .page-head {
   padding: 6px var(--gutter) 18px;
   background: linear-gradient(180deg, var(--top), var(--top-2));
   color: var(--on-top);
 }
-.page-head::after {
+.dark-head .page-head::after {
   content: "";
   position: absolute;
   top: 100%;
@@ -150,7 +164,8 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
 }
 .page-title { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
 .page-title h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
-.page-sub { margin: 0; padding-bottom: 4px; font-size: 14px; color: var(--on-top-muted); text-align: right; }
+.page-sub { margin: 0; padding-bottom: 4px; font-size: 14px; color: var(--muted); text-align: right; }
+.dark-head .page-sub { color: var(--on-top-muted); }
 .page-extra:empty { display: none; }
 .page-title:not([hidden]) + .page-extra { margin-top: 14px; }
 .page-body { position: relative; flex: 1; display: flex; flex-direction: column; padding: 18px var(--gutter) 0; }
@@ -261,8 +276,9 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   cursor: pointer;
 }
 .seg button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
-.page-head .seg { background: rgb(255 255 255 / .10); }
-.page-head .seg button { color: var(--on-top-muted); }
+.page-head .seg { background: var(--surface); }
+.dark-head .page-head .seg { background: rgb(255 255 255 / .10); }
+.dark-head .page-head .seg button { color: var(--on-top-muted); }
 .page-head .seg button[aria-selected="true"] { color: var(--accent-ink); }
 
 /* Something with nothing to show yet (ui.missing) */
