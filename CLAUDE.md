@@ -28,20 +28,27 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 
 | Feature | What it does | Requires (uses) | Adds to | Offers |
 |---|---|---|---|---|
-| `campus-card` | Scan and show the campus card barcode | | header button | |
+| `home` | The Home screen: own header (menu, friends, account), date, live clock | (friends) | views (default, no top bar) | slots `home.next/top/main/side` |
+| `campus-card` | Scan and show the campus card barcode | (home) | header button, home.side | |
 | `timetable` | Loads and saves the timetable, setup screen | | header button + status, settings | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
 | `sessions` | Session cards and the details window | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
-| `day-view` | Day view | sessions | views | slot `day.cards` |
+| `planner` | The Planner tab holding Day, Week and Upcoming | | views | service `planner`; slot `planner.views` |
+| `day-view` | Day view | sessions (planner) | planner.views (or views) | slot `day.cards` |
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
-| `library` | How busy Bill Bryson Library is, free seats per floor | day-view (web-relay) | day.cards, settings | |
+| `library` | How busy Bill Bryson Library is, free seats per floor | (home, web-relay) | home.top, settings | |
 | `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings | |
 | `maps` | Building names, map preview, directions | sessions (durham-rooms) | session.location/details, settings | |
 | `modules` | Rename, recolour or hide modules | sessions | session.name/colour/filter/details, settings | |
+| `more` | The More tab ("Coming soon") | | views | |
 | `notes` | Notes on sessions | sessions | session.card/details | |
 | `reminders` | Class and personal reminders | sessions | header button, session.details | |
-| `upcoming` | Next four weeks (view id `agenda`) | sessions | views | |
-| `week-view` | Week grid | sessions (day-view) | views | |
+| `spots` | The Spots tab ("Coming soon") | | views | |
+| `up-next` | Next class line, date strip and lecture card on Home | sessions (timetable, home) | home.next, home.main | |
+| `upcoming` | Next four weeks (view id `agenda`) | sessions (planner) | planner.views (or views) | |
+| `week-view` | Week grid | sessions (planner, day-view) | planner.views (or views) | |
+
+The tab bar is Planner · Home · Spots · More, with Home first on screen. On Home the top bar is hidden, so header buttons are reached through Home's Menu.
 
 ## Branches
 
@@ -58,4 +65,5 @@ Name each branch `claude/` plus a few words saying what the change is, e.g. `cla
 
 - **Version 1 data:** before Folio, data was saved under `tt.*` keys. Each feature brings its part across once (`import-from-v1`). Keep that code.
 - **Timetable downloads:** `CapacitorHttp` is on in the Android app (timetable's `feature.json`), so downloads aren't blocked there. In the web version they can be, which is what `web-relay` is for.
+- **The look:** colours and fonts come from `DESIGN.md`, as CSS variables in `folio/runtime/base.css` (accent and page colours also in `app/app.json`). IBM Plex is bundled in `app/fonts/`. `home-light.html` and `home-dark.html` are reference mockups only and aren't part of the app.
 - **Durham room data:** from AccessAble and OpenStreetMap, October 2026. To change it, edit `app/features/durham-rooms/places.js` and its tests.

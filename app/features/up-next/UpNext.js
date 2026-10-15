@@ -26,6 +26,7 @@ export default class UpNext extends Feature {
   }
 
   toToday() {
+    this.scroll = 0;
     this.page = 0;
     this.day = time.startOfDay(new Date());
     this.onToday = true;
@@ -33,6 +34,7 @@ export default class UpNext extends Feature {
   }
 
   pick(day) {
+    if (!time.sameDay(day, this.day)) this.scroll = 0;
     this.day = time.startOfDay(day);
     this.onToday = time.sameDay(day, new Date());
     this.refresh();
@@ -111,7 +113,8 @@ export default class UpNext extends Feature {
 
     const s = plan.main;
     const kind = this.sessions.kind(s);
-    return el('article', { class: 'un-card' }, label,
+    // The card is drawn again every minute; keep where it was scrolled to.
+    const card = el('article', { class: 'un-card', onscroll: (e) => { this.scroll = e.target.scrollTop; } }, label,
       el('button', { type: 'button', class: `un-main${s.cancelled ? ' cancelled' : ''}`, onclick: () => this.sessions.open(s) },
         el('span', { class: 'un-name' }, this.sessions.name(s)),
         el('span', { class: 'un-sub' }, this.range(s)),
@@ -123,6 +126,8 @@ export default class UpNext extends Feature {
       },
         el('span', { class: 'un-item-name' }, this.sessions.name(r)),
         el('span', { class: 'un-item-sub' }, [this.range(r), r.cancelled ? 'Cancelled' : r.location].filter(Boolean).join(' · ')))));
+    if (this.scroll) requestAnimationFrame(() => { card.scrollTop = this.scroll; });
+    return card;
   }
 
   range(s) {
