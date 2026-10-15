@@ -16,6 +16,7 @@ GitHub builds the app for you, so you don't need to install anything. You get:
 | **Modules** | Rename a module ("ECON1011" → "Microeconomics"), pick its colour, or hide it. |
 | **Maps** | Durham room codes show as buildings (`CLC013 · Calman Learning Centre`), with a map and directions. |
 | **Reminders** | A notification before each class, plus your own reminders. |
+| **Library** | How busy Bill Bryson Library is, with free seats on each floor, at the top of today's Day view. |
 | **Campus card** | Scan your card's barcode and show it on your phone if you lose the card. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
 

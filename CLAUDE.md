@@ -1,6 +1,6 @@
 # Timetable app (built with Folio)
 
-A timetable app for a Durham University student and a few friends. It reads the university's calendar export link (`.ics`) and shows Day, Week and Upcoming views, plus notes, module colours/names/hiding, maps of Durham rooms, reminders and a campus card barcode.
+A timetable app for a Durham University student and a few friends. It reads the university's calendar export link (`.ics`) and shows Day, Week and Upcoming views, plus notes, module colours/names/hiding, maps of Durham rooms, how busy the library is, reminders and a campus card barcode.
 
 It's built with **Folio**, a small framework in `folio/` where every feature is a folder in `app/features/` and a compiler (`python build.py`) assembles the app. **Read `folio/README.md` before changing anything.** It explains slots, services, events, feature.json, storage and the rules.
 
@@ -31,9 +31,10 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `campus-card` | Scan and show the campus card barcode | | header button | |
 | `timetable` | Loads and saves the timetable, setup screen | | header button + status, settings | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
 | `sessions` | Session cards and the details window | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
-| `day-view` | Day view | sessions | views | |
+| `day-view` | Day view | sessions | views | slot `day.cards` |
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
+| `library` | How busy Bill Bryson Library is, free seats per floor | day-view (web-relay) | day.cards, settings | |
 | `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings | |
 | `maps` | Building names, map preview, directions | sessions (durham-rooms) | session.location/details, settings | |
 | `modules` | Rename, recolour or hide modules | sessions | session.name/colour/filter/details, settings | |

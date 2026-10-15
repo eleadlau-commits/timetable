@@ -8,6 +8,8 @@ const { el } = ui;
 export default class DayView extends Feature {
   start() {
     this.sessions = this.use('sessions');
+    this.defineSlot('day.cards',
+      'Cards above the day\'s sessions. Item: { order, render(day) → element, or null to show nothing }.');
     this.add('views', {
       id: 'day',
       label: 'Day',
@@ -26,6 +28,7 @@ export default class DayView extends Feature {
     this.strip = el('div', { class: 'week-days' });
     this.title = el('h2');
     this.todayButton = el('button', { type: 'button', class: 'link-btn', onclick: () => this.sessions.select(new Date()) }, 'Back to today');
+    this.cards = el('div', { class: 'day-cards' });
     this.list = el('div', { class: 'list day-list' });
     container.append(
       el('div', { class: 'weekbar' },
@@ -33,6 +36,7 @@ export default class DayView extends Feature {
         this.strip,
         el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Next week', onclick: () => this.move(7) }, ui.icon('right'))),
       el('div', { class: 'dayhead' }, this.title, this.todayButton),
+      this.cards,
       this.list);
   }
 
@@ -61,6 +65,7 @@ export default class DayView extends Feature {
 
     this.title.replaceChildren(time.dayLabel(selected), ' ', el('span', {}, time.formatDate(selected)));
     this.todayButton.hidden = time.sameDay(selected, today);
+    this.cards.replaceChildren(...this.slot('day.cards').map((card) => card.render(selected)));
 
     const items = sessions.onDay(selected);
     const hidden = sessions.hiddenNote(selected);

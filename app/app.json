@@ -2,7 +2,7 @@
   "id": "timetable",
   "name": "Timetable",
   "description": "Your university timetable on your phone.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "lang": "en",
   "theme": {
     "accent": "#3d5afe",

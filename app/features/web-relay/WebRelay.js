@@ -3,7 +3,7 @@
 // (extras/worker.js, set up as in extras/README.md) and paste its address in Settings. When the
 // direct download is blocked, the timetable is fetched through the relay instead.
 //
-// Service 'relay': { address, setPending(address) }
+// Service 'relay': { address, setPending(address), fetchThroughRelay(link) → Promise of the text, or null }
 // Saved data: 'address' → the relay's web address
 
 import { Feature, ui } from 'folio';

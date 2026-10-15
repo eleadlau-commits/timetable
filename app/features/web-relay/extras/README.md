@@ -17,6 +17,7 @@ The relay is a tiny program that runs free on Cloudflare. It fetches your calend
    ];
    ```
    This stops anyone else from using your relay to fetch other websites.
+   If you use the **Library** card, add the library's site too: `'apps.dur.ac.uk',`
 5. Click **Deploy**. Copy the worker's address, which looks like `https://timetable-relay.yourname.workers.dev`.
 6. In the app, open **Settings → Advanced: personal relay**, paste the address, and tap **Save and refresh**.
 

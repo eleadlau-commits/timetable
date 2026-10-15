@@ -7,7 +7,7 @@ Some university servers stop web pages from reading the timetable link directly,
 - **Error messages:** clearer explanations when the download is blocked (`timetable.explain`).
 - **Settings:** an "Advanced: personal relay" setting.
 
-**What it offers:** the service `relay`, with `address` and `setPending(address)`. Link sharing uses it to send the relay address with the QR code.
+**What it offers:** the service `relay`, with `address`, `setPending(address)` and `fetchThroughRelay(link)`. Link sharing uses it to send the relay address with the QR code, and Library uses it to read the library's occupancy page.
 
 **What it needs:**
 - **Requires:** timetable.
