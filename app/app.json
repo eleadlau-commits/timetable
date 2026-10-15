@@ -5,10 +5,10 @@
   "version": "2.1.0",
   "lang": "en",
   "theme": {
-    "accent": "#3d5afe",
-    "accentDark": "#8c9eff",
-    "background": "#f5f6fa",
-    "backgroundDark": "#0f1117"
+    "accent": "#6b3fa0",
+    "accentDark": "#8457c0",
+    "background": "#1f1c23",
+    "backgroundDark": "#110f14"
   },
   "native": {
     "appId": "io.github.timetable.app"
