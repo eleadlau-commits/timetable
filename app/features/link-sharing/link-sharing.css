@@ -1,0 +1,14 @@
+.qr {
+  justify-self: center;
+  padding: 12px;
+  border-radius: 12px;
+  background: #fff;
+  color: #151925;
+  min-width: 120px;
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-size: 14px;
+}
+.qr img, .qr canvas { display: block; max-width: 100%; height: auto; }

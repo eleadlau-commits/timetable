@@ -1,5 +1,6 @@
-# Builds the Android app (APK) and publishes the web version to GitHub Pages
-# every time you upload changes, or when you press "Run workflow" on the Actions tab.
+# Tests the app, then builds the Android app (APK) and publishes the web version to GitHub Pages,
+# every time you upload changes or press "Run workflow" on the Actions tab.
+# If any test fails, nothing is released, so a broken version never reaches anyone's phone.
 
 name: Build app
 
@@ -9,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write   # to attach the APK to a release
+  contents: write   # to attach the APK to a release, and save the signing key
   pages: write      # to publish the web version
   id-token: write
 
@@ -18,11 +19,28 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  android:
-    name: Android app (APK)
+  test:
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      # Compiler tests, feature tests, and the delete-a-folder test, in Chrome.
+      - name: Run all tests
+        run: python build.py test --require-browser
+
+  android:
+    name: Android app (APK)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
       - uses: actions/setup-node@v4
         with:
@@ -33,23 +51,27 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Install Capacitor
+      - name: Compile the app
+        run: python build.py --build ${{ github.run_number }}
+
+      - name: Install Capacitor and the packages features asked for
+        working-directory: dist
         run: npm install
 
       - name: Create the Android project
+        working-directory: dist
         run: npx cap add android
 
-      # The campus card scanner needs the camera.
-      - name: Allow camera access
-        run: |
-          sed -i 's#<application#<uses-permission android:name="android.permission.CAMERA" />\n    <uses-feature android:name="android.hardware.camera" android:required="false" />\n\n    <application#' android/app/src/main/AndroidManifest.xml
-          grep -n "CAMERA" android/app/src/main/AndroidManifest.xml
+      - name: Add the permissions features asked for
+        run: python build.py android-manifest dist/android/app/src/main/AndroidManifest.xml
 
       - name: Generate app icons
         continue-on-error: true   # falls back to the default icon if this fails
+        working-directory: dist
         run: npx --yes @capacitor/assets generate --android --iconBackgroundColor '#3d5afe' --iconBackgroundColorDark '#3d5afe'
 
       - name: Copy the app into the Android project
+        working-directory: dist
         run: npx cap sync android
 
       # Every build must be signed with the same key, or Android refuses to install an
@@ -73,15 +95,16 @@ jobs:
 
       - name: Set the version number
         run: |
-          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"1.${{ github.run_number }}\"/" android/app/build.gradle
-          grep -E "versionCode|versionName" android/app/build.gradle
+          VERSION=$(python build.py version)
+          sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"$VERSION (build ${{ github.run_number }})\"/" dist/android/app/build.gradle
+          grep -E "versionCode|versionName" dist/android/app/build.gradle
 
       - name: Build the APK
-        working-directory: android
+        working-directory: dist/android
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Name the APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk Timetable.apk
+        run: cp dist/android/app/build/outputs/apk/debug/app-debug.apk Timetable.apk
 
       - name: Publish it as a release
         uses: softprops/action-gh-release@v2
@@ -94,6 +117,7 @@ jobs:
 
   website:
     name: Web version (GitHub Pages)
+    needs: test
     runs-on: ubuntu-latest
     # Only works once Pages is switched on (Settings → Pages → Source: GitHub Actions).
     # Until then this job fails without affecting the APK.
@@ -103,9 +127,14 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile the app
+        run: python build.py --build ${{ github.run_number }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: www
+          path: dist/web
       - id: deploy
         uses: actions/deploy-pages@v4

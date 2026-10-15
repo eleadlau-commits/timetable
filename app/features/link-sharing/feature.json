@@ -1,0 +1,19 @@
+{
+  "name": "Link sharing",
+  "description": "Get your timetable link onto your phone with a QR code, or by sharing it to the app.",
+  "version": "2.0.0",
+  "main": "LinkSharing.js",
+  "styles": ["link-sharing.css"],
+  "requires": ["timetable"],
+  "uses": ["web-relay"],
+  "platforms": ["web"],
+  "web": {
+    "manifest": {
+      "share_target": {
+        "action": "./",
+        "method": "GET",
+        "params": { "title": "title", "text": "text", "url": "url" }
+      }
+    }
+  }
+}

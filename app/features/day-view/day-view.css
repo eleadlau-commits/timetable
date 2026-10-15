@@ -1,0 +1,37 @@
+.weekbar {
+  display: grid;
+  grid-template-columns: 32px 1fr 32px;
+  align-items: center;
+}
+.week-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+.daybtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 6px 0 5px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.daybtn b { font-size: 17px; color: var(--text); font-variant-numeric: tabular-nums; }
+.daybtn.today b { color: var(--accent); }
+.daybtn .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0; }
+.daybtn.has .dot { opacity: 0.7; }
+.daybtn.sel { background: var(--accent); color: var(--accent-ink); }
+.daybtn.sel b { color: var(--accent-ink); }
+
+.dayhead {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin: 14px 0 10px;
+}
+.dayhead h2 { font-size: 18px; }
+.dayhead h2 span { color: var(--muted); font-weight: 500; }
+.day-list { min-height: 45vh; }

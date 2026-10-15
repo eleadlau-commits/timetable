@@ -1,0 +1,48 @@
+/* How busy colours: green for plenty of seats, amber, orange, then red for full. */
+:root {
+  --lib-quiet: hsl(145 55% 40%);
+  --lib-average: hsl(40 85% 45%);
+  --lib-busy: hsl(22 85% 50%);
+  --lib-track: hsl(220 15% 90%);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lib-quiet: hsl(145 45% 55%);
+    --lib-average: hsl(40 80% 60%);
+    --lib-busy: hsl(22 85% 62%);
+    --lib-track: hsl(220 12% 24%);
+  }
+}
+
+.lib-card { margin: 0 0 12px; padding: 10px 14px; }
+.lib-card > summary { list-style: none; cursor: pointer; }
+.lib-card > summary::-webkit-details-marker { display: none; }
+.lib-line { display: flex; align-items: center; gap: 10px; }
+.lib-push { margin-left: auto; }
+.lib-chevron { display: flex; color: var(--muted); transition: transform 0.15s; }
+.lib-chevron svg { width: 18px; height: 18px; }
+.lib-card[open] .lib-chevron { transform: rotate(90deg); }
+.lib-status { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; }
+.lib-status .hint.small { margin: 0; }
+.lib-check { width: 32px; height: 32px; flex: none; }
+
+.lib-bar { height: 6px; margin: 8px 0 2px; border-radius: 999px; background: var(--lib-track); overflow: hidden; }
+.lib-bar i { display: block; height: 100%; border-radius: inherit; background: var(--lib-quiet); }
+.lib-bar.average i { background: var(--lib-average); }
+.lib-bar.busy i { background: var(--lib-busy); }
+.lib-bar.full i { background: var(--danger); }
+
+.lib-free { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.lib-band { font-weight: 650; color: var(--lib-quiet); }
+.lib-band.average, .lib-count.average { color: var(--lib-average); }
+.lib-band.busy, .lib-count.busy { color: var(--lib-busy); }
+.lib-band.full, .lib-count.full { color: var(--danger); }
+
+.lib-floor { padding: 10px 0 2px; border-top: 1px solid var(--line); margin-top: 8px; }
+.lib-row { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; }
+.lib-count { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--lib-quiet); }
+.lib-zones.hint.small { margin-top: 2px; }
+
+.lib-setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; }
+.lib-card a { color: var(--accent); font-size: 14px; }
+.lib-foot { margin-top: 10px; }

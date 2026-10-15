@@ -1,0 +1,8 @@
+{
+  "name": "Day view",
+  "description": "One day at a time, with a strip to pick the day and what's on now and next.",
+  "version": "2.0.0",
+  "main": "DayView.js",
+  "styles": ["day-view.css"],
+  "requires": ["sessions"]
+}

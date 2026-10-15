@@ -1,0 +1,39 @@
+.mod-list { display: grid; }
+.mod-row { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); }
+.mod-row:last-child { border-bottom: 0; }
+.mod-row.off .mod-main { opacity: 0.5; }
+.mod-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.mod-swatch { width: 18px; height: 18px; flex: none; border-radius: 50%; background: hsl(var(--h) 65% var(--stripe-l, 52%)); }
+.mod-text { min-width: 0; display: flex; flex-direction: column; }
+.mod-text b { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mod-text small { font-size: 13px; color: var(--muted); }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 10px; }
+.swatch {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: hsl(var(--h) 65% var(--stripe-l, 52%));
+  color: #fff;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.swatch[aria-checked="true"] { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--text); }

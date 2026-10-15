@@ -1,0 +1,6 @@
+{
+  "name": "Durham rooms",
+  "description": "Knows Durham University's room codes, so CLC013 shows as the Calman Learning Centre.",
+  "version": "2.0.0",
+  "main": "DurhamRooms.js"
+}

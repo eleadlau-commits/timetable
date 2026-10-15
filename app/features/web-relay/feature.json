@@ -1,0 +1,8 @@
+{
+  "name": "Web relay",
+  "description": "Loads the timetable through your own relay when the university's server blocks the web version.",
+  "version": "2.0.0",
+  "main": "WebRelay.js",
+  "requires": ["timetable"],
+  "platforms": ["web"]
+}

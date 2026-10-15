@@ -1,0 +1,8 @@
+{
+  "name": "Upcoming",
+  "description": "A list of everything in the next four weeks.",
+  "version": "2.0.0",
+  "main": "Upcoming.js",
+  "styles": ["upcoming.css"],
+  "requires": ["sessions"]
+}

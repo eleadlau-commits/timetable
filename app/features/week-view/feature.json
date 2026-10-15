@@ -1,0 +1,9 @@
+{
+  "name": "Week view",
+  "description": "The whole week as a grid, like a paper timetable.",
+  "version": "2.0.0",
+  "main": "WeekView.js",
+  "styles": ["week-view.css"],
+  "requires": ["sessions"],
+  "uses": ["day-view"]
+}

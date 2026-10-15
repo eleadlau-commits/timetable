@@ -1,0 +1,11 @@
+{
+  "name": "Reminders",
+  "description": "A notification before each class, and reminders of your own.",
+  "version": "2.0.0",
+  "main": "Reminders.js",
+  "styles": ["reminders.css"],
+  "requires": ["sessions"],
+  "native": {
+    "packages": { "@capacitor/local-notifications": "^7.0.0" }
+  }
+}
