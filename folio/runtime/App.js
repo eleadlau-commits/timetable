@@ -112,6 +112,7 @@ export class App {
     html.dataset.folioActive = [...this.features.values()].filter((f) => f.status === 'active').map((f) => f.manifest.id).join(',');
     this.listenToDevice();
     this.emit('app:ready');
+    this.shell.ready = true;
     this.shell.render();
     this.registerOfflineSupport();
     html.dataset.folio = 'ready';

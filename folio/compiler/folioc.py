@@ -56,24 +56,33 @@ TEST_PROBE = """
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const closeWindows = () => document.querySelectorAll('dialog[open]').forEach((d) => d.close());
 app.start().then(async () => {
-  const startView = app.shell.currentView?.id;
-  for (const view of app.shell.views) {
-    app.shell.selectView(view.id);
+  const shell = app.shell;
+  const startView = shell.currentView?.id;
+  const tryView = async (id) => {
+    shell.selectView(id);
     await wait(50);
     document.querySelector('.view:not([hidden]) [role="button"]')?.click();
     await wait(100);
     closeWindows();
+  };
+  for (const view of shell.views) {
+    await tryView(view.id);
+    for (const inner of view.subviews?.() || []) await tryView(inner);
   }
-  app.shell.openSettings();
+  shell.openSettings();
   await wait(100);
   closeWindows();
-  for (const button of document.querySelectorAll('.topbar .actions button')) {
-    if (button.getAttribute('aria-label') === 'Refresh timetable') continue;
-    button.click();
+  shell.openMenu();
+  const rows = document.querySelectorAll('dialog[open] .menu-row').length;
+  closeWindows();
+  for (let i = 0; i < rows; i++) {
+    shell.openMenu();
+    const row = document.querySelectorAll('dialog[open] .menu-row')[i];
+    if (row && row.textContent !== 'Refresh timetable') row.click();
     await wait(100);
     closeWindows();
   }
-  if (startView) app.shell.selectView(startView);
+  if (startView) shell.selectView(startView);
   await wait(300);
 }).catch((err) => app.report(null, err, 'starting')).finally(() => {
   const html = document.documentElement;
@@ -512,6 +521,8 @@ class Project:
         if (self.app_dir / 'icons').is_dir():
             shutil.copytree(self.app_dir / 'icons', web / 'icons',
                             ignore=shutil.ignore_patterns('icon-only.png'))
+        if (self.app_dir / 'fonts').is_dir():
+            shutil.copytree(self.app_dir / 'fonts', web / 'fonts')
         test_files = []
         if test:
             test_files = self._test_page(web, included)
@@ -582,6 +593,9 @@ class Project:
                  '/* ---- Theme from app/app.json ---- */\n'
                  f':root {{ --accent: {theme["accent"]}; }}\n'
                  f'@media (prefers-color-scheme: dark) {{ :root {{ --accent: {theme["accentDark"]}; }} }}\n']
+        theme_css = self.app_dir / 'theme.css'
+        if theme_css.is_file():
+            parts.append('/* ---- app/theme.css ---- */\n' + theme_css.read_text('utf-8'))
         for f in included:
             for style in f.manifest.get('styles', []):
                 parts.append(f'/* ---- feature: {f.id} ({style}) ---- */\n' + (f.path / style).read_text('utf-8'))
@@ -1003,9 +1017,9 @@ def run_tests(project: Project, args) -> int:
             return False
 
         log.title('')
-        log.title('3. The whole app works: every view, a session, Settings and each button')
+        log.title('3. The whole app works: every view, a session, Settings and each menu button')
         all_ids = [f.id for f in details['included']]
-        for view in ('day', 'week', 'agenda'):
+        for view in ('home', 'day', 'week', 'agenda'):
             ok = check_app(f'starting on {view}', server, f'index.html#view={view}') and ok
         server.shutdown()
 
