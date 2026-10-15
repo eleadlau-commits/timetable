@@ -43,6 +43,10 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `upcoming` | Next four weeks (view id `agenda`) | sessions | views | |
 | `week-view` | Week grid | sessions (day-view) | views | |
 
+## Branches
+
+Name each branch `claude/` plus a few words saying what the change is, e.g. `claude/library-card` or `claude/fix-week-view-swipe`. Don't use the session's random name (like `claude/beautiful-dirac-r9jeyv`). This is the owner's standing permission to push to such a branch instead. Never push straight to `main`.
+
 ## Releasing
 
 - **On GitHub:** every push to `main` runs `.github/workflows/build.yml`. Tests run first, and if they fail nothing is released. Then the APK goes to Releases and the web version to GitHub Pages.
