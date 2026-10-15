@@ -1,0 +1,2 @@
+/* Planner: each view inside it fills the space under the switch. */
+.planner-view { display: flex; flex-direction: column; }
