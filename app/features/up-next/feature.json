@@ -1,0 +1,9 @@
+{
+  "name": "Up next",
+  "description": "Your next class under the clock, and a day of lectures on Home.",
+  "version": "1.0.0",
+  "main": "UpNext.js",
+  "styles": ["up-next.css"],
+  "requires": ["sessions"],
+  "uses": ["timetable", "home"]
+}
