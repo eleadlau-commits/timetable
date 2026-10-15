@@ -8,20 +8,24 @@ GitHub builds the app for you, so you don't need to install anything. You get:
 
 ## Features
 
+The app has five tabs along the bottom: **Planner · Home · Study · Spots · More**. It opens on Home. The menu (top left) has quick buttons, and the person icon (top right) opens Settings. It follows your phone's light or dark setting.
+
 | Feature | What it does |
 |---|---|
-| **Home** | The screen the app opens on: the time, your next class with a countdown, the rest of the day, the library and your campus card. Tabs at the bottom: Planner · Home · Spots · More. |
-| **Planner: Day, Week and Upcoming** | Three ways to see your timetable, in the Planner tab. Swipe to move between days or weeks. |
+| **Home** | The date and a big clock, your next class, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
+| **Planner: Day, Week and Upcoming** | Three ways to see your timetable. Swipe to move between days or weeks. |
 | **Session details** | Tap any session for its time, room, description and more. |
 | **Notes** | Your own notes on a session, e.g. "bring laptop". The first line shows on the card. |
 | **Modules** | Rename a module ("ECON1011" → "Microeconomics"), pick its colour, or hide it. |
 | **Maps** | Durham room codes show as buildings (`CLC013 · Calman Learning Centre`), with a map and directions. |
 | **Reminders** | A notification before each class, plus your own reminders. |
-| **Library** | How busy Bill Bryson Library is, with free seats on each floor, on Home. |
-| **Campus card** | Scan your card's barcode and show it on your phone (on Home) if you lose the card. |
+| **Library** | How busy Bill Bryson Library is: a card on Home, and free seats on each floor on the **Study** tab. |
+| **Campus card** | Scan your card's barcode and show it on your phone if you lose the card. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
+| **More** | Everything else in one list: campus card, reminders, modules, your calendar link. |
+| **Spots** | Kept for later; nothing here yet. |
 
-Light and dark mode follow your phone's setting. Settings is behind the person button on Home (and in the menu). You can switch any feature off for yourself in **Settings → Features**. Everything you add (notes, colours, reminders, the card) stays on your own phone.
+You can switch any feature off for yourself in **Settings → Features**. Everything you add (notes, colours, reminders, the card) stays on your own phone.
 
 ## Install it
 

@@ -22,6 +22,39 @@ export default class CampusCard extends Feature {
     this.photos = ui.filePicker('image/*');
     this.add('header.buttons', { id: 'campus-card', label: 'Campus card', icon: 'card', order: 30, onClick: () => this.openWindow() });
     this.add('home.side', { order: 10, render: () => this.homeCard() });
+    this.add('more.items', {
+      id: 'campus-card',
+      group: 'On the go',
+      label: 'Campus card',
+      icon: 'card',
+      order: 10,
+      detail: () => (this.card ? 'Show your barcode for scanning' : 'Scan your card to keep it on your phone'),
+      onClick: () => this.openWindow(),
+    });
+  }
+
+  // The number printed under the barcode. Codabar's start/stop letters (A–D) aren't part of it.
+  printedNumber(c) {
+    return c.format === 'codabar' ? c.value.replace(/^[A-D](.+)[A-D]$/, '$1') : c.value;
+  }
+
+  // On Home: a narrow card with the barcode drawn down it. Tap to open the full card.
+  homeCard() {
+    const c = this.card;
+    if (!c) {
+      return el('button', { type: 'button', class: 'missing cc-home', onclick: () => this.openWindow() },
+        el('b', {}, 'Missing content'), el('span', {}, 'Tap to add your campus card'));
+    }
+    let code;
+    try {
+      code = barcodeSVG(c.format, c.value, { vertical: true });
+    } catch {
+      code = ui.hint('Scan the card again', { small: true });
+    }
+    return el('button', { type: 'button', class: 'cc-home', 'aria-label': 'Campus card: open the barcode for scanning', onclick: () => this.openWindow() },
+      el('span', { class: 'cc-label' }, 'Card'),
+      el('span', { class: 'cc-code' }, code),
+      el('span', { class: 'cc-number' }, this.printedNumber(c)));
   }
 
   // Before this app used Folio, the card was saved in "tt.prefs".
@@ -33,28 +66,6 @@ export default class CampusCard extends Feature {
         this.storage.set('card', old);
       }
     });
-  }
-
-  // ---- On Home: a narrow card with the barcode running down it. Tap it to open the window. ----
-
-  homeCard() {
-    const c = this.card;
-    if (!c) return { missing: 'scan your campus card', action: () => this.openWindow() };
-    let code;
-    try {
-      code = barcodeSVG(c.format, c.value, { vertical: true });
-    } catch {
-      return { missing: 'scan your campus card again', action: () => this.openWindow() };
-    }
-    return el('button', { type: 'button', class: 'card-home', 'aria-label': 'Campus card: open the barcode to scan', onclick: () => this.openWindow() },
-      el('span', { class: 'card-home-label' }, 'Card'),
-      el('span', { class: 'card-home-code' }, code),
-      el('span', { class: 'card-home-number' }, this.printed(c)));
-  }
-
-  // The number printed under the barcode. Codabar's start/stop letters (A–D) aren't part of it.
-  printed(c) {
-    return c.format === 'codabar' ? c.value.replace(/^[A-D](.+)[A-D]$/, '$1') : c.value;
   }
 
   // ---- The window ----
@@ -99,7 +110,7 @@ export default class CampusCard extends Feature {
       if (!confirm('Remove the campus card from this phone?')) return;
       this.card = null;
       this.storage.remove('card');
-      this.refresh();
+      this.refresh(); // Home shows the card
       this.replacing = false;
       this.render();
     });
@@ -127,7 +138,7 @@ export default class CampusCard extends Feature {
     } catch {
       this.parts.code.replaceChildren(ui.hint("This barcode can't be drawn. Scan the card again."));
     }
-    this.parts.number.textContent = this.printed(c);
+    this.parts.number.textContent = this.printedNumber(c);
     this.parts.type.textContent = FORMATS[c.format] || '';
   }
 
@@ -135,7 +146,7 @@ export default class CampusCard extends Feature {
     // Code 39 and Codabar only have capital letters; lower case typed in means the same thing.
     this.card = { format, value: format === 'code_128' ? value : value.toUpperCase() };
     this.storage.set('card', this.card);
-    this.refresh();
+    this.refresh(); // Home shows the card
     this.stopScan();
     this.replacing = false;
     this.showError(null);

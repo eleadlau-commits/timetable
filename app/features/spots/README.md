@@ -1,6 +1,15 @@
 # Spots
 
-A tab (view id `spots`, with a map pin icon) that says "Coming soon". It's a place for study spaces and finding your way around campus later on, for example the library's floors or a library map.
+The **Spots** tab, kept for later. It has nothing in it yet and just says *Coming soon*.
 
-- **Needs:** nothing. **Saves:** nothing.
-- Delete the folder and the tab is gone.
+## What it adds
+
+- **The Spots tab** (view id `spots`, pin icon).
+
+## What it needs
+
+- **Requires:** nothing.
+
+## What it saves on the phone
+
+Nothing.

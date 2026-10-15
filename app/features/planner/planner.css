@@ -1,22 +1,2 @@
-/* The switch between Planner views (Day · Week · Upcoming) */
-.planner-seg {
-  display: grid;
-  grid-template-columns: repeat(var(--tabs, 3), 1fr);
-  gap: 4px;
-  padding: 4px;
-  margin: 0 0 12px;
-  border-radius: 12px;
-  background: var(--surface-2);
-}
-.planner-seg button {
-  border: 0;
-  padding: 8px;
-  border-radius: 9px;
-  background: transparent;
-  color: var(--muted);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-.planner-seg button[aria-selected="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
-.planner-seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* Planner: each view inside it fills the space under the switch. */
+.planner-view { display: flex; flex-direction: column; }

@@ -5,7 +5,7 @@ import { Slot } from 'folio/Slot.js';
 import { Area, Storage } from 'folio/Storage.js';
 import { Events } from 'folio/Events.js';
 import * as time from 'folio/time.js';
-import { el } from 'folio/ui.js';
+import { el, missing } from 'folio/ui.js';
 
 // A stand-in for the app that records reported problems.
 const fakeApp = () => ({ problems: [], report(owner, err) { this.problems.push([owner, err.message]); } });
@@ -100,10 +100,10 @@ test('el() treats outside text as text, never as code', () => {
   assert.equal(node.textContent, '<img src=x onerror=alert(1)>ab');
 });
 
-test('the tab bar glows above the middle of the current tab', async () => {
-  const { glowAt } = await import('folio/TabBar.js');
-  assert.equal(glowAt(0, 4), 12.5);
-  assert.equal(glowAt(1, 4), 37.5);
-  assert.equal(glowAt(3, 4), 87.5);
-  assert.equal(glowAt(-1, 4), 50); // no tab selected
+test('missing() says "Missing content" and what is missing', () => {
+  const box = missing('Add your timetable');
+  assert.equal(box.className, 'missing');
+  assert.equal(box.querySelector('b').textContent, 'Missing content');
+  assert.equal(box.querySelector('span').textContent, 'Add your timetable');
+  assert.equal(missing().querySelector('span'), null);
 });

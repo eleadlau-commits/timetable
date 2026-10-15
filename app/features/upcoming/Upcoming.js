@@ -10,16 +10,14 @@ export default class Upcoming extends Feature {
     this.sessions = this.use('sessions');
     // The id stays 'agenda' so the app remembers this view from before it was renamed.
     // Inside the Planner tab if it's installed, otherwise a tab of its own.
-    const view = {
+    this.add(this.use('planner') ? 'planner.views' : 'views', {
+      icon: 'calendar',
       id: 'agenda',
       label: 'Upcoming',
-      icon: 'clock',
       order: 30,
       mount: (container) => { this.box = container; },
       render: () => this.render(),
-    };
-    if (this.use('planner')) this.add('planner.views', view);
-    else this.add('views', view);
+    });
   }
 
   render() {

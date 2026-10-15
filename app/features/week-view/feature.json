@@ -5,5 +5,5 @@
   "main": "WeekView.js",
   "styles": ["week-view.css"],
   "requires": ["sessions"],
-  "uses": ["planner", "day-view"]
+  "uses": ["day-view", "planner"]
 }

@@ -1,6 +1,6 @@
 {
   "name": "Home",
-  "description": "The screen the app opens on: the time, what's next, and cards from other features.",
+  "description": "The Home tab: the time, what's next, and cards from other features.",
   "version": "1.0.0",
   "main": "Home.js",
   "styles": ["home.css"]

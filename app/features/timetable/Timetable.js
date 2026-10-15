@@ -86,6 +86,15 @@ export default class Timetable extends Feature {
     });
     this.add('header.status', { order: 10, text: () => this.statusText() });
     this.add('settings', { id: 'timetable', title: 'Timetable', order: 10, render: () => this.settingsSection() });
+    this.add('more.items', {
+      id: 'timetable',
+      group: 'Your timetable',
+      label: 'Calendar link',
+      icon: 'link',
+      order: 20,
+      detail: () => this.statusText() || 'Change your timetable link',
+      onClick: () => this.app.shell.openSettings(),
+    });
 
     this.on('app:ready', () => {
       this.updateScreen();

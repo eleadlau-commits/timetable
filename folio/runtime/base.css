@@ -1,73 +1,52 @@
 /* Folio base styles: colours, the app frame, and the building blocks every feature shares
    (buttons, inputs, pop-up windows, switches, messages). Features add their own styles
    in their folder; the compiler puts this file first and each feature's styles after it.
-   Colours are the variables below: components never use colours of their own. */
+   The accent colour comes from app/app.json ("theme"). */
 
-/* Colours and fonts. Light and dark follow the phone's setting. The accent and page colours
-   can be changed per app in app/app.json ("theme"); fonts in app.json ("fonts"). */
 :root {
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-
-  --bg: #e2dfe7;                 /* the page, below the dark top */
-  --top: #1f1c23;                /* the dark top of the page (both themes) */
-  --top-2: #29242f;              /* where the dark top starts to fade */
-  --page: linear-gradient(180deg, var(--top) 0%, var(--top-2) 37%, var(--bg) 45%);
-  --surface: #ffffff;            /* cards, the tab bar, windows */
-  --surface-2: #efedf2;
-  --text: #1d1a21;
-  --text-2: #3a3540;             /* secondary text */
-  --muted: #57515e;
-  --fade-1: #77717e;             /* later items, each one fainter */
-  --fade-2: #8f8a95;
-  --fade-3: #a7a2ad;
-  --line: #ebe8ef;
-  --accent: #6b3fa0;
-  --accent-ink: #ffffff;         /* text on the accent */
-  --accent-soft: #efe7f8;
-  --tab-ink: #2e2440;            /* tabs that aren't selected */
-  --tab-glow: #2e2440;           /* the line above the selected tab */
-  --busy: #ec7a12;
-  --busy-ink: #a34c00;
-  --busy-soft: #fdebd9;
-  --free-line: #cfcad6;
-  --on-top: #ffffff;             /* text and icons on the dark top */
-  --on-top-muted: #cbc4d1;
-  --on-top-soft: rgb(255 255 255 / .14);
+  --bg: #f5f6fa;
+  --surface: #ffffff;
+  --surface-2: #eceef5;
+  --text: #151925;
+  --muted: #5f6678;
+  --line: #dfe2eb;
+  --accent: #3d5afe;
+  --accent-ink: #ffffff;
+  --accent-soft: #e6eaff;
   --danger: #c62828;
   --danger-soft: #fdecec;
-  --paper: #ffffff;              /* stays white in dark mode too, behind barcodes and QR codes */
-  --paper-ink: #1d1a21;
-  --shadow: 0 1px 2px rgb(29 26 33 / .05), 0 6px 18px rgb(29 26 33 / .06);
+  --shadow: 0 1px 2px rgb(16 20 32 / .05), 0 6px 18px rgb(16 20 32 / .06);
   --radius: 14px;
+  /* Used by the frame. app/theme.css can change any of these. */
+  --text-2: var(--text);
+  --top: #1d2130;           /* the dark area at the top: top bar and view titles */
+  --top-2: #262b3d;
+  --on-top: #ffffff;
+  --on-top-muted: #c3c8d6;
+  --tab-ink: var(--muted);  /* tabs that aren't selected */
+  --glow: var(--accent);    /* the line above the selected tab */
+  --gutter: 16px;           /* space at the screen's sides */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #1f1c23;
-    --top: #110f14;
-    --top-2: #16131a;
-    --surface: #2c2831;
-    --surface-2: #36323b;
-    --text: #f2eff5;
-    --text-2: #d6d0db;
-    --muted: #b3abb9;
-    --fade-1: #8f8796;
-    --fade-2: #77707e;
-    --fade-3: #625c69;
-    --line: #3d3842;
-    --accent: #8457c0;
-    --accent-ink: #ffffff;
-    --accent-soft: #3a2d4d;
-    --tab-ink: #c9aee6;
-    --tab-glow: #b48ad6;
-    --busy-ink: #ffb877;
-    --busy-soft: rgb(236 122 18 / .18);
-    --free-line: #5a5361;
+    --bg: #0f1117;
+    --surface: #181b24;
+    --surface-2: #232733;
+    --text: #e8eaf0;
+    --muted: #9aa1b2;
+    --line: #2c313e;
+    --accent: #8c9eff;
+    --accent-ink: #0f1117;
+    --accent-soft: #252c4d;
     --danger: #ff8a80;
     --danger-soft: #3a1f22;
     --shadow: 0 1px 2px rgb(0 0 0 / .3);
+    --top: #0b0d12;
+    --top-2: #111520;
     color-scheme: dark;
   }
 }
@@ -78,7 +57,6 @@ html { -webkit-text-size-adjust: 100%; }
 
 body {
   margin: 0;
-  min-height: 100dvh;
   background: var(--bg);
   color: var(--text);
   font: 16px/1.45 var(--font);
@@ -92,7 +70,7 @@ svg {
   height: 20px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.8;
+  stroke-width: 2;
   stroke-linecap: round;
   stroke-linejoin: round;
   flex: none;
@@ -111,41 +89,141 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 
 .app {
   max-width: 560px;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0 auto;
-  padding: 0 16px calc(32px + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  padding-bottom: calc(84px + env(safe-area-inset-bottom));
 }
+.app:has(> .tabbar[hidden]) { padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
 
-/* The page: a dark top that turns into the page colour, one screen tall. Views that draw
-   their own header (see Shell.js) are shown on it. */
-body.gradient { background: var(--bg) var(--page) top / 100% 100lvh no-repeat; }
-
-/* The top bar sits on the dark top colour, across the whole width of the screen. */
+/* The top bar: menu on the left, account and settings on the right */
 .topbar {
   position: sticky;
   top: 0;
   z-index: 5;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  padding: calc(12px + env(safe-area-inset-top)) 0 12px;
+  padding: calc(10px + env(safe-area-inset-top)) var(--gutter) 6px;
   background: var(--top);
   color: var(--on-top);
-  box-shadow: 0 0 0 100vmax var(--top);
-  clip-path: inset(0 -100vmax);
 }
-.titles { flex: 1; min-width: 0; }
-.titles h1 {
-  font-size: 22px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.top-btn {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  margin-left: -10px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
 }
-.sub { font-size: 13px; color: var(--on-top-muted); min-height: 1.2em; }
-.topbar .icon-btn { background: var(--on-top-soft); color: var(--on-top); box-shadow: none; }
-.actions { display: flex; gap: 8px; }
+.top-btn svg { width: 24px; height: 24px; }
+.top-btn.account { margin: 0; background: rgb(255 255 255 / .14); }
+.top-btn.account svg { width: 22px; height: 22px; }
+.top-btn:focus-visible, .tab:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 
+main, .view-host { flex: 1; display: flex; flex-direction: column; }
+.view { flex: 1; display: flex; flex-direction: column; }
+.screen-host { padding: 0 var(--gutter); }
+
+/* Each view's title, on the dark area. Views can add more there (mount's `head`). */
+.page-head {
+  position: relative;
+  padding: 6px var(--gutter) 18px;
+  background: linear-gradient(180deg, var(--top), var(--top-2));
+  color: var(--on-top);
+}
+.page-head::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 24px;
+  background: linear-gradient(180deg, var(--top-2), var(--bg));
+  pointer-events: none;
+}
+.page-title { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
+.page-title h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
+.page-sub { margin: 0; padding-bottom: 4px; font-size: 14px; color: var(--on-top-muted); text-align: right; }
+.page-extra:empty { display: none; }
+.page-title:not([hidden]) + .page-extra { margin-top: 14px; }
+.page-body { position: relative; flex: 1; display: flex; flex-direction: column; padding: 18px var(--gutter) 0; }
+
+/* The tab bar along the bottom. The line above it glows over the selected tab. */
+@property --glow-x { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
+.tabbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 6;
+  max-width: 560px;
+  margin: 0 auto;
+  display: flex;
+  gap: 2px;
+  padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+  background: var(--surface);
+  transition: --glow-x 0.25s ease;
+}
+.tabbar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent calc(var(--glow-x) - 55%), var(--glow) var(--glow-x), transparent calc(var(--glow-x) + 55%));
+}
+.tab {
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--tab-ink);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.tab svg { width: 22px; height: 22px; }
+.tab span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tab[aria-current="page"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+
+/* The menu: a list of buttons */
+.menu-list { display: grid; }
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 4px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+.menu-row:last-child { border-bottom: 0; }
+.menu-row svg { color: var(--accent); }
+.menu-row.spin svg { animation: spin 0.9s linear infinite; }
+.menu-dialog .hint.small { margin: -4px 0 0; }
+
+/* Round buttons */
 .icon-btn {
   width: 40px;
   height: 40px;
@@ -162,54 +240,45 @@ body.gradient { background: var(--bg) var(--page) top / 100% 100lvh no-repeat; }
 .icon-btn.spin svg { animation: spin 0.9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---- Tab bar between views, at the bottom ---- */
-
-@property --glow-x { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
-
-body.has-tabbar .app { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
-
-.tabbar {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 6;
-  padding: 8px 12px max(12px, env(safe-area-inset-bottom));
-  background: var(--surface);
-  transition: --glow-x 0.3s ease;
-}
-/* A soft line along the top, strongest above the current tab. */
-.tab-glow {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent calc(var(--glow-x) - 40%), var(--tab-glow) var(--glow-x), transparent calc(var(--glow-x) + 58%));
-}
-.tabs { display: flex; gap: 4px; max-width: 560px; margin: 0 auto; }
-.tab {
-  flex: 1;
-  min-width: 0;
-  height: 52px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* Switch between a few choices (e.g. Day · Week · Upcoming) */
+.seg {
+  display: grid;
+  grid-template-columns: repeat(var(--tabs, 3), 1fr);
   gap: 4px;
-  padding: 0;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+.seg button {
+  height: 34px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 9px;
   background: transparent;
-  color: var(--tab-ink);
+  color: var(--muted);
   font: inherit;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
 }
-.tab svg { width: 22px; height: 22px; }
-.tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
-.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg button[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.page-head .seg { background: rgb(255 255 255 / .10); }
+.page-head .seg button { color: var(--on-top-muted); }
+.page-head .seg button[aria-selected="true"] { color: var(--accent-ink); }
+
+/* Something with nothing to show yet (ui.missing) */
+.missing {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-size: 13px;
+}
+.missing b { color: var(--text-2); font-size: 14px; font-weight: 600; }
+button.missing { font: inherit; font-size: 13px; text-align: left; background: transparent; cursor: pointer; }
 
 .link-btn {
   border: 0;
@@ -368,7 +437,6 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
   left: 50%;
   bottom: calc(20px + env(safe-area-inset-bottom));
   z-index: 50;
-  margin-bottom: var(--toast-lift, 0px);
   max-width: calc(100vw - 32px);
   padding: 10px 16px;
   border-radius: 12px;
@@ -382,10 +450,9 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
   transition: opacity 0.2s, transform 0.2s;
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
-body.has-tabbar { --toast-lift: 76px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .icon-btn.spin svg { animation: none; }
-  .toast { transition: none; }
+  .icon-btn.spin svg, .menu-row.spin svg { animation: none; }
   .tabbar { transition: none; }
+  .toast { transition: none; }
 }

@@ -1,33 +1,30 @@
 # Up next
 
-Your timetable on Home: what's next under the clock, and a card with the rest of the day.
+What's coming up, on the **Home** tab.
 
 ## What it adds
 
-- **The line under the clock** (`home.next`): `Next: Linear Algebra II · 16:00 · CG85` with a live `in 47 min` countdown that changes every minute. While a class is on, it says `Now: … · until 17:00`. For a class on another day it says `Tomorrow 09:00` or `Monday 09:00`. It looks up to two weeks ahead. Tap it to open the class.
-- **The date strip and lecture card** (`home.main`):
-  - **Date strip:** three days, today first and filled in the accent colour, then the next weekdays (weekends are skipped, except when today is a weekend day). Tap a day to show it in the card. The arrows turn a page of days either way. *Today* in the card's corner brings you back.
-  - **Lecture card:** the next class in full (name, time, type and room), then the rest of that day, each one fainter than the one before (three steps, then they stay at the faintest). Classes that are over are left off today's card. If there are more than fit, the card scrolls. Tap any class to open its details.
-  - **No classes:** "No classes" on an empty day. **After the last class:** "That's all for today", with a link to the next day that has classes.
-- When there's no timetable yet, both places show "Missing content: add your timetable". Tapping it opens Settings.
-
-The day picked in the strip isn't saved. The app goes back to today when it opens, after midnight, and when a timetable is loaded.
+- **Under the clock** (`home.next`): *Next: Linear Algebra II · 16:00 · CG85*. A class on another day shows its weekday, e.g. *Fri 09:00*. Without a timetable it says to add one.
+- **The large card** (`home.main`):
+  - A slim **date strip**: today first and filled in, then the weekdays after it, three at a time. The arrows page through days, skipping weekends. Tap a day to show it. When the app is opened again it goes back to today.
+  - The **day's lectures**: the class on now (*Now · until 10:00*) or the next one (*Up next · in 47 min*) in full, with its time, type and room. Then the rest of the day, each one fainter than the one before (three steps). Classes already over are left out. Tap any class for its details. The list scrolls inside the card if it's long.
+  - Days with nothing on, and the end of the day (*That's all for today.*), have their own message. Without a timetable the card shows **Missing content**.
 
 ## What it needs
 
-- **Requires:** sessions (names, colours, hidden modules and room names all come from it, so renaming or hiding a module in the Modules feature shows here too).
-- **Uses if present:** timetable (to know if there is one), home (without Home there's nowhere to show it).
+- **Requires:** sessions.
+- **Uses if present:** home (where it shows), timetable (to know if one is loaded).
 
 ## What it saves on the phone
 
 Nothing.
 
-## Rules and tests
+## Files
 
-`lectures.js` has the rules, tested in `tests/lectures.test.js`: which class is next (cancelled and all-day entries never are), what the card shows on a day and after the last class, the order the later classes fade in, and the weekday-only date strip.
+- `rules.js`: the date strip, which class leads the card, the fade steps and the next class. Tested in `tests/rules.test.js`.
 
 ## How to check it works
 
-1. `python build.py serve --test` and open http://localhost:8000. The sample timetable has classes 40 minutes from now, then every hour.
-2. Watch the countdown change when the minute does. Tap *Fri* and *Mon* in the strip, use the arrows, then tap *Today*.
-3. `python build.py test`.
+1. Run `python build.py serve --test`. The sample timetable has classes today.
+2. Tap other days in the strip and page with the arrows.
+3. Run `python build.py test`.

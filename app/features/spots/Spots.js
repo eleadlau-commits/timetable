@@ -1,4 +1,4 @@
-// Spots: a tab that says what's coming. It has no content yet.
+// Spots: a tab kept for later. It has nothing in it yet.
 //
 // Saved data: none.
 
@@ -12,10 +12,11 @@ export default class Spots extends Feature {
       id: 'spots',
       label: 'Spots',
       icon: 'pin',
-      order: 30,
+      order: 40,
+      subtitle: () => '',
       mount: (container) => container.append(el('div', { class: 'empty' },
         el('b', {}, 'Coming soon'),
-        el('div', {}, 'Study spaces and places on campus will be here.'))),
+        el('div', {}, 'There\'s nothing here yet.'))),
       render: () => {},
     });
   }

@@ -35,7 +35,7 @@ CAPACITOR_VERSION = '^7.0.0'
 
 # Slots and events the framework itself provides (see folio/runtime/Shell.js and App.js).
 FRAMEWORK_SLOTS = {
-    'views': 'Screens you switch between with the tab bar at the bottom.',
+    'views': 'Screens you switch between with the tabs at the top.',
     'header.buttons': 'Buttons in the top bar.',
     'header.status': 'Short text under the app name.',
     'settings': 'Sections in the Settings window.',
@@ -56,24 +56,33 @@ TEST_PROBE = """
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const closeWindows = () => document.querySelectorAll('dialog[open]').forEach((d) => d.close());
 app.start().then(async () => {
-  const startView = app.shell.currentView?.id;
-  for (const view of app.shell.views) {
-    app.shell.selectView(view.id);
+  const shell = app.shell;
+  const startView = shell.currentView?.id;
+  const tryView = async (id) => {
+    shell.selectView(id);
     await wait(50);
     document.querySelector('.view:not([hidden]) [role="button"]')?.click();
     await wait(100);
     closeWindows();
+  };
+  for (const view of shell.views) {
+    await tryView(view.id);
+    for (const inner of view.subviews?.() || []) await tryView(inner);
   }
-  app.shell.openSettings();
+  shell.openSettings();
   await wait(100);
   closeWindows();
-  for (const button of document.querySelectorAll('.topbar .actions button')) {
-    if (button.getAttribute('aria-label') === 'Refresh timetable') continue;
-    button.click();
+  shell.openMenu();
+  const rows = document.querySelectorAll('dialog[open] .menu-row').length;
+  closeWindows();
+  for (let i = 0; i < rows; i++) {
+    shell.openMenu();
+    const row = document.querySelectorAll('dialog[open] .menu-row')[i];
+    if (row && row.textContent !== 'Refresh timetable') row.click();
     await wait(100);
     closeWindows();
   }
-  if (startView) app.shell.selectView(startView);
+  if (startView) shell.selectView(startView);
   await wait(300);
 }).catch((err) => app.report(null, err, 'starting')).finally(() => {
   const html = document.documentElement;
@@ -267,19 +276,10 @@ class Project:
         app.setdefault('description', '')
         app.setdefault('lang', 'en')
         theme = app.setdefault('theme', {})
-        theme.setdefault('accent', '#6b3fa0')
-        theme.setdefault('accentDark', '#8457c0')
-        theme.setdefault('background', '#e2dfe7')
-        theme.setdefault('backgroundDark', '#1f1c23')
-        theme.setdefault('top', '#1f1c23')
-        theme.setdefault('topDark', '#110f14')
-        fonts = app.setdefault('fonts', [])
-        if not isinstance(fonts, list) or not all(isinstance(f, dict) and f.get('family') and f.get('file') for f in fonts):
-            log.error('app.json "fonts" must be a list of { "family", "file", "weight"?, "style"? }.')
-            return None
-        for f in fonts:
-            if not (self.app_dir / 'fonts' / f['file']).is_file():
-                log.warn(f'app/fonts/{f["file"]} is missing, so {f["family"]} falls back to the phone\'s own font.')
+        theme.setdefault('accent', '#3d5afe')
+        theme.setdefault('accentDark', '#8c9eff')
+        theme.setdefault('background', '#f5f6fa')
+        theme.setdefault('backgroundDark', '#0f1117')
         app.setdefault('native', {}).setdefault('appId', f"io.folio.{app['id'].replace('-', '')}")
         icons = self.app_dir / 'icons'
         for name in ('icon-192.png', 'icon-512.png', 'apple-touch-icon.png'):
@@ -521,12 +521,8 @@ class Project:
         if (self.app_dir / 'icons').is_dir():
             shutil.copytree(self.app_dir / 'icons', web / 'icons',
                             ignore=shutil.ignore_patterns('icon-only.png'))
-        if app['fonts']:
-            (web / 'fonts').mkdir()
-            for f in app['fonts']:
-                source = self.app_dir / 'fonts' / f['file']
-                if source.is_file():
-                    shutil.copy2(source, web / 'fonts' / f['file'])
+        if (self.app_dir / 'fonts').is_dir():
+            shutil.copytree(self.app_dir / 'fonts', web / 'fonts')
         test_files = []
         if test:
             test_files = self._test_page(web, included)
@@ -593,20 +589,13 @@ class Project:
 
     def _css(self, app: dict, included: list[FeatureInfo]) -> str:
         theme = app['theme']
-        faces = ''.join(
-            f'@font-face {{ font-family: {json.dumps(f["family"])}; src: url({json.dumps("fonts/" + f["file"])}) format("woff2"); '
-            f'font-weight: {f.get("weight", 400)}; font-style: {f.get("style", "normal")}; font-display: swap; }}\n'
-            for f in app['fonts'])
-        light = {'--accent': theme['accent'], '--bg': theme['background'], '--top': theme['top']}
-        dark = {'--accent': theme['accentDark'], '--bg': theme['backgroundDark'], '--top': theme['topDark']}
-        for key, var in (('font', '--font'), ('monoFont', '--font-mono')):
-            if theme.get(key):
-                light[var] = theme[key]
-        css = lambda values: ' '.join(f'{k}: {v};' for k, v in values.items())
         parts = [(self.runtime / 'base.css').read_text('utf-8'),
-                 '/* ---- Theme and fonts from app/app.json ---- */\n' + faces
-                 + f':root {{ {css(light)} }}\n'
-                 f'@media (prefers-color-scheme: dark) {{ :root {{ {css(dark)} }} }}\n']
+                 '/* ---- Theme from app/app.json ---- */\n'
+                 f':root {{ --accent: {theme["accent"]}; }}\n'
+                 f'@media (prefers-color-scheme: dark) {{ :root {{ --accent: {theme["accentDark"]}; }} }}\n']
+        theme_css = self.app_dir / 'theme.css'
+        if theme_css.is_file():
+            parts.append('/* ---- app/theme.css ---- */\n' + theme_css.read_text('utf-8'))
         for f in included:
             for style in f.manifest.get('styles', []):
                 parts.append(f'/* ---- feature: {f.id} ({style}) ---- */\n' + (f.path / style).read_text('utf-8'))
@@ -641,8 +630,8 @@ class Project:
             'lang': html.escape(app['lang']),
             'name': html.escape(app['name']),
             'description': html.escape(app['description']),
-            'background': html.escape(app['theme']['top']),
-            'backgroundDark': html.escape(app['theme']['topDark']),
+            'background': html.escape(app['theme']['background']),
+            'backgroundDark': html.escape(app['theme']['backgroundDark']),
             'importmap': self._import_map(test),
             'entry': 'start.js',
             'templates': templates,
@@ -659,8 +648,8 @@ class Project:
             'start_url': './',
             'scope': './',
             'display': 'standalone',
-            'background_color': app['theme']['top'],
-            'theme_color': app['theme']['top'],
+            'background_color': app['theme']['background'],
+            'theme_color': app['theme']['accent'],
             'icons': [
                 {'src': 'icons/icon-192.png', 'sizes': '192x192', 'type': 'image/png', 'purpose': 'any'},
                 {'src': 'icons/icon-512.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'any'},
@@ -1028,10 +1017,9 @@ def run_tests(project: Project, args) -> int:
             return False
 
         log.title('')
-        log.title('3. The whole app works: every view, a session, Settings and each button')
+        log.title('3. The whole app works: every view, a session, Settings and each menu button')
         all_ids = [f.id for f in details['included']]
-        ok = check_app('starting on the first screen', server) and ok
-        for view in details['app'].get('tests', {}).get('startViews', []):
+        for view in ('home', 'day', 'week', 'agenda'):
             ok = check_app(f'starting on {view}', server, f'index.html#view={view}') and ok
         server.shutdown()
 

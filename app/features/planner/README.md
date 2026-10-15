@@ -1,27 +1,27 @@
 # Planner
 
-One tab for the timetable views. Day, Week and Upcoming each stay their own feature folder, and appear inside the Planner, with a switch at the top to move between them.
+The **Planner** tab. It holds the timetable views (Day, Week and Upcoming) with a switch between them on the dark area under the title. Swipes and arrow keys go to the open view.
 
 ## What it adds
 
-- **The Planner tab** (view id `planner`, first in the tab bar). It's hidden when no views are inside it.
-- **The slot `planner.views`**: views inside the Planner. An item looks exactly like one of the app's views: `{ id, label, order, mount(container), render(), step?(direction), visible?() }`. Swipes and arrow keys go to the view that's showing.
-- `app.shell.selectView('day')` still works: it opens the Planner on Day. (The Week view uses this when you tap a day.) Someone whose saved view was `day`, `week` or `agenda` from an older version lands in the Planner on that view.
+- **The Planner tab** (view id `planner`, calendar icon). It only appears when at least one view is inside it.
 
-## What it offers
+## What it offers other features
 
-- **Service `planner`:** `select(id)` opens the Planner on that view. Day, Week and Upcoming check for it: if the Planner is there they go inside it, and if it's been deleted they become tabs of their own again.
+- **Slot `planner.views`:** views inside the Planner. Item: `{ id, label, order, mount(container), render(), step?(direction), visible?() }`, the same as for the framework's `views` slot. Day view, Week view and Upcoming use it.
+- **Service `planner`:** there while Planner is running. Views check for it: `this.add(this.use('planner') ? 'planner.views' : 'views', …)`. So without Planner, each of them becomes a tab of its own again.
+- `app.shell.selectView('week')` opens the Planner on Week, because the Planner answers `contains('week')`.
 
 ## What it needs
 
-Nothing.
+- **Requires:** nothing.
 
 ## What it saves on the phone
 
-- `view`: the id of the view last shown in the Planner.
+- `view`: the view last open in the Planner (`day`, `week` or `agenda`). The first time, it takes the view the app itself remembered before the Planner existed.
 
 ## How to check it works
 
-1. `python build.py serve --test`, open the Planner tab, switch between Day, Week and Upcoming.
-2. In Week, tap a day: it opens in Day.
-3. `python build.py --without planner`: Day, Week and Upcoming are tabs of their own.
+1. Run `python build.py serve --test` and tap **Planner** at the bottom.
+2. Switch between Day, Week and Upcoming. Close and reopen the app: the Planner remembers which one was open.
+3. Run `python build.py test`. Try `python build.py --without planner`: Day, Week and Upcoming come back as tabs.

@@ -15,6 +15,13 @@ Open either file in a browser to see it. They are static mockups: every number, 
 
 ---
 
+## Agreed changes since the mockups
+
+- **One top bar on every tab:** the menu on the left and the account button (opens Settings) on the right. The Friends button is left out for now.
+- **Five tabs:** Planner · **Home** · Study · Spots · More. **Study** holds the library (free seats on each floor); tapping the library card on Home opens it. **Spots** is empty for now ("Coming soon").
+- **Missing data** shows a dashed **Missing content** box saying what's missing, so the screen keeps its shape.
+- The colours below are in `app/theme.css`; the fonts are in `app/fonts`.
+
 ## Layout, top to bottom
 
 1. **Header row** (on the dark top area)
@@ -32,7 +39,7 @@ Open either file in a browser to see it. They are static mockups: every number, 
        - Next lecture: name 20 px semibold, time, type + room.
        - Then the **rest of today's lectures**, each as name (15 px) + time · room (13 px), separated by 1 px dividers, and **each one fainter than the one before** (three steps, see tokens). No "Then" heading. If there are more than fit, the list clips or scrolls inside the card.
    - **Right column (104 px)**: **Campus card** — label "CARD", vertical barcode filling the card, `[STUDENT ID]` under it.
-7. **Tab bar**: Planner · **Home** · Spots · More.
+7. **Tab bar**: Planner · **Home** · Study · Spots · More.
    - Current tab (Home) is a filled accent rounded block (radius 14) with white icon + label.
    - Other tabs: icon + label in the "tab inactive" colour, weight 500.
    - A 3 px line along the top edge of the bar: a loose horizontal gradient, strongest above the current tab, fading out to both edges. It moves with the selected tab.

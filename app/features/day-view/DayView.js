@@ -11,17 +11,15 @@ export default class DayView extends Feature {
     this.defineSlot('day.cards',
       'Cards above the day\'s sessions. Item: { order, render(day) → element, or null to show nothing }.');
     // Inside the Planner tab if it's installed, otherwise a tab of its own.
-    const view = {
+    this.add(this.use('planner') ? 'planner.views' : 'views', {
+      icon: 'calendar',
       id: 'day',
       label: 'Day',
-      icon: 'calendar',
       order: 10,
       mount: (container) => this.mount(container),
       render: () => this.render(),
       step: (direction) => this.move(direction),
-    };
-    if (this.use('planner')) this.add('planner.views', view);
-    else this.add('views', view);
+    });
   }
 
   move(days) {

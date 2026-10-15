@@ -6,7 +6,8 @@
 The Android app schedules real notifications, which arrive even when it's closed. The web version can only show reminders while it's open.
 
 **What it adds:**
-- **A bell button** in the top bar, which opens the Reminders window.
+- **Reminders** in the menu, which opens the Reminders window.
+- **On the More tab** (`more.items`): a Reminders row saying how far ahead class reminders come and how many of your own are set.
 - **In session details:** a "Reminder for this session" choice (`session.details`, order 40).
 
 **What it needs:**

@@ -1,53 +1,25 @@
-/* Up next: the line under the clock, the date strip and the lecture card on Home. */
+/* Up next: the date strip and the day's lectures on Home. */
+.un { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
 
-.un-next {
-  max-width: 100%;
-  min-width: 0;
-  display: inline-flex;
-  align-items: baseline;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-.un-next-name { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.un-next-when { flex: none; white-space: pre; }
-.un-soon {
-  flex: none;
-  margin-left: 8px;
-  padding: 0 8px;
-  border-radius: 10px;
-  background: var(--on-top-soft);
-  color: var(--on-top);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 20px;
-}
-
-.un-block { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
-
-/* The date strip: slim, today first */
-.un-strip { display: flex; align-items: center; gap: 2px; height: 30px; margin-left: -4px; flex: none; }
+.un-strip { display: flex; align-items: center; gap: 2px; height: 30px; margin-left: -4px; }
 .un-arrow {
   width: 22px;
   height: 30px;
   display: grid;
   place-items: center;
-  padding: 0;
   border: 0;
   background: none;
   color: var(--muted);
   cursor: pointer;
 }
 .un-arrow svg { width: 13px; height: 13px; stroke-width: 2.2; }
+.un-arrow:disabled { opacity: 0.35; cursor: default; }
 .un-day {
   height: 26px;
+  padding: 0 8px;
   display: flex;
   align-items: center;
   gap: 3px;
-  padding: 0 8px;
   border: 0;
   border-radius: 8px;
   background: none;
@@ -58,12 +30,9 @@
   cursor: pointer;
 }
 .un-day b { font-weight: 600; color: var(--text); }
-.un-day.today:not(.sel) b { color: var(--accent); }
-.un-day.sel { background: var(--accent); color: var(--accent-ink); }
-.un-day.sel b { color: var(--accent-ink); }
-.un-day:focus-visible, .un-arrow:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.un-day[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.un-day[aria-pressed="true"] b { color: var(--accent-ink); }
 
-/* The lecture card: clips and scrolls inside when there's more than fits */
 .un-card {
   flex: 1;
   min-height: 0;
@@ -76,51 +45,20 @@
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-.un-label {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.un-today {
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--accent);
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-.un-main, .un-item {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--text);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.un-main { gap: 6px; flex: none; }
+.un-card.missing { background: transparent; }
+.un-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.un-lead { display: flex; flex-direction: column; gap: 6px; cursor: pointer; }
 .un-name { font-size: 20px; font-weight: 600; line-height: 1.2; overflow-wrap: anywhere; }
-.un-sub { font-size: 14px; color: var(--text-2); }
-.cancelled .un-name, .cancelled .un-item-name { text-decoration: line-through; }
+.un-line { font-size: 14px; color: var(--text-2); overflow-wrap: anywhere; }
+.un-empty { margin: 4px 0 0; font-size: 15px; color: var(--text-2); }
 
-.un-item { gap: 2px; flex: none; padding-top: 10px; border-top: 1px solid var(--line); }
-.un-main + .un-item { margin-top: 10px; padding-top: 12px; }
-.un-item-name { font-size: 15px; font-weight: 500; overflow-wrap: anywhere; }
-.un-item-sub { font-size: 13px; }
-/* Each later class a little fainter than the one before */
-.un-item.fade-1 { color: var(--fade-1); }
-.un-item.fade-2 { color: var(--fade-2); }
-.un-item.fade-3 { color: var(--fade-3); }
-
-.un-empty { flex: 1; display: grid; place-content: center; justify-items: center; gap: 4px; text-align: center; color: var(--muted); }
-.un-empty b { color: var(--text); font-size: 16px; }
-.un-card .hidden-note { align-self: center; font-size: 13px; }
+/* Later lectures: name and time · room, each one fainter than the one before. */
+.un-later { display: flex; flex-direction: column; gap: 2px; padding-top: 10px; border-top: 1px solid var(--line); cursor: pointer; }
+.un-lead + .un-later { margin-top: 10px; padding-top: 12px; }
+.un-later-name { font-size: 15px; font-weight: 500; overflow-wrap: anywhere; }
+.un-later-line { font-size: 13px; font-family: inherit; }
+.un-later.fade-1 { color: var(--fade-1); }
+.un-later.fade-2 { color: var(--fade-2); }
+.un-later.fade-3 { color: var(--fade-3); }
+.un-later.cancelled .un-later-name { text-decoration: line-through; }
+.un-lead:focus-visible, .un-later:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }

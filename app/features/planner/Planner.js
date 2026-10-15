@@ -1,9 +1,10 @@
-// Planner: one tab holding the timetable views (Day, Week, Upcoming…), with a switch at the top
-// to move between them. Each of those views stays its own feature and adds itself to the slot
-// 'planner.views' (or to the app's own tabs, if this feature isn't installed).
+// Planner: a tab that holds views of the timetable (Day, Week, Upcoming), with a switch between
+// them on the dark area at the top. Each of those views is its own feature, added to the
+// 'planner.views' slot. Without Planner they show up as tabs of their own.
 //
-// Service 'planner' (this object): select(id) opens the Planner on that view.
-// Saved data: 'view' → the id of the view last shown in the Planner.
+// Service 'planner': present while Planner is running, so views know to add themselves here.
+//
+// Saved data: 'view' → the id of the view last open in the Planner
 
 import { Feature, ui } from 'folio';
 
@@ -12,19 +13,28 @@ const { el } = ui;
 export default class Planner extends Feature {
   start() {
     this.defineSlot('planner.views',
-      'Views inside the Planner tab. Item: { id, label, order, mount(container), render(), step?(direction), visible?() }, the same as the app\'s views.');
+      'Views inside the Planner tab. Item: { id, label, order, mount(container), render(), step?(direction), visible?() }, as for the \'views\' slot.');
     this.provide('planner', this);
     this.sections = new Map(); // view → { container, mounted }
+    this.current = this.storage.get('view', null);
+    // Before the Planner, the open view (day, week or agenda) was saved by the app itself.
+    this.storage.once('import-open-view', () => {
+      const old = this.app.storage.area('folio').get('view');
+      if (old && !this.current) this.choose(old);
+    });
+
     this.add('views', {
       id: 'planner',
       label: 'Planner',
       icon: 'calendar',
       order: 10,
       visible: () => this.views.length > 0,
-      open: (id) => this.open(id),
-      mount: (container) => this.mount(container),
+      mount: (container, { head }) => this.mount(container, head),
       render: () => this.render(),
       step: (direction) => this.step(direction),
+      contains: (id) => this.views.some((v) => v.id === id),
+      open: (id) => this.choose(id),
+      subviews: () => this.views.map((v) => v.id),
     });
   }
 
@@ -33,38 +43,32 @@ export default class Planner extends Feature {
     return slot.items.filter((v) => slot.run(v, (x) => (x.visible ? x.visible() : true), false));
   }
 
-  get current() {
+  get view() {
     const views = this.views;
-    return views.find((v) => v.id === this.storage.get('view')) || views[0] || null;
+    return views.find((v) => v.id === this.current) || views[0] || null;
   }
 
-  // Shows the view `id` inside the Planner, if there is one. Used by app.shell.selectView(id).
-  open(id) {
-    if (!this.views.some((v) => v.id === id)) return false;
+  choose(id) {
+    this.current = id;
     this.storage.set('view', id);
-    return true;
-  }
-
-  // Opens the Planner on view `id`.
-  select(id) {
-    return this.app.shell.selectView(id);
+    this.refresh();
   }
 
   step(direction) {
-    const view = this.current;
+    const view = this.view;
     if (view?.step) this.slot('planner.views').run(view, (v) => v.step(direction));
   }
 
-  mount(container) {
-    this.switcher = el('div', { class: 'planner-seg', role: 'tablist', 'aria-label': 'Planner view' });
-    this.host = el('div', { class: 'planner-host' });
-    container.append(this.switcher, this.host);
+  mount(container, head) {
+    this.switcher = el('div', { class: 'seg', role: 'tablist', 'aria-label': 'Planner view' });
+    head.append(this.switcher);
+    this.host = container;
   }
 
   render() {
     const slot = this.slot('planner.views');
     const views = this.views;
-    const current = this.current;
+    const current = this.view;
 
     this.switcher.hidden = views.length < 2;
     this.switcher.style.setProperty('--tabs', views.length);
@@ -72,16 +76,13 @@ export default class Planner extends Feature {
       type: 'button',
       role: 'tab',
       'aria-selected': String(v === current),
-      onclick: () => {
-        this.storage.set('view', v.id);
-        this.refresh();
-      },
+      onclick: () => this.choose(v.id),
     }, v.label)));
 
     for (const v of views) {
       let section = this.sections.get(v);
       if (!section) {
-        section = { container: el('section', { class: `subview view-${v.id}` }), mounted: false };
+        section = { container: el('div', { class: `planner-view planner-${v.id}` }), mounted: false };
         this.sections.set(v, section);
         this.host.append(section.container);
       }
