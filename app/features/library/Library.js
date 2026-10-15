@@ -7,6 +7,7 @@
 //
 // Saved data: 'show' → false if the card is switched off in Settings
 //             'last' → { at, occupancy } the last reading, shown while a new one loads
+//             'open' → true if the card is unfolded to show the floors
 
 import { Feature, ui, time } from 'folio';
 import { SOURCE, textOf, readOccupancy, busyness } from './occupancy.js';
@@ -21,7 +22,7 @@ export default class Library extends Feature {
     this.loading = false;
     this.failed = null;
     this.tried = 0;
-    this.open = false;
+    this.open = this.storage.get('open', false);
 
     this.add('day.cards', { order: 10, render: (day) => this.card(day) });
     this.add('settings', { id: 'library', title: 'Library', order: 70, render: () => this.settingsSection() });
@@ -58,36 +59,42 @@ export default class Library extends Feature {
     }
   }
 
+  // One line when folded (the default): name, how busy, free seats and a thin bar. Tap it to
+  // unfold the floors. Folded or unfolded is remembered.
   card(day) {
     if (!this.show || !time.sameDay(day, new Date())) return null;
     if (!this.loading && Date.now() - this.tried > FRESH && navigator.onLine) this.load();
 
     const o = this.last?.occupancy;
-    const head = el('div', { class: 'lib-head' },
-      el('b', {}, 'Bill Bryson Library'),
-      el('button', {
-        type: 'button', class: `icon-btn ghost lib-check${this.loading ? ' spin' : ''}`, 'aria-label': 'Check again',
-        onclick: (e) => { e.stopPropagation(); this.load(); },
-      }, ui.icon('refresh')));
+    const band = o && busyness(o.free, o.seats);
+    const summary = el('summary', {},
+      el('div', { class: 'lib-line' },
+        el('b', {}, 'Library'),
+        band
+          ? el('span', { class: `lib-band ${band.id}` }, band.label)
+          : el('span', { class: 'lib-free' }, this.loading ? 'Checking…' : 'Not available'),
+        el('span', { class: 'lib-free lib-push' }, o ? `${o.free} free` : ''),
+        el('span', { class: 'lib-chevron', 'aria-hidden': 'true' }, ui.icon('right'))),
+      o && this.bar(o.free, o.seats));
 
-    if (!o) {
-      return el('section', { class: 'lib-card panel' }, head,
-        el('div', { class: 'hint small' }, this.loading ? 'Checking how busy it is…' : this.problem()),
-        this.failed && this.pageLink());
-    }
+    const check = el('button', {
+      type: 'button', class: `icon-btn ghost lib-check${this.loading ? ' spin' : ''}`, 'aria-label': 'Check again',
+      onclick: () => this.load(),
+    }, ui.icon('refresh'));
+    const status = o
+      ? [`Bill Bryson Library · updated ${time.ago(this.last.at)}.`, this.failed && ` ${this.problem()}`]
+      : [this.loading ? 'Checking how busy Bill Bryson Library is…' : this.problem()];
 
-    const band = busyness(o.free, o.seats);
-    const details = el('details', { class: 'lib-floors', ontoggle: (e) => { this.open = e.target.open; } },
-      el('summary', {},
-        el('span', { class: `lib-band ${band.id}` }, band.label),
-        el('span', { class: 'lib-free' }, `${o.free} free seats`)),
-      ...o.floors.map((f) => this.floor(f)),
-      el('div', { class: 'lib-foot hint small' },
-        `Updated ${time.ago(this.last.at)}. `,
-        this.failed && `${this.problem()} `,
-        this.pageLink()));
-    details.open = this.open;
-    return el('section', { class: 'lib-card panel' }, head, this.bar(o.free, o.seats), details);
+    const card = el('details', {
+      class: 'lib-card panel',
+      ontoggle: (e) => { this.open = e.target.open; this.storage.set('open', this.open); },
+    },
+      summary,
+      el('div', { class: 'lib-status' }, el('div', { class: 'hint small' }, ...status.filter(Boolean)), check),
+      ...(o ? o.floors.map((f) => this.floor(f)) : []),
+      el('div', { class: 'lib-foot' }, this.pageLink()));
+    card.open = this.open;
+    return card;
   }
 
   floor(f) {

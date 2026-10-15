@@ -4,7 +4,7 @@ How busy Bill Bryson Library is right now, with free seats on each floor. It rea
 
 ## What it adds
 
-- **A card at the top of today's Day view** (`day.cards`): a bar that fills up as the library fills up, how busy it is (*Plenty of seats*, *Fairly busy*, *Busy*, *Full*, the same bands as the library's page) and the free seats in total. Tap it to see each floor, with free seats per area (e.g. `North 52 · East 1`). It's only shown on today, since the numbers are live.
+- **A card at the top of today's Day view** (`day.cards`). Folded, it's one line: how busy the library is (*Plenty of seats*, *Fairly busy*, *Busy*, *Full*, the same bands as the library's page), the free seats and a thin bar that fills up as the library fills up. Tap it to unfold each floor, with free seats per area (e.g. `North 52 · East 1`). It stays folded or unfolded as you left it. It's only shown on today, since the numbers are live.
 - **Updates:** every 5 minutes while the card is on screen, or with its refresh button. The last reading is kept, so the card shows something straight away and while offline.
 - **Settings → Library:** a switch to hide the card.
 
@@ -17,6 +17,7 @@ How busy Bill Bryson Library is right now, with free seats on each floor. It rea
 
 - `show`: `false` if the card is switched off.
 - `last`: `{ at, occupancy }`, the last reading.
+- `open`: `true` if the card is unfolded.
 
 ## How it reads the page
 
