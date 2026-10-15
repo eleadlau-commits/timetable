@@ -47,7 +47,7 @@ _Statuses checked against the code on 15 October 2026, after the Home redesign (
 
 - [x] Fetch live occupancy from Durham's published library occupancy data — *`library` feature reads the Bill Bryson occupancy page; on the web it needs the personal relay*
 - [x] Show seats free and a fill bar — *orange bar, dot and dotted line, as designed*
-- [x] "Busy" state (orange) above a threshold; calmer state otherwise
+- [x] "Busy" state above a threshold; calmer state otherwise — *green for plenty of seats, orange for fairly busy, red for busy or full*
 - [x] Refresh periodically; show last-updated time or a fallback when data is unavailable — *every 5 min, keeps the last reading, explains when blocked/offline*
 - [x] Tap through to library details — *opens the new **Study** tab, with free seats on each floor*
 - [ ] Library map (planned separate feature)
@@ -67,7 +67,7 @@ _Statuses checked against the code on 15 October 2026, after the Home redesign (
 
 ## 8. Tab bar and other screens
 
-- [x] Tab bar: Planner · Home · Study · Spots · More — *Study was added for the library*
+- [x] Tab bar: Study · Planner · Home · Spots · More — *Study was added for the library*
 - [x] Current tab filled in accent; glow line on top follows the selected tab
 - [~] **Planner** screen — *a tab holding Day, Week and Upcoming with a switch; they still have their old look, not yet the Planner mockups*
 - [x] **Study** screen — *the library, with free seats on each floor*

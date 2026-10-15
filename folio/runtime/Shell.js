@@ -5,7 +5,7 @@
 //   'header.buttons'  { id, label, icon, order, onClick(), visible?(), busy?() }   rows in the menu
 //   'header.status'   { order, text() }               short text in the menu and under view titles
 //   'views'           { id, label, icon?, order, mount(container, { head }), render(), step?(direction),
-//                       visible?(), start?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }
+//                       visible?(), start?, darkHead?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }
 //   'settings'        { id, title?, order, render() }   a section in the Settings window
 //
 // See folio/README.md for details and examples.
@@ -33,11 +33,12 @@ export class Shell {
     this.tabs = el('nav', { class: 'tabbar', 'aria-label': 'Main', hidden: true });
 
     const root = document.getElementById('folio-root') || document.body.appendChild(el('div', { id: 'folio-root' }));
-    root.replaceChildren(el('div', { class: 'app' },
+    this.frame = el('div', { class: 'app' },
       el('header', { class: 'topbar' }, this.menuButton, this.accountButton),
       this.screenHost,
       this.main,
-      this.tabs));
+      this.tabs);
+    root.replaceChildren(this.frame);
 
     onSwipe(this.viewHost, (dir) => this.step(dir));
     document.addEventListener('keydown', (e) => {
@@ -120,6 +121,8 @@ export class Shell {
     const screen = this.screens.at(-1);
     this.screenHost.hidden = !screen;
     this.main.hidden = !!screen;
+    // Only a view that asks for it (darkHead) has the dark area under its title too.
+    this.frame.classList.toggle('dark-head', !screen && !!this.currentView?.darkHead);
     if (screen) {
       this.tabs.hidden = true;
       if (this.screenHost.firstChild !== screen.node) this.screenHost.replaceChildren(screen.node);

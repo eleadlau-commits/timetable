@@ -49,7 +49,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `upcoming` | Next four weeks (view id `agenda`) | sessions (planner) | planner.views | |
 | `week-view` | Week grid | sessions (day-view, planner) | planner.views | |
 
-**The screen:** one top bar (menu on the left, account/Settings on the right), the open tab's title on the dark area, and the tab bar along the bottom: Planner · Home · Study · Spots · More. The menu lists the framework's `header.buttons`. Colours and fonts are in `app/theme.css` (from `DESIGN.md`); new styles use the colour names from there rather than colours of their own. When a place has nothing to show, use `ui.missing('what is missing')`.
+**The screen:** one top bar (menu on the left, account/Settings on the right), the open tab's title below it (on Home, the dark area continues behind the clock), and the tab bar along the bottom: Study · Planner · Home · Spots · More. The menu lists the framework's `header.buttons`. Colours and fonts are in `app/theme.css` (from `DESIGN.md`); new styles use the colour names from there rather than colours of their own. When a place has nothing to show, use `ui.missing('what is missing')`.
 
 ## Branches
 

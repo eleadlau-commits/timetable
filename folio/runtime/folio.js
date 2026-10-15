@@ -10,4 +10,4 @@ export { App } from './App.js';
 export { Feature } from './Feature.js';
 export * as ui from './ui.js';
 export * as time from './time.js';
-export const VERSION = '1.1.0';
+export const VERSION = '1.2.0';

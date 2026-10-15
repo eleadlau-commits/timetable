@@ -153,13 +153,13 @@ export default class Notes extends Feature {
 
 ## 5. The framework's slots and events
 
-**The frame:** one top bar on a dark background, with the menu button on the left and the account button (which opens Settings) on the right. Under it, the open view's title. Along the bottom, a tab bar with one tab per view; the open tab is filled in the accent colour, and a line above the bar glows over it. The app always opens on the view marked `start`.
+**The frame:** one top bar on a dark background, with the menu button on the left and the account button (which opens Settings) on the right. Under it, the open view's title, on the page (or on the dark area too, for a view marked `darkHead`). Along the bottom, a tab bar with one tab per view; the open tab is filled in the accent colour, and a line above the bar glows over it. The app always opens on the view marked `start`.
 
 **Slots:**
 
 | Slot | Item | Where it appears |
 |---|---|---|
-| `views` | `{ id, label, icon?, order, mount(container, { head }), render(), step?(direction), visible?(), start?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }` | Tabs along the bottom. `mount` runs once and `render` on every redraw. `head` is a place on the dark area under the title, for things like a switch. `step(±1)` is called on swipes and arrow keys. `start: true` makes it the view the app opens on. `hideTitle` hides the title; `subtitle()` replaces the status line next to it. A view that holds other views (like Planner) answers `contains(id)`, switches with `open(id)` and lists them in `subviews()`. |
+| `views` | `{ id, label, icon?, order, mount(container, { head }), render(), step?(direction), visible?(), start?, darkHead?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }` | Tabs along the bottom. `mount` runs once and `render` on every redraw. `head` is a place under the title, for things like a switch. `darkHead: true` extends the dark area of the top bar down over the title and `head` (Home uses this for its clock); otherwise only the top bar is dark. `step(±1)` is called on swipes and arrow keys. `start: true` makes it the view the app opens on. `hideTitle` hides the title; `subtitle()` replaces the status line next to it. A view that holds other views (like Planner) answers `contains(id)`, switches with `open(id)` and lists them in `subviews()`. |
 | `header.buttons` | `{ id, label, icon, order, onClick(), visible?(), busy?() }` | Rows in the menu (the button at the top left). `icon` is a name from `ui.ICONS` or SVG drawing. `busy()` makes its icon spin. Settings is always the last row. |
 | `header.status` | `{ order, text() }` | A short line at the top of the menu, and next to each view's title unless the view gives a `subtitle()`. "offline" is added automatically. |
 | `settings` | `{ id, title?, order, render() }` | A section in the Settings window. Return `null` or `false` to show nothing. |
@@ -286,3 +286,5 @@ On GitHub, these run before every release. If anything fails, nothing is release
 Folio's version is in `folio/VERSION`. When the framework changes in a way features notice, the version goes up and the change is described here.
 
 **1.1.0:** a new frame. The top bar has only the menu (which now lists the `header.buttons`) and an account button that opens Settings. Views are tabs along the bottom, with icons, and each view has a title on a dark area. Views can hold other views (`contains`, `open`, `subviews`), mark the view to open on (`start`), and put things under their title (`mount`'s `head`). New: `ui.missing()`, more icons, `app/theme.css` and `app/fonts/`. Features written for 1.0 keep working.
+
+**1.2.0:** only the top bar is dark now; a view's title sits on the page. A view can ask for the dark area to continue under its title with `darkHead: true`.

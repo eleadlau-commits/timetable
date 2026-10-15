@@ -1,4 +1,4 @@
-/* Library cards. Busy and full show in orange; quieter times in the app's accent colour. */
+/* Library cards. Green for plenty of seats, orange for fairly busy, red for busy or full. */
 .lib-home, .lib-card {
   display: flex;
   flex-direction: column;
@@ -26,14 +26,16 @@
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;
-  color: var(--accent);
-  background: var(--accent-soft);
+  color: var(--plenty-ink);
+  background: var(--plenty-soft);
 }
-.lib-tag.busy, .lib-tag.full { color: var(--busy-ink); background: var(--busy-soft); }
+.lib-tag.average { color: var(--busy-ink); background: var(--busy-soft); }
+.lib-tag.busy, .lib-tag.full { color: var(--full-ink); background: var(--full-soft); }
 
 /* The bar: filled up to how busy it is, a dot at that point, then a dotted line. */
-.lib-bar { display: flex; align-items: center; width: 100%; height: 10px; --lib-colour: var(--accent); }
-.lib-bar.busy, .lib-bar.full { --lib-colour: var(--busy); }
+.lib-bar { display: flex; align-items: center; width: 100%; height: 10px; --lib-colour: var(--plenty); }
+.lib-bar.average { --lib-colour: var(--busy); }
+.lib-bar.busy, .lib-bar.full { --lib-colour: var(--full); }
 .lib-fill { height: 4px; border-radius: 2px; background: var(--lib-colour); }
 .lib-dot { width: 10px; height: 10px; flex: none; margin-left: -4px; border-radius: 50%; background: var(--lib-colour); }
 .lib-rest { flex: 1; height: 0; margin-left: 4px; border-top: 3px dotted var(--free-line); }
@@ -45,8 +47,9 @@
 .lib-count { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
 .lib-count strong { color: var(--text); font-weight: 600; }
 .lib-mini { height: 4px; border-radius: 2px; background: var(--line); overflow: hidden; }
-.lib-mini i { display: block; height: 100%; background: var(--accent); }
-.lib-mini.busy i, .lib-mini.full i { background: var(--busy); }
+.lib-mini i { display: block; height: 100%; background: var(--plenty); }
+.lib-mini.average i { background: var(--busy); }
+.lib-mini.busy i, .lib-mini.full i { background: var(--full); }
 .lib-zones.hint.small { margin: 4px 0 0; }
 
 .lib-status { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
