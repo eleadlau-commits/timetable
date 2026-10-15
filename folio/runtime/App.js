@@ -10,7 +10,7 @@
 // Events the app sends to every feature:
 //   'app:ready'    every feature has started
 //   'app:resume'   the app came back to the screen
-//   'app:tick'     once a minute while the app is on screen
+//   'app:tick'     at the start of every minute while the app is on screen
 //   'app:online' / 'app:offline'
 
 import { Feature } from './Feature.js';
@@ -212,11 +212,14 @@ export class App {
       this.emit('app:resume');
       this.refresh();
     });
-    setInterval(() => {
+    // At the start of every minute, so clocks on screen change when the phone's clock does.
+    const tick = () => {
+      setTimeout(tick, 60000 - (Date.now() % 60000) + 50);
       if (document.visibilityState !== 'visible') return;
       this.emit('app:tick');
       this.refresh();
-    }, 60000);
+    };
+    setTimeout(tick, 60000 - (Date.now() % 60000) + 50);
     window.addEventListener('online', () => { this.emit('app:online'); this.refresh(); });
     window.addEventListener('offline', () => { this.emit('app:offline'); this.refresh(); });
   }

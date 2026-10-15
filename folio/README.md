@@ -174,7 +174,7 @@ The framework's own Settings sections, **Features** (switch features on and off 
 |---|---|
 | `app:ready` | Every feature has started. |
 | `app:resume` | The app came back to the screen. |
-| `app:tick` | Once a minute while the app is on screen. |
+| `app:tick` | At the start of every minute while the app is on screen (so a clock changes with the phone's). |
 | `app:online` / `app:offline` | The connection came back or dropped. |
 
 **Order:** `order` numbers sort items from low to high, and the default is 50. Leave gaps (10, 20, 30) so new features can slot in between.
@@ -311,4 +311,5 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 - The tabs between views moved from the top to a bar at the bottom. Views can have an `icon`, and can hide the top bar (`topBar: false`), be the default (`default: true`) or hold inner views (`open(id)`).
 - New colours and more colour variables (see [6](#6-helpers-ui-and-time)), and a page background with a dark top (`--page`).
 - Apps can ship their own fonts (`app/fonts/` and `"fonts"` in app.json), and set `theme.font`, `theme.monoFont`, `theme.top` and `theme.topDark`.
+- `app:tick` now comes at the start of every minute.
 - New icons: `menu`, `people`, `person`, `calendar`, `house`, `dots`. Icons are drawn with 1.8 px lines.
