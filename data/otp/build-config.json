@@ -1,0 +1,4 @@
+{
+  "osm": [{"source": "north-east.osm.pbf", "osmTagMapping": "uk", "timeZone": "Europe/London"}],
+  "transitFeeds": [{"type": "gtfs", "feedId": "bods-ne", "source": "north-east-gtfs.zip"}]
+}

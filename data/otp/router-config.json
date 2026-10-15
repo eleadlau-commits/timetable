@@ -1,0 +1,8 @@
+{
+  "routingDefaults": {
+    "locale": "en_GB",
+    "drivingDirection": "left",
+    "boardSlack": "PT1M",
+    "transferSlack": "PT2M"
+  }
+}

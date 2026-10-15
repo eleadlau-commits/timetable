@@ -1,0 +1,202 @@
+{
+  "checked_date": "2026-10-12",
+  "feed_info": [
+    {
+      "feed_publisher_name": "Bus Open Data Service (BODS)",
+      "feed_publisher_url": "https://www.bus-data.dft.gov.uk/",
+      "feed_lang": "EN",
+      "feed_start_date": "20261011",
+      "feed_end_date": "20270830",
+      "feed_version": "20261011_025059"
+    }
+  ],
+  "agency_count": 28,
+  "stop_count": 16108,
+  "city_stop_count": 436,
+  "city_bus_trip_count": 4820,
+  "stop_time_count": 2188621,
+  "broken_references": 0,
+  "service_dates": [
+    {
+      "date": "2026-10-12",
+      "active_city_bus_trips": 2057,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 45
+    },
+    {
+      "date": "2026-10-13",
+      "active_city_bus_trips": 1963,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 45
+    },
+    {
+      "date": "2026-10-14",
+      "active_city_bus_trips": 1963,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 45
+    },
+    {
+      "date": "2026-10-15",
+      "active_city_bus_trips": 1963,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 45
+    },
+    {
+      "date": "2026-10-16",
+      "active_city_bus_trips": 2068,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 46
+    },
+    {
+      "date": "2026-10-17",
+      "active_city_bus_trips": 1811,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 41
+    },
+    {
+      "date": "2026-10-18",
+      "active_city_bus_trips": 759,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East"
+      ],
+      "route_count": 23
+    },
+    {
+      "date": "2026-10-19",
+      "active_city_bus_trips": 2057,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 45
+    },
+    {
+      "date": "2026-10-20",
+      "active_city_bus_trips": 1963,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 45
+    },
+    {
+      "date": "2026-10-21",
+      "active_city_bus_trips": 1963,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 45
+    },
+    {
+      "date": "2026-10-22",
+      "active_city_bus_trips": 1963,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 45
+    },
+    {
+      "date": "2026-10-23",
+      "active_city_bus_trips": 2068,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 46
+    },
+    {
+      "date": "2026-10-24",
+      "active_city_bus_trips": 1811,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East",
+        "Stagecoach North East",
+        "Weardale Motor Services"
+      ],
+      "route_count": 41
+    },
+    {
+      "date": "2026-10-25",
+      "active_city_bus_trips": 777,
+      "operators": [
+        "Arriva North East",
+        "Gateshead Central Buses",
+        "Go North East"
+      ],
+      "route_count": 23
+    },
+    {
+      "date": "2026-12-25",
+      "active_city_bus_trips": 486,
+      "operators": [
+        "Gateshead Central Buses"
+      ],
+      "route_count": 11
+    },
+    {
+      "date": "2027-01-01",
+      "active_city_bus_trips": 458,
+      "operators": [
+        "Gateshead Central Buses"
+      ],
+      "route_count": 10
+    }
+  ],
+  "valid": true
+}

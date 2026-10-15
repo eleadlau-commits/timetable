@@ -1,0 +1,1483 @@
+{
+  "request": {
+    "from": {
+      "id": "bods-ne:13005528F",
+      "name": "Bus Station Stand F",
+      "lat": 54.77726,
+      "lon": -1.581945,
+      "category": "Bus stop",
+      "source": "BODS GTFS"
+    },
+    "to": {
+      "id": "bods-ne:13005504F",
+      "name": "Dryburn Park",
+      "lat": 54.790713,
+      "lon": -1.595289,
+      "category": "Bus stop",
+      "source": "BODS GTFS"
+    },
+    "departure": {
+      "date": "2026-10-17",
+      "time": "09:25"
+    }
+  },
+  "result": {
+    "requestedDeparture": "2026-10-17T08:25:00.000Z",
+    "fastestId": "bus-0",
+    "bus": [
+      {
+        "startTime": 1792225800000,
+        "endTime": 1792226040000,
+        "duration": 240,
+        "walkTime": 0,
+        "waitingTime": 0,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "BUS",
+            "startTime": 1792225800000,
+            "endTime": 1792226040000,
+            "duration": 240,
+            "distance": 2028.98,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand F",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": {
+                "gtfsId": "bods-ne:13005528F",
+                "code": "durdmdgj"
+              }
+            },
+            "to": {
+              "name": "Dryburn Park",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": {
+                "gtfsId": "bods-ne:13005504F",
+                "code": "durdmawt"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:6927",
+              "shortName": "X5",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ1a51b1137cee9160914408b6707bf29d20f01abd"
+            },
+            "legGeometry": {
+              "points": "{timId~sHC}O??at@rt@??cKrJ??iHtE??mHj["
+            },
+            "steps": []
+          }
+        ],
+        "id": "bus-0",
+        "elapsedSeconds": 540,
+        "initialWaitSeconds": 300
+      },
+      {
+        "startTime": 1792226149000,
+        "endTime": 1792226747000,
+        "duration": 598,
+        "walkTime": 238,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1792226149000,
+            "endTime": 1792226160000,
+            "duration": 11,
+            "distance": 9.01,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand G",
+              "lat": 54.777232,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528G",
+                "code": "durdmdgm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHU@@Vn@"
+            },
+            "steps": [
+              {
+                "distance": 9.02,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1792226220000,
+            "endTime": 1792226520000,
+            "duration": 300,
+            "distance": 1889.76,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand G",
+              "lat": 54.777232,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528G",
+                "code": "durdmdgm"
+              }
+            },
+            "to": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:3670",
+              "shortName": "21",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ10640e108901dd5e81ddc8446e01c8e033066840"
+            },
+            "legGeometry": {
+              "points": "utimIx}sHcI~O??e]rG??aLlJ??cKrJ??iHtE??}TpJ"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1792226520000,
+            "endTime": 1792226747000,
+            "duration": 227,
+            "distance": 289.73,
+            "transitLeg": false,
+            "from": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "mulmIv`vHDEJd@Pp@J^Vn@DHHRJP@DDNFLFLDHb@j@FJFD?F@D@FBFDBD@BAJ@b@PBBFF|@pA\\d@BDZd@"
+            },
+            "steps": [
+              {
+                "distance": 147.51,
+                "streetName": "Front Street",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 20.69,
+                "streetName": "road",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "WEST"
+              },
+              {
+                "distance": 121.52,
+                "streetName": "Dryburn Park",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-1",
+        "elapsedSeconds": 1247,
+        "initialWaitSeconds": 649
+      },
+      {
+        "startTime": 1792226275000,
+        "endTime": 1792226987000,
+        "duration": 712,
+        "walkTime": 352,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1792226275000,
+            "endTime": 1792226400000,
+            "duration": 125,
+            "distance": 156.1,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand E",
+              "lat": 54.777305,
+              "lon": -1.582038,
+              "stop": {
+                "gtfsId": "bods-ne:13005528E",
+                "code": "durdmdgd"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHYx@Un@Un@ANJb@FVLDH?BEHSNm@@c@AKCECG?A?AZg@"
+            },
+            "steps": [
+              {
+                "distance": 68.44,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "NORTHWEST"
+              },
+              {
+                "distance": 22.06,
+                "streetName": "Walney to Wear Cycle Route",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 13.84,
+                "streetName": "Walney to Wear Cycle Route",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 51.76,
+                "streetName": "sidewalk",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1792226460000,
+            "endTime": 1792226760000,
+            "duration": 300,
+            "distance": 1877.02,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand E",
+              "lat": 54.777305,
+              "lon": -1.582038,
+              "stop": {
+                "gtfsId": "bods-ne:13005528E",
+                "code": "durdmdgd"
+              }
+            },
+            "to": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:5357734",
+              "shortName": "14",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ7dc884da3408be1219939b2c59743ddd378f801d"
+            },
+            "legGeometry": {
+              "points": "cuimIv~sHuH`O??e]rG??aLlJ??cKrJ??iHtE??}TpJ"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1792226760000,
+            "endTime": 1792226987000,
+            "duration": 227,
+            "distance": 289.73,
+            "transitLeg": false,
+            "from": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "mulmIv`vHDEJd@Pp@J^Vn@DHHRJP@DDNFLFLDHb@j@FJFD?F@D@FBFDBD@BAJ@b@PBBFF|@pA\\d@BDZd@"
+            },
+            "steps": [
+              {
+                "distance": 147.51,
+                "streetName": "Front Street",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 20.69,
+                "streetName": "road",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "WEST"
+              },
+              {
+                "distance": 121.52,
+                "streetName": "Dryburn Park",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-2",
+        "elapsedSeconds": 1487,
+        "initialWaitSeconds": 775
+      },
+      {
+        "startTime": 1792226509000,
+        "endTime": 1792227167000,
+        "duration": 658,
+        "walkTime": 238,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1792226509000,
+            "endTime": 1792226520000,
+            "duration": 11,
+            "distance": 9.01,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand G",
+              "lat": 54.777232,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528G",
+                "code": "durdmdgm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHU@@Vn@"
+            },
+            "steps": [
+              {
+                "distance": 9.02,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1792226580000,
+            "endTime": 1792226940000,
+            "duration": 360,
+            "distance": 1889.76,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand G",
+              "lat": 54.777232,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528G",
+                "code": "durdmdgm"
+              }
+            },
+            "to": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:28284",
+              "shortName": "X21",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ5bcdca487ebea69f1dacf64b4c929b8aaa672898"
+            },
+            "legGeometry": {
+              "points": "utimIx}sHcI~O??e]rG??aLlJ??cKrJ??iHtE??}TpJ"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1792226940000,
+            "endTime": 1792227167000,
+            "duration": 227,
+            "distance": 289.73,
+            "transitLeg": false,
+            "from": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "mulmIv`vHDEJd@Pp@J^Vn@DHHRJP@DDNFLFLDHb@j@FJFD?F@D@FBFDBD@BAJ@b@PBBFF|@pA\\d@BDZd@"
+            },
+            "steps": [
+              {
+                "distance": 147.51,
+                "streetName": "Front Street",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 20.69,
+                "streetName": "road",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "WEST"
+              },
+              {
+                "distance": 121.52,
+                "streetName": "Dryburn Park",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-3",
+        "elapsedSeconds": 1667,
+        "initialWaitSeconds": 1009
+      },
+      {
+        "startTime": 1792227000000,
+        "endTime": 1792227421000,
+        "duration": 421,
+        "walkTime": 181,
+        "waitingTime": 0,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "BUS",
+            "startTime": 1792227000000,
+            "endTime": 1792227240000,
+            "duration": 240,
+            "distance": 2167.05,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand F",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": {
+                "gtfsId": "bods-ne:13005528F",
+                "code": "durdmdgj"
+              }
+            },
+            "to": {
+              "name": "Sacriston Road - New College",
+              "lat": 54.792484,
+              "lon": -1.595474,
+              "stop": {
+                "gtfsId": "bods-ne:13005014H",
+                "code": "durdgjmw"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:8643",
+              "shortName": "16A",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJfc232a5dfd0446e63f625bb77d26d22e2cb595a4"
+            },
+            "legGeometry": {
+              "points": "{timId~sHC}O??at@rt@??cKrJ??iHtE??oSp\\"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1792227240000,
+            "endTime": 1792227421000,
+            "duration": 181,
+            "distance": 235.63,
+            "transitLeg": false,
+            "from": {
+              "name": "Sacriston Road - New College",
+              "lat": 54.792484,
+              "lon": -1.595474,
+              "stop": {
+                "gtfsId": "bods-ne:13005014H",
+                "code": "durdgjmw"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "_tlmIvrvHCIl@cADIP[d@y@XWJGLABAJ@b@PBBFF|@pA\\d@BDZd@"
+            },
+            "steps": [
+              {
+                "distance": 110.88,
+                "streetName": "road",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 3.22,
+                "streetName": "road",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 121.52,
+                "streetName": "Dryburn Park",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-4",
+        "elapsedSeconds": 1921,
+        "initialWaitSeconds": 1500
+      },
+      {
+        "startTime": 1792227600000,
+        "endTime": 1792227840000,
+        "duration": 240,
+        "walkTime": 0,
+        "waitingTime": 0,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "BUS",
+            "startTime": 1792227600000,
+            "endTime": 1792227840000,
+            "duration": 240,
+            "distance": 2028.98,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand F",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": {
+                "gtfsId": "bods-ne:13005528F",
+                "code": "durdmdgj"
+              }
+            },
+            "to": {
+              "name": "Dryburn Park",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": {
+                "gtfsId": "bods-ne:13005504F",
+                "code": "durdmawt"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:73067",
+              "shortName": "X15",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ60ee78a586f7775130860f57a2a1d297d1d419c6"
+            },
+            "legGeometry": {
+              "points": "{timId~sHC}O??at@rt@??cKrJ??iHtE??mHj["
+            },
+            "steps": []
+          }
+        ],
+        "id": "bus-5",
+        "elapsedSeconds": 2340,
+        "initialWaitSeconds": 2100
+      },
+      {
+        "startTime": 1792227900000,
+        "endTime": 1792228321000,
+        "duration": 421,
+        "walkTime": 181,
+        "waitingTime": 0,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "BUS",
+            "startTime": 1792227900000,
+            "endTime": 1792228140000,
+            "duration": 240,
+            "distance": 2167.05,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand F",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": {
+                "gtfsId": "bods-ne:13005528F",
+                "code": "durdmdgj"
+              }
+            },
+            "to": {
+              "name": "Sacriston Road - New College",
+              "lat": 54.792484,
+              "lon": -1.595474,
+              "stop": {
+                "gtfsId": "bods-ne:13005014H",
+                "code": "durdgjmw"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:3976",
+              "shortName": "16",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ80387b3f870e00d4dfea66f8d69e0ff130d6a468"
+            },
+            "legGeometry": {
+              "points": "{timId~sHC}O??at@rt@??cKrJ??iHtE??oSp\\"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1792228140000,
+            "endTime": 1792228321000,
+            "duration": 181,
+            "distance": 235.63,
+            "transitLeg": false,
+            "from": {
+              "name": "Sacriston Road - New College",
+              "lat": 54.792484,
+              "lon": -1.595474,
+              "stop": {
+                "gtfsId": "bods-ne:13005014H",
+                "code": "durdgjmw"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "_tlmIvrvHCIl@cADIP[d@y@XWJGLABAJ@b@PBBFF|@pA\\d@BDZd@"
+            },
+            "steps": [
+              {
+                "distance": 110.88,
+                "streetName": "road",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 3.22,
+                "streetName": "road",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 121.52,
+                "streetName": "Dryburn Park",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-6",
+        "elapsedSeconds": 2821,
+        "initialWaitSeconds": 2400
+      },
+      {
+        "startTime": 1792227949000,
+        "endTime": 1792228547000,
+        "duration": 598,
+        "walkTime": 238,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1792227949000,
+            "endTime": 1792227960000,
+            "duration": 11,
+            "distance": 9.01,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand G",
+              "lat": 54.777232,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528G",
+                "code": "durdmdgm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHU@@Vn@"
+            },
+            "steps": [
+              {
+                "distance": 9.02,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1792228020000,
+            "endTime": 1792228320000,
+            "duration": 300,
+            "distance": 1889.76,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand G",
+              "lat": 54.777232,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528G",
+                "code": "durdmdgm"
+              }
+            },
+            "to": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:3670",
+              "shortName": "21",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJd0a13b6657e30bea5e02a9be8b5c66159e8ac825"
+            },
+            "legGeometry": {
+              "points": "utimIx}sHcI~O??e]rG??aLlJ??cKrJ??iHtE??}TpJ"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1792228320000,
+            "endTime": 1792228547000,
+            "duration": 227,
+            "distance": 289.73,
+            "transitLeg": false,
+            "from": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "mulmIv`vHDEJd@Pp@J^Vn@DHHRJP@DDNFLFLDHb@j@FJFD?F@D@FBFDBD@BAJ@b@PBBFF|@pA\\d@BDZd@"
+            },
+            "steps": [
+              {
+                "distance": 147.51,
+                "streetName": "Front Street",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 20.69,
+                "streetName": "road",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "WEST"
+              },
+              {
+                "distance": 121.52,
+                "streetName": "Dryburn Park",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-7",
+        "elapsedSeconds": 3047,
+        "initialWaitSeconds": 2449
+      },
+      {
+        "startTime": 1792228075000,
+        "endTime": 1792228787000,
+        "duration": 712,
+        "walkTime": 352,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1792228075000,
+            "endTime": 1792228200000,
+            "duration": 125,
+            "distance": 156.1,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand E",
+              "lat": 54.777305,
+              "lon": -1.582038,
+              "stop": {
+                "gtfsId": "bods-ne:13005528E",
+                "code": "durdmdgd"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHYx@Un@Un@ANJb@FVLDH?BEHSNm@@c@AKCECG?A?AZg@"
+            },
+            "steps": [
+              {
+                "distance": 68.44,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "NORTHWEST"
+              },
+              {
+                "distance": 22.06,
+                "streetName": "Walney to Wear Cycle Route",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 13.84,
+                "streetName": "Walney to Wear Cycle Route",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 51.76,
+                "streetName": "sidewalk",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1792228260000,
+            "endTime": 1792228560000,
+            "duration": 300,
+            "distance": 1877.02,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand E",
+              "lat": 54.777305,
+              "lon": -1.582038,
+              "stop": {
+                "gtfsId": "bods-ne:13005528E",
+                "code": "durdmdgd"
+              }
+            },
+            "to": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:5357734",
+              "shortName": "14",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJcda2950c9b1f74d4a8145070ef0084771dc5aac9"
+            },
+            "legGeometry": {
+              "points": "cuimIv~sHuH`O??e]rG??aLlJ??cKrJ??iHtE??}TpJ"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1792228560000,
+            "endTime": 1792228787000,
+            "duration": 227,
+            "distance": 289.73,
+            "transitLeg": false,
+            "from": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "mulmIv`vHDEJd@Pp@J^Vn@DHHRJP@DDNFLFLDHb@j@FJFD?F@D@FBFDBD@BAJ@b@PBBFF|@pA\\d@BDZd@"
+            },
+            "steps": [
+              {
+                "distance": 147.51,
+                "streetName": "Front Street",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 20.69,
+                "streetName": "road",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "WEST"
+              },
+              {
+                "distance": 121.52,
+                "streetName": "Dryburn Park",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-8",
+        "elapsedSeconds": 3287,
+        "initialWaitSeconds": 2575
+      },
+      {
+        "startTime": 1792228309000,
+        "endTime": 1792228967000,
+        "duration": 658,
+        "walkTime": 238,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1792228309000,
+            "endTime": 1792228320000,
+            "duration": 11,
+            "distance": 9.01,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand G",
+              "lat": 54.777232,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528G",
+                "code": "durdmdgm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHU@@Vn@"
+            },
+            "steps": [
+              {
+                "distance": 9.02,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1792228380000,
+            "endTime": 1792228740000,
+            "duration": 360,
+            "distance": 1889.76,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand G",
+              "lat": 54.777232,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528G",
+                "code": "durdmdgm"
+              }
+            },
+            "to": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:28284",
+              "shortName": "X21",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ9b9f6109c0e05f33b4629dd308ed18a7db55e776"
+            },
+            "legGeometry": {
+              "points": "utimIx}sHcI~O??e]rG??aLlJ??cKrJ??iHtE??}TpJ"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1792228740000,
+            "endTime": 1792228967000,
+            "duration": 227,
+            "distance": 289.73,
+            "transitLeg": false,
+            "from": {
+              "name": "New College",
+              "lat": 54.792717,
+              "lon": -1.592594,
+              "stop": {
+                "gtfsId": "bods-ne:13005287B",
+                "code": "durdjmtm"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "mulmIv`vHDEJd@Pp@J^Vn@DHHRJP@DDNFLFLDHb@j@FJFD?F@D@FBFDBD@BAJ@b@PBBFF|@pA\\d@BDZd@"
+            },
+            "steps": [
+              {
+                "distance": 147.51,
+                "streetName": "Front Street",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 20.69,
+                "streetName": "road",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "WEST"
+              },
+              {
+                "distance": 121.52,
+                "streetName": "Dryburn Park",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-9",
+        "elapsedSeconds": 3467,
+        "initialWaitSeconds": 2809
+      },
+      {
+        "startTime": 1792228800000,
+        "endTime": 1792229221000,
+        "duration": 421,
+        "walkTime": 181,
+        "waitingTime": 0,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "BUS",
+            "startTime": 1792228800000,
+            "endTime": 1792229040000,
+            "duration": 240,
+            "distance": 2167.05,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand F",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": {
+                "gtfsId": "bods-ne:13005528F",
+                "code": "durdmdgj"
+              }
+            },
+            "to": {
+              "name": "Sacriston Road - New College",
+              "lat": 54.792484,
+              "lon": -1.595474,
+              "stop": {
+                "gtfsId": "bods-ne:13005014H",
+                "code": "durdgjmw"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:8643",
+              "shortName": "16A",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJa4256fd52c9f46b7c0d87e634f937554e662a5a4"
+            },
+            "legGeometry": {
+              "points": "{timId~sHC}O??at@rt@??cKrJ??iHtE??oSp\\"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1792229040000,
+            "endTime": 1792229221000,
+            "duration": 181,
+            "distance": 235.63,
+            "transitLeg": false,
+            "from": {
+              "name": "Sacriston Road - New College",
+              "lat": 54.792484,
+              "lon": -1.595474,
+              "stop": {
+                "gtfsId": "bods-ne:13005014H",
+                "code": "durdgjmw"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "_tlmIvrvHCIl@cADIP[d@y@XWJGLABAJ@b@PBBFF|@pA\\d@BDZd@"
+            },
+            "steps": [
+              {
+                "distance": 110.88,
+                "streetName": "road",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 3.22,
+                "streetName": "road",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 121.52,
+                "streetName": "Dryburn Park",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-10",
+        "elapsedSeconds": 3721,
+        "initialWaitSeconds": 3300
+      },
+      {
+        "startTime": 1792229400000,
+        "endTime": 1792229640000,
+        "duration": 240,
+        "walkTime": 0,
+        "waitingTime": 0,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "BUS",
+            "startTime": 1792229400000,
+            "endTime": 1792229640000,
+            "duration": 240,
+            "distance": 2028.98,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand F",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": {
+                "gtfsId": "bods-ne:13005528F",
+                "code": "durdmdgj"
+              }
+            },
+            "to": {
+              "name": "Dryburn Park",
+              "lat": 54.790713,
+              "lon": -1.595289,
+              "stop": {
+                "gtfsId": "bods-ne:13005504F",
+                "code": "durdmawt"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:6927",
+              "shortName": "X5",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ1bbf9bc9b0ac240f5fbe6ac4a75ca66309a8fbdb"
+            },
+            "legGeometry": {
+              "points": "{timId~sHC}O??at@rt@??cKrJ??iHtE??mHj["
+            },
+            "steps": []
+          }
+        ],
+        "id": "bus-11",
+        "elapsedSeconds": 4140,
+        "initialWaitSeconds": 3900
+      }
+    ],
+    "walking": {
+      "startTime": 1792225500000,
+      "endTime": 1792227032000,
+      "duration": 1532,
+      "walkTime": 1532,
+      "waitingTime": 0,
+      "numberOfTransfers": 0,
+      "legs": [
+        {
+          "mode": "WALK",
+          "startTime": 1792225500000,
+          "endTime": 1792227032000,
+          "duration": 1532,
+          "distance": 1989.79,
+          "transitLeg": false,
+          "from": {
+            "name": "Origin",
+            "lat": 54.77726,
+            "lon": -1.581945,
+            "stop": null
+          },
+          "to": {
+            "name": "Destination",
+            "lat": 54.790713,
+            "lon": -1.595289,
+            "stop": null
+          },
+          "route": null,
+          "trip": null,
+          "legGeometry": {
+            "points": "yuimI||sHYx@Un@Un@ANEGGIIHKBGAI@GBEFGRAH?L?HAVCNALGf@a@~@YdAKRIN]f@ORIL[TKFA^Cf@C^EZENOVm@x@MJuEpDaBpAe@`@EFKJMRO^MVQf@GTENELQh@ITCHM`@IVM`@_@hAM`@O`@GNcA`C{@tByA`DIJk@`@GDCBwAfAWP{AfAI?IACXGXk@dCm@`CCH]rAk@|BW`ACHW~@G@Sn@IPGHEFKFMFYHOD]DM@qCDO@i@?gCDGE_@w@IOWUMKQHUFK@GAILECGCKEGIU[yAmBMQkAaB"
+          },
+          "steps": [
+            {
+              "distance": 68.44,
+              "streetName": "sidewalk",
+              "relativeDirection": "DEPART",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 9.88,
+              "streetName": "Walney to Wear Cycle Route",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "NORTHEAST"
+            },
+            {
+              "distance": 13.44,
+              "streetName": "North Road",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "NORTH"
+            },
+            {
+              "distance": 37.08,
+              "streetName": "road",
+              "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+              "absoluteDirection": "NORTH"
+            },
+            {
+              "distance": 166.69,
+              "streetName": "North Road",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "WEST"
+            },
+            {
+              "distance": 49.27,
+              "streetName": "Albert Street",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "WEST"
+            },
+            {
+              "distance": 345.56,
+              "streetName": "Albert Street",
+              "relativeDirection": "SLIGHTLY_RIGHT",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 320.79,
+              "streetName": "Fieldhouse Lane",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 170.21,
+              "streetName": "Fieldhouse Lane",
+              "relativeDirection": "SLIGHTLY_RIGHT",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 252.25,
+              "streetName": "Whitesmocks",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "WEST"
+            },
+            {
+              "distance": 397.57,
+              "streetName": "Great North Cycleway",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 158.62,
+              "streetName": "Dryburn Park",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "NORTH"
+            }
+          ]
+        }
+      ],
+      "id": "walk-0",
+      "elapsedSeconds": 1532,
+      "initialWaitSeconds": 0
+    },
+    "warnings": [
+      "Scheduled timetables; live delays and cancellations are not included."
+    ],
+    "feed": {
+      "version": "20261011_025059",
+      "startDate": "2026-10-11",
+      "endDate": "2027-08-30",
+      "downloadedAt": "2026-10-11T21:07:10.111088+00:00"
+    }
+  }
+}

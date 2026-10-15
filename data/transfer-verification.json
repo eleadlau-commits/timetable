@@ -1,0 +1,3015 @@
+{
+  "request": {
+    "from": {
+      "id": "osm:way:25510899",
+      "name": "Newton Hall Library",
+      "lat": 54.7988984,
+      "lon": -1.5773265,
+      "category": "Library",
+      "source": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org/way/25510899"
+    },
+    "to": {
+      "id": "osm:way:492834239",
+      "name": "Josephine Butler College",
+      "lat": 54.7586174,
+      "lon": -1.5789406,
+      "category": "University",
+      "source": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org/way/492834239"
+    },
+    "departure": {
+      "date": "2026-10-12",
+      "time": "09:25"
+    }
+  },
+  "result": {
+    "requestedDeparture": "2026-10-12T08:25:00.000Z",
+    "fastestId": "bus-0",
+    "bus": [
+      {
+        "startTime": 1791793747000,
+        "endTime": 1791795826000,
+        "duration": 2079,
+        "walkTime": 580,
+        "waitingTime": 299,
+        "numberOfTransfers": 1,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791793747000,
+            "endTime": 1791793980000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791794040000,
+            "endTime": 1791794640000,
+            "duration": 600,
+            "distance": 2787.23,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116753",
+              "shortName": "64",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJb21eef0fd355fb94b6a557e29894498bfd9f04e5"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??~K{Q??jAaN"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791794640000,
+            "endTime": 1791794701000,
+            "duration": 61,
+            "distance": 70.32,
+            "transitLeg": false,
+            "from": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "}simIpmsH?JKA?g@K?KBUFKD_@H?D"
+            },
+            "steps": [
+              {
+                "distance": 6.12,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "NORTH"
+              },
+              {
+                "distance": 13.15,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 51.04,
+                "streetName": "Milburngate",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTH"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791794940000,
+            "endTime": 1791795540000,
+            "duration": 600,
+            "distance": 2424,
+            "transitLeg": true,
+            "from": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "to": {
+              "name": "Howlands Park and Ride",
+              "lat": 54.760491,
+              "lon": -1.581667,
+              "stop": {
+                "gtfsId": "bods-ne:13005997D",
+                "code": "durgapda"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:115113",
+              "shortName": "PR2",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ238afea6cfdf3654f8f3849d409f0b38220250c6"
+            },
+            "legGeometry": {
+              "points": "cwimItmsHh@ec@??jP_J??dT~@??lJfG??vv@tr@"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791795540000,
+            "endTime": 1791795826000,
+            "duration": 286,
+            "distance": 349.58,
+            "transitLeg": false,
+            "from": {
+              "name": "Howlands Park and Ride",
+              "lat": 54.760491,
+              "lon": -1.581667,
+              "stop": {
+                "gtfsId": "bods-ne:13005997D",
+                "code": "durgapda"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "alfmIl|sH@@BG@K?KCICCFMDICELQV[RW\\lAhAaDXRZ?BAPOLWH[Bk@ASAKG[\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 70.04,
+                "streetName": "path",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 196.52,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-0",
+        "elapsedSeconds": 2326,
+        "initialWaitSeconds": 247
+      },
+      {
+        "startTime": 1791793867000,
+        "endTime": 1791796189000,
+        "duration": 2322,
+        "walkTime": 754,
+        "waitingTime": 488,
+        "numberOfTransfers": 1,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791793867000,
+            "endTime": 1791794100000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791794160000,
+            "endTime": 1791794640000,
+            "duration": 480,
+            "distance": 2627.39,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "North Road Stand B",
+              "lat": 54.777492,
+              "lon": -1.581694,
+              "stop": {
+                "gtfsId": "bods-ne:13005015B",
+                "code": "durdgjpd"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:89785",
+              "shortName": "62",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJdff08ec70f285fa1b0e9eff1cd355e35d48abb13"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??~K{Q"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791794640000,
+            "endTime": 1791794692000,
+            "duration": 52,
+            "distance": 55.18,
+            "transitLeg": false,
+            "from": {
+              "name": "North Road Stand B",
+              "lat": 54.777492,
+              "lon": -1.581694,
+              "stop": {
+                "gtfsId": "bods-ne:13005015B",
+                "code": "durdgjpd"
+              }
+            },
+            "to": {
+              "name": "Bus Station Stand J",
+              "lat": 54.777196,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528J",
+                "code": "durdmdgw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ivimIr|sH@?A@DHVq@DMDBTNFD@?@@O|@"
+            },
+            "steps": [
+              {
+                "distance": 5.06,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "NORTHWEST"
+              },
+              {
+                "distance": 26.73,
+                "streetName": "North Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 23.41,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795120000,
+            "endTime": 1791795720000,
+            "duration": 600,
+            "distance": 2260.23,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand J",
+              "lat": 54.777196,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528J",
+                "code": "durdmdgw"
+              }
+            },
+            "to": {
+              "name": "South Road Colleges",
+              "lat": 54.763014,
+              "lon": -1.578875,
+              "stop": {
+                "gtfsId": "bods-ne:13005573F",
+                "code": "durdmdmg"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116603",
+              "shortName": "6",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJe650b98128ae691f7f218b4f700065c0191edee1"
+            },
+            "legGeometry": {
+              "points": "mtimIx}sH\\kO??iA}b@??jP_J??dT~@??lJfG??~f@fa@"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791795720000,
+            "endTime": 1791796189000,
+            "duration": 469,
+            "distance": 580.2,
+            "transitLeg": false,
+            "from": {
+              "name": "South Road Colleges",
+              "lat": 54.763014,
+              "lon": -1.578875,
+              "stop": {
+                "gtfsId": "bods-ne:13005573F",
+                "code": "durdmdmg"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "y{fmI~jsHENh@v@tAtB\\h@Lc@DKFMLURQPILCR?RBvDt@nB^bA\\@]F[P_@FEPITAJDNNLX\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 111.98,
+                "streetName": "South Road",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 193.42,
+                "streetName": "Howlands Park and Ride",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 101.52,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 90.26,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-1",
+        "elapsedSeconds": 2689,
+        "initialWaitSeconds": 367
+      },
+      {
+        "startTime": 1791793747000,
+        "endTime": 1791796454000,
+        "duration": 2707,
+        "walkTime": 2047,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791793747000,
+            "endTime": 1791793980000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791794040000,
+            "endTime": 1791794640000,
+            "duration": 600,
+            "distance": 2787.23,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116753",
+              "shortName": "64",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJb21eef0fd355fb94b6a557e29894498bfd9f04e5"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??~K{Q??jAaN"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791794640000,
+            "endTime": 1791796454000,
+            "duration": 1814,
+            "distance": 2326.51,
+            "transitLeg": false,
+            "from": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "}simIpmsH?JF?l@PHFHTDQ@@D@D?DAB?DCBABEBEj@gAFGDAD@BFJZFXJ@\\DDBLHXPVH@?L@\\BVBB@~@^@?\\Pz@f@LFf@RxAH`@Bd@P`Al@t@d@p@f@n@Jn@R`@N|@TTDVDTHb@LNDJHp@o@\\[fBmADC\\UJM\\g@LQdAyA`@WFDH?HCNBVDr@h@hCpBTN\\Z`@d@NZLQLMLGRGPANAd@?p@@l@@ZAH?RCt@IFAXCVCLCXEZGj@Sl@UJEVMLGFGHKFQHWXaA^kA\\oAXcAV^HJRXh@v@tAtB\\h@Lc@DKFMLURQPILCR?RBvDt@nB^bA\\@]F[P_@FEPITAJDNNLX\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 45.97,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 6.74,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 1.96,
+                "streetName": "Milburngate",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 69.31,
+                "streetName": "North Road",
+                "relativeDirection": "SLIGHTLY_LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 24.25,
+                "streetName": "Crossgate",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 423.44,
+                "streetName": "South Street",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 184.17,
+                "streetName": "Pimlico",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 242.83,
+                "streetName": "Quarry Heads Lane",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 16.45,
+                "streetName": "Quarryheads Lane roundabout",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 207.09,
+                "streetName": "Potters Bank",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 486.71,
+                "streetName": "Elvet Hill Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 149.37,
+                "streetName": "South Road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 193.42,
+                "streetName": "Howlands Park and Ride",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 101.52,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 90.26,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-2",
+        "elapsedSeconds": 2954,
+        "initialWaitSeconds": 247
+      },
+      {
+        "startTime": 1791793867000,
+        "endTime": 1791796538000,
+        "duration": 2671,
+        "walkTime": 2131,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791793867000,
+            "endTime": 1791794100000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791794160000,
+            "endTime": 1791794640000,
+            "duration": 480,
+            "distance": 2627.39,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "North Road Stand B",
+              "lat": 54.777492,
+              "lon": -1.581694,
+              "stop": {
+                "gtfsId": "bods-ne:13005015B",
+                "code": "durdgjpd"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:89785",
+              "shortName": "62",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJdff08ec70f285fa1b0e9eff1cd355e35d48abb13"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??~K{Q"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791794640000,
+            "endTime": 1791796538000,
+            "duration": 1898,
+            "distance": 2414.35,
+            "transitLeg": false,
+            "from": {
+              "name": "North Road Stand B",
+              "lat": 54.777492,
+              "lon": -1.581694,
+              "stop": {
+                "gtfsId": "bods-ne:13005015B",
+                "code": "durdgjpd"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ivimIr|sH@?A@DHVq@DMXy@DDnBjAHDbBNDIRODJn@m@@FH^FIPQBGFIHQPUDM^v@N?rAJzB`@JEJEXK\\On@UXKL?Lk@PiAt@d@p@f@n@Jn@R`@N|@TTDVDTHb@LNDJHp@o@\\[fBmADC\\UJM\\g@LQdAyA`@WFDH?HCNBVDr@h@hCpBTN\\Z`@d@NZLQLMLGRGPANAd@?p@@l@@ZAH?RCt@IFAXCVCLCXEZGj@Sl@UJEVMLGFGHKFQHWXaA^kA\\oAXcAV^HJRXh@v@tAtB\\h@Lc@DKFMLURQPILCR?RBvDt@nB^bA\\@]F[P_@FEPITAJDNNLX\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 5.06,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "NORTHWEST"
+              },
+              {
+                "distance": 49.47,
+                "streetName": "North Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 133.03,
+                "streetName": "Neville Street",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 16.49,
+                "streetName": "road",
+                "relativeDirection": "SLIGHTLY_LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 5.4,
+                "streetName": "Crossgate",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 30.24,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 14.92,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 341.04,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 63.9,
+                "streetName": "South Street",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 184.17,
+                "streetName": "Pimlico",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 242.83,
+                "streetName": "Quarry Heads Lane",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 16.45,
+                "streetName": "Quarryheads Lane roundabout",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 207.09,
+                "streetName": "Potters Bank",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 486.71,
+                "streetName": "Elvet Hill Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 149.37,
+                "streetName": "South Road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 193.42,
+                "streetName": "Howlands Park and Ride",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 101.52,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 90.26,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-3",
+        "elapsedSeconds": 3038,
+        "initialWaitSeconds": 367
+      },
+      {
+        "startTime": 1791794647000,
+        "endTime": 1791796726000,
+        "duration": 2079,
+        "walkTime": 580,
+        "waitingTime": 299,
+        "numberOfTransfers": 1,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791794647000,
+            "endTime": 1791794880000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791794940000,
+            "endTime": 1791795540000,
+            "duration": 600,
+            "distance": 2787.23,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116753",
+              "shortName": "64",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJb8b9649ef548ff2bedcb60e3cc99e2da1b10a1ab"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??~K{Q??jAaN"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791795540000,
+            "endTime": 1791795601000,
+            "duration": 61,
+            "distance": 70.32,
+            "transitLeg": false,
+            "from": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "}simIpmsH?JKA?g@K?KBUFKD_@H?D"
+            },
+            "steps": [
+              {
+                "distance": 6.12,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "NORTH"
+              },
+              {
+                "distance": 13.15,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 51.04,
+                "streetName": "Milburngate",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTH"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795840000,
+            "endTime": 1791796440000,
+            "duration": 600,
+            "distance": 2424,
+            "transitLeg": true,
+            "from": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "to": {
+              "name": "Howlands Park and Ride",
+              "lat": 54.760491,
+              "lon": -1.581667,
+              "stop": {
+                "gtfsId": "bods-ne:13005997D",
+                "code": "durgapda"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:115113",
+              "shortName": "PR2",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ23bc0d73caecd6f1824782eb89ebb6c37a7ce442"
+            },
+            "legGeometry": {
+              "points": "cwimItmsHh@ec@??jP_J??dT~@??lJfG??vv@tr@"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791796440000,
+            "endTime": 1791796726000,
+            "duration": 286,
+            "distance": 349.58,
+            "transitLeg": false,
+            "from": {
+              "name": "Howlands Park and Ride",
+              "lat": 54.760491,
+              "lon": -1.581667,
+              "stop": {
+                "gtfsId": "bods-ne:13005997D",
+                "code": "durgapda"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "alfmIl|sH@@BG@K?KCICCFMDICELQV[RW\\lAhAaDXRZ?BAPOLWH[Bk@ASAKG[\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 70.04,
+                "streetName": "path",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 196.52,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-4",
+        "elapsedSeconds": 3226,
+        "initialWaitSeconds": 1147
+      },
+      {
+        "startTime": 1791794009000,
+        "endTime": 1791797269000,
+        "duration": 3260,
+        "walkTime": 2600,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791794009000,
+            "endTime": 1791796140000,
+            "duration": 2131,
+            "distance": 2694.16,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Railway Station",
+              "lat": 54.779423,
+              "lon": -1.580943,
+              "stop": {
+                "gtfsId": "bods-ne:13005555D",
+                "code": "durdmdjd"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAH@PBB@ZHXBBfCNAJHZ?Vf@BH~@rBMTXt@FD`@`ADJFCVQzDyEh@i@hBk@l@QbASDA`@MDCX[HIJEPELGJMNQNGRCFCFAHAj@SXQPWHODEDAD?FBRLVJVAF?j@?PCNOJMLGLAR@VGZKLCT?n@BT?VAn@G^Mb@HJDf@Lt@RFBVFl@F|APx@ATBTHb@\\LNHJZ\\\\V~@f@d@^FBP@^DhAt@^O^MRG^E^E\\?V@NHLHNUPULKPGNCLGNMHIFGl@l@`Ar@l@r@Tb@FHJ^Jd@X~@H\\B?DDJTLf@Jb@RQ\\c@JKNIDOJk@H]A_@^B^FZH\\LPJF@D?DHDNJFJHFLDPBXFP@P@NDHPA?@@RHfA?P@VT@j@}@Pf@Pd@DEHKBMd@_CJBJLx@v@PTDHHNHTDLBFN\\JZJ`@L\\JVLLDBTNDQFW@EB@@@@Ef@oB@I@EMMAEAC?EAE?G?GJ@?C@C@C@A@?@@@B@?@?F@?M"
+            },
+            "steps": [
+              {
+                "distance": 26.43,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              },
+              {
+                "distance": 101.16,
+                "streetName": "Ayden Grove",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 23.19,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 73.22,
+                "streetName": "path",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 32.65,
+                "streetName": "Bek Road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "NORTHWEST"
+              },
+              {
+                "distance": 532.58,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 33.34,
+                "streetName": "bike path",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 1134.35,
+                "streetName": "path",
+                "relativeDirection": "SLIGHTLY_LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 259.17,
+                "streetName": "track",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 120.68,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "WEST"
+              },
+              {
+                "distance": 61.34,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 179,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 21.87,
+                "streetName": "sidewalk",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 72.41,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 22.77,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791796200000,
+            "endTime": 1791796800000,
+            "duration": 600,
+            "distance": 2474.47,
+            "transitLeg": true,
+            "from": {
+              "name": "Railway Station",
+              "lat": 54.779423,
+              "lon": -1.580943,
+              "stop": {
+                "gtfsId": "bods-ne:13005555D",
+                "code": "durdmdjd"
+              }
+            },
+            "to": {
+              "name": "South Road Colleges",
+              "lat": 54.763014,
+              "lon": -1.578875,
+              "stop": {
+                "gtfsId": "bods-ne:13005573F",
+                "code": "durdmdmg"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:89740",
+              "shortName": "42",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ20d94e38b09bf3241054899083ec1a23036c8eb5"
+            },
+            "legGeometry": {
+              "points": "kbjmI|wsHhJlE??f@{s@??jP_J??dT~@??lJfG??~f@fa@"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791796800000,
+            "endTime": 1791797269000,
+            "duration": 469,
+            "distance": 580.2,
+            "transitLeg": false,
+            "from": {
+              "name": "South Road Colleges",
+              "lat": 54.763014,
+              "lon": -1.578875,
+              "stop": {
+                "gtfsId": "bods-ne:13005573F",
+                "code": "durdmdmg"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "y{fmI~jsHENh@v@tAtB\\h@Lc@DKFMLURQPILCR?RBvDt@nB^bA\\@]F[P_@FEPITAJDNNLX\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 111.98,
+                "streetName": "South Road",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 193.42,
+                "streetName": "Howlands Park and Ride",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 101.52,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 90.26,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-6",
+        "elapsedSeconds": 3769,
+        "initialWaitSeconds": 509
+      },
+      {
+        "startTime": 1791795007000,
+        "endTime": 1791797269000,
+        "duration": 2262,
+        "walkTime": 822,
+        "waitingTime": 420,
+        "numberOfTransfers": 1,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791795007000,
+            "endTime": 1791795240000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795300000,
+            "endTime": 1791795780000,
+            "duration": 480,
+            "distance": 2630.63,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "Bus Station Stand E",
+              "lat": 54.777305,
+              "lon": -1.582038,
+              "stop": {
+                "gtfsId": "bods-ne:13005528E",
+                "code": "durdmdgd"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:57625",
+              "shortName": "50",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ3b95c32db3b8576120c719f4d5a37363fb2b4364"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??dMwO"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791795780000,
+            "endTime": 1791795900000,
+            "duration": 120,
+            "distance": 146.86,
+            "transitLeg": false,
+            "from": {
+              "name": "Bus Station Stand E",
+              "lat": 54.777305,
+              "lon": -1.582038,
+              "stop": {
+                "gtfsId": "bods-ne:13005528E",
+                "code": "durdmdgd"
+              }
+            },
+            "to": {
+              "name": "North Road Stand A",
+              "lat": 54.777619,
+              "lon": -1.581972,
+              "stop": {
+                "gtfsId": "bods-ne:13005015A",
+                "code": "durdgjpa"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "cuimIv~sH[f@?@?@BFBD@JAb@Ol@IRCDI?MEGWKc@EGGIGOJGf@sA@@"
+            },
+            "steps": [
+              {
+                "distance": 51.76,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 13.84,
+                "streetName": "Walney to Wear Cycle Route",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "NORTH"
+              },
+              {
+                "distance": 39.16,
+                "streetName": "Walney to Wear Cycle Route",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "NORTHEAST"
+              },
+              {
+                "distance": 42.1,
+                "streetName": "sidewalk",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791796260000,
+            "endTime": 1791796800000,
+            "duration": 540,
+            "distance": 2263.3,
+            "transitLeg": true,
+            "from": {
+              "name": "North Road Stand A",
+              "lat": 54.777619,
+              "lon": -1.581972,
+              "stop": {
+                "gtfsId": "bods-ne:13005015A",
+                "code": "durdgjpa"
+              }
+            },
+            "to": {
+              "name": "South Road Colleges",
+              "lat": 54.763014,
+              "lon": -1.578875,
+              "stop": {
+                "gtfsId": "bods-ne:13005573F",
+                "code": "durdmdmg"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:89740",
+              "shortName": "42",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ20d94e38b09bf3241054899083ec1a23036c8eb5"
+            },
+            "legGeometry": {
+              "points": "awimIj~sHf@{s@??jP_J??dT~@??lJfG??~f@fa@"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791796800000,
+            "endTime": 1791797269000,
+            "duration": 469,
+            "distance": 580.2,
+            "transitLeg": false,
+            "from": {
+              "name": "South Road Colleges",
+              "lat": 54.763014,
+              "lon": -1.578875,
+              "stop": {
+                "gtfsId": "bods-ne:13005573F",
+                "code": "durdmdmg"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "y{fmI~jsHENh@v@tAtB\\h@Lc@DKFMLURQPILCR?RBvDt@nB^bA\\@]F[P_@FEPITAJDNNLX\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 111.98,
+                "streetName": "South Road",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 193.42,
+                "streetName": "Howlands Park and Ride",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 101.52,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 90.26,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-5",
+        "elapsedSeconds": 3769,
+        "initialWaitSeconds": 1507
+      },
+      {
+        "startTime": 1791794647000,
+        "endTime": 1791797354000,
+        "duration": 2707,
+        "walkTime": 2047,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791794647000,
+            "endTime": 1791794880000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791794940000,
+            "endTime": 1791795540000,
+            "duration": 600,
+            "distance": 2787.23,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116753",
+              "shortName": "64",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJb8b9649ef548ff2bedcb60e3cc99e2da1b10a1ab"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??~K{Q??jAaN"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791795540000,
+            "endTime": 1791797354000,
+            "duration": 1814,
+            "distance": 2326.51,
+            "transitLeg": false,
+            "from": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "}simIpmsH?JF?l@PHFHTDQ@@D@D?DAB?DCBABEBEj@gAFGDAD@BFJZFXJ@\\DDBLHXPVH@?L@\\BVBB@~@^@?\\Pz@f@LFf@RxAH`@Bd@P`Al@t@d@p@f@n@Jn@R`@N|@TTDVDTHb@LNDJHp@o@\\[fBmADC\\UJM\\g@LQdAyA`@WFDH?HCNBVDr@h@hCpBTN\\Z`@d@NZLQLMLGRGPANAd@?p@@l@@ZAH?RCt@IFAXCVCLCXEZGj@Sl@UJEVMLGFGHKFQHWXaA^kA\\oAXcAV^HJRXh@v@tAtB\\h@Lc@DKFMLURQPILCR?RBvDt@nB^bA\\@]F[P_@FEPITAJDNNLX\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 45.97,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 6.74,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 1.96,
+                "streetName": "Milburngate",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 69.31,
+                "streetName": "North Road",
+                "relativeDirection": "SLIGHTLY_LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 24.25,
+                "streetName": "Crossgate",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 423.44,
+                "streetName": "South Street",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 184.17,
+                "streetName": "Pimlico",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 242.83,
+                "streetName": "Quarry Heads Lane",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 16.45,
+                "streetName": "Quarryheads Lane roundabout",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 207.09,
+                "streetName": "Potters Bank",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 486.71,
+                "streetName": "Elvet Hill Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 149.37,
+                "streetName": "South Road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 193.42,
+                "streetName": "Howlands Park and Ride",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 101.52,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 90.26,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-7",
+        "elapsedSeconds": 3854,
+        "initialWaitSeconds": 1147
+      },
+      {
+        "startTime": 1791795547000,
+        "endTime": 1791797626000,
+        "duration": 2079,
+        "walkTime": 580,
+        "waitingTime": 299,
+        "numberOfTransfers": 1,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791795547000,
+            "endTime": 1791795780000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795840000,
+            "endTime": 1791796440000,
+            "duration": 600,
+            "distance": 2787.23,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116753",
+              "shortName": "64",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ1990dcccb3d0e95f1984b610e0754a450d45b6d5"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??~K{Q??jAaN"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791796440000,
+            "endTime": 1791796501000,
+            "duration": 61,
+            "distance": 70.32,
+            "transitLeg": false,
+            "from": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "}simIpmsH?JKA?g@K?KBUFKD_@H?D"
+            },
+            "steps": [
+              {
+                "distance": 6.12,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "NORTH"
+              },
+              {
+                "distance": 13.15,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 51.04,
+                "streetName": "Milburngate",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTH"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791796740000,
+            "endTime": 1791797340000,
+            "duration": 600,
+            "distance": 2424,
+            "transitLeg": true,
+            "from": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "to": {
+              "name": "Howlands Park and Ride",
+              "lat": 54.760491,
+              "lon": -1.581667,
+              "stop": {
+                "gtfsId": "bods-ne:13005997D",
+                "code": "durgapda"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:115113",
+              "shortName": "PR2",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ684802f42f8afadf3672785448eef8bb25bd986e"
+            },
+            "legGeometry": {
+              "points": "cwimItmsHh@ec@??jP_J??dT~@??lJfG??vv@tr@"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791797340000,
+            "endTime": 1791797626000,
+            "duration": 286,
+            "distance": 349.58,
+            "transitLeg": false,
+            "from": {
+              "name": "Howlands Park and Ride",
+              "lat": 54.760491,
+              "lon": -1.581667,
+              "stop": {
+                "gtfsId": "bods-ne:13005997D",
+                "code": "durgapda"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "alfmIl|sH@@BG@K?KCICCFMDICELQV[RW\\lAhAaDXRZ?BAPOLWH[Bk@ASAKG[\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 70.04,
+                "streetName": "path",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 196.52,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-8",
+        "elapsedSeconds": 4126,
+        "initialWaitSeconds": 2047
+      },
+      {
+        "startTime": 1791795007000,
+        "endTime": 1791797785000,
+        "duration": 2778,
+        "walkTime": 2238,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791795007000,
+            "endTime": 1791795240000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795300000,
+            "endTime": 1791795780000,
+            "duration": 480,
+            "distance": 2630.63,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "Bus Station Stand E",
+              "lat": 54.777305,
+              "lon": -1.582038,
+              "stop": {
+                "gtfsId": "bods-ne:13005528E",
+                "code": "durdmdgd"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:57625",
+              "shortName": "50",
+              "longName": null,
+              "agency": {
+                "name": "Go North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ3b95c32db3b8576120c719f4d5a37363fb2b4364"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??dMwO"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791795780000,
+            "endTime": 1791797785000,
+            "duration": 2005,
+            "distance": 2558.25,
+            "transitLeg": false,
+            "from": {
+              "name": "Bus Station Stand E",
+              "lat": 54.777305,
+              "lon": -1.582038,
+              "stop": {
+                "gtfsId": "bods-ne:13005528E",
+                "code": "durdmdgd"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "cuimIv~sH[f@?@?@BFBD@JAb@Ol@IRCDI?MEGWKc@@OTo@To@Xy@HUHSDOXw@nBjAHDbBNDIRODJn@m@@FH^FIPQBGFIHQPUDM^v@N?rAJzB`@JEJEXK\\On@UXKL?Lk@PiAt@d@p@f@n@Jn@R`@N|@TTDVDTHb@LNDJHp@o@\\[fBmADC\\UJM\\g@LQdAyA`@WFDH?HCNBVDr@h@hCpBTN\\Z`@d@NZLQLMLGRGPANAd@?p@@l@@ZAH?RCt@IFAXCVCLCXEZGj@Sl@UJEVMLGFGHKFQHWXaA^kA\\oAXcAV^HJRXh@v@tAtB\\h@Lc@DKFMLURQPILCR?RBvDt@nB^bA\\@]F[P_@FEPITAJDNNLX\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 51.76,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 13.84,
+                "streetName": "Walney to Wear Cycle Route",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "NORTH"
+              },
+              {
+                "distance": 22.06,
+                "streetName": "Walney to Wear Cycle Route",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "NORTHEAST"
+              },
+              {
+                "distance": 114.74,
+                "streetName": "sidewalk",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 129.06,
+                "streetName": "Neville Street",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 16.49,
+                "streetName": "road",
+                "relativeDirection": "SLIGHTLY_LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 5.4,
+                "streetName": "Crossgate",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 30.24,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 14.92,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 341.04,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 63.9,
+                "streetName": "South Street",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 184.17,
+                "streetName": "Pimlico",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 242.83,
+                "streetName": "Quarry Heads Lane",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 16.45,
+                "streetName": "Quarryheads Lane roundabout",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 207.09,
+                "streetName": "Potters Bank",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 486.71,
+                "streetName": "Elvet Hill Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 149.37,
+                "streetName": "South Road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 193.42,
+                "streetName": "Howlands Park and Ride",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 101.52,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 90.26,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-9",
+        "elapsedSeconds": 4285,
+        "initialWaitSeconds": 1507
+      },
+      {
+        "startTime": 1791795547000,
+        "endTime": 1791798254000,
+        "duration": 2707,
+        "walkTime": 2047,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791795547000,
+            "endTime": 1791795780000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795840000,
+            "endTime": 1791796440000,
+            "duration": 600,
+            "distance": 2787.23,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116753",
+              "shortName": "64",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ1990dcccb3d0e95f1984b610e0754a450d45b6d5"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??~K{Q??jAaN"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791796440000,
+            "endTime": 1791798254000,
+            "duration": 1814,
+            "distance": 2326.51,
+            "transitLeg": false,
+            "from": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "}simIpmsH?JF?l@PHFHTDQ@@D@D?DAB?DCBABEBEj@gAFGDAD@BFJZFXJ@\\DDBLHXPVH@?L@\\BVBB@~@^@?\\Pz@f@LFf@RxAH`@Bd@P`Al@t@d@p@f@n@Jn@R`@N|@TTDVDTHb@LNDJHp@o@\\[fBmADC\\UJM\\g@LQdAyA`@WFDH?HCNBVDr@h@hCpBTN\\Z`@d@NZLQLMLGRGPANAd@?p@@l@@ZAH?RCt@IFAXCVCLCXEZGj@Sl@UJEVMLGFGHKFQHWXaA^kA\\oAXcAV^HJRXh@v@tAtB\\h@Lc@DKFMLURQPILCR?RBvDt@nB^bA\\@]F[P_@FEPITAJDNNLX\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 45.97,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 6.74,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 1.96,
+                "streetName": "Milburngate",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 69.31,
+                "streetName": "North Road",
+                "relativeDirection": "SLIGHTLY_LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 24.25,
+                "streetName": "Crossgate",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 423.44,
+                "streetName": "South Street",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 184.17,
+                "streetName": "Pimlico",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 242.83,
+                "streetName": "Quarry Heads Lane",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 16.45,
+                "streetName": "Quarryheads Lane roundabout",
+                "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 207.09,
+                "streetName": "Potters Bank",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 486.71,
+                "streetName": "Elvet Hill Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 149.37,
+                "streetName": "South Road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 193.42,
+                "streetName": "Howlands Park and Ride",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 101.52,
+                "streetName": "path",
+                "relativeDirection": "CONTINUE",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 90.26,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-10",
+        "elapsedSeconds": 4754,
+        "initialWaitSeconds": 2047
+      },
+      {
+        "startTime": 1791796447000,
+        "endTime": 1791798526000,
+        "duration": 2079,
+        "walkTime": 580,
+        "waitingTime": 299,
+        "numberOfTransfers": 1,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791796447000,
+            "endTime": 1791796680000,
+            "duration": 233,
+            "distance": 295.62,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.7988984,
+              "lon": -1.5773265,
+              "stop": null
+            },
+            "to": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "i{mmIlasHApAA~@@~@Dz@Hv@Nl@L^LZJN^f@Z^LPDHCHz@jBFL^z@CF"
+            },
+            "steps": [
+              {
+                "distance": 295.61,
+                "streetName": "Carr House Drive",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "WEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791796740000,
+            "endTime": 1791797340000,
+            "duration": 600,
+            "distance": 2787.23,
+            "transitLeg": true,
+            "from": {
+              "name": "Bek Road End",
+              "lat": 54.797566,
+              "lon": -1.581082,
+              "stop": {
+                "gtfsId": "bods-ne:13005279F",
+                "code": "durdjmjm"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116753",
+              "shortName": "64",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ070cc93066c1423bedffbdf754b493351f593126"
+            },
+            "legGeometry": {
+              "points": "wsmmIxxsHlIrK??fNjT??fGtV??zUi@??|H{G??bHyH??hOyF??fSeF??~K{Q??jAaN"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791797340000,
+            "endTime": 1791797401000,
+            "duration": 61,
+            "distance": 70.32,
+            "transitLeg": false,
+            "from": {
+              "name": "Millburngate Stand A",
+              "lat": 54.777117,
+              "lon": -1.579288,
+              "stop": {
+                "gtfsId": "bods-ne:13005016A",
+                "code": "durdgjpj"
+              }
+            },
+            "to": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "}simIpmsH?JKA?g@K?KBUFKD_@H?D"
+            },
+            "steps": [
+              {
+                "distance": 6.12,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "NORTH"
+              },
+              {
+                "distance": 13.15,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 51.04,
+                "streetName": "Milburngate",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTH"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791797640000,
+            "endTime": 1791798240000,
+            "duration": 600,
+            "distance": 2424,
+            "transitLeg": true,
+            "from": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "to": {
+              "name": "Howlands Park and Ride",
+              "lat": 54.760491,
+              "lon": -1.581667,
+              "stop": {
+                "gtfsId": "bods-ne:13005997D",
+                "code": "durgapda"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:115113",
+              "shortName": "PR2",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJe57fd4ba6277546eee8515edc71c5fc2c983f561"
+            },
+            "legGeometry": {
+              "points": "cwimItmsHh@ec@??jP_J??dT~@??lJfG??vv@tr@"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791798240000,
+            "endTime": 1791798526000,
+            "duration": 286,
+            "distance": 349.58,
+            "transitLeg": false,
+            "from": {
+              "name": "Howlands Park and Ride",
+              "lat": 54.760491,
+              "lon": -1.581667,
+              "stop": {
+                "gtfsId": "bods-ne:13005997D",
+                "code": "durgapda"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7586174,
+              "lon": -1.5789406,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "alfmIl|sH@@BG@K?KCICCFMDICELQV[RW\\lAhAaDXRZ?BAPOLWH[Bk@ASAKG[\\aAp@e@DGXq@"
+            },
+            "steps": [
+              {
+                "distance": 70.04,
+                "streetName": "path",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 196.52,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 83.02,
+                "streetName": "path",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHEAST"
+              }
+            ]
+          }
+        ],
+        "id": "bus-11",
+        "elapsedSeconds": 5026,
+        "initialWaitSeconds": 2947
+      }
+    ],
+    "walking": {
+      "startTime": 1791793500000,
+      "endTime": 1791797620000,
+      "duration": 4120,
+      "walkTime": 4120,
+      "waitingTime": 0,
+      "numberOfTransfers": 0,
+      "legs": [
+        {
+          "mode": "WALK",
+          "startTime": 1791793500000,
+          "endTime": 1791797620000,
+          "duration": 4120,
+          "distance": 5254.84,
+          "transitLeg": false,
+          "from": {
+            "name": "Origin",
+            "lat": 54.7988984,
+            "lon": -1.5773265,
+            "stop": null
+          },
+          "to": {
+            "name": "Destination",
+            "lat": 54.7586174,
+            "lon": -1.5789406,
+            "stop": null
+          },
+          "route": null,
+          "trip": null,
+          "legGeometry": {
+            "points": "i{mmIlasHApAH@PBB@ZHXBBfCNAJHZ?Vf@BH~@rBMTXt@FD`@`ADJFCVQzDyEh@i@hBk@l@QbASDA`@MDCX[HIJEPELGJMNQNGRCFCFAHAj@SXQPWHODEDAD?FBRLVJVAF?j@?PCNOJMLGLAR@VGZKLCT?n@BT?VAn@G^Mb@HJDf@Lt@RFBVFl@F|APx@ATBTHb@\\LNHJZ\\\\V~@f@d@^FBP@^DhAt@^O^MRG^E^E\\?V@NHLHNUPULKPGNCLGNMHIFGl@l@`Ar@l@r@Tb@FHJ^Jd@X~@H\\B?DDJTLf@Jb@BPBPBj@?^Cd@C`@En@Er@?\\Bd@D\\H^HTJRFHJJTNZN`@LZHXBb@IVOFGPSHPb@WLIh@cAJS`@q@x@aBj@aBHOPm@`@{ALc@P]NWNQt@YTEJDLEl@K|@MZGt@IB?d@Cp@ETGXUDGDADAJ?FDDFBFHDF@H@J@H?N?HE^IJETGJCJ?H@FBJFFDHDBDXVLN@@D@D?DAB?DCBABEBEj@gAFGDAD@BFJZFXJ@\\DDBLHXPVH@?L@\\BVBB@~@^@?\\Pz@f@LFf@RxAH`@Bd@P`Al@t@d@p@f@n@Jn@R`@N|@TTDVDTHb@LNDJHp@o@\\[fBmADC\\UJM\\g@LQdAyA`@WFDH?HCNBVDr@h@hCpBTN\\Z`@d@NZLQLMLGRGPANAd@?p@@l@@ZAH?RCt@IFAXCVCLCXEZGj@Sl@UJEVMLGFGHKFQHWXaA^kA\\oAXcAV^HJRXh@v@tAtB\\h@Lc@DKFMLURQPILCR?RBvDt@nB^bA\\@]F[P_@FEPITAJDNNLX\\aAp@e@DGXq@"
+          },
+          "steps": [
+            {
+              "distance": 26.43,
+              "streetName": "Carr House Drive",
+              "relativeDirection": "DEPART",
+              "absoluteDirection": "WEST"
+            },
+            {
+              "distance": 101.16,
+              "streetName": "Ayden Grove",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 23.19,
+              "streetName": "path",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 73.22,
+              "streetName": "path",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTHWEST"
+            },
+            {
+              "distance": 32.65,
+              "streetName": "Bek Road",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 532.58,
+              "streetName": "path",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "SOUTHWEST"
+            },
+            {
+              "distance": 33.34,
+              "streetName": "bike path",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 1441.81,
+              "streetName": "path",
+              "relativeDirection": "SLIGHTLY_LEFT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 334.69,
+              "streetName": "path",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 7.43,
+              "streetName": "Sidegate",
+              "relativeDirection": "SLIGHTLY_RIGHT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 193.93,
+              "streetName": "Framwellgate Peth",
+              "relativeDirection": "SLIGHTLY_LEFT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 4.86,
+              "streetName": "Milburngate roundabout",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 25.47,
+              "streetName": "Milburngate roundabout",
+              "relativeDirection": "SLIGHTLY_RIGHT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 152.29,
+              "streetName": "Milburngate",
+              "relativeDirection": "SLIGHTLY_LEFT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 69.31,
+              "streetName": "North Road",
+              "relativeDirection": "SLIGHTLY_LEFT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 24.25,
+              "streetName": "Crossgate",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTHWEST"
+            },
+            {
+              "distance": 423.44,
+              "streetName": "South Street",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 184.17,
+              "streetName": "Pimlico",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 242.83,
+              "streetName": "Quarry Heads Lane",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 16.45,
+              "streetName": "Quarryheads Lane roundabout",
+              "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 207.09,
+              "streetName": "Potters Bank",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 486.71,
+              "streetName": "Elvet Hill Road",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 149.37,
+              "streetName": "South Road",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTHWEST"
+            },
+            {
+              "distance": 193.42,
+              "streetName": "Howlands Park and Ride",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 101.52,
+              "streetName": "path",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 90.26,
+              "streetName": "service road",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "EAST"
+            },
+            {
+              "distance": 83.02,
+              "streetName": "path",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTHEAST"
+            }
+          ]
+        }
+      ],
+      "id": "walk-0",
+      "elapsedSeconds": 4120,
+      "initialWaitSeconds": 0
+    },
+    "warnings": [
+      "Scheduled timetables; live delays and cancellations are not included."
+    ],
+    "feed": {
+      "version": "20261011_025059",
+      "startDate": "2026-10-11",
+      "endDate": "2027-08-30",
+      "downloadedAt": "2026-10-11T21:07:10.111088+00:00"
+    }
+  }
+}

@@ -1,0 +1,673 @@
+{
+  "verified_at": "2026-10-12T11:38:35.431101+00:00",
+  "otp_version": "2.7.0",
+  "variables": {
+    "from": {
+      "lat": 54.77726,
+      "lon": -1.581945
+    },
+    "to": {
+      "lat": 54.790713,
+      "lon": -1.595289
+    },
+    "date": "2026-10-12",
+    "time": "09:25:00"
+  },
+  "source_schedule": {
+    "trip_id": "VJ000190c412cf7cb121239c93da7792ed343fbf20",
+    "from": {
+      "stop_id": "13005528F",
+      "stop_code": "durdmdgj",
+      "stop_name": "Bus Station Stand F",
+      "stop_lat": "54.77726",
+      "stop_lon": "-1.581945",
+      "wheelchair_boarding": "0",
+      "location_type": "0",
+      "parent_station": "130GG5528",
+      "platform_code": "F"
+    },
+    "to": {
+      "stop_id": "13005504F",
+      "stop_code": "durdmawt",
+      "stop_name": "Dryburn Park",
+      "stop_lat": "54.790713",
+      "stop_lon": "-1.595289",
+      "wheelchair_boarding": "0",
+      "location_type": "0",
+      "parent_station": "",
+      "platform_code": ""
+    },
+    "departure_seconds": 34200
+  },
+  "feed_sha256": "7bf2fb60e0cb76825ac1102cf2071f0c4ec1e5f628d52dc664b969737ed69ff8",
+  "artifact_sha256": {
+    "north-east-gtfs.zip": "7bf2fb60e0cb76825ac1102cf2071f0c4ec1e5f628d52dc664b969737ed69ff8",
+    "north-east.osm.pbf": "fd3a8ca09fe7a3890c01e5f87d364461aac7f78cc23e1f8a1d87291a417fe94f",
+    "graph.obj": "41eedaea8861f4a77426fbfaab6cd20167419342e7a792490d96b355e58d047f"
+  },
+  "result": {
+    "data": {
+      "plan": {
+        "itineraries": [
+          {
+            "startTime": 1791793500000,
+            "endTime": 1791795030000,
+            "duration": 1530,
+            "walkTime": 1530,
+            "waitingTime": 0,
+            "numberOfTransfers": 0,
+            "legs": [
+              {
+                "mode": "WALK",
+                "startTime": 1791793500000,
+                "endTime": 1791795030000,
+                "duration": 1530.0,
+                "transitLeg": false,
+                "from": {
+                  "name": "Origin",
+                  "lat": 54.77726,
+                  "lon": -1.581945
+                },
+                "to": {
+                  "name": "Destination",
+                  "lat": 54.790713,
+                  "lon": -1.595289
+                },
+                "route": null,
+                "trip": null,
+                "legGeometry": {
+                  "points": "yuimI||sHYx@Un@EIQb@MRIHKBGAI@GBEFGRAH?L?HAVCNALGf@a@~@YdAKRIN]f@ORIL[TKFA^Cf@C^EZENOVm@x@MJuEpDaBpAe@`@EFKJMRO^MVQf@GTENELQh@ITCHM`@IVM`@_@hAM`@O`@GNcA`C{@tByA`DIJk@`@GDCBwAfAWP{AfAI?IACXGXk@dCm@`CCH]rAk@|BW`ACHW~@G@Sn@IPGHEFKFMFYHOD]DM@qCDO@i@?gCDGE_@w@IOWUc@TO@EBSEEAECGCKEGIU[yAmBMQkAaB"
+                },
+                "steps": [
+                  {
+                    "distance": 43.43,
+                    "streetName": "sidewalk",
+                    "relativeDirection": "DEPART",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 5.07,
+                    "streetName": "service road",
+                    "relativeDirection": "RIGHT",
+                    "absoluteDirection": "NORTHEAST"
+                  },
+                  {
+                    "distance": 38.96,
+                    "streetName": "North Road",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 37.08,
+                    "streetName": "road",
+                    "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                    "absoluteDirection": "NORTH"
+                  },
+                  {
+                    "distance": 166.69,
+                    "streetName": "North Road",
+                    "relativeDirection": "CONTINUE",
+                    "absoluteDirection": "WEST"
+                  },
+                  {
+                    "distance": 49.27,
+                    "streetName": "Albert Street",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "WEST"
+                  },
+                  {
+                    "distance": 345.56,
+                    "streetName": "Albert Street",
+                    "relativeDirection": "SLIGHTLY_RIGHT",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 320.79,
+                    "streetName": "Fieldhouse Lane",
+                    "relativeDirection": "CONTINUE",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 170.21,
+                    "streetName": "Fieldhouse Lane",
+                    "relativeDirection": "SLIGHTLY_RIGHT",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 252.25,
+                    "streetName": "Whitesmocks",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "WEST"
+                  },
+                  {
+                    "distance": 347.1,
+                    "streetName": "Great North Cycleway",
+                    "relativeDirection": "CONTINUE",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 22.03,
+                    "streetName": "Southfield Way",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "NORTH"
+                  },
+                  {
+                    "distance": 11.44,
+                    "streetName": "A167 Road (Great Britain)",
+                    "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                    "absoluteDirection": "NORTH"
+                  },
+                  {
+                    "distance": 174.33,
+                    "streetName": "Dryburn Park",
+                    "relativeDirection": "CONTINUE",
+                    "absoluteDirection": "NORTH"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "startTime": 1791793800000,
+            "endTime": 1791794040000,
+            "duration": 240,
+            "walkTime": 0,
+            "waitingTime": 0,
+            "numberOfTransfers": 0,
+            "legs": [
+              {
+                "mode": "BUS",
+                "startTime": 1791793800000,
+                "endTime": 1791794040000,
+                "duration": 240.0,
+                "transitLeg": true,
+                "from": {
+                  "name": "Bus Station Stand F",
+                  "lat": 54.77726,
+                  "lon": -1.581945
+                },
+                "to": {
+                  "name": "Dryburn Park",
+                  "lat": 54.790713,
+                  "lon": -1.595289
+                },
+                "route": {
+                  "gtfsId": "bods-ne:6927",
+                  "shortName": "X5",
+                  "longName": null,
+                  "agency": {
+                    "name": "Go North East"
+                  }
+                },
+                "trip": {
+                  "gtfsId": "bods-ne:VJ000190c412cf7cb121239c93da7792ed343fbf20"
+                },
+                "legGeometry": {
+                  "points": "{timId~sHC}O??at@rt@??cKrJ??iHtE??mHj["
+                },
+                "steps": []
+              }
+            ]
+          },
+          {
+            "startTime": 1791794100000,
+            "endTime": 1791794521000,
+            "duration": 421,
+            "walkTime": 181,
+            "waitingTime": 0,
+            "numberOfTransfers": 0,
+            "legs": [
+              {
+                "mode": "BUS",
+                "startTime": 1791794100000,
+                "endTime": 1791794340000,
+                "duration": 240.0,
+                "transitLeg": true,
+                "from": {
+                  "name": "Bus Station Stand F",
+                  "lat": 54.77726,
+                  "lon": -1.581945
+                },
+                "to": {
+                  "name": "Sacriston Road - New College",
+                  "lat": 54.792484,
+                  "lon": -1.595474
+                },
+                "route": {
+                  "gtfsId": "bods-ne:3976",
+                  "shortName": "16",
+                  "longName": null,
+                  "agency": {
+                    "name": "Go North East"
+                  }
+                },
+                "trip": {
+                  "gtfsId": "bods-ne:VJ7f026d4e8922a402245ec8fc5b82ffbfb63fb632"
+                },
+                "legGeometry": {
+                  "points": "{timId~sHC}O??at@rt@??cKrJ??iHtE??oSp\\"
+                },
+                "steps": []
+              },
+              {
+                "mode": "WALK",
+                "startTime": 1791794340000,
+                "endTime": 1791794521000,
+                "duration": 181.0,
+                "transitLeg": false,
+                "from": {
+                  "name": "Sacriston Road - New College",
+                  "lat": 54.792484,
+                  "lon": -1.595474
+                },
+                "to": {
+                  "name": "Destination",
+                  "lat": 54.790713,
+                  "lon": -1.595289
+                },
+                "route": null,
+                "trip": null,
+                "legGeometry": {
+                  "points": "_tlmIvrvHCIl@cADIP[d@y@XWJGLABAJ@b@PBBFF|@pA\\d@BDZd@"
+                },
+                "steps": [
+                  {
+                    "distance": 110.88,
+                    "streetName": "road",
+                    "relativeDirection": "DEPART",
+                    "absoluteDirection": "SOUTHEAST"
+                  },
+                  {
+                    "distance": 3.22,
+                    "streetName": "road",
+                    "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                    "absoluteDirection": "SOUTH"
+                  },
+                  {
+                    "distance": 121.52,
+                    "streetName": "Dryburn Park",
+                    "relativeDirection": "SLIGHTLY_RIGHT",
+                    "absoluteDirection": "SOUTH"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "startTime": 1791794149000,
+            "endTime": 1791794747000,
+            "duration": 598,
+            "walkTime": 238,
+            "waitingTime": 60,
+            "numberOfTransfers": 0,
+            "legs": [
+              {
+                "mode": "WALK",
+                "startTime": 1791794149000,
+                "endTime": 1791794160000,
+                "duration": 11.0,
+                "transitLeg": false,
+                "from": {
+                  "name": "Origin",
+                  "lat": 54.77726,
+                  "lon": -1.581945
+                },
+                "to": {
+                  "name": "Bus Station Stand G",
+                  "lat": 54.777232,
+                  "lon": -1.581883
+                },
+                "route": null,
+                "trip": null,
+                "legGeometry": {
+                  "points": "yuimI||sHHU@@Vn@"
+                },
+                "steps": [
+                  {
+                    "distance": 9.02,
+                    "streetName": "sidewalk",
+                    "relativeDirection": "DEPART",
+                    "absoluteDirection": "SOUTHEAST"
+                  }
+                ]
+              },
+              {
+                "mode": "BUS",
+                "startTime": 1791794220000,
+                "endTime": 1791794520000,
+                "duration": 300.0,
+                "transitLeg": true,
+                "from": {
+                  "name": "Bus Station Stand G",
+                  "lat": 54.777232,
+                  "lon": -1.581883
+                },
+                "to": {
+                  "name": "New College",
+                  "lat": 54.792717,
+                  "lon": -1.592594
+                },
+                "route": {
+                  "gtfsId": "bods-ne:3670",
+                  "shortName": "21",
+                  "longName": null,
+                  "agency": {
+                    "name": "Go North East"
+                  }
+                },
+                "trip": {
+                  "gtfsId": "bods-ne:VJ1d09d34f7bed26c6e5a99880219451047aeec692"
+                },
+                "legGeometry": {
+                  "points": "utimIx}sHcI~O??e]rG??aLlJ??cKrJ??iHtE??}TpJ"
+                },
+                "steps": []
+              },
+              {
+                "mode": "WALK",
+                "startTime": 1791794520000,
+                "endTime": 1791794747000,
+                "duration": 227.0,
+                "transitLeg": false,
+                "from": {
+                  "name": "New College",
+                  "lat": 54.792717,
+                  "lon": -1.592594
+                },
+                "to": {
+                  "name": "Destination",
+                  "lat": 54.790713,
+                  "lon": -1.595289
+                },
+                "route": null,
+                "trip": null,
+                "legGeometry": {
+                  "points": "mulmIv`vHDEJd@Pp@J^Vn@DHHRJP@DDNFLFLDHb@j@FJFD?F@D@FBFDBD@BAJ@b@PBBFF|@pA\\d@BDZd@"
+                },
+                "steps": [
+                  {
+                    "distance": 147.51,
+                    "streetName": "Front Street",
+                    "relativeDirection": "DEPART",
+                    "absoluteDirection": "SOUTHWEST"
+                  },
+                  {
+                    "distance": 20.69,
+                    "streetName": "road",
+                    "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                    "absoluteDirection": "WEST"
+                  },
+                  {
+                    "distance": 121.52,
+                    "streetName": "Dryburn Park",
+                    "relativeDirection": "SLIGHTLY_RIGHT",
+                    "absoluteDirection": "SOUTH"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "startTime": 1791794275000,
+            "endTime": 1791794987000,
+            "duration": 712,
+            "walkTime": 352,
+            "waitingTime": 60,
+            "numberOfTransfers": 0,
+            "legs": [
+              {
+                "mode": "WALK",
+                "startTime": 1791794275000,
+                "endTime": 1791794400000,
+                "duration": 125.0,
+                "transitLeg": false,
+                "from": {
+                  "name": "Origin",
+                  "lat": 54.77726,
+                  "lon": -1.581945
+                },
+                "to": {
+                  "name": "Bus Station Stand E",
+                  "lat": 54.777305,
+                  "lon": -1.582038
+                },
+                "route": null,
+                "trip": null,
+                "legGeometry": {
+                  "points": "yuimI||sHYx@Un@Un@ANJb@FVLDH?BEHSNm@@c@AKCECG?A?AZg@"
+                },
+                "steps": [
+                  {
+                    "distance": 68.44,
+                    "streetName": "sidewalk",
+                    "relativeDirection": "DEPART",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 22.06,
+                    "streetName": "Walney to Wear Cycle Route",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "SOUTHWEST"
+                  },
+                  {
+                    "distance": 13.84,
+                    "streetName": "Walney to Wear Cycle Route",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "SOUTH"
+                  },
+                  {
+                    "distance": 51.76,
+                    "streetName": "sidewalk",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "SOUTHEAST"
+                  }
+                ]
+              },
+              {
+                "mode": "BUS",
+                "startTime": 1791794460000,
+                "endTime": 1791794760000,
+                "duration": 300.0,
+                "transitLeg": true,
+                "from": {
+                  "name": "Bus Station Stand E",
+                  "lat": 54.777305,
+                  "lon": -1.582038
+                },
+                "to": {
+                  "name": "New College",
+                  "lat": 54.792717,
+                  "lon": -1.592594
+                },
+                "route": {
+                  "gtfsId": "bods-ne:5357734",
+                  "shortName": "14",
+                  "longName": null,
+                  "agency": {
+                    "name": "Go North East"
+                  }
+                },
+                "trip": {
+                  "gtfsId": "bods-ne:VJ2f5b36c537ef0f1194463d1b1f164b877151a82d"
+                },
+                "legGeometry": {
+                  "points": "cuimIv~sHuH`O??e]rG??aLlJ??cKrJ??iHtE??}TpJ"
+                },
+                "steps": []
+              },
+              {
+                "mode": "WALK",
+                "startTime": 1791794760000,
+                "endTime": 1791794987000,
+                "duration": 227.0,
+                "transitLeg": false,
+                "from": {
+                  "name": "New College",
+                  "lat": 54.792717,
+                  "lon": -1.592594
+                },
+                "to": {
+                  "name": "Destination",
+                  "lat": 54.790713,
+                  "lon": -1.595289
+                },
+                "route": null,
+                "trip": null,
+                "legGeometry": {
+                  "points": "mulmIv`vHDEJd@Pp@J^Vn@DHHRJP@DDNFLFLDHb@j@FJFD?F@D@FBFDBD@BAJ@b@PBBFF|@pA\\d@BDZd@"
+                },
+                "steps": [
+                  {
+                    "distance": 147.51,
+                    "streetName": "Front Street",
+                    "relativeDirection": "DEPART",
+                    "absoluteDirection": "SOUTHWEST"
+                  },
+                  {
+                    "distance": 20.69,
+                    "streetName": "road",
+                    "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                    "absoluteDirection": "WEST"
+                  },
+                  {
+                    "distance": 121.52,
+                    "streetName": "Dryburn Park",
+                    "relativeDirection": "SLIGHTLY_RIGHT",
+                    "absoluteDirection": "SOUTH"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "walking_result": {
+    "data": {
+      "plan": {
+        "itineraries": [
+          {
+            "startTime": 1791793500000,
+            "endTime": 1791795030000,
+            "duration": 1530,
+            "walkTime": 1530,
+            "waitingTime": 0,
+            "numberOfTransfers": 0,
+            "legs": [
+              {
+                "mode": "WALK",
+                "startTime": 1791793500000,
+                "endTime": 1791795030000,
+                "duration": 1530.0,
+                "transitLeg": false,
+                "from": {
+                  "name": "Origin",
+                  "lat": 54.77726,
+                  "lon": -1.581945
+                },
+                "to": {
+                  "name": "Destination",
+                  "lat": 54.790713,
+                  "lon": -1.595289
+                },
+                "route": null,
+                "trip": null,
+                "legGeometry": {
+                  "points": "yuimI||sHYx@Un@EIQb@MRIHKBGAI@GBEFGRAH?L?HAVCNALGf@a@~@YdAKRIN]f@ORIL[TKFA^Cf@C^EZENOVm@x@MJuEpDaBpAe@`@EFKJMRO^MVQf@GTENELQh@ITCHM`@IVM`@_@hAM`@O`@GNcA`C{@tByA`DIJk@`@GDCBwAfAWP{AfAI?IACXGXk@dCm@`CCH]rAk@|BW`ACHW~@G@Sn@IPGHEFKFMFYHOD]DM@qCDO@i@?gCDGE_@w@IOWUc@TO@EBSEEAECGCKEGIU[yAmBMQkAaB"
+                },
+                "steps": [
+                  {
+                    "distance": 43.43,
+                    "streetName": "sidewalk",
+                    "relativeDirection": "DEPART",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 5.07,
+                    "streetName": "service road",
+                    "relativeDirection": "RIGHT",
+                    "absoluteDirection": "NORTHEAST"
+                  },
+                  {
+                    "distance": 38.96,
+                    "streetName": "North Road",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 37.08,
+                    "streetName": "road",
+                    "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                    "absoluteDirection": "NORTH"
+                  },
+                  {
+                    "distance": 166.69,
+                    "streetName": "North Road",
+                    "relativeDirection": "CONTINUE",
+                    "absoluteDirection": "WEST"
+                  },
+                  {
+                    "distance": 49.27,
+                    "streetName": "Albert Street",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "WEST"
+                  },
+                  {
+                    "distance": 345.56,
+                    "streetName": "Albert Street",
+                    "relativeDirection": "SLIGHTLY_RIGHT",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 320.79,
+                    "streetName": "Fieldhouse Lane",
+                    "relativeDirection": "CONTINUE",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 170.21,
+                    "streetName": "Fieldhouse Lane",
+                    "relativeDirection": "SLIGHTLY_RIGHT",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 252.25,
+                    "streetName": "Whitesmocks",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "WEST"
+                  },
+                  {
+                    "distance": 347.1,
+                    "streetName": "Great North Cycleway",
+                    "relativeDirection": "CONTINUE",
+                    "absoluteDirection": "NORTHWEST"
+                  },
+                  {
+                    "distance": 22.03,
+                    "streetName": "Southfield Way",
+                    "relativeDirection": "LEFT",
+                    "absoluteDirection": "NORTH"
+                  },
+                  {
+                    "distance": 11.44,
+                    "streetName": "A167 Road (Great Britain)",
+                    "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+                    "absoluteDirection": "NORTH"
+                  },
+                  {
+                    "distance": 174.33,
+                    "streetName": "Dryburn Park",
+                    "relativeDirection": "CONTINUE",
+                    "absoluteDirection": "NORTH"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "passed": true
+}

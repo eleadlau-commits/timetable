@@ -1,0 +1,152 @@
+{
+  "request": {
+    "from": {
+      "id": "bods-ne:13005528F",
+      "name": "Bus Station Stand F",
+      "lat": 54.77726,
+      "lon": -1.581945,
+      "category": "Bus stop",
+      "source": "BODS GTFS"
+    },
+    "to": {
+      "id": "bods-ne:13005504F",
+      "name": "Dryburn Park",
+      "lat": 54.790713,
+      "lon": -1.595289,
+      "category": "Bus stop",
+      "source": "BODS GTFS"
+    },
+    "departure": {
+      "date": "2026-10-25",
+      "time": "01:30",
+      "occurrence": "later"
+    }
+  },
+  "result": {
+    "requestedDeparture": "2026-10-25T01:30:00.000Z",
+    "fastestId": "walk-0",
+    "bus": [],
+    "walking": {
+      "startTime": 1792891800000,
+      "endTime": 1792893332000,
+      "duration": 1532,
+      "walkTime": 1532,
+      "waitingTime": 0,
+      "numberOfTransfers": 0,
+      "legs": [
+        {
+          "mode": "WALK",
+          "startTime": 1792891800000,
+          "endTime": 1792893332000,
+          "duration": 1532,
+          "distance": 1989.79,
+          "transitLeg": false,
+          "from": {
+            "name": "Origin",
+            "lat": 54.77726,
+            "lon": -1.581945,
+            "stop": null
+          },
+          "to": {
+            "name": "Destination",
+            "lat": 54.790713,
+            "lon": -1.595289,
+            "stop": null
+          },
+          "route": null,
+          "trip": null,
+          "legGeometry": {
+            "points": "yuimI||sHYx@Un@Un@ANEGGIIHKBGAI@GBEFGRAH?L?HAVCNALGf@a@~@YdAKRIN]f@ORIL[TKFA^Cf@C^EZENOVm@x@MJuEpDaBpAe@`@EFKJMRO^MVQf@GTENELQh@ITCHM`@IVM`@_@hAM`@O`@GNcA`C{@tByA`DIJk@`@GDCBwAfAWP{AfAI?IACXGXk@dCm@`CCH]rAk@|BW`ACHW~@G@Sn@IPGHEFKFMFYHOD]DM@qCDO@i@?gCDGE_@w@IOWUMKQHUFK@GAILECGCKEGIU[yAmBMQkAaB"
+          },
+          "steps": [
+            {
+              "distance": 68.44,
+              "streetName": "sidewalk",
+              "relativeDirection": "DEPART",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 9.88,
+              "streetName": "Walney to Wear Cycle Route",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "NORTHEAST"
+            },
+            {
+              "distance": 13.44,
+              "streetName": "North Road",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "NORTH"
+            },
+            {
+              "distance": 37.08,
+              "streetName": "road",
+              "relativeDirection": "CIRCLE_COUNTERCLOCKWISE",
+              "absoluteDirection": "NORTH"
+            },
+            {
+              "distance": 166.69,
+              "streetName": "North Road",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "WEST"
+            },
+            {
+              "distance": 49.27,
+              "streetName": "Albert Street",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "WEST"
+            },
+            {
+              "distance": 345.56,
+              "streetName": "Albert Street",
+              "relativeDirection": "SLIGHTLY_RIGHT",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 320.79,
+              "streetName": "Fieldhouse Lane",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 170.21,
+              "streetName": "Fieldhouse Lane",
+              "relativeDirection": "SLIGHTLY_RIGHT",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 252.25,
+              "streetName": "Whitesmocks",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "WEST"
+            },
+            {
+              "distance": 397.57,
+              "streetName": "Great North Cycleway",
+              "relativeDirection": "CONTINUE",
+              "absoluteDirection": "NORTHWEST"
+            },
+            {
+              "distance": 158.62,
+              "streetName": "Dryburn Park",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "NORTH"
+            }
+          ]
+        }
+      ],
+      "id": "walk-0",
+      "elapsedSeconds": 1532,
+      "initialWaitSeconds": 0
+    },
+    "warnings": [
+      "Scheduled timetables; live delays and cancellations are not included.",
+      "No bus journey found in the next two hours. Try another departure time."
+    ],
+    "feed": {
+      "version": "20261011_025059",
+      "startDate": "2026-10-11",
+      "endDate": "2027-08-30",
+      "downloadedAt": "2026-10-11T21:07:10.111088+00:00"
+    }
+  }
+}

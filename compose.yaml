@@ -1,0 +1,54 @@
+services:
+  osm-merge:
+    profiles: [prepare]
+    build: ./services/osm
+    volumes:
+      - ./data/downloads:/input:ro
+      - ./data/otp:/output
+    command: [osmium, merge, /input/durham.osm.pbf, /input/tyne-and-wear.osm.pbf, /input/northumberland.osm.pbf, /input/north-yorkshire.osm.pbf, /input/cumbria.osm.pbf, -o, /output/north-east.osm.pbf, --overwrite]
+  places-export:
+    profiles: [prepare]
+    build: ./services/osm
+    volumes:
+      - ./data/downloads:/input:ro
+      - ./data/otp:/output
+    command: [osmium, export, /input/durham.osm.pbf, --geometry-types=point,polygon, --add-unique-id=type_id, -f, geojson, -o, /output/durham-places.geojson, --overwrite]
+  otp-build:
+    profiles: [build]
+    image: opentripplanner/opentripplanner:2.7.0
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx6g
+    volumes:
+      - ./data/otp:/var/opentripplanner
+    command: [--build, --save]
+  otp:
+    image: opentripplanner/opentripplanner:2.7.0
+    environment:
+      JAVA_TOOL_OPTIONS: -Xmx4g
+    volumes:
+      - ./data/otp:/var/opentripplanner:ro
+    ports:
+      - "127.0.0.1:8080:8080"
+    command: [--load, --serve]
+    restart: unless-stopped
+  api:
+    build:
+      context: .
+      dockerfile: services/api/Dockerfile
+    environment:
+      OTP_URL: http://otp:8080/otp/gtfs/v1
+      HOST: 0.0.0.0
+      PORT: 3001
+    volumes:
+      - ./data:/app/data:ro
+    ports:
+      - "127.0.0.1:3001:3001"
+    depends_on:
+      - otp
+    restart: unless-stopped
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3001/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 55s
+      start_period: 90s
+      retries: 3

@@ -1,0 +1,2162 @@
+{
+  "request": {
+    "from": {
+      "id": "bods-ne:13005528F",
+      "name": "Bus Station Stand F",
+      "lat": 54.77726,
+      "lon": -1.581945,
+      "category": "Bus stop",
+      "source": "BODS GTFS"
+    },
+    "to": {
+      "id": "osm:way:142676681",
+      "name": "Bill Bryson Library",
+      "lat": 54.7682916,
+      "lon": -1.5729774,
+      "category": "Library",
+      "source": "OpenStreetMap",
+      "url": "https://www.openstreetmap.org/way/142676681"
+    },
+    "departure": {
+      "date": "2026-10-12",
+      "time": "09:25"
+    }
+  },
+  "result": {
+    "requestedDeparture": "2026-10-12T08:25:00.000Z",
+    "fastestId": "bus-0",
+    "bus": [
+      {
+        "startTime": 1791793742000,
+        "endTime": 1791794555000,
+        "duration": 813,
+        "walkTime": 333,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791793742000,
+            "endTime": 1791793800000,
+            "duration": 58,
+            "distance": 58.87,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "North Road Stand B",
+              "lat": 54.777492,
+              "lon": -1.581694,
+              "stop": {
+                "gtfsId": "bods-ne:13005015B",
+                "code": "durdgjpd"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOECELWp@EI@AA?"
+            },
+            "steps": [
+              {
+                "distance": 23.38,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 3.71,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTHEAST"
+              },
+              {
+                "distance": 26.73,
+                "streetName": "North Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTHWEST"
+              },
+              {
+                "distance": 5.06,
+                "streetName": "sidewalk",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "NORTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791793860000,
+            "endTime": 1791794280000,
+            "duration": 420,
+            "distance": 1451.63,
+            "transitLeg": true,
+            "from": {
+              "name": "North Road Stand B",
+              "lat": 54.777492,
+              "lon": -1.581694,
+              "stop": {
+                "gtfsId": "bods-ne:13005015B",
+                "code": "durdgjpd"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:89739",
+              "shortName": "41",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJc4e3d680f051cb26e8a57481c08e224d9280f256"
+            },
+            "legGeometry": {
+              "points": "ivimIr|sHDgN??H{b@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791794280000,
+            "endTime": 1791794555000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-0",
+        "elapsedSeconds": 1055,
+        "initialWaitSeconds": 242
+      },
+      {
+        "startTime": 1791793824000,
+        "endTime": 1791794615000,
+        "duration": 791,
+        "walkTime": 311,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791793824000,
+            "endTime": 1791793860000,
+            "duration": 36,
+            "distance": 43.08,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand J",
+              "lat": 54.777196,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528J",
+                "code": "durdmdgw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOTNFD@?@@O|@"
+            },
+            "steps": [
+              {
+                "distance": 23.38,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 19.7,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791793920000,
+            "endTime": 1791794340000,
+            "duration": 420,
+            "distance": 1466.8,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand J",
+              "lat": 54.777196,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528J",
+                "code": "durdmdgw"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116603",
+              "shortName": "6",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJb973cb1e948086372faa2f6868502c903f8af9da"
+            },
+            "legGeometry": {
+              "points": "mtimIx}sH\\kO??iA}b@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791794340000,
+            "endTime": 1791794615000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-1",
+        "elapsedSeconds": 1115,
+        "initialWaitSeconds": 324
+      },
+      {
+        "startTime": 1791794326000,
+        "endTime": 1791795155000,
+        "duration": 829,
+        "walkTime": 349,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791794326000,
+            "endTime": 1791794400000,
+            "duration": 74,
+            "distance": 79.77,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "North Road Stand A",
+              "lat": 54.777619,
+              "lon": -1.581972,
+              "stop": {
+                "gtfsId": "bods-ne:13005015A",
+                "code": "durdgjpa"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOECELWp@EIYr@@@"
+            },
+            "steps": [
+              {
+                "distance": 23.38,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 3.71,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTHEAST"
+              },
+              {
+                "distance": 26.73,
+                "streetName": "North Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTHWEST"
+              },
+              {
+                "distance": 25.95,
+                "streetName": "sidewalk",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "NORTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791794460000,
+            "endTime": 1791794880000,
+            "duration": 420,
+            "distance": 1469.87,
+            "transitLeg": true,
+            "from": {
+              "name": "North Road Stand A",
+              "lat": 54.777619,
+              "lon": -1.581972,
+              "stop": {
+                "gtfsId": "bods-ne:13005015A",
+                "code": "durdgjpa"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:89740",
+              "shortName": "42",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ817cfc0d0aa4fad0085d2290eca09cb40287a26a"
+            },
+            "legGeometry": {
+              "points": "awimIj~sHf@{s@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791794880000,
+            "endTime": 1791795155000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-2",
+        "elapsedSeconds": 1655,
+        "initialWaitSeconds": 826
+      },
+      {
+        "startTime": 1791794655000,
+        "endTime": 1791795575000,
+        "duration": 920,
+        "walkTime": 500,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791794655000,
+            "endTime": 1791794880000,
+            "duration": 225,
+            "distance": 281.3,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOXw@h@}AEGCERm@T{@HaAAe@DQMOYWCEIEGEKGGCIAK?KBUFKD_@H?D"
+            },
+            "steps": [
+              {
+                "distance": 167.61,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 6.74,
+                "streetName": "path",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 106.94,
+                "streetName": "Milburngate",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791794940000,
+            "endTime": 1791795300000,
+            "duration": 360,
+            "distance": 1299.12,
+            "transitLeg": true,
+            "from": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:115113",
+              "shortName": "PR2",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ238afea6cfdf3654f8f3849d409f0b38220250c6"
+            },
+            "legGeometry": {
+              "points": "cwimItmsHh@ec@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791795300000,
+            "endTime": 1791795575000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-3",
+        "elapsedSeconds": 2075,
+        "initialWaitSeconds": 1155
+      },
+      {
+        "startTime": 1791794906000,
+        "endTime": 1791795755000,
+        "duration": 849,
+        "walkTime": 309,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791794906000,
+            "endTime": 1791794940000,
+            "duration": 34,
+            "distance": 41.37,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand K",
+              "lat": 54.777178,
+              "lon": -1.581744,
+              "stop": {
+                "gtfsId": "bods-ne:13005528K",
+                "code": "durdmdja"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOTNFDGb@"
+            },
+            "steps": [
+              {
+                "distance": 23.38,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 17.99,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795000000,
+            "endTime": 1791795480000,
+            "duration": 480,
+            "distance": 1456.36,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand K",
+              "lat": 54.777178,
+              "lon": -1.581744,
+              "stop": {
+                "gtfsId": "bods-ne:13005528K",
+                "code": "durdmdja"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116632",
+              "shortName": "X12",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ7e5a9cd509403285d9764f94a7c35a4acfc01ceb"
+            },
+            "legGeometry": {
+              "points": "itimI||sHJkN??{@ac@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791795480000,
+            "endTime": 1791795755000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-4",
+        "elapsedSeconds": 2255,
+        "initialWaitSeconds": 1406
+      },
+      {
+        "startTime": 1791795024000,
+        "endTime": 1791795815000,
+        "duration": 791,
+        "walkTime": 311,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791795024000,
+            "endTime": 1791795060000,
+            "duration": 36,
+            "distance": 43.08,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand J",
+              "lat": 54.777196,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528J",
+                "code": "durdmdgw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOTNFD@?@@O|@"
+            },
+            "steps": [
+              {
+                "distance": 23.38,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 19.7,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795120000,
+            "endTime": 1791795540000,
+            "duration": 420,
+            "distance": 1466.8,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand J",
+              "lat": 54.777196,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528J",
+                "code": "durdmdgw"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116603",
+              "shortName": "6",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJe650b98128ae691f7f218b4f700065c0191edee1"
+            },
+            "legGeometry": {
+              "points": "mtimIx}sH\\kO??iA}b@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791795540000,
+            "endTime": 1791795815000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-5",
+        "elapsedSeconds": 2315,
+        "initialWaitSeconds": 1524
+      },
+      {
+        "startTime": 1791795555000,
+        "endTime": 1791796475000,
+        "duration": 920,
+        "walkTime": 500,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791795555000,
+            "endTime": 1791795780000,
+            "duration": 225,
+            "distance": 281.3,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOXw@h@}AEGCERm@T{@HaAAe@DQMOYWCEIEGEKGGCIAK?KBUFKD_@H?D"
+            },
+            "steps": [
+              {
+                "distance": 167.61,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 6.74,
+                "streetName": "path",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 106.94,
+                "streetName": "Milburngate",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795840000,
+            "endTime": 1791796200000,
+            "duration": 360,
+            "distance": 1299.12,
+            "transitLeg": true,
+            "from": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:115113",
+              "shortName": "PR2",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ23bc0d73caecd6f1824782eb89ebb6c37a7ce442"
+            },
+            "legGeometry": {
+              "points": "cwimItmsHh@ec@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791796200000,
+            "endTime": 1791796475000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-6",
+        "elapsedSeconds": 2975,
+        "initialWaitSeconds": 2055
+      },
+      {
+        "startTime": 1791795806000,
+        "endTime": 1791796655000,
+        "duration": 849,
+        "walkTime": 309,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791795806000,
+            "endTime": 1791795840000,
+            "duration": 34,
+            "distance": 41.37,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand K",
+              "lat": 54.777178,
+              "lon": -1.581744,
+              "stop": {
+                "gtfsId": "bods-ne:13005528K",
+                "code": "durdmdja"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOTNFDGb@"
+            },
+            "steps": [
+              {
+                "distance": 23.38,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 17.99,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791795900000,
+            "endTime": 1791796380000,
+            "duration": 480,
+            "distance": 1460.31,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand K",
+              "lat": 54.777178,
+              "lon": -1.581744,
+              "stop": {
+                "gtfsId": "bods-ne:13005528K",
+                "code": "durdmdja"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:6292",
+              "shortName": "58",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ8a7b068c33296272d8a778305d21619fee259ed0"
+            },
+            "legGeometry": {
+              "points": "itimI||sHj@eN??{Agc@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791796380000,
+            "endTime": 1791796655000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-7",
+        "elapsedSeconds": 3155,
+        "initialWaitSeconds": 2306
+      },
+      {
+        "startTime": 1791796455000,
+        "endTime": 1791797375000,
+        "duration": 920,
+        "walkTime": 500,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791796455000,
+            "endTime": 1791796680000,
+            "duration": 225,
+            "distance": 281.3,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOXw@h@}AEGCERm@T{@HaAAe@DQMOYWCEIEGEKGGCIAK?KBUFKD_@H?D"
+            },
+            "steps": [
+              {
+                "distance": 167.61,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 6.74,
+                "streetName": "path",
+                "relativeDirection": "SLIGHTLY_RIGHT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 106.94,
+                "streetName": "Milburngate",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791796740000,
+            "endTime": 1791797100000,
+            "duration": 360,
+            "distance": 1299.12,
+            "transitLeg": true,
+            "from": {
+              "name": "Millburngate Stand D",
+              "lat": 54.77762,
+              "lon": -1.579306,
+              "stop": {
+                "gtfsId": "bods-ne:13005999J",
+                "code": "durgdjmw"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:115113",
+              "shortName": "PR2",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ684802f42f8afadf3672785448eef8bb25bd986e"
+            },
+            "legGeometry": {
+              "points": "cwimItmsHh@ec@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791797100000,
+            "endTime": 1791797375000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-8",
+        "elapsedSeconds": 3875,
+        "initialWaitSeconds": 2955
+      },
+      {
+        "startTime": 1791797306000,
+        "endTime": 1791798155000,
+        "duration": 849,
+        "walkTime": 309,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791797306000,
+            "endTime": 1791797340000,
+            "duration": 34,
+            "distance": 41.37,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand K",
+              "lat": 54.777178,
+              "lon": -1.581744,
+              "stop": {
+                "gtfsId": "bods-ne:13005528K",
+                "code": "durdmdja"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOTNFDGb@"
+            },
+            "steps": [
+              {
+                "distance": 23.38,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 17.99,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791797400000,
+            "endTime": 1791797880000,
+            "duration": 480,
+            "distance": 1806.91,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand K",
+              "lat": 54.777178,
+              "lon": -1.581744,
+              "stop": {
+                "gtfsId": "bods-ne:13005528K",
+                "code": "durdmdja"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:132451",
+              "shortName": "59",
+              "longName": null,
+              "agency": {
+                "name": "Stagecoach North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJf288bd7f06ede5d84f4ec1249eb59e16ee1f1751"
+            },
+            "legGeometry": {
+              "points": "itimI~|sHLYm@g@A?JYRk@~@}BL]Lk@Hk@@_@Aa@MOEGACGEWSQE??MECAc@CU?[LSHMBI@E?A@KLMDIB?@?BA@?@?@AB?@A@?@A@A@?@A@A??@A?A@A?A@A?A?A?A?A??AA?A?AAAAAAAA?AAA?AAAAA?AAA?A?A?AAA?A?A?C?C?C?A?C?A@C?A?C@A?C@A?A@A@C?A@A@?@A?A@A@?@A@?@?@ABe@Bi@@K@O?MFmA@GBu@@[D{@Bc@@YBa@@[Ba@@YBg@Ds@H_ABWFk@Js@TeBBOBSHq@AAFc@DYBQ@OBY???O@Y?K?G?GAIAOCMCIAMCK?KAG?G?G@U?K@KBK?ADURAH@H@TZ\\NJEJEDADCRIVM\\OFEHGJELEZ?VB@?TBZDP?XCLARGJC@?NENEZKNGFAPG??@A@?`@MHC\\O`@Q`@M`@O`@Gn@WHCHCHAPEPEDBB@DBBBB@DBLLNL`@T@@l@^HBJFLDHBb@T\\LTHZJZJPF??DBJD^NPLb@XPJNJf@Zf@\\^TXT\\TFDHFFFPNJL@@"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791797880000,
+            "endTime": 1791798155000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-9",
+        "elapsedSeconds": 4655,
+        "initialWaitSeconds": 3806
+      },
+      {
+        "startTime": 1791797424000,
+        "endTime": 1791798215000,
+        "duration": 791,
+        "walkTime": 311,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791797424000,
+            "endTime": 1791797460000,
+            "duration": 36,
+            "distance": 43.08,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "Bus Station Stand J",
+              "lat": 54.777196,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528J",
+                "code": "durdmdgw"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOTNFD@?@@O|@"
+            },
+            "steps": [
+              {
+                "distance": 23.38,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 19.7,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTHWEST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791797520000,
+            "endTime": 1791797940000,
+            "duration": 420,
+            "distance": 1466.8,
+            "transitLeg": true,
+            "from": {
+              "name": "Bus Station Stand J",
+              "lat": 54.777196,
+              "lon": -1.581883,
+              "stop": {
+                "gtfsId": "bods-ne:13005528J",
+                "code": "durdmdgw"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:116603",
+              "shortName": "6",
+              "longName": null,
+              "agency": {
+                "name": "Arriva North East"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ86229959f338ecb04443ba4239c5058b9462062a"
+            },
+            "legGeometry": {
+              "points": "mtimIx}sH\\kO??iA}b@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791797940000,
+            "endTime": 1791798215000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-10",
+        "elapsedSeconds": 4715,
+        "initialWaitSeconds": 3924
+      },
+      {
+        "startTime": 1791797926000,
+        "endTime": 1791798755000,
+        "duration": 829,
+        "walkTime": 349,
+        "waitingTime": 60,
+        "numberOfTransfers": 0,
+        "legs": [
+          {
+            "mode": "WALK",
+            "startTime": 1791797926000,
+            "endTime": 1791798000000,
+            "duration": 74,
+            "distance": 79.77,
+            "transitLeg": false,
+            "from": {
+              "name": "Origin",
+              "lat": 54.77726,
+              "lon": -1.581945,
+              "stop": null
+            },
+            "to": {
+              "name": "North Road Stand A",
+              "lat": 54.777619,
+              "lon": -1.581972,
+              "stop": {
+                "gtfsId": "bods-ne:13005015A",
+                "code": "durdgjpa"
+              }
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "yuimI||sHHUHSDOECELWp@EIYr@@@"
+            },
+            "steps": [
+              {
+                "distance": 23.38,
+                "streetName": "sidewalk",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 3.71,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTHEAST"
+              },
+              {
+                "distance": 26.73,
+                "streetName": "North Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "NORTHWEST"
+              },
+              {
+                "distance": 25.95,
+                "streetName": "sidewalk",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "NORTHEAST"
+              }
+            ]
+          },
+          {
+            "mode": "BUS",
+            "startTime": 1791798060000,
+            "endTime": 1791798480000,
+            "duration": 420,
+            "distance": 1469.87,
+            "transitLeg": true,
+            "from": {
+              "name": "North Road Stand A",
+              "lat": 54.777619,
+              "lon": -1.581972,
+              "stop": {
+                "gtfsId": "bods-ne:13005015A",
+                "code": "durdgjpa"
+              }
+            },
+            "to": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "route": {
+              "gtfsId": "bods-ne:89740",
+              "shortName": "42",
+              "longName": null,
+              "agency": {
+                "name": "Gateshead Central Buses"
+              }
+            },
+            "trip": {
+              "gtfsId": "bods-ne:VJ3527396f6b6b42f1c88c4f618294dddb397ce309"
+            },
+            "legGeometry": {
+              "points": "awimIj~sHf@{s@??jP_J??dT~@??lJfG"
+            },
+            "steps": []
+          },
+          {
+            "mode": "WALK",
+            "startTime": 1791798480000,
+            "endTime": 1791798755000,
+            "duration": 275,
+            "distance": 266.67,
+            "transitLeg": false,
+            "from": {
+              "name": "New Inn - Church Street",
+              "lat": 54.769412,
+              "lon": -1.573399,
+              "stop": {
+                "gtfsId": "bods-ne:13005574F",
+                "code": "durdmdmp"
+              }
+            },
+            "to": {
+              "name": "Destination",
+              "lat": 54.7682916,
+              "lon": -1.5729774,
+              "stop": null
+            },
+            "route": null,
+            "trip": null,
+            "legGeometry": {
+              "points": "ychmIvhrHCLf@l@JJDKPo@DE@GHc@DGBEN?CkDJ@@@H@HF@H@DD@DQ@DBKDACIDIFPHKJ\\D\\@Z?PB?ADB??F@??H@?"
+            },
+            "steps": [
+              {
+                "distance": 34.73,
+                "streetName": "Church Street Head",
+                "relativeDirection": "DEPART",
+                "absoluteDirection": "SOUTHWEST"
+              },
+              {
+                "distance": 49.85,
+                "streetName": "service road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTHEAST"
+              },
+              {
+                "distance": 8.73,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 55.33,
+                "streetName": "Stockton Road",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "EAST"
+              },
+              {
+                "distance": 25.37,
+                "streetName": "service road",
+                "relativeDirection": "RIGHT",
+                "absoluteDirection": "SOUTH"
+              },
+              {
+                "distance": 92.64,
+                "streetName": "path",
+                "relativeDirection": "LEFT",
+                "absoluteDirection": "SOUTH"
+              }
+            ]
+          }
+        ],
+        "id": "bus-11",
+        "elapsedSeconds": 5255,
+        "initialWaitSeconds": 4426
+      }
+    ],
+    "walking": {
+      "startTime": 1791793500000,
+      "endTime": 1791794827000,
+      "duration": 1327,
+      "walkTime": 1327,
+      "waitingTime": 0,
+      "numberOfTransfers": 0,
+      "legs": [
+        {
+          "mode": "WALK",
+          "startTime": 1791793500000,
+          "endTime": 1791794827000,
+          "duration": 1327,
+          "distance": 1617.86,
+          "transitLeg": false,
+          "from": {
+            "name": "Origin",
+            "lat": 54.77726,
+            "lon": -1.581945,
+            "stop": null
+          },
+          "to": {
+            "name": "Destination",
+            "lat": 54.7682916,
+            "lon": -1.5729774,
+            "stop": null
+          },
+          "route": null,
+          "trip": null,
+          "legGeometry": {
+            "points": "yuimI||sHHUHSDOXw@nBjAHDbBNDIRODJn@m@@FH^FIPQBGFIHQPUDM^v@N?rAJzB`@JEJEXK\\On@UXKL?Lk@PiAt@d@p@f@HOHINOZKVCb@An@Mz@A|@[Ra@FCNCPKVY`@c@Za@v@iADQNU\\a@LYLa@DMDK@_@Ac@Aq@Am@Cu@BMA_@?QBQDQHQNOPKJGBCFQBOD]TiAP_@PiARa@HM@AJOGm@HOOmAPM@KBKYYEK@EGWGc@FAFBFBFFFJBThBCJK@A?EC]GUAOAOK?K??K?MT??MASEQEKIOK?UA"
+          },
+          "steps": [
+            {
+              "distance": 46.3,
+              "streetName": "sidewalk",
+              "relativeDirection": "DEPART",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 129.06,
+              "streetName": "Neville Street",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTH"
+            },
+            {
+              "distance": 16.49,
+              "streetName": "road",
+              "relativeDirection": "SLIGHTLY_LEFT",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 5.4,
+              "streetName": "Crossgate",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTHWEST"
+            },
+            {
+              "distance": 30.24,
+              "streetName": "path",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 14.92,
+              "streetName": "service road",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTHWEST"
+            },
+            {
+              "distance": 341.04,
+              "streetName": "service road",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 63.9,
+              "streetName": "South Street",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTHWEST"
+            },
+            {
+              "distance": 667.15,
+              "streetName": "path",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 26.3,
+              "streetName": "sidewalk",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "EAST"
+            },
+            {
+              "distance": 10.99,
+              "streetName": "sidewalk",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 30.43,
+              "streetName": "sidewalk",
+              "relativeDirection": "UTURN_LEFT",
+              "absoluteDirection": "NORTHEAST"
+            },
+            {
+              "distance": 2.29,
+              "streetName": "bike path",
+              "relativeDirection": "RIGHT",
+              "absoluteDirection": "SOUTHEAST"
+            },
+            {
+              "distance": 233.36,
+              "streetName": "path",
+              "relativeDirection": "LEFT",
+              "absoluteDirection": "NORTHEAST"
+            }
+          ]
+        }
+      ],
+      "id": "walk-0",
+      "elapsedSeconds": 1327,
+      "initialWaitSeconds": 0
+    },
+    "warnings": [
+      "Scheduled timetables; live delays and cancellations are not included."
+    ],
+    "feed": {
+      "version": "20261011_025059",
+      "startDate": "2026-10-11",
+      "endDate": "2027-08-30",
+      "downloadedAt": "2026-10-11T21:07:10.111088+00:00"
+    }
+  }
+}
