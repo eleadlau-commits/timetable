@@ -68,7 +68,7 @@ jobs:
       - name: Generate app icons
         continue-on-error: true   # falls back to the default icon if this fails
         working-directory: dist
-        run: npx --yes @capacitor/assets generate --android --iconBackgroundColor '#3d5afe' --iconBackgroundColorDark '#3d5afe'
+        run: npx --yes @capacitor/assets generate --android --iconBackgroundColor '#e2dfe7' --iconBackgroundColorDark '#e2dfe7'
 
       - name: Copy the app into the Android project
         working-directory: dist
