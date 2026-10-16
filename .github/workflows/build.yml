@@ -104,15 +104,15 @@ jobs:
         run: ./gradlew assembleDebug --no-daemon
 
       - name: Name the APK
-        run: cp dist/android/app/build/outputs/apk/debug/app-debug.apk Timetable.apk
+        run: cp dist/android/app/build/outputs/apk/debug/app-debug.apk MobileDurham.apk
 
       - name: Publish it as a release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: Timetable (build ${{ github.run_number }})
-          body: Open this page on your Android phone, tap **Timetable.apk** to download it, then open the file to install.
-          files: Timetable.apk
+          name: Mobile Durham (build ${{ github.run_number }})
+          body: Open this page on your Android phone, tap **MobileDurham.apk** to download it, then open the file to install.
+          files: MobileDurham.apk
           make_latest: true
 
   website:

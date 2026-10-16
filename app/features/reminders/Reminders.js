@@ -173,7 +173,7 @@ export default class Reminders extends Feature {
           return true;
         }
       } catch { /* fall through to the message */ }
-      this.toast('Notifications are blocked. Turn them on in Android Settings → Apps → Timetable → Notifications.');
+      this.toast('Notifications are blocked. Turn them on in Android Settings → Apps → Mobile Durham → Notifications.');
       return false;
     }
     if ('Notification' in window && Notification.permission === 'default') {

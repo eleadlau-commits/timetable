@@ -1,8 +1,10 @@
-# Timetable app – feature to-do list
+# Mobile Durham – feature to-do list
+
+_The app was called **Timetable** until version 3.1._
 
 Features shown or implied by the new Home screen design (`home-light.html` / `home-dark.html`, spec in `DESIGN.md`).
 
-_Statuses checked against the code on 15 October 2026, after the Home redesign (branch `claude/home-redesign`)._
+_Statuses checked against the code on 16 October 2026, after the knife shapes and to-do list (branch `claude/knife-shapes-todo-list`)._
 
 > **Important:** the design shows features the app **does not have yet**. Many items below have no code behind them at all. Before building, check the repo and mark each item with its real status. Do not assume a feature exists because it appears in the mockup.
 
@@ -14,6 +16,8 @@ _Statuses checked against the code on 15 October 2026, after the Home redesign (
 
 - [x] Rebuild the Home screen layout to match the mockups (header, clock, library card, date strip, lecture card, campus card, tab bar) — *`home` feature; the top bar is now the same on every tab: menu and account only*
 - [x] Shared theme tokens (colours, radii, spacing, fonts) from `DESIGN.md` — *in `app/theme.css`*
+- [x] "Knife" corner shape on cards, pop-ups, buttons, text boxes, the switch, the selected tab and tags — *`--knife` in `app/theme.css`; date-strip day buttons and round things keep their shape*
+- [x] Rename the app to **Mobile Durham** — *same app id, so updates install over the old Timetable app*
 - [x] Light and dark themes, switching with the system setting
 - [x] Gradient page background (dark top → light/dark lower area)
 - [x] Load IBM Plex Sans and IBM Plex Mono — *bundled in `app/fonts` (88 KB), so they work offline*
@@ -23,9 +27,10 @@ _Statuses checked against the code on 15 October 2026, after the Home redesign (
 ## 2. Clock and "next" line
 
 - [x] Live clock (HH:MM, updates every minute) — *on the minute; a small AM/PM on 12-hour phones*
-- [x] Today's full date above the clock
+- [x] Today's full date above the clock — *14 px date, 80 px clock, moved up*
 - [x] "Next: <lecture> · <time> · <room>" line from timetable data — *`up-next` feature*
 - [x] Countdown to the next lecture ("in 47 min"), updating live
+- [x] **To-do list** button under the "Next:" line, opening the to-do list — *`todo` feature*
 - [ ] Free-time detection: gaps between classes ("free until 16:00") — used by the countdown and future features
 
 ## 3. Timetable / lecture card
@@ -62,8 +67,9 @@ _Statuses checked against the code on 15 October 2026, after the Home redesign (
 ## 7. Header
 
 - [x] Menu button (three lines) and what it opens — *a menu with Refresh timetable, Reminders, Campus card and Settings*
-- [ ] Friends button and a Friends screen (scope to be decided: share timetables? see who's free?) — *left out of the top bar so it's the same on every tab*
-- [~] Account button and an Account / settings screen — *the account button opens Settings; there are no accounts*
+- [~] Friends button and a Friends screen (scope to be decided: share timetables? see who's free?) — *the button is in the top bar on every tab (`friends` feature) and says "coming soon"; no Friends screen yet*
+- [~] Account button and an Account / settings screen — *the account button (just the icon now) opens Settings; there are no accounts*
+- [x] Features can add buttons to the top bar — *Folio 1.3.0, slot `header.actions`*
 
 ## 8. Tab bar and other screens
 
@@ -74,7 +80,18 @@ _Statuses checked against the code on 15 October 2026, after the Home redesign (
 - [~] **Spots** screen — *an empty tab saying "Coming soon", on purpose for now*
 - [x] **More** screen — *campus card, reminders, modules, calendar link, and sending the link to your phone (web)*
 
-## 9. Later / ideas
+## 9. To-do list
+
+- [x] Pop-up with tags to filter by: All, Academic, Society, + Add tag — *`todo` feature*
+- [x] Add, rename and delete tags; deleting a tag keeps its to-dos, without a tag
+- [x] Round tick box, text, tag pill and due date; ticked ones crossed out; delete
+- [x] Sorted by due date, no date last; overdue ones marked in red
+- [x] Add a to-do with an optional tag and due date
+- [x] Saved on the phone only; rules tested in `app/features/todo/tests`
+- [ ] Reminders for to-dos that are due (could use the `reminders` feature)
+
+## 10. Later / ideas
 
 - [ ] College menu card (designed earlier, removed from Home for now — could return elsewhere)
+- [ ] Line drawing behind the clock on Home (talked about; not now)
 - [ ] iPhone app (after web + Android are stable; a friend has an Apple developer account) — *Folio already accepts iPhone settings in `feature.json`, but there's no iPhone build*

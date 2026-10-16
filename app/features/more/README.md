@@ -14,6 +14,7 @@ Used by:
 
 | Group | Row | From |
 |---|---|---|
+| On the go | To-do list | todo |
 | On the go | Campus card | campus-card |
 | On the go | Reminders | reminders |
 | Your timetable | Modules | modules |

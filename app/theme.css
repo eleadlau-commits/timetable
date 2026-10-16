@@ -13,6 +13,19 @@
   --gutter: 20px;
   --radius: 14px;
 
+  /* The "knife" shape: three corners only slightly rounded, the bottom-right one clearly
+     rounded. Corners go top-left, top-right, bottom-right, bottom-left. Smaller things get a
+     smaller curve. Folio's shared pieces (cards, pop-ups, buttons, text boxes, the switch, the
+     selected tab) use --shape, --shape-btn and --shape-sm, set to these below. Things meant to
+     be round (tick circles, dots, on/off switches) and the day buttons in the date strips keep
+     their own shape. */
+  --knife: 4px 4px 26px 4px;      /* cards, pop-up windows, the menu, "Missing content" */
+  --knife-btn: 4px 4px 15px 4px;  /* buttons, text boxes, the Day/Week/Upcoming switch, the selected tab */
+  --knife-sm: 3px 3px 9px 3px;    /* small tags, pills and icon tiles */
+  --shape: var(--knife);
+  --shape-btn: var(--knife-btn);
+  --shape-sm: var(--knife-sm);
+
   --bg: #e2dfe7;              /* page, below the dark top */
   --surface: #ffffff;         /* cards and the tab bar */
   --surface-2: #efecf3;

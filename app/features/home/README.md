@@ -1,6 +1,6 @@
 # Home
 
-The **Home** tab, which the app opens on. The date and a large clock on the dark area, then cards from other features at the bottom of the screen, as in `DESIGN.md`.
+The **Home** tab, which the app opens on. The date and a large clock near the top of the dark area, then cards from other features at the bottom of the screen, as in `DESIGN.md`.
 
 Home only draws the places. Other features fill them, so deleting one of those features leaves a **Missing content** box in its place and the screen keeps its shape.
 
@@ -14,7 +14,7 @@ Slots, each item `{ order, render() → element, or null to show nothing }`:
 
 | Slot | Where | Used by |
 |---|---|---|
-| `home.next` | Short lines under the clock | Up next ("Next: …") |
+| `home.next` | Short lines or buttons under the clock | Up next ("Next: …"), To-do list (the *To-do list* button) |
 | `home.top` | Full-width cards above the bottom pair | Library |
 | `home.main` | The large card at the bottom left | Up next (date strip and lectures) |
 | `home.side` | The narrow card at the bottom right | Campus card |

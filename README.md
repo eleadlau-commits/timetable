@@ -1,18 +1,20 @@
-# Timetable
+# Mobile Durham
 
-This app shows your university timetable on your phone. It reads the personal calendar link your university can export, keeps a copy so it works offline, and updates itself whenever you open it.
+**Mobile Durham** (it used to be called *Timetable*) shows your Durham University timetable on your phone, with a to-do list, how busy the library is and your campus card. It reads the personal calendar link your university can export, keeps a copy so it works offline, and updates itself whenever you open it.
 
 GitHub builds the app for you, so you don't need to install anything. You get:
-- **An Android app** (`Timetable.apk`) to download and install.
+- **An Android app** (`MobileDurham.apk`) to download and install.
 - **A web version** (GitHub Pages) to add to your home screen. Use this on an iPhone.
 
 ## Features
 
-The app has five tabs along the bottom: **Study · Planner · Home · Spots · More**. It opens on Home. The menu (top left) has quick buttons, and the person icon (top right) opens Settings. It follows your phone's light or dark setting.
+The app has five tabs along the bottom: **Study · Planner · Home · Spots · More**. It opens on Home. The menu (top left) has quick buttons. At the top right, the two-people button is for **Friends** (coming soon) and the person icon opens Settings. It follows your phone's light or dark setting.
 
 | Feature | What it does |
 |---|---|
-| **Home** | The date and a big clock, your next class, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
+| **Home** | The date and a big clock, your next class, a **To-do list** button, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
+| **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from Home or More. |
+| **Friends** | A button at the top right, kept for later. For now it says *coming soon*. |
 | **Planner: Day, Week and Upcoming** | Three ways to see your timetable. Swipe to move between days or weeks. |
 | **Session details** | Tap any session for its time, room, description and more. |
 | **Notes** | Your own notes on a session, e.g. "bring laptop". The first line shows on the card. |
@@ -22,23 +24,23 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 | **Library** | How busy Bill Bryson Library is: a card on Home, and free seats on each floor on the **Study** tab. |
 | **Campus card** | Scan your card's barcode and show it on your phone if you lose the card. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
-| **More** | Everything else in one list: campus card, reminders, modules, your calendar link. |
+| **More** | Everything else in one list: to-do list, campus card, reminders, modules, your calendar link. |
 | **Spots** | Kept for later; nothing here yet. |
 
-You can switch any feature off for yourself in **Settings → Features**. Everything you add (notes, colours, reminders, the card) stays on your own phone.
+You can switch any feature off for yourself in **Settings → Features**. Everything you add (notes, to-dos, colours, reminders, the card) stays on your own phone.
 
 ## Install it
 
 **Android:**
 1. On your phone, open `https://github.com/YOUR-USERNAME/timetable/releases`.
-2. Tap **Timetable.apk** and open the downloaded file.
+2. Tap **MobileDurham.apk** (older releases call it **Timetable.apk**) and open the downloaded file.
 3. Allow installing from this source if asked, then tap **Install**. If Play Protect warns about an unknown app, tap **More details → Install anyway**.
 
 **iPhone (or any phone), using the web version:**
 1. *One-off, on GitHub:* go to **Settings → Pages** and set **Source** to **GitHub Actions**.
 2. Open `https://YOUR-USERNAME.github.io/timetable/` in Safari, then tap **Share → Add to Home Screen**.
 
-**Updating:** install a newer APK straight over the old one. Your notes and settings stay.
+**Updating:** install a newer APK straight over the old one, even if the old one was still called Timetable. Your notes and settings stay.
 
 ## Connect your timetable
 
