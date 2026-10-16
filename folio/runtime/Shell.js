@@ -13,6 +13,7 @@
 // See folio/README.md for details and examples.
 
 import { el, icon, dialog, toggle, hint, onSwipe } from './ui.js';
+import { Menu } from './Menu.js';
 
 export class Shell {
   constructor(app) {
@@ -204,7 +205,7 @@ export class Shell {
   // ---- Menu: the 'header.buttons' items, with the status line ----
 
   openMenu() {
-    if (!this.menu) this.menu = dialog({ title: 'Menu', className: 'menu-dialog' });
+    if (!this.menu) this.menu = new Menu();
     this.renderMenu();
     this.menu.open();
   }
@@ -228,7 +229,7 @@ export class Shell {
       return row(b.label, b.icon || 'plus', () => slot.run(b, (x) => x.onClick()), !!b.busy?.());
     });
     this.menu.setContent(
-      this.statusText && hint(this.statusText, { small: true }),
+      el('div', { class: 'menu-top' }, el('div', { class: 'menu-who' }, el('b', {}, this.app.config.name), this.statusText && el('small', {}, this.statusText))),
       el('div', { class: 'menu-list' }, rows, row('Settings', 'gear', () => this.openSettings())));
   }
 

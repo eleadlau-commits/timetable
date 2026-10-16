@@ -227,15 +227,75 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
 .tab span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tab[aria-current="page"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
 
-/* The menu: a list of buttons */
-.menu-list { display: grid; }
-.menu-row {
+/* The menu: a panel that slides in from the left, over most of the screen. The rest is dimmed. */
+dialog.menu-drawer {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: hidden;
+}
+.menu-drawer::backdrop { background: rgb(0 0 0 / .45); opacity: 0; transition: opacity 0.28s ease; }
+.menu-drawer.shown::backdrop { opacity: 1; }
+.menu-panel {
+  width: min(85vw, 476px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--shape);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 20px 60px rgb(0 0 0 / .25);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(.2, .8, .2, 1);
+  touch-action: pan-y;
+  outline: none;
+}
+.menu-drawer.shown .menu-panel { transform: none; }
+.menu-drawer.dragging .menu-panel { transition: none; }
+
+/* The top of the menu: who is signed in, and the status line, on the dark area */
+.menu-top {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 4px;
+  padding: calc(22px + env(safe-area-inset-top)) 20px 20px;
+  background: linear-gradient(180deg, var(--top), var(--top-2));
+  color: var(--on-top);
+}
+.menu-avatar {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(255 255 255 / .14);
+}
+.menu-avatar svg { width: 26px; height: 26px; }
+.menu-who { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.menu-who b { font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+.menu-who small { font-size: 13px; color: var(--on-top-muted); }
+.menu-list { display: grid; padding: 8px 12px calc(16px + env(safe-area-inset-bottom)); }
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 8px;
   border: 0;
   border-bottom: 1px solid var(--line);
+  border-radius: 0;
   background: none;
   color: var(--text);
   font: inherit;
@@ -244,9 +304,9 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   cursor: pointer;
 }
 .menu-row:last-child { border-bottom: 0; }
-.menu-row svg { color: var(--accent); }
+.menu-row svg { width: 22px; height: 22px; color: var(--accent); }
+.menu-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--shape-btn); }
 .menu-row.spin svg { animation: spin 0.9s linear infinite; }
-.menu-dialog .hint.small { margin: -4px 0 0; }
 
 /* Round buttons */
 .icon-btn {
@@ -480,5 +540,6 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 @media (prefers-reduced-motion: reduce) {
   .icon-btn.spin svg, .menu-row.spin svg { animation: none; }
   .tabbar { transition: none; }
+  .menu-panel, .menu-drawer::backdrop { transition: none; }
   .toast { transition: none; }
 }
