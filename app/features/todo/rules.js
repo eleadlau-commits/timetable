@@ -91,3 +91,15 @@ export function dueLabel(due, today = new Date()) {
   const sameYear = day.getFullYear() === start.getFullYear();
   return day.toLocaleDateString([], { day: 'numeric', month: 'short', year: sameYear ? undefined : 'numeric' });
 }
+
+// The to-dos due today that aren't ticked yet. Overdue ones (from earlier days) aren't included.
+export function dueToday(items, today = new Date()) {
+  const key = dayKey(today);
+  return items.filter((item) => !item.done && item.due === key);
+}
+
+// How many things are due today, in words: "Nothing due today", "1 thing due today", "3 things due today".
+export function dueTodayText(count) {
+  if (!count) return 'Nothing due today';
+  return `${count} ${count === 1 ? 'thing' : 'things'} due today`;
+}

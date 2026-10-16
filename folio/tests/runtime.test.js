@@ -6,6 +6,7 @@ import { Area, Storage } from 'folio/Storage.js';
 import { Events } from 'folio/Events.js';
 import * as time from 'folio/time.js';
 import { el, missing } from 'folio/ui.js';
+import { Tabs } from 'folio/Tabs.js';
 
 // A stand-in for the app that records reported problems.
 const fakeApp = () => ({ problems: [], report(owner, err) { this.problems.push([owner, err.message]); } });
@@ -106,4 +107,21 @@ test('missing() says "Missing content" and what is missing', () => {
   assert.equal(box.querySelector('b').textContent, 'Missing content');
   assert.equal(box.querySelector('span').textContent, 'Add your timetable');
   assert.equal(missing().querySelector('span'), null);
+});
+
+test('the tab bar highlights the open view, and can sit between two tabs while swiping', () => {
+  const picked = [];
+  const tabs = new Tabs((id) => picked.push(id));
+  const views = [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }, { id: 'c', label: 'C' }];
+  tabs.render(views, views[1]);
+  const buttons = [...tabs.nav.querySelectorAll('.tab')];
+  assert.equal(buttons.length, 3);
+  assert.equal(buttons[1].getAttribute('aria-current'), 'page');
+  assert.ok(buttons[1].classList.contains('lit'));
+  assert.equal(tabs.nav.style.getPropertyValue('--pos'), '1');
+  tabs.place(1.6); // part of the way to the third tab
+  assert.ok(buttons[2].classList.contains('lit'));
+  assert.ok(!buttons[1].classList.contains('lit'));
+  buttons[0].click();
+  assert.deepEqual(picked, ['a']);
 });

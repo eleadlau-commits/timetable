@@ -24,3 +24,7 @@
 .alt { display: grid; gap: 18px; font-size: 15px; }
 .alt b { color: var(--text); }
 .setup .back { margin-top: 16px; }
+
+/* The refresh button on the Planner tab, like the library's: small, with the refresh icon, spinning while loading */
+.tt-refresh { width: 32px; height: 32px; flex: none; }
+.tt-refresh:disabled { cursor: default; }

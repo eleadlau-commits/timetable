@@ -28,13 +28,14 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 
 | Feature | What it does | Requires (uses) | Adds to | Offers |
 |---|---|---|---|---|
-| `campus-card` | Scan and show the campus card barcode | | menu, home.side, more.items | |
-| `timetable` | Loads and saves the timetable, setup screen | | menu + status, settings, more.items | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
+| `campus-card` | Scan and show the campus card barcode | | home.side, more.items | |
+| `timetable` | Loads and saves the timetable, setup screen, the Planner's refresh button | | status, planner.actions, settings, more.items | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
 | `sessions` | Session cards and the details window | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
-| `planner` | The Planner tab, holding Day, Week and Upcoming | | views | service `planner`; slot `planner.views` |
+| `planner` | The Planner tab, holding Day, Week and Upcoming | | views | service `planner`; slots `planner.views`, `planner.actions` |
 | `day-view` | Day view | sessions (planner) | planner.views | slot `day.cards` |
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
 | `friends` | The Friends button in the top bar; says "coming soon" for now | | header.actions | |
+| `help` | Help and Feedback in the menu; both say "coming soon" for now | | menu | |
 | `home` | The Home tab: date, clock, cards; the app opens on it | | views | slots `home.next/top/main/side` |
 | `study` | The Study tab | | views | slot `study.cards` |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
@@ -46,12 +47,12 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `notes` | Notes on sessions | sessions | session.card/details | |
 | `reminders` | Class and personal reminders | sessions | menu, session.details, more.items | |
 | `spots` | The Spots tab, empty for now ("Coming soon") | | views | |
-| `todo` | To-do list pop-up with tags and due dates; button on Home, row on More | (home, more) | home.next, more.items | |
+| `todo` | To-do list pop-up with tags, due dates and "Due today"; Plan Today button on Home (with how many are due today), row on More | (home, more) | home.next, more.items | |
 | `up-next` | "Next:" under the clock, date strip and the day's lectures on Home | sessions (timetable, home) | home.next, home.main | |
 | `upcoming` | Next four weeks (view id `agenda`) | sessions (planner) | planner.views | |
 | `week-view` | Week grid | sessions (day-view, planner) | planner.views | |
 
-**The screen:** one top bar (menu on the left; features' buttons from `header.actions` such as Friends, then account/Settings, on the right), the open tab's title below it (on Home, the dark area continues behind the clock), and the tab bar along the bottom: Study · Planner · Home · Spots · More. The menu lists the framework's `header.buttons`. Colours, fonts and the "knife" corner shape are in `app/theme.css` (from `DESIGN.md`); new styles use the names from there (`--shape` for cards and pop-ups, `--shape-btn` for buttons and text boxes, `--shape-sm` for small tags) rather than colours or corners of their own. Day buttons in date strips and round things (tick circles, dots, switches) keep their own shape, and cards have no coloured edges. When a place has nothing to show, use `ui.missing('what is missing')`.
+**The screen:** one top bar (menu on the left; features' buttons from `header.actions` such as Friends, then the account button, on the right), the open tab's title below it (on Home, the dark area continues behind the clock), and the tab bar along the bottom: Study · Planner · Home · Spots · More (tap, or swipe the bar). The menu slides in from the left: *Not signed in* and the status line at the top, then Account, Reminders, Settings, Help, About, Feedback (the framework's own rows mixed with features' `header.buttons` by `order`). The account button and the Account row say "coming soon" until a feature fills Folio's `account` slot. Colours, fonts and the "knife" corner shape are in `app/theme.css` (from `DESIGN.md`); new styles use the names from there (`--shape` for cards and pop-ups, `--shape-btn` for buttons and text boxes, `--shape-sm` for small tags) rather than colours or corners of their own. Day buttons in date strips and round things (tick circles, dots, switches) keep their own shape, and cards have no coloured edges. When a place has nothing to show, use `ui.missing('what is missing')`.
 
 ## Branches
 

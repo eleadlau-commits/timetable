@@ -78,13 +78,8 @@ export default class Timetable extends Feature {
       ' file, import it here. A file won\'t update by itself, so re-import it when your timetable changes.',
       el('button', { type: 'button', class: 'btn block', onclick: () => this.importFile() }, 'Import .ics file')) });
 
-    this.add('header.buttons', {
-      id: 'refresh', label: 'Refresh timetable', icon: 'refresh', order: 10,
-      visible: () => this.hasData && !!this.url && !this.showingSetup,
-      busy: () => this.busy,
-      onClick: () => this.reload(),
-    });
     this.add('header.status', { order: 10, text: () => this.statusText() });
+    this.add('planner.actions', { order: 10, render: () => this.refreshButton() });
     this.add('settings', { id: 'timetable', title: 'Timetable', order: 10, render: () => this.settingsSection() });
     this.add('more.items', {
       id: 'timetable',
@@ -277,6 +272,21 @@ export default class Timetable extends Feature {
     if (better) return better;
     if (this.native) return "Couldn't reach your university's timetable server. Check the link and your internet connection, then try again.";
     return "Your university's server stopped this app from reading the link directly (a browser security rule). Import the .ics file instead, under Other ways to get the link in.";
+  }
+
+  // The round refresh button on the Planner tab. It spins while loading; when it last updated is
+  // next to it, in the Planner's status line. Only there when there's a link to download again.
+  refreshButton() {
+    if (!this.hasData || !this.url || this.showingSetup) return null;
+    const status = this.statusText();
+    return el('button', {
+      type: 'button',
+      class: `icon-btn ghost tt-refresh${this.busy ? ' spin' : ''}`,
+      'aria-label': this.busy ? 'Refreshing timetable' : `Refresh timetable${status ? `. ${status}` : ''}`,
+      title: 'Refresh timetable',
+      disabled: this.busy,
+      onclick: () => this.reload(),
+    }, ui.icon('refresh'));
   }
 
   // ---- Setup screen ----

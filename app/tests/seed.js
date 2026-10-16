@@ -43,7 +43,8 @@ function sampleCalendar() {
 export default function seed(app) {
   const area = (name) => app.storage.area(name);
   area('timetable').set('ics', sampleCalendar());
-  area('timetable').set('source', 'file');
+  area('timetable').set('source', 'link');
+  area('timetable').set('url', 'https://timetable.example.invalid/sample.ics'); // so there's a link to refresh (it fails: it isn't real)
   area('timetable').set('updated', Date.now());
   area('notes').set('notes', { [`lec@seed@${at(0, 9).getTime()}`]: 'Bring laptop\nRead chapter 2' });
   area('modules').set('names', { ECON1011: 'Microeconomics' });
@@ -66,6 +67,7 @@ export default function seed(app) {
     { id: 't2', text: 'Book room for society social', tag: 'society', due: day(2), done: false, added: 2 },
     { id: 't3', text: 'Read chapter 2', tag: 'academic', due: day(0), done: true, added: 3 },
     { id: 't4', text: 'Buy a new notebook', tag: null, due: null, done: false, added: 4 },
+    { id: 't5', text: 'Email tutor about the seminar', tag: 'academic', due: day(0), done: false, added: 5 },
   ]);
   const view = new URLSearchParams(location.hash.slice(1)).get('view');
   if (view) area('folio').set('view', view);

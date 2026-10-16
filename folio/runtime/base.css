@@ -175,12 +175,17 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
 .page-title { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
 .page-title h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
 .page-sub { margin: 0; padding-bottom: 4px; font-size: 14px; color: var(--muted); text-align: right; }
+.page-title h1 { margin-right: auto; }
+.page-actions { display: flex; align-items: center; gap: 4px; margin: 0 -6px 0 -8px; }
+.page-actions:empty { display: none; }
 .dark-head .page-sub { color: var(--on-top-muted); }
 .page-extra:empty { display: none; }
 .page-title:not([hidden]) + .page-extra { margin-top: 14px; }
 .page-body { position: relative; flex: 1; display: flex; flex-direction: column; padding: 18px var(--gutter) 0; }
 
-/* The tab bar along the bottom. The line above it glows over the selected tab. */
+/* The tab bar along the bottom. The selected tab is filled in the accent colour (a "pill" that
+   slides between tabs), and the line above the bar glows over it. Tabs.js sets --pos (which tab,
+   maybe between two while swiping), --glow-x and --shift (the bar following a finger a little). */
 @property --glow-x { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
 .tabbar {
   position: fixed;
@@ -190,10 +195,9 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   z-index: 6;
   max-width: 560px;
   margin: 0 auto;
-  display: flex;
-  gap: 2px;
   padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
   background: var(--surface);
+  touch-action: none;
   transition: --glow-x 0.25s ease;
 }
 .tabbar::before {
@@ -205,7 +209,27 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   height: 3px;
   background: linear-gradient(90deg, transparent calc(var(--glow-x) - 55%), var(--glow) var(--glow-x), transparent calc(var(--glow-x) + 55%));
 }
+.tab-track {
+  position: relative;
+  display: flex;
+  gap: 2px;
+  transform: translateX(var(--shift, 0px));
+  transition: transform 0.25s ease;
+}
+.tab-pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc((100% - (var(--tabs) - 1) * 2px) / var(--tabs));
+  height: 100%;
+  border-radius: var(--shape-btn);
+  background: var(--accent);
+  transform: translateX(calc(var(--pos, 0) * (100% + 2px)));
+  transition: transform 0.25s cubic-bezier(.2, .8, .2, 1);
+}
+.tabbar.dragging, .tabbar.dragging .tab-track, .tabbar.dragging .tab-pill { transition: none; }
 .tab {
+  position: relative;
   flex: 1;
   min-width: 0;
   height: 52px;
@@ -222,20 +246,87 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   font-size: 11px;
   font-weight: 500;
   cursor: pointer;
+  transition: color 0.15s;
 }
 .tab svg { width: 22px; height: 22px; }
 .tab span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tab[aria-current="page"] { background: var(--accent); color: var(--accent-ink); font-weight: 600; }
+.tab.lit { color: var(--accent-ink); font-weight: 600; }
 
-/* The menu: a list of buttons */
-.menu-list { display: grid; }
-.menu-row {
+/* The menu: a panel that slides in from the left, over most of the screen. The rest is dimmed. */
+dialog.menu-drawer {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  overflow: hidden;
+}
+.menu-drawer::backdrop { background: rgb(0 0 0 / .45); opacity: 0; transition: opacity 0.28s ease; }
+.menu-drawer.shown::backdrop { opacity: 1; }
+.menu-panel {
+  width: min(85vw, 476px);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--shape);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 20px 60px rgb(0 0 0 / .25);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  transform: translateX(-100%);
+  transition: transform 0.28s cubic-bezier(.2, .8, .2, 1);
+  touch-action: pan-y;
+  outline: none;
+}
+.menu-drawer.shown .menu-panel { transform: none; }
+.menu-drawer.dragging .menu-panel { transition: none; }
+
+/* The top of the menu: who is signed in, and the status line, on the dark area */
+.menu-top {
+  width: 100%;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 14px;
-  padding: 12px 4px;
+  padding: calc(22px + env(safe-area-inset-top)) 20px 20px;
+  background: linear-gradient(180deg, var(--top), var(--top-2));
+  color: var(--on-top);
+}
+.menu-avatar {
+  width: 48px;
+  height: 48px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(255 255 255 / .14);
+}
+.menu-avatar svg { width: 26px; height: 26px; }
+.menu-who { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.menu-top:focus-visible { outline: 2px solid var(--glow); outline-offset: -4px; }
+.menu-who b { font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+.menu-who small { font-size: 13px; color: var(--on-top-muted); }
+.menu-list { display: grid; padding: 8px 12px calc(16px + env(safe-area-inset-bottom)); }
+.menu-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 8px;
   border: 0;
   border-bottom: 1px solid var(--line);
+  border-radius: 0;
   background: none;
   color: var(--text);
   font: inherit;
@@ -244,9 +335,9 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   cursor: pointer;
 }
 .menu-row:last-child { border-bottom: 0; }
-.menu-row svg { color: var(--accent); }
+.menu-row svg { width: 22px; height: 22px; color: var(--accent); }
+.menu-row:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: var(--shape-btn); }
 .menu-row.spin svg { animation: spin 0.9s linear infinite; }
-.menu-dialog .hint.small { margin: -4px 0 0; }
 
 /* Round buttons */
 .icon-btn {
@@ -448,6 +539,9 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 .settings-section { display: grid; gap: 12px; }
 .settings-section + .settings-section { padding-top: 16px; border-top: 1px solid var(--line); }
 .settings-section .sub-head { margin-top: 0; }
+.features-fold summary { font-size: 16px; }
+.features-fold summary small { float: right; padding-top: 2px; font-size: 13px; font-weight: 400; color: var(--muted); }
+.features-fold[open] summary { margin-bottom: 8px; }
 .feature-list { display: grid; }
 .feature-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .feature-row:last-child { border-bottom: 0; }
@@ -479,6 +573,7 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 
 @media (prefers-reduced-motion: reduce) {
   .icon-btn.spin svg, .menu-row.spin svg { animation: none; }
-  .tabbar { transition: none; }
+  .tabbar, .tab-track, .tab-pill, .tab { transition: none; }
+  .menu-panel, .menu-drawer::backdrop { transition: none; }
   .toast { transition: none; }
 }

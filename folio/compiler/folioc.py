@@ -39,6 +39,7 @@ FRAMEWORK_SLOTS = {
     'header.buttons': 'Rows in the menu.',
     'header.status': 'Short text in the menu and next to view titles.',
     'header.actions': 'Icon buttons in the top bar, left of the account button.',
+    'account': 'Who is signed in, and their account page (the menu and the account button use the first item).',
     'settings': 'Sections in the Settings window.',
 }
 FRAMEWORK_EVENTS = {'app:ready', 'app:resume', 'app:tick', 'app:online', 'app:offline'}
@@ -83,7 +84,7 @@ app.start().then(async () => {
     await wait(100);
     closeWindows();
   }
-  for (const button of document.querySelectorAll('.topbar .top-action')) {
+  for (const button of document.querySelectorAll('.topbar .top-action, .topbar .account')) {
     button.click();
     await wait(100);
     closeWindows();
@@ -514,7 +515,7 @@ class Project:
             'requires': f.requires, 'uses': f.uses, 'platforms': f.platforms,
             'path': f'features/{f.id}/{f.manifest["main"]}',
         } for f in included]
-        config = {'id': app['id'], 'name': app['name'], 'version': app['version'],
+        config = {'id': app['id'], 'name': app['name'], 'description': app.get('description', ''), 'version': app['version'],
                   'build': str(build_number) if build_number else '', 'framework': self.framework_version,
                   'test': test}
         seed = test and (self.app_dir / 'tests' / 'seed.js').is_file()

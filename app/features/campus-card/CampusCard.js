@@ -20,7 +20,6 @@ export default class CampusCard extends Feature {
     this.detector = undefined; // the browser's BarcodeDetector, or null once we know to use ZXing
     this.zxing = null;
     this.photos = ui.filePicker('image/*');
-    this.add('header.buttons', { id: 'campus-card', label: 'Campus card', icon: 'card', order: 30, onClick: () => this.openWindow() });
     this.add('home.side', { order: 10, render: () => this.homeCard() });
     this.add('more.items', {
       id: 'campus-card',

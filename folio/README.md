@@ -147,25 +147,32 @@ export default class Notes extends Feature {
 | `toast(message)` | A short message at the bottom of the screen. |
 | `native` | `true` in the Android or iPhone app. |
 | `plugin(name)` | A Capacitor plugin (e.g. `'LocalNotifications'`), or `null` on the web. |
-| `app.shell` | The app's frame: `setTitle(text)` (the browser tab's name), `showScreen(owner, node)`, `hideScreen(owner)`, `selectView(id)` (also opens a view inside another, such as Day inside Planner), `openMenu()`, `closeMenu()`, `openSettings()`, `closeSettings()`, `refreshSettings()`. |
+| `app.shell` | The app's frame: `setTitle(text)` (the browser tab's name), `showScreen(owner, node)`, `hideScreen(owner)`, `selectView(id)` (also opens a view inside another, such as Day inside Planner), `openMenu()`, `closeMenu()`, `openSettings()`, `closeSettings()`, `refreshSettings()`, `openAbout()`, `openAccount()`. |
 
 **Defining your own slots.** If your feature shows something other features might want to add to, define a slot and describe the item shape in one sentence. Then draw its items, for example `this.slot('session.card').map((line) => line.render(session))`. Items from features that aren't installed simply aren't there.
 
 ## 5. The framework's slots and events
 
-**The frame:** one top bar on a dark background, with the menu button on the left and the account button (which opens Settings) on the right. Features can put icon buttons just left of the account button (`header.actions`). Under it, the open view's title, on the page (or on the dark area too, for a view marked `darkHead`). Along the bottom, a tab bar with one tab per view; the open tab is filled in the accent colour, and a line above the bar glows over it. The app always opens on the view marked `start`.
+**The frame:** one top bar on a dark background, with the menu button on the left and the account button on the right. Features can put icon buttons just left of the account button (`header.actions`). Under it, the open view's title, on the page (or on the dark area too, for a view marked `darkHead`), with room on its right for small buttons (`mount`'s `actions`). Along the bottom, a tab bar with one tab per view; the open tab is filled in the accent colour, and a line above the bar glows over it. The app always opens on the view marked `start`.
+
+**The tab bar:** tap a tab, or swipe left or right on the bar itself to go to the next or previous tab (it stops at the ends). While the finger is down the bar shifts with it a little, and the highlight and glow move part of the way; they settle on the new tab when it lets go. Swipes on the view above are separate: they go to the view's `step()`.
+
+**The menu:** the menu button slides a panel in from the left, over most of the screen, with the rest dimmed. It closes when you tap the dimmed part, swipe the panel to the left, press Escape, or press back (Android, or the browser's back button). It respects "reduce motion". At the top: who is signed in (*Not signed in* until a feature fills the `account` slot) with the `header.status` line under it. Then the rows: the framework's own **Account** (order 10), **Settings** (60) and **About** (80), mixed by `order` with the features' `header.buttons`.
+
+**The account button** and the menu's Account row open the account page from the `account` slot. With nothing in it, they say *Account is coming soon*.
 
 **Slots:**
 
 | Slot | Item | Where it appears |
 |---|---|---|
-| `views` | `{ id, label, icon?, order, mount(container, { head }), render(), step?(direction), visible?(), start?, darkHead?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }` | Tabs along the bottom. `mount` runs once and `render` on every redraw. `head` is a place under the title, for things like a switch. `darkHead: true` extends the dark area of the top bar down over the title and `head` (Home uses this for its clock); otherwise only the top bar is dark. `step(±1)` is called on swipes and arrow keys. `start: true` makes it the view the app opens on. `hideTitle` hides the title; `subtitle()` replaces the status line next to it. A view that holds other views (like Planner) answers `contains(id)`, switches with `open(id)` and lists them in `subviews()`. |
-| `header.buttons` | `{ id, label, icon, order, onClick(), visible?(), busy?() }` | Rows in the menu (the button at the top left). `icon` is a name from `ui.ICONS` or SVG drawing. `busy()` makes its icon spin. Settings is always the last row. |
+| `views` | `{ id, label, icon?, order, mount(container, { head, actions }), render(), step?(direction), visible?(), start?, darkHead?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }` | Tabs along the bottom. `mount` runs once and `render` on every redraw. `head` is a place under the title, for things like a switch. `actions` is a place on the right of the title, after the status line, for one or two small round buttons (e.g. `icon-btn ghost`). `darkHead: true` extends the dark area of the top bar down over the title and `head` (Home uses this for its clock); otherwise only the top bar is dark. `step(±1)` is called on swipes and arrow keys. `start: true` makes it the view the app opens on. `hideTitle` hides the title; `subtitle()` replaces the status line next to it. A view that holds other views (like Planner) answers `contains(id)`, switches with `open(id)` and lists them in `subviews()`. |
+| `header.buttons` | `{ id, label, icon, order, onClick(), visible?(), busy?() }` | Rows in the menu (the button at the top left). `icon` is a name from `ui.ICONS` or SVG drawing. `busy()` makes its icon spin. They're mixed by `order` with the framework's Account (10), Settings (60) and About (80). |
+| `account` | `{ name(), open() }` | Who is signed in, at the top of the menu (`name()` → their name, or null for *Not signed in*), and their account page (`open()`), opened by the account button and the menu's Account row. Only the first item is used. Empty until an app has accounts. |
 | `header.actions` | `{ id, label, icon, order, onClick(), visible?() }` | Icon buttons in the top bar, on every tab, just left of the account button, each in a soft box. `label` is read out by screen readers and shown when you hover. Keep it to one or two: the top bar is small. |
-| `header.status` | `{ order, text() }` | A short line at the top of the menu, and next to each view's title unless the view gives a `subtitle()`. "offline" is added automatically. |
+| `header.status` | `{ order, text() }` | A short line at the top of the menu, under who is signed in, and next to each view's title unless the view gives a `subtitle()`. "offline" is added automatically. |
 | `settings` | `{ id, title?, order, render() }` | A section in the Settings window. Return `null` or `false` to show nothing. |
 
-The framework's own Settings sections, **Features** (switch features on and off for this phone) and **About** (version and problems), always come last.
+The framework's own Settings sections, **Features** (switch features on and off for this phone, folded away until you open it) and **About** (version and problems), always come last. About is also its own window, from the menu.
 
 **Events:**
 
@@ -182,7 +189,7 @@ The framework's own Settings sections, **Features** (switch features on and off 
 
 `ui`: `el(tag, attrs, ...children)`, `icon(name)`, `ICONS`, `toast(text)`, `dialog({ title, className, onClose })` → `{ open, close, setContent, setTitle, isOpen, element, content }`, `errorBox()` → element with `.show(text)`, `hint(text, { small })`, `missing(reason, attrs)` → a "Missing content" box saying what's missing, `select(options, { value, id, onChange })`, `toggle({ checked, label, onChange })`, `filePicker(accept)` → `{ pick() }`, `onSwipe(element, fn)`, `loadScript(url)`.
 
-Icons in `ui.ICONS`: close, refresh, gear, bell, card, pin, clock, note, trash, left, right, plus, check, menu, account, people, calendar, home, book, dots, link, palette, qr.
+Icons in `ui.ICONS`: close, refresh, gear, bell, card, pin, clock, note, trash, left, right, plus, check, menu, account, people, calendar, home, book, dots, link, palette, help, info, chat, qr.
 
 `time`: `MINUTE`, `HOUR`, `DAY`, `startOfDay`, `addDays`, `startOfWeek`, `sameDay`, `formatTime`, `formatDate`, `formatLongDate`, `formatDateTime`, `dayLabel`, `ago`, `inTime`, `toLocalInput`.
 
@@ -291,3 +298,5 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.2.0:** only the top bar is dark now; a view's title sits on the page. A view can ask for the dark area to continue under its title with `darkHead: true`.
 
 **1.3.0:** features can add icon buttons to the top bar, left of the account button, with the new `header.actions` slot. The account button no longer has a box around it. Corners come from three shapes, `--shape`, `--shape-btn` and `--shape-sm`, which an app can set in `app/theme.css` (they may have uneven corners). Features written for 1.2 keep working.
+
+**1.4.0:** the menu is a panel that slides in from the left (tap outside, swipe left, Escape or back to close), with who is signed in at the top and the framework's own Account, Settings and About rows mixed in with the `header.buttons` by `order`. A new `account` slot is for apps with accounts; until it's filled, the account button and the Account row say *coming soon* (the account button no longer opens Settings). Swiping the tab bar changes tabs, and the selected tab's highlight slides between tabs. Views get a place for small buttons on the right of their title (`mount`'s `actions`). In Settings, Features is folded away. New icons: help, info, chat. The app's `description` from app.json is in `app.config` and shown in About. Inside the framework, the menu, tab bar and Settings are now in `Menu.js`, `Tabs.js` and `Settings.js`. Features written for 1.3 keep working; a feature whose only way in was a `header.buttons` row still has it.
