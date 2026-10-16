@@ -60,6 +60,13 @@ export default function seed(app) {
     at: Date.now(),
     occupancy: { floors, free: floors.reduce((n, f) => n + f.free, 0), seats: floors.reduce((n, f) => n + f.seats, 0) },
   });
+  const day = (offset) => { const d = at(offset, 12); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  area('todo').set('items', [
+    { id: 't1', text: 'Hand in economics essay', tag: 'academic', due: day(-1), done: false, added: 1 },
+    { id: 't2', text: 'Book room for society social', tag: 'society', due: day(2), done: false, added: 2 },
+    { id: 't3', text: 'Read chapter 2', tag: 'academic', due: day(0), done: true, added: 3 },
+    { id: 't4', text: 'Buy a new notebook', tag: null, due: null, done: false, added: 4 },
+  ]);
   const view = new URLSearchParams(location.hash.slice(1)).get('view');
   if (view) area('folio').set('view', view);
 }
