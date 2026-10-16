@@ -1,6 +1,6 @@
-# Timetable app (built with Folio)
+# Mobile Durham (built with Folio)
 
-A timetable app for a Durham University student and a few friends. It reads the university's calendar export link (`.ics`) and shows Day, Week and Upcoming views, plus notes, module colours/names/hiding, maps of Durham rooms, how busy the library is, reminders and a campus card barcode.
+**Mobile Durham** (called *Timetable* until version 3.1) is an app for a Durham University student and a few friends. It reads the university's calendar export link (`.ics`) and shows Day, Week and Upcoming views, plus a to-do list, notes, module colours/names/hiding, maps of Durham rooms, how busy the library is, reminders and a campus card barcode.
 
 It's built with **Folio**, a small framework in `folio/` where every feature is a folder in `app/features/` and a compiler (`python build.py`) assembles the app. **Read `folio/README.md` before changing anything.** It explains slots, services, events, feature.json, storage and the rules.
 
@@ -34,6 +34,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `planner` | The Planner tab, holding Day, Week and Upcoming | | views | service `planner`; slot `planner.views` |
 | `day-view` | Day view | sessions (planner) | planner.views | slot `day.cards` |
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
+| `friends` | The Friends button in the top bar; says "coming soon" for now | | header.actions | |
 | `home` | The Home tab: date, clock, cards; the app opens on it | | views | slots `home.next/top/main/side` |
 | `study` | The Study tab | | views | slot `study.cards` |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
@@ -45,11 +46,12 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `notes` | Notes on sessions | sessions | session.card/details | |
 | `reminders` | Class and personal reminders | sessions | menu, session.details, more.items | |
 | `spots` | The Spots tab, empty for now ("Coming soon") | | views | |
+| `todo` | To-do list pop-up with tags and due dates; button on Home, row on More | (home, more) | home.next, more.items | |
 | `up-next` | "Next:" under the clock, date strip and the day's lectures on Home | sessions (timetable, home) | home.next, home.main | |
 | `upcoming` | Next four weeks (view id `agenda`) | sessions (planner) | planner.views | |
 | `week-view` | Week grid | sessions (day-view, planner) | planner.views | |
 
-**The screen:** one top bar (menu on the left, account/Settings on the right), the open tab's title below it (on Home, the dark area continues behind the clock), and the tab bar along the bottom: Study · Planner · Home · Spots · More. The menu lists the framework's `header.buttons`. Colours and fonts are in `app/theme.css` (from `DESIGN.md`); new styles use the colour names from there rather than colours of their own. When a place has nothing to show, use `ui.missing('what is missing')`.
+**The screen:** one top bar (menu on the left; features' buttons from `header.actions` such as Friends, then account/Settings, on the right), the open tab's title below it (on Home, the dark area continues behind the clock), and the tab bar along the bottom: Study · Planner · Home · Spots · More. The menu lists the framework's `header.buttons`. Colours, fonts and the "knife" corner shape are in `app/theme.css` (from `DESIGN.md`); new styles use the names from there (`--shape` for cards and pop-ups, `--shape-btn` for buttons and text boxes, `--shape-sm` for small tags) rather than colours or corners of their own. Day buttons in date strips and round things (tick circles, dots, switches) keep their own shape, and cards have no coloured edges. When a place has nothing to show, use `ui.missing('what is missing')`.
 
 ## Branches
 
@@ -61,6 +63,7 @@ Name each branch `claude/` plus a few words saying what the change is, e.g. `cla
 - **The Android project** is made fresh on every build, in `dist/`. Packages, permissions and Capacitor settings come from each feature's `feature.json` (`native`).
 - **The signing key:** `signing/debug.keystore` is made by the first build and committed by the workflow. **Never delete or replace it**, or new APKs won't install over old ones and people lose their data.
 - **The version:** the app's version is in `app/app.json`. Bump it for releases people should notice.
+- **The name:** the app is called Mobile Durham (`name` in `app/app.json`). Its `id` (`timetable`) and `native.appId` (`io.github.timetable.app`) must never change: the id is the start of every saved key, and the appId is what lets new APKs install over old ones.
 
 ## Things to know
 

@@ -1,22 +1,38 @@
 # To-do list
 
-A to-do list with tags and due dates, opened from Home or More. Saved on this phone only.
+A list of things to do, with tags and due dates. Saved on this phone only.
 
 ## What it adds
 
-- (List the buttons, views, settings and sections it adds, and where they appear.)
+- **A "To-do list" button on Home**, under the "Next: …" line (slot `home.next`): a white outline with white text, no fill.
+- **A "To-do list" row on the More tab** (group *On the go*), showing how many are left.
+- Both open the **To-do list pop-up**:
+  - **Tags along the top** to filter by: *All*, then each tag (*Academic* and *Society* to start with), then **+ Add tag**. Pick a tag to see **Rename tag** and **Delete tag** under the tags. Deleting a tag keeps its to-dos, just without a tag.
+  - **The list:** a round tick box, the to-do, its tag as a small pill, and its due date (*Today*, *Tomorrow*, a weekday, or the date). Ticked to-dos are crossed out. The bin deletes one. Sorted by due date, soonest first, with to-dos without a date last. Overdue ones (not ticked, and the date has gone by) say **Overdue** in red.
+  - **+ Add a to-do:** the text, an optional tag (the tag you're looking at is picked for you) and an optional due date. The form stays open so you can add several; **Done** closes it.
 
 ## What it needs
 
-- **Requires:** nothing (it's left out if these are missing)
-- **Uses if present:** none
+- **Requires:** nothing.
+- **Uses if present:** `home` (for the button) and `more` (for the row). Without both, there's no way to open the list, but nothing breaks.
 
 ## What it saves on the phone
 
-- (List the keys it keeps in `this.storage`.)
+| Key | What |
+|---|---|
+| `items` | The to-dos: `[{ id, text, tag, due, done, added }]`. `tag` is a tag's id or `null`; `due` is `'YYYY-MM-DD'` or `null`. |
+| `tags` | The tags: `[{ id, name }]`. Until you change them, the starting tags (Academic and Society). Renaming a tag keeps its id, so its to-dos keep it. |
+
+Nothing is sent anywhere.
+
+## The rules
+
+Sorting, overdue, filtering and adding, renaming and deleting tags are in `rules.js`, without any screen code, and tested in `tests/rules.test.js`.
 
 ## How to check it works
 
-1. Run `python build.py serve` and open the app.
-2. (Steps to try the feature.)
-3. Run `python build.py test`.
+1. Run `python build.py serve --test` and open the app. The sample data has four to-dos, one overdue and one ticked.
+2. Tap **To-do list** under the clock. Tick and untick one, delete one, add one with a tag and a date.
+3. Pick **Society**, tap **Rename tag**, rename it; then add a tag and delete it. Its to-dos stay, without a tag.
+4. Reload the page: everything you changed is still there (in the test build the four sample to-dos come back, because the sample data is loaded again).
+5. Run `python build.py test`.
