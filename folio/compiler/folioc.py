@@ -39,6 +39,7 @@ FRAMEWORK_SLOTS = {
     'header.buttons': 'Rows in the menu.',
     'header.status': 'Short text in the menu and next to view titles.',
     'header.actions': 'Icon buttons in the top bar, left of the account button.',
+    'account': 'Who is signed in, and their account page (the menu and the account button use the first item).',
     'settings': 'Sections in the Settings window.',
 }
 FRAMEWORK_EVENTS = {'app:ready', 'app:resume', 'app:tick', 'app:online', 'app:offline'}

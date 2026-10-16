@@ -8,14 +8,14 @@ GitHub builds the app for you, so you don't need to install anything. You get:
 
 ## Features
 
-The app has five tabs along the bottom: **Study · Planner · Home · Spots · More**. It opens on Home. The menu (top left) has quick buttons. At the top right, the two-people button is for **Friends** (coming soon) and the person icon opens Settings. It follows your phone's light or dark setting.
+The app has five tabs along the bottom: **Study · Planner · Home · Spots · More**. It opens on Home. Tap a tab, or swipe left or right on the tab bar to move to the next one. The menu (top left) slides in from the left: it shows whether you're signed in (not yet: accounts are coming) and when the timetable was last updated, then **Account, Reminders, Settings, Help, About** and **Feedback**. Tap outside it, swipe it away or press back to close it. At the top right, the two-people button is for **Friends** and the person icon is for your **Account** (both coming soon). It follows your phone's light or dark setting.
 
 | Feature | What it does |
 |---|---|
-| **Home** | The date and a big clock, your next class, a **To-do list** button, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
-| **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from Home or More. |
+| **Home** | The date and a big clock, your next class, a **Plan Today** button saying how many things are due today, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
+| **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. What's due today is at the top. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from **Plan Today** on Home, or More. |
 | **Friends** | A button at the top right, kept for later. For now it says *coming soon*. |
-| **Planner: Day, Week and Upcoming** | Three ways to see your timetable. Swipe to move between days or weeks. |
+| **Planner: Day, Week and Upcoming** | Three ways to see your timetable. Swipe to move between days or weeks. The round button by the title downloads your timetable again. |
 | **Session details** | Tap any session for its time, room, description and more. |
 | **Notes** | Your own notes on a session, e.g. "bring laptop". The first line shows on the card. |
 | **Modules** | Rename a module ("ECON1011" → "Microeconomics"), pick its colour, or hide it. |
@@ -26,6 +26,7 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
 | **More** | Everything else in one list: to-do list, campus card, reminders, modules, your calendar link. |
 | **Spots** | Kept for later; nothing here yet. |
+| **Help and feedback** | In the menu, kept for later. For now they say *coming soon*. |
 
 You can switch any feature off for yourself in **Settings → Features**. Everything you add (notes, to-dos, colours, reminders, the card) stays on your own phone.
 

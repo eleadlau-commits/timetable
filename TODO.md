@@ -4,7 +4,7 @@ _The app was called **Timetable** until version 3.1._
 
 Features shown or implied by the new Home screen design (`home-light.html` / `home-dark.html`, spec in `DESIGN.md`).
 
-_Statuses checked against the code on 16 October 2026, after the knife shapes and to-do list (branch `claude/knife-shapes-todo-list`)._
+_Statuses checked against the code on 16 October 2026, after the sliding menu and Plan Today (branch `claude/sliding-menu-plan-today`)._
 
 > **Important:** the design shows features the app **does not have yet**. Many items below have no code behind them at all. Before building, check the repo and mark each item with its real status. Do not assume a feature exists because it appears in the mockup.
 
@@ -30,7 +30,8 @@ _Statuses checked against the code on 16 October 2026, after the knife shapes an
 - [x] Today's full date above the clock — *14 px date, 80 px clock, moved up*
 - [x] "Next: <lecture> · <time> · <room>" line from timetable data — *`up-next` feature*
 - [x] Countdown to the next lecture ("in 47 min"), updating live
-- [x] **To-do list** button under the "Next:" line, opening the to-do list — *`todo` feature*
+- [x] **Plan Today** button under the "Next:" line, on the left, opening the to-do list — *`todo` feature; was "To-do list"*
+- [x] Under it, how many things are due today ("Nothing due today" / "1 thing due today" / "3 things due today"), updating as to-dos change and when the day changes
 - [ ] Free-time detection: gaps between classes ("free until 16:00") — used by the countdown and future features
 
 ## 3. Timetable / lecture card
@@ -66,23 +67,26 @@ _Statuses checked against the code on 16 October 2026, after the knife shapes an
 
 ## 7. Header
 
-- [x] Menu button (three lines) and what it opens — *a menu with Refresh timetable, Reminders, Campus card and Settings*
+- [x] Menu button (three lines) and what it opens — *a panel sliding in from the left (85% of the width, the rest dimmed; closes by tapping outside, swiping left, back or Escape) with "Not signed in", the status line, then Account, Reminders, Settings, Help, About, Feedback. Folio 1.4.0*
+- [ ] Help and Feedback pages — *the menu rows (`help` feature) say "coming soon" for now*
 - [~] Friends button and a Friends screen (scope to be decided: share timetables? see who's free?) — *the button is in the top bar on every tab (`friends` feature) and says "coming soon"; no Friends screen yet*
-- [~] Account button and an Account / settings screen — *the account button (just the icon now) opens Settings; there are no accounts*
+- [~] Account button and an Account screen — *the account button and the menu's Account row say "coming soon"; Settings is in the menu. A future accounts feature fills Folio's `account` slot (name for the menu, and the account page)*
 - [x] Features can add buttons to the top bar — *Folio 1.3.0, slot `header.actions`*
 
 ## 8. Tab bar and other screens
 
 - [x] Tab bar: Study · Planner · Home · Spots · More — *Study was added for the library*
-- [x] Current tab filled in accent; glow line on top follows the selected tab
-- [~] **Planner** screen — *a tab holding Day, Week and Upcoming with a switch; they still have their old look, not yet the Planner mockups*
+- [x] Current tab filled in accent; glow line on top follows the selected tab — *the highlight now slides between tabs*
+- [x] Swipe left or right on the tab bar to change tabs, stopping at the ends; the bar follows the finger a little — *Folio 1.4.0*
+- [~] **Planner** screen — *a tab holding Day, Week and Upcoming with a switch, and a round refresh button by the title (slot `planner.actions`); they still have their old look, not yet the Planner mockups*
 - [x] **Study** screen — *the library, with free seats on each floor*
 - [~] **Spots** screen — *an empty tab saying "Coming soon", on purpose for now*
-- [x] **More** screen — *campus card, reminders, modules, calendar link, and sending the link to your phone (web)*
+- [x] **More** screen — *to-do list, campus card, reminders, modules, calendar link, and sending the link to your phone (web)*
 
 ## 9. To-do list
 
 - [x] Pop-up with tags to filter by: All, Academic, Society, + Add tag — *`todo` feature*
+- [x] "Due today" section at the top of the pop-up — *counting rule in `rules.js`, tested*
 - [x] Add, rename and delete tags; deleting a tag keeps its to-dos, without a tag
 - [x] Round tick box, text, tag pill and due date; ticked ones crossed out; delete
 - [x] Sorted by due date, no date last; overdue ones marked in red

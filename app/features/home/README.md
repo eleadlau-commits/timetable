@@ -14,7 +14,7 @@ Slots, each item `{ order, render() → element, or null to show nothing }`:
 
 | Slot | Where | Used by |
 |---|---|---|
-| `home.next` | Short lines or buttons under the clock | Up next ("Next: …"), To-do list (the *To-do list* button) |
+| `home.next` | Short lines or buttons under the clock | Up next ("Next: …"), To-do list (the *Plan Today* button, on the left) |
 | `home.top` | Full-width cards above the bottom pair | Library |
 | `home.main` | The large card at the bottom left | Up next (date strip and lectures) |
 | `home.side` | The narrow card at the bottom right | Campus card |

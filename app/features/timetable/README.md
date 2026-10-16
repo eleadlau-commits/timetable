@@ -5,8 +5,8 @@ Loads the timetable from the university's calendar export link (`.ics`), saves i
 ## What it adds
 
 - The **setup screen**: instructions, the link box with a Paste button, and "Other ways to get the link in".
-- **Refresh timetable** in the menu.
-- **"Updated 5 min ago"** at the top of the menu and next to view titles (`header.status`).
+- **A refresh button on the Planner tab** (slot `planner.actions`), on the right of the title: the round refresh icon, spinning while it loads, next to "Updated 5 min ago". It's there for Day, Week and Upcoming, and only when there's a link to download again (not for an imported file).
+- **"Updated 5 min ago"** at the top of the menu, under *Not signed in*, and next to view titles (`header.status`).
 - **On the More tab** (`more.items`): a Calendar link row that opens Settings.
 - A **Timetable section in Settings**: change the link, import an `.ics` file, or remove the timetable.
 

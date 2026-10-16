@@ -5,9 +5,10 @@ Scan the barcode on your campus card with the camera, from a photo, or by typing
 This feature doesn't depend on the timetable at all, so it can be copied into any other Folio app as it is.
 
 **What it adds:**
-- **Campus card** in the menu, which opens the Campus card window.
 - **On Home** (`home.side`): a narrow card with the barcode drawn down it and the number under it. Tap it to open the window. Without a card it shows **Missing content: Tap to add your campus card**.
 - **On the More tab** (`more.items`): a Campus card row.
+
+(It used to be in the menu too. Since the menu became a sliding panel, it's on Home and More only.)
 
 **What it needs:**
 - **Features:** nothing.
