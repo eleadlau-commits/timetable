@@ -69,4 +69,5 @@ Name each branch `claude/` plus a few words saying what the change is, e.g. `cla
 
 - **Version 1 data:** before Folio, data was saved under `tt.*` keys. Each feature brings its part across once (`import-from-v1`). Keep that code.
 - **Timetable downloads:** `CapacitorHttp` is on in the Android app (timetable's `feature.json`), so downloads aren't blocked there. In the web version they can be, which is what `web-relay` is for.
+- **The app icon:** a one-line drawing of Durham Cathedral, dark purple `#2e2440` on light grey `#e2dfe7`. The source is `app/icons/icon.svg`; the PNGs in `app/icons/` are made from it. The Android icon background colour is set in the "Generate app icons" step of `.github/workflows/build.yml` and must match `#e2dfe7`.
 - **Durham room data:** from AccessAble and OpenStreetMap, October 2026. To change it, edit `app/features/durham-rooms/places.js` and its tests.
