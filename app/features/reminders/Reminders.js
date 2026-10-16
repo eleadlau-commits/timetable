@@ -34,6 +34,15 @@ export default class Reminders extends Feature {
     this.shownOnWeb = new Set();
 
     this.add('header.buttons', { id: 'reminders', label: 'Reminders', icon: 'bell', order: 20, onClick: () => this.openWindow() });
+    this.add('more.items', {
+      id: 'reminders',
+      group: 'On the go',
+      label: 'Reminders',
+      icon: 'bell',
+      order: 20,
+      detail: () => this.summary(),
+      onClick: () => this.openWindow(),
+    });
     this.add('session.details', { order: 40, render: (s) => this.sessionChoice(s) });
     this.on('timetable:changed', () => this.sync());
     this.on('sessions:changed', () => this.sync()); // e.g. a module was hidden
@@ -164,7 +173,7 @@ export default class Reminders extends Feature {
           return true;
         }
       } catch { /* fall through to the message */ }
-      this.toast('Notifications are blocked. Turn them on in Android Settings → Apps → Timetable → Notifications.');
+      this.toast('Notifications are blocked. Turn them on in Android Settings → Apps → Mobile Durham → Notifications.');
       return false;
     }
     if ('Notification' in window && Notification.permission === 'default') {
@@ -190,6 +199,16 @@ export default class Reminders extends Feature {
       },
     });
     return el('div', { class: 'group' }, el('label', { class: 'label', for: 'reminders-session' }, 'Reminder for this session'), choice);
+  }
+
+  // "15 minutes before each class · 2 of your own", for the More tab.
+  summary() {
+    const lead = LEADS.find(([minutes]) => minutes === this.lead);
+    const own = this.custom.filter((r) => r.at > Date.now()).length;
+    return [
+      this.lead && lead ? `${lead[1]} each class` : 'Off for classes',
+      own && `${own} of your own`,
+    ].filter(Boolean).join(' · ');
   }
 
   // ---- The Reminders window ----

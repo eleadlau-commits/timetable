@@ -7,6 +7,6 @@ The week as a grid of hours, like a paper timetable:
 
 Tap a day's heading to open it in the Day view.
 
-- **Adds:** the **Week** tab (view id `week`).
-- **Requires:** sessions. **Uses if present:** day-view, so tapping a day can open it.
+- **Adds:** **Week** inside the Planner tab (view id `week`), or a Week tab of its own without the Planner.
+- **Requires:** sessions. **Uses if present:** day-view, so tapping a day can open it; planner.
 - **Saves:** nothing.

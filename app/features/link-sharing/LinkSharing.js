@@ -1,7 +1,7 @@
 // Link sharing (web version only): two ways to get the timetable link from one device to another.
 //   - A QR code: paste the link on a computer, scan the code with the phone's camera, and the app
 //     opens on the phone with the link filled in (#setup=… in the address).
-//   - Android's share sheet: once the web app is installed, "Share" a link to Timetable
+//   - Android's share sheet: once the web app is installed, "Share" a link to Mobile Durham
 //     (?url=… or ?text=… in the address, set up by "share_target" in feature.json).
 
 import { Feature, ui } from 'folio';
@@ -25,11 +25,22 @@ export default class LinkSharing extends Feature {
       order: 20,
       render: () => el('div', {},
         el('b', {}, 'On Android?'), ' Once the app is on your home screen, you can tap ', el('i', {}, 'Share'),
-        ' on the link in any app and pick ', el('i', {}, 'Timetable'), '.'),
+        ' on the link in any app and pick ', el('i', {}, 'Mobile Durham'), '.'),
     });
     this.add('timetable.settings', {
       order: 10,
       render: (context) => el('button', { type: 'button', class: 'btn', onclick: () => this.showQR(context.link()) }, 'Send to phone'),
+    });
+
+    this.add('more.items', {
+      id: 'link-sharing',
+      group: 'Your timetable',
+      label: 'Send to your phone',
+      icon: 'qr',
+      order: 30,
+      detail: () => 'A QR code with your timetable link',
+      visible: () => !!this.timetable.url,
+      onClick: () => this.showQR(this.timetable.url),
     });
 
     this.takeIncoming();

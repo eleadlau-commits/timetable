@@ -1,9 +1,13 @@
-// The app's frame: the top bar, the tabs between views, full-screen pages (such as a setup
-// screen), and the Settings window. Features fill it through the framework's own slots:
+// The app's frame: one top bar (menu on the left; buttons and account on the right), a title for each
+// view, the tab bar along the bottom, full-screen pages (such as a setup screen), the menu and
+// the Settings window. Features fill it through the framework's own slots:
 //
-//   'header.buttons'  { id, label, icon, order, onClick(), visible?(), busy?() }
-//   'header.status'   { order, text() }               short text under the app's name
-//   'views'           { id, label, order, mount(container), render(), step?(direction), visible?() }
+//   'header.buttons'  { id, label, icon, order, onClick(), visible?(), busy?() }   rows in the menu
+//   'header.status'   { order, text() }               short text in the menu and under view titles
+//   'header.actions'  { id, label, icon, order, onClick(), visible?() }   icon buttons in the top bar,
+//                       left of the account button
+//   'views'           { id, label, icon?, order, mount(container, { head }), render(), step?(direction),
+//                       visible?(), start?, darkHead?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }
 //   'settings'        { id, title?, order, render() }   a section in the Settings window
 //
 // See folio/README.md for details and examples.
@@ -14,26 +18,30 @@ export class Shell {
   constructor(app) {
     this.app = app;
     this.prefs = app.storage.area('folio');
-    this.sections = new Map(); // view id → { container, mounted }
+    this.sections = new Map(); // view → { section, head, title, subtitle, extra, body, mounted }
     this.screens = []; // [{ owner, node }], the last one is shown
     this.restartNeeded = false;
+    this.currentId = null; // the open view; the app always opens on the start view
+    this.ready = false; // set by the app once every feature has started (and added its views)
+    // A view asked for in the address (#view=week), read now because features may tidy the address.
+    this.wanted = new URLSearchParams(location.hash.slice(1)).get('view');
 
-    this.title = el('h1', {}, app.config.name);
-    this.status = el('div', { class: 'sub' });
-    this.actions = el('div', { class: 'actions' });
-    this.tabs = el('div', { class: 'seg', role: 'tablist', 'aria-label': 'View' });
+    this.menuButton = el('button', { type: 'button', class: 'top-btn', 'aria-label': 'Menu', onclick: () => this.openMenu() }, icon('menu'));
+    this.accountButton = el('button', { type: 'button', class: 'top-btn account', 'aria-label': 'Account and settings', onclick: () => this.openSettings() }, icon('account'));
+    this.actions = el('div', { class: 'top-actions' });
     this.viewHost = el('div', { class: 'view-host' });
     this.empty = el('div', { class: 'empty', hidden: true });
     this.screenHost = el('div', { class: 'screen-host', hidden: true });
-    this.main = el('main', {}, this.tabs, this.viewHost, this.empty);
+    this.main = el('main', {}, this.viewHost, this.empty);
+    this.tabs = el('nav', { class: 'tabbar', 'aria-label': 'Main', hidden: true });
 
     const root = document.getElementById('folio-root') || document.body.appendChild(el('div', { id: 'folio-root' }));
-    root.replaceChildren(el('div', { class: 'app' },
-      el('header', { class: 'topbar' }, el('div', { class: 'titles' }, this.title, this.status), this.actions),
+    this.frame = el('div', { class: 'app' },
+      el('header', { class: 'topbar' }, this.menuButton, el('div', { class: 'top-right' }, this.actions, this.accountButton)),
       this.screenHost,
-      this.main));
-
-    app.slot('header.buttons').add({ id: 'settings', label: 'Settings', icon: 'gear', order: 1000, onClick: () => this.openSettings() }, 'folio');
+      this.main,
+      this.tabs);
+    root.replaceChildren(this.frame);
 
     onSwipe(this.viewHost, (dir) => this.step(dir));
     document.addEventListener('keydown', (e) => {
@@ -46,8 +54,9 @@ export class Shell {
 
   // ---- Title ----
 
+  // The name in the browser tab (the top bar itself has no title).
   setTitle(text) {
-    this.title.textContent = text || this.app.config.name;
+    document.title = text || this.app.config.name;
   }
 
   // ---- Full-screen pages, e.g. a setup screen shown before there's anything to see ----
@@ -73,15 +82,32 @@ export class Shell {
 
   get currentView() {
     const views = this.views;
-    const saved = this.prefs.get('view');
-    return views.find((v) => v.id === saved) || views[0] || null;
+    // Wait until every feature has started before choosing, or an early redraw could pick a
+    // view that happens to be there already instead of the start view.
+    if (this.currentId === null && this.ready) {
+      this.currentId = (views.find((v) => v.start) || views[0])?.id ?? null;
+      if (this.wanted) this.selectView(this.wanted, { quiet: true });
+    }
+    return views.find((v) => v.id === this.currentId) || views.find((v) => v.start) || views[0] || null;
   }
 
-  // Switches to a view. Returns false if no view with that id is installed.
-  selectView(id) {
-    if (!this.views.some((v) => v.id === id)) return false;
-    this.prefs.set('view', id);
-    this.render();
+  // Switches to a view, or to a view inside another (such as Day inside Planner). Returns false
+  // if no view with that id is installed.
+  selectView(id, { quiet = false } = {}) {
+    const slot = this.app.slot('views');
+    const views = this.views;
+    let view = views.find((v) => v.id === id);
+    if (!view) {
+      view = views.find((v) => slot.run(v, (x) => !!x.contains?.(id), false));
+      if (!view) return false;
+      slot.run(view, (x) => x.open?.(id));
+    }
+    const changed = this.currentId !== view.id;
+    this.currentId = view.id;
+    if (!quiet) {
+      if (changed) window.scrollTo(0, 0);
+      this.render();
+    }
     return true;
   }
 
@@ -93,12 +119,16 @@ export class Shell {
   // ---- Drawing ----
 
   render() {
-    this.renderButtons();
     this.renderStatus();
+    this.renderActions();
+    if (this.menu?.isOpen) this.renderMenu();
     const screen = this.screens.at(-1);
     this.screenHost.hidden = !screen;
     this.main.hidden = !!screen;
+    // Only a view that asks for it (darkHead) has the dark area under its title too.
+    this.frame.classList.toggle('dark-head', !screen && !!this.currentView?.darkHead);
     if (screen) {
+      this.tabs.hidden = true;
       if (this.screenHost.firstChild !== screen.node) this.screenHost.replaceChildren(screen.node);
       return;
     }
@@ -106,24 +136,24 @@ export class Shell {
     this.renderViews();
   }
 
-  renderButtons() {
-    const slot = this.app.slot('header.buttons');
-    this.actions.replaceChildren(...slot.map((b) => {
-      if (b.visible && !b.visible()) return null;
-      return el('button', {
-        type: 'button',
-        class: `icon-btn${b.busy?.() ? ' spin' : ''}`,
-        'aria-label': b.label,
-        title: b.label,
-        onclick: () => slot.run(b, (x) => x.onClick()),
-      }, icon(b.icon || 'plus'));
-    }));
-  }
-
   renderStatus() {
     const parts = this.app.slot('header.status').map((s) => s.text());
     if (!navigator.onLine) parts.push('offline');
-    this.status.textContent = parts.filter(Boolean).join(' · ');
+    this.statusText = parts.filter(Boolean).join(' · ');
+  }
+
+  // Buttons other features put in the top bar ('header.actions'), left of the account button.
+  renderActions() {
+    const slot = this.app.slot('header.actions');
+    this.actions.replaceChildren(...slot.items
+      .filter((a) => slot.run(a, (x) => (x.visible ? x.visible() : true), false))
+      .map((a) => el('button', {
+        type: 'button',
+        class: 'top-btn top-action',
+        'aria-label': a.label,
+        title: a.label,
+        onclick: () => slot.run(a, (x) => x.onClick()),
+      }, icon(a.icon || 'plus'))));
   }
 
   renderViews() {
@@ -132,28 +162,31 @@ export class Shell {
     const current = this.currentView;
 
     this.tabs.hidden = views.length < 2;
-    this.tabs.style.setProperty('--tabs', views.length);
+    const index = Math.max(0, views.indexOf(current));
+    this.tabs.style.setProperty('--glow-x', `${((index + 0.5) / Math.max(views.length, 1)) * 100}%`);
     this.tabs.replaceChildren(...views.map((v) => el('button', {
       type: 'button',
-      role: 'tab',
-      'aria-selected': String(v === current),
+      class: 'tab',
+      'aria-current': v === current ? 'page' : null,
       onclick: () => this.selectView(v.id),
-    }, v.label)));
+    }, icon(v.icon || 'dots'), el('span', {}, v.label))));
 
     for (const v of views) {
-      let section = this.sections.get(v);
-      if (!section) {
-        section = { container: el('section', { class: `view view-${v.id}` }), mounted: false };
-        this.sections.set(v, section);
-        this.viewHost.append(section.container);
+      let part = this.sections.get(v);
+      if (!part) {
+        part = { title: el('h1'), subtitle: el('p', { class: 'page-sub' }), extra: el('div', { class: 'page-extra' }), body: el('div', { class: 'page-body' }), mounted: false };
+        part.head = el('div', { class: 'page-head' }, el('div', { class: 'page-title' }, part.title, part.subtitle), part.extra);
+        part.section = el('section', { class: `view view-${v.id}` }, part.head, part.body);
+        this.sections.set(v, part);
+        this.viewHost.append(part.section);
       }
-      if (!section.mounted && v === current) {
-        section.mounted = true;
-        slot.run(v, (x) => x.mount?.(section.container));
+      if (!part.mounted && v === current) {
+        part.mounted = true;
+        slot.run(v, (x) => x.mount?.(part.body, { head: part.extra }));
       }
-      section.container.hidden = v !== current;
+      part.section.hidden = v !== current;
     }
-    for (const [v, section] of this.sections) if (!views.includes(v)) section.container.hidden = true;
+    for (const [v, part] of this.sections) if (!views.includes(v)) part.section.hidden = true;
 
     this.empty.hidden = !!current;
     if (!current) {
@@ -161,7 +194,42 @@ export class Shell {
         el('div', {}, 'This app has no views installed. Add a view feature to the app/features folder.'));
       return;
     }
+    const part = this.sections.get(current);
+    part.title.parentNode.hidden = !!current.hideTitle;
+    part.title.textContent = current.label;
+    part.subtitle.textContent = slot.run(current, (v) => v.subtitle?.(), null) ?? this.statusText;
     slot.run(current, (v) => v.render?.());
+  }
+
+  // ---- Menu: the 'header.buttons' items, with the status line ----
+
+  openMenu() {
+    if (!this.menu) this.menu = dialog({ title: 'Menu', className: 'menu-dialog' });
+    this.renderMenu();
+    this.menu.open();
+  }
+
+  closeMenu() {
+    this.menu?.close();
+  }
+
+  renderMenu() {
+    const slot = this.app.slot('header.buttons');
+    const row = (label, name, onClick, busy = false) => el('button', {
+      type: 'button',
+      class: `menu-row${busy ? ' spin' : ''}`,
+      onclick: () => {
+        this.closeMenu();
+        onClick();
+      },
+    }, icon(name), el('span', {}, label));
+    const rows = slot.map((b) => {
+      if (b.visible && !b.visible()) return null;
+      return row(b.label, b.icon || 'plus', () => slot.run(b, (x) => x.onClick()), !!b.busy?.());
+    });
+    this.menu.setContent(
+      this.statusText && hint(this.statusText, { small: true }),
+      el('div', { class: 'menu-list' }, rows, row('Settings', 'gear', () => this.openSettings())));
   }
 
   // ---- Settings ----

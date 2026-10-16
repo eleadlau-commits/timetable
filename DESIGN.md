@@ -1,4 +1,6 @@
-# Timetable app – Home screen design handoff
+# Mobile Durham – Home screen design handoff
+
+_The app was called **Timetable** until version 3.1; it's now **Mobile Durham**._
 
 The agreed Home (front) screen, in two themes, designed on a 390 × 844 phone frame:
 
@@ -15,13 +17,26 @@ Open either file in a browser to see it. They are static mockups: every number, 
 
 ---
 
+## Agreed changes since the mockups
+
+- **The knife shape (October 2026):** most rounded shapes have three slightly rounded corners (about 4 px) and a clearly rounded **bottom-right** corner: about 26 px on cards and pop-ups, about 15 px on buttons, text boxes, the Day/Week/Upcoming switch and the selected tab, and about 9 px on small tags, pills and More's icon tiles. It's defined once in `app/theme.css` (`--knife`, `--knife-btn`, `--knife-sm`). It's used on every card (library, lecture card, campus card, Study, More groups, Day view sessions, *Missing content*), Settings and every other pop-up, the menu and the to-do list.
+  - **Kept as they were:** the day buttons in the date strips (Home's strip, the Day view's week strip, the Week view's day headers) are normal rounded squircles, and anything meant to be round stays round (tick circles, dots, on/off switches, the barcode's white inset).
+  - **No coloured edges or outlines on cards:** session cards and Week view blocks show their module colour as the fill only.
+- **One top bar on every tab:** the menu on the left. On the right, the **Friends** button (two people, in a squircle at white 14% opacity, knife shape), then the account button (opens Settings) as just the icon, no background. Friends isn't built yet, so it says *coming soon*.
+- **Home's clock block** sits higher and is a little smaller: date 14 px, clock 80 px. Under the *Next:* line, a **To-do list** button: white outline and white text, no fill, knife shape. It opens the **To-do list** pop-up: tags along the top (All, Academic, Society, + Add tag), then the to-dos with a round tick box, the text, a small tag pill and the due date; ticked ones are crossed out, overdue ones say *Overdue* in red.
+- **Five tabs:** Study · Planner · **Home** · Spots · More. **Study** holds the library (free seats on each floor); tapping the library card on Home opens it. **Spots** is empty for now ("Coming soon").
+- **Dark area:** on Home it runs down behind the clock. On the other tabs only the top bar (menu and account) is dark; the title sits on the page.
+- **Library colours:** green for plenty of seats, orange for fairly busy, red for busy or full.
+- **Missing data** shows a dashed **Missing content** box saying what's missing, so the screen keeps its shape.
+- The colours below are in `app/theme.css`; the fonts are in `app/fonts`.
+
 ## Layout, top to bottom
 
 1. **Header row** (on the dark top area)
    - Left: menu button, three lines, white, no background.
-   - Right: Friends icon (white, no background), then Account in a squircle (44 × 44, radius 14, white at 14% opacity).
-2. **Date line**: "Thursday 15 October", 15 px, centred, `#cbc4d1`.
-3. **Clock**: "15:13", IBM Plex Mono 500, 96 px, white, centred. Under it: "Next: Linear Algebra II · 16:00 · CG85" (14 px, `#cbc4d1`).
+   - Right: Friends in a squircle (44 × 44, knife shape, white at 14% opacity), then the Account icon (white, no background). *(Swapped round from the mockup, see above.)*
+2. **Date line**: "Thursday 15 October", 14 px, centred, `#cbc4d1`.
+3. **Clock**: "15:13", IBM Plex Mono 500, 80 px, white, centred. Under it: "Next: Linear Algebra II · 16:00 · CG85" (14 px, `#cbc4d1`), then the **To-do list** button (white outline, white text).
 4. *Flexible space* — the clock block stays at the top, everything below sits at the bottom.
 5. **Library card** (radius 14): "Library" + orange **Busy** tag, "195 seats free" on the right. Thin orange bar (`#ec7a12`) with a dot at the fill level, dotted line for the free remainder.
 6. **Two-column block** (320 px tall, 12 px gap):
@@ -32,7 +47,7 @@ Open either file in a browser to see it. They are static mockups: every number, 
        - Next lecture: name 20 px semibold, time, type + room.
        - Then the **rest of today's lectures**, each as name (15 px) + time · room (13 px), separated by 1 px dividers, and **each one fainter than the one before** (three steps, see tokens). No "Then" heading. If there are more than fit, the list clips or scrolls inside the card.
    - **Right column (104 px)**: **Campus card** — label "CARD", vertical barcode filling the card, `[STUDENT ID]` under it.
-7. **Tab bar**: Planner · **Home** · Spots · More.
+7. **Tab bar**: Study · Planner · **Home** · Spots · More.
    - Current tab (Home) is a filled accent rounded block (radius 14) with white icon + label.
    - Other tabs: icon + label in the "tab inactive" colour, weight 500.
    - A 3 px line along the top edge of the bar: a loose horizontal gradient, strongest above the current tab, fading out to both edges. It moves with the selected tab.
@@ -56,7 +71,8 @@ Open either file in a browser to see it. They are static mockups: every number, 
 | Library "free" dotted line | `#cfcad6` | `#5a5361` |
 | Barcode | dark bars on the white card | dark bars on a white inset (stays scannable) |
 | Header text on dark top (both themes) | date/next `#cbc4d1`, clock + icons `#ffffff` | same |
-| Card radius / screen side padding | 14 px / 20 px | same |
+| Corner shape (knife), top-left / top-right / bottom-right / bottom-left | cards 4 / 4 / 26 / 4 px · buttons 4 / 4 / 15 / 4 px · small tags 3 / 3 / 9 / 3 px | same |
+| Screen side padding | 20 px | same |
 | Fonts | IBM Plex Sans (UI), IBM Plex Mono (clock, times) | same |
 
 Icons are simple 1.8 px stroke line icons (menu, people, person, calendar, house, map pin, three dots). Any matching line-icon set works (e.g. Lucide).

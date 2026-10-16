@@ -106,32 +106,31 @@ export function checkBarcode(format, value) {
 }
 
 // The barcode as an <svg> that fills the width it is given. Height comes from CSS.
-export function barcodeSVG(format, value) {
+export function barcodeSVG(format, value, { vertical = false } = {}) {
   const widths = ENCODERS[format](value);
   const quiet = 10;
   const total = widths.reduce((a, b) => a + b, 0) + quiet * 2;
   const NS = 'http://www.w3.org/2000/svg';
+  // Drawn across (the usual way), or down the screen for narrow spaces; it scans either way.
+  const box = (along, length) => (vertical
+    ? { y: along, height: length, width: 1 }
+    : { x: along, width: length, height: 1 });
   const svg = document.createElementNS(NS, 'svg');
-  svg.setAttribute('viewBox', `0 0 ${total} 1`);
+  svg.setAttribute('viewBox', vertical ? `0 0 1 ${total}` : `0 0 ${total} 1`);
   svg.setAttribute('preserveAspectRatio', 'none');
   svg.setAttribute('shape-rendering', 'crispEdges');
   svg.setAttribute('role', 'img');
   svg.setAttribute('aria-label', `Barcode ${value}`);
-  const bg = document.createElementNS(NS, 'rect');
-  bg.setAttribute('width', total);
-  bg.setAttribute('height', 1);
-  bg.setAttribute('fill', '#fff');
-  svg.append(bg);
+  const rect = (attrs, fill) => {
+    const r = document.createElementNS(NS, 'rect');
+    for (const [k, v] of Object.entries(attrs)) r.setAttribute(k, v);
+    r.setAttribute('fill', fill);
+    svg.append(r);
+  };
+  rect(box(0, total), '#fff');
   let x = quiet;
   widths.forEach((w, i) => {
-    if (i % 2 === 0) {
-      const bar = document.createElementNS(NS, 'rect');
-      bar.setAttribute('x', x);
-      bar.setAttribute('width', w);
-      bar.setAttribute('height', 1);
-      bar.setAttribute('fill', '#000');
-      svg.append(bar);
-    }
+    if (i % 2 === 0) rect(box(x, w), '#000');
     x += w;
   });
   return svg;

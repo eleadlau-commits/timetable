@@ -29,7 +29,7 @@
 .wk-chip {
   padding: 2px 4px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--shape-sm);
   background: hsl(var(--h) 60% var(--badge-l, 88%));
   color: var(--text);
   font: inherit;
@@ -68,10 +68,9 @@
   flex-direction: column;
   justify-content: flex-start;
   gap: 1px;
-  padding: 3px 3px 3px 4px;
+  padding: 3px 4px;
   border: 0;
-  border-left: 3px solid hsl(var(--h) 65% var(--stripe-l, 52%));
-  border-radius: 6px;
+  border-radius: var(--shape-sm);
   background: hsl(var(--h) var(--blk-s) var(--blk-l));
   color: var(--text);
   font: inherit;
@@ -87,5 +86,5 @@
 .blk.past { opacity: 0.6; }
 .blk.cancelled { opacity: 0.5; }
 .blk.cancelled b { text-decoration: line-through; }
-.now-line { position: absolute; left: 0; right: 0; height: 2px; background: #e53935; z-index: 2; pointer-events: none; }
-.now-line::before { content: ""; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: #e53935; }
+.now-line { position: absolute; left: 0; right: 0; height: 2px; background: var(--danger); z-index: 2; pointer-events: none; }
+.now-line::before { content: ""; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }

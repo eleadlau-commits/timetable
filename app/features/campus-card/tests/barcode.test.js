@@ -26,3 +26,11 @@ test('a barcode is drawn as bars', () => {
   assert.equal(svg.tagName, 'svg');
   assert.ok(svg.querySelectorAll('rect').length > 10, 'expected many bars');
 });
+
+test('a barcode can be drawn down the screen with the same bars', () => {
+  const across = barcodeSVG('code_128', '12345678');
+  const down = barcodeSVG('code_128', '12345678', { vertical: true });
+  const bars = (svg, attr) => [...svg.querySelectorAll('rect[fill="#000"]')].map((r) => `${r.getAttribute(attr[0])}/${r.getAttribute(attr[1])}`);
+  assert.deepEqual(bars(down, ['y', 'height']), bars(across, ['x', 'width']));
+  assert.match(down.getAttribute('viewBox'), /^0 0 1 \d+$/);
+});

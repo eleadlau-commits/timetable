@@ -31,6 +31,8 @@ folio/                   the framework (knows nothing about any particular app)
   tests/                 the framework's own tests
 app/
   app.json               the app's name, version, colours and phone app id
+  theme.css              the app's own colours and fonts (optional)
+  fonts/                 font files theme.css uses (optional)
   icons/                 the app's icons
   features/              one folder per feature
   tests/seed.js          sample data used by the automatic tests
@@ -145,19 +147,22 @@ export default class Notes extends Feature {
 | `toast(message)` | A short message at the bottom of the screen. |
 | `native` | `true` in the Android or iPhone app. |
 | `plugin(name)` | A Capacitor plugin (e.g. `'LocalNotifications'`), or `null` on the web. |
-| `app.shell` | The app's frame: `setTitle(text)`, `showScreen(owner, node)`, `hideScreen(owner)`, `selectView(id)`, `openSettings()`, `closeSettings()`, `refreshSettings()`. |
+| `app.shell` | The app's frame: `setTitle(text)` (the browser tab's name), `showScreen(owner, node)`, `hideScreen(owner)`, `selectView(id)` (also opens a view inside another, such as Day inside Planner), `openMenu()`, `closeMenu()`, `openSettings()`, `closeSettings()`, `refreshSettings()`. |
 
 **Defining your own slots.** If your feature shows something other features might want to add to, define a slot and describe the item shape in one sentence. Then draw its items, for example `this.slot('session.card').map((line) => line.render(session))`. Items from features that aren't installed simply aren't there.
 
 ## 5. The framework's slots and events
 
+**The frame:** one top bar on a dark background, with the menu button on the left and the account button (which opens Settings) on the right. Features can put icon buttons just left of the account button (`header.actions`). Under it, the open view's title, on the page (or on the dark area too, for a view marked `darkHead`). Along the bottom, a tab bar with one tab per view; the open tab is filled in the accent colour, and a line above the bar glows over it. The app always opens on the view marked `start`.
+
 **Slots:**
 
 | Slot | Item | Where it appears |
 |---|---|---|
-| `views` | `{ id, label, order, mount(container), render(), step?(direction), visible?() }` | Tabs at the top. `mount` runs once and `render` on every redraw. `step(±1)` is called on swipes and arrow keys. |
-| `header.buttons` | `{ id, label, icon, order, onClick(), visible?(), busy?() }` | Round buttons in the top bar. `icon` is a name from `ui.ICONS` or SVG drawing. `busy()` makes it spin. |
-| `header.status` | `{ order, text() }` | The small grey line under the app's name. "offline" is added automatically. |
+| `views` | `{ id, label, icon?, order, mount(container, { head }), render(), step?(direction), visible?(), start?, darkHead?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }` | Tabs along the bottom. `mount` runs once and `render` on every redraw. `head` is a place under the title, for things like a switch. `darkHead: true` extends the dark area of the top bar down over the title and `head` (Home uses this for its clock); otherwise only the top bar is dark. `step(±1)` is called on swipes and arrow keys. `start: true` makes it the view the app opens on. `hideTitle` hides the title; `subtitle()` replaces the status line next to it. A view that holds other views (like Planner) answers `contains(id)`, switches with `open(id)` and lists them in `subviews()`. |
+| `header.buttons` | `{ id, label, icon, order, onClick(), visible?(), busy?() }` | Rows in the menu (the button at the top left). `icon` is a name from `ui.ICONS` or SVG drawing. `busy()` makes its icon spin. Settings is always the last row. |
+| `header.actions` | `{ id, label, icon, order, onClick(), visible?() }` | Icon buttons in the top bar, on every tab, just left of the account button, each in a soft box. `label` is read out by screen readers and shown when you hover. Keep it to one or two: the top bar is small. |
+| `header.status` | `{ order, text() }` | A short line at the top of the menu, and next to each view's title unless the view gives a `subtitle()`. "offline" is added automatically. |
 | `settings` | `{ id, title?, order, render() }` | A section in the Settings window. Return `null` or `false` to show nothing. |
 
 The framework's own Settings sections, **Features** (switch features on and off for this phone) and **About** (version and problems), always come last.
@@ -175,11 +180,13 @@ The framework's own Settings sections, **Features** (switch features on and off 
 
 ## 6. Helpers: ui and time
 
-`ui`: `el(tag, attrs, ...children)`, `icon(name)`, `ICONS`, `toast(text)`, `dialog({ title, className, onClose })` → `{ open, close, setContent, setTitle, isOpen, element, content }`, `errorBox()` → element with `.show(text)`, `hint(text, { small })`, `select(options, { value, id, onChange })`, `toggle({ checked, label, onChange })`, `filePicker(accept)` → `{ pick() }`, `onSwipe(element, fn)`, `loadScript(url)`.
+`ui`: `el(tag, attrs, ...children)`, `icon(name)`, `ICONS`, `toast(text)`, `dialog({ title, className, onClose })` → `{ open, close, setContent, setTitle, isOpen, element, content }`, `errorBox()` → element with `.show(text)`, `hint(text, { small })`, `missing(reason, attrs)` → a "Missing content" box saying what's missing, `select(options, { value, id, onChange })`, `toggle({ checked, label, onChange })`, `filePicker(accept)` → `{ pick() }`, `onSwipe(element, fn)`, `loadScript(url)`.
+
+Icons in `ui.ICONS`: close, refresh, gear, bell, card, pin, clock, note, trash, left, right, plus, check, menu, account, people, calendar, home, book, dots, link, palette, qr.
 
 `time`: `MINUTE`, `HOUR`, `DAY`, `startOfDay`, `addDays`, `startOfWeek`, `sameDay`, `formatTime`, `formatDate`, `formatLongDate`, `formatDateTime`, `dayLabel`, `ago`, `inTime`, `toLocalInput`.
 
-Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`, `small`), `icon-btn` (`ghost`), `link-btn`, `panel`, `hint` (`small`), `label`, `field`, `row`, `stack`, `group`, `error`, `empty`, `list`, `advanced` (for `<details>`), `check`, `switch`, `sub-head`. Colours are CSS variables: `--bg`, `--surface`, `--surface-2`, `--text`, `--muted`, `--line`, `--accent`, `--accent-soft`, `--danger`, `--radius`, `--shadow`. Light and dark mode are automatic.
+Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`, `small`), `icon-btn` (`ghost`), `link-btn`, `panel`, `hint` (`small`), `label`, `field`, `row`, `stack`, `group`, `error`, `empty`, `missing`, `seg` (a switch between a few choices), `list`, `advanced` (for `<details>`), `check`, `switch`, `sub-head`. Colours are CSS variables: `--bg`, `--surface`, `--surface-2`, `--text`, `--text-2`, `--muted`, `--line`, `--accent`, `--accent-ink`, `--accent-soft`, `--danger`, `--radius`, `--shadow`, the corner shapes `--shape` (cards and pop-ups), `--shape-btn` (buttons, text boxes, switches, the selected tab) and `--shape-sm` (small tags and icon tiles), and for the frame `--top`, `--top-2` (the dark area), `--on-top`, `--on-top-muted`, `--tab-ink`, `--glow`, `--gutter`, `--font`, `--font-mono`. Light and dark mode are automatic. An app sets its own values in `app/theme.css`, and may add names of its own there for its features.
 
 ## 7. Saving data
 
@@ -218,7 +225,8 @@ The compiler only needs Python 3.9 or newer. The browser tests also need Chrome 
 4. **Orders features** so each starts after what it requires and uses. Features that require each other in a circle are left out.
 5. **Writes `dist/web/`:**
    - `index.html` with the templates
-   - `app.css` (base styles, theme, then each feature's styles)
+   - `app.css` (base styles, the accent colour from app.json, `app/theme.css`, then each feature's styles)
+   - `fonts/`, copied from `app/fonts/`
    - `start.js` (the list of features)
    - the framework and feature code
    - the web manifest, icons, and `sw.js`, the offline support, which is versioned automatically
@@ -244,7 +252,7 @@ The compiler only needs Python 3.9 or newer. The browser tests also need Chrome 
    });
    ```
    `assert` has `ok`, `equal`, `deepEqual`, `match`, `throws`. Put rules that don't need the screen in their own small file, so they're easy to test.
-3. **Whole-app test:** the app is started with the sample data from `app/tests/seed.js`. The test opens every view and the first item in it, then Settings, then each top-bar button. Any problem fails the test.
+3. **Whole-app test:** the app is started with the sample data from `app/tests/seed.js`. The test opens every view (and every view inside one) and the first item in it, then Settings, then each button in the menu and each button in the top bar. Any problem fails the test.
 4. **Delete-a-folder test:** the same check again, once without each feature, and once with no features at all.
 
 On GitHub, these run before every release. If anything fails, nothing is released.
@@ -271,8 +279,15 @@ On GitHub, these run before every release. If anything fails, nothing is release
      "theme": { "accent": "#00897b", "accentDark": "#4db6ac" },
      "native": { "appId": "io.github.studyplanner.app" } }
    ```
-3. Add icons to `app/icons/`: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, and `icon-only.png` (1024×1024, for the phone app).
-4. Create features with `python build.py new-feature …`. Features that aren't tied to one app can be copied between apps, such as campus-card.
-5. Optionally, add `app/tests/seed.js` with sample data for the tests.
+3. Optionally, set the app's own colours and fonts in `app/theme.css`, with font files in `app/fonts/`.
+4. Add icons to `app/icons/`: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, and `icon-only.png` (1024×1024, for the phone app).
+5. Create features with `python build.py new-feature …`. Features that aren't tied to one app can be copied between apps, such as campus-card.
+6. Optionally, add `app/tests/seed.js` with sample data for the tests.
 
 Folio's version is in `folio/VERSION`. When the framework changes in a way features notice, the version goes up and the change is described here.
+
+**1.1.0:** a new frame. The top bar has only the menu (which now lists the `header.buttons`) and an account button that opens Settings. Views are tabs along the bottom, with icons, and each view has a title on a dark area. Views can hold other views (`contains`, `open`, `subviews`), mark the view to open on (`start`), and put things under their title (`mount`'s `head`). New: `ui.missing()`, more icons, `app/theme.css` and `app/fonts/`. Features written for 1.0 keep working.
+
+**1.2.0:** only the top bar is dark now; a view's title sits on the page. A view can ask for the dark area to continue under its title with `darkHead: true`.
+
+**1.3.0:** features can add icon buttons to the top bar, left of the account button, with the new `header.actions` slot. The account button no longer has a box around it. Corners come from three shapes, `--shape`, `--shape-btn` and `--shape-sm`, which an app can set in `app/theme.css` (they may have uneven corners). Features written for 1.2 keep working.

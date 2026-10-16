@@ -38,7 +38,9 @@ function layoutLanes(blocks) {
 export default class WeekView extends Feature {
   start() {
     this.sessions = this.use('sessions');
-    this.add('views', {
+    // Inside the Planner tab if it's installed, otherwise a tab of its own.
+    this.add(this.use('planner') ? 'planner.views' : 'views', {
+      icon: 'calendar',
       id: 'week',
       label: 'Week',
       order: 20,
