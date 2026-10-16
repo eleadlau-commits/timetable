@@ -78,12 +78,6 @@ export default class Timetable extends Feature {
       ' file, import it here. A file won\'t update by itself, so re-import it when your timetable changes.',
       el('button', { type: 'button', class: 'btn block', onclick: () => this.importFile() }, 'Import .ics file')) });
 
-    this.add('header.buttons', {
-      id: 'refresh', label: 'Refresh timetable', icon: 'refresh', order: 10,
-      visible: () => this.hasData && !!this.url && !this.showingSetup,
-      busy: () => this.busy,
-      onClick: () => this.reload(),
-    });
     this.add('header.status', { order: 10, text: () => this.statusText() });
     this.add('settings', { id: 'timetable', title: 'Timetable', order: 10, render: () => this.settingsSection() });
     this.add('more.items', {

@@ -1,8 +1,9 @@
 // The app's frame: one top bar (menu on the left; buttons and account on the right), a title for each
 // view, the tab bar along the bottom, full-screen pages (such as a setup screen), the menu and
-// the Settings window. Features fill it through the framework's own slots:
+// the Settings and About windows. Features fill it through the framework's own slots:
 //
 //   'header.buttons'  { id, label, icon, order, onClick(), visible?(), busy?() }   rows in the menu
+//   'account'         { name(), open() }   who is signed in, and their account page (the first item)
 //   'header.status'   { order, text() }               short text in the menu and under view titles
 //   'header.actions'  { id, label, icon, order, onClick(), visible?() }   icon buttons in the top bar,
 //                       left of the account button
@@ -12,23 +13,23 @@
 //
 // See folio/README.md for details and examples.
 
-import { el, icon, dialog, toggle, hint, onSwipe } from './ui.js';
+import { el, icon, toast, onSwipe } from './ui.js';
 import { Menu } from './Menu.js';
+import { Settings } from './Settings.js';
 
 export class Shell {
   constructor(app) {
     this.app = app;
-    this.prefs = app.storage.area('folio');
+    this.settings = new Settings(app);
     this.sections = new Map(); // view → { section, head, title, subtitle, extra, body, mounted }
     this.screens = []; // [{ owner, node }], the last one is shown
-    this.restartNeeded = false;
     this.currentId = null; // the open view; the app always opens on the start view
     this.ready = false; // set by the app once every feature has started (and added its views)
     // A view asked for in the address (#view=week), read now because features may tidy the address.
     this.wanted = new URLSearchParams(location.hash.slice(1)).get('view');
 
     this.menuButton = el('button', { type: 'button', class: 'top-btn', 'aria-label': 'Menu', onclick: () => this.openMenu() }, icon('menu'));
-    this.accountButton = el('button', { type: 'button', class: 'top-btn account', 'aria-label': 'Account and settings', onclick: () => this.openSettings() }, icon('account'));
+    this.accountButton = el('button', { type: 'button', class: 'top-btn account', 'aria-label': 'Account', onclick: () => this.openAccount() }, icon('account'));
     this.actions = el('div', { class: 'top-actions' });
     this.viewHost = el('div', { class: 'view-host' });
     this.empty = el('div', { class: 'empty', hidden: true });
@@ -202,7 +203,9 @@ export class Shell {
     slot.run(current, (v) => v.render?.());
   }
 
-  // ---- Menu: the 'header.buttons' items, with the status line ----
+  // ---- Menu: who is signed in and the status line, then the rows ----
+  // The rows are the 'header.buttons' items mixed in by `order` with the framework's own:
+  // Account (10), Settings (60) and About (80). Leave room for features between them.
 
   openMenu() {
     if (!this.menu) this.menu = new Menu();
@@ -216,91 +219,61 @@ export class Shell {
 
   renderMenu() {
     const slot = this.app.slot('header.buttons');
-    const row = (label, name, onClick, busy = false) => el('button', {
+    const own = [
+      { label: 'Account', icon: 'account', order: 10, onClick: () => this.openAccount() },
+      { label: 'Settings', icon: 'gear', order: 60, onClick: () => this.openSettings() },
+      { label: 'About', icon: 'info', order: 80, onClick: () => this.openAbout() },
+    ];
+    const theirs = slot.items
+      .filter((b) => slot.run(b, (x) => (x.visible ? x.visible() : true), false))
+      .map((b) => ({ ...b, order: b.order ?? 50, onClick: () => slot.run(b, (x) => x.onClick()), busy: slot.run(b, (x) => !!x.busy?.(), false) }));
+    const rows = [...own, ...theirs].sort((a, b) => a.order - b.order).map((r) => el('button', {
       type: 'button',
-      class: `menu-row${busy ? ' spin' : ''}`,
+      class: `menu-row${r.busy ? ' spin' : ''}`,
       onclick: () => {
         this.closeMenu();
-        onClick();
+        r.onClick();
       },
-    }, icon(name), el('span', {}, label));
-    const rows = slot.map((b) => {
-      if (b.visible && !b.visible()) return null;
-      return row(b.label, b.icon || 'plus', () => slot.run(b, (x) => x.onClick()), !!b.busy?.());
-    });
+    }, icon(r.icon || 'plus'), el('span', {}, r.label)));
+    const who = this.accountName();
     this.menu.setContent(
-      el('div', { class: 'menu-top' }, el('div', { class: 'menu-who' }, el('b', {}, this.app.config.name), this.statusText && el('small', {}, this.statusText))),
-      el('div', { class: 'menu-list' }, rows, row('Settings', 'gear', () => this.openSettings())));
+      el('button', {
+        type: 'button',
+        class: 'menu-top',
+        'aria-label': who ? `Signed in as ${who}. Open your account` : 'Not signed in. Open your account',
+        onclick: () => {
+          this.closeMenu();
+          this.openAccount();
+        },
+      },
+      el('span', { class: 'menu-avatar' }, icon('account')),
+      el('span', { class: 'menu-who' }, el('b', {}, who || 'Not signed in'), this.statusText && el('small', {}, this.statusText))),
+      el('div', { class: 'menu-list' }, rows));
   }
 
-  // ---- Settings ----
+  // ---- Account: the 'account' item, if a feature offers accounts ----
 
-  openSettings() {
-    if (!this.settings) this.settings = dialog({ title: 'Settings', className: 'settings-dialog' });
-    this.renderSettings();
-    this.settings.open();
+  // The signed-in person's name, or null.
+  accountName() {
+    const slot = this.app.slot('account');
+    return slot.first((a) => a.name?.()) || null;
   }
 
-  // Redraws the Settings window if it's open, e.g. after a section's data changed.
-  refreshSettings() {
-    if (this.settings?.isOpen) this.renderSettings();
+  // Opens the account page, or says it's coming if no feature offers accounts yet.
+  openAccount() {
+    const slot = this.app.slot('account');
+    const item = slot.items[0];
+    if (item) slot.run(item, (a) => a.open());
+    else toast('Account is coming soon.');
   }
 
-  closeSettings() {
-    this.settings?.close();
-  }
+  // ---- Settings and About (see Settings.js) ----
 
-  renderSettings() {
-    const slot = this.app.slot('settings');
-    const sections = slot.map((s) => {
-      const body = s.render();
-      if (!body) return null;
-      return el('section', { class: 'settings-section' }, s.title && el('h3', { class: 'sub-head' }, s.title), body);
-    });
-    this.settings.setContent(...sections, this.featuresSection(), this.aboutSection());
-  }
+  openSettings() { this.settings.open(); }
 
-  featuresSection() {
-    const disabled = new Set(this.prefs.get('disabled', []));
-    const rows = [...this.app.features.values()]
-      .filter((f) => f.status !== 'not-for-platform')
-      .map((f) => {
-        const on = !disabled.has(f.manifest.id);
-        const note = {
-          active: f.problem ? `Had a problem: ${f.problem}` : f.manifest.description,
-          failed: `Couldn't start: ${f.reason}`,
-          disabled: 'Switched off',
-          skipped: f.reason,
-        }[f.status] || f.manifest.description;
-        return el('div', { class: `feature-row${f.status === 'active' ? '' : ' off'}` },
-          el('div', { class: 'feature-text' }, el('b', {}, f.manifest.name), el('small', {}, note)),
-          toggle({
-            checked: on,
-            label: `Use ${f.manifest.name}`,
-            onChange: (checked) => {
-              if (checked) disabled.delete(f.manifest.id);
-              else disabled.add(f.manifest.id);
-              this.prefs.set('disabled', [...disabled]);
-              this.restartNeeded = true;
-              this.renderSettings();
-            },
-          }));
-      });
-    return el('section', { class: 'settings-section' },
-      el('h3', { class: 'sub-head' }, 'Features'),
-      hint('Switch off anything you don\'t use. Features that need a switched-off feature are switched off too.', { small: true }),
-      el('div', { class: 'feature-list' }, rows),
-      this.restartNeeded && el('button', { type: 'button', class: 'btn primary', onclick: () => location.reload() }, 'Restart the app to apply'));
-  }
+  refreshSettings() { this.settings.refresh(); }
 
-  aboutSection() {
-    const { name, version, build, framework } = this.app.config;
-    const problems = this.app.problems;
-    return el('section', { class: 'settings-section about' },
-      el('h3', { class: 'sub-head' }, 'About'),
-      hint(`${name} ${version}${build ? ` (build ${build})` : ''} · Made with Folio ${framework}`, { small: true }),
-      problems.length > 0 && el('details', { class: 'advanced' },
-        el('summary', {}, `${problems.length} problem${problems.length > 1 ? 's' : ''} since the app opened`),
-        el('ul', { class: 'problems' }, problems.slice(-20).map((p) => el('li', {}, `${p.feature || 'app'}: ${p.message}${p.where ? ` (${p.where})` : ''}`)))));
-  }
+  closeSettings() { this.settings.close(); }
+
+  openAbout() { this.settings.openAbout(); }
 }

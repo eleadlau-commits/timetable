@@ -83,7 +83,7 @@ app.start().then(async () => {
     await wait(100);
     closeWindows();
   }
-  for (const button of document.querySelectorAll('.topbar .top-action')) {
+  for (const button of document.querySelectorAll('.topbar .top-action, .topbar .account')) {
     button.click();
     await wait(100);
     closeWindows();
@@ -514,7 +514,7 @@ class Project:
             'requires': f.requires, 'uses': f.uses, 'platforms': f.platforms,
             'path': f'features/{f.id}/{f.manifest["main"]}',
         } for f in included]
-        config = {'id': app['id'], 'name': app['name'], 'version': app['version'],
+        config = {'id': app['id'], 'name': app['name'], 'description': app.get('description', ''), 'version': app['version'],
                   'build': str(build_number) if build_number else '', 'framework': self.framework_version,
                   'test': test}
         seed = test and (self.app_dir / 'tests' / 'seed.js').is_file()

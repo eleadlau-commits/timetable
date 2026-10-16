@@ -1,0 +1,6 @@
+{
+  "name": "Help and feedback",
+  "description": "Help and Feedback in the menu. Neither is built yet, so both say Coming soon.",
+  "version": "1.0.0",
+  "main": "Help.js"
+}

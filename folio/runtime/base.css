@@ -267,6 +267,11 @@ dialog.menu-drawer {
 
 /* The top of the menu: who is signed in, and the status line, on the dark area */
 .menu-top {
+  width: 100%;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -285,6 +290,7 @@ dialog.menu-drawer {
 }
 .menu-avatar svg { width: 26px; height: 26px; }
 .menu-who { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.menu-top:focus-visible { outline: 2px solid var(--glow); outline-offset: -4px; }
 .menu-who b { font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
 .menu-who small { font-size: 13px; color: var(--on-top-muted); }
 .menu-list { display: grid; padding: 8px 12px calc(16px + env(safe-area-inset-bottom)); }
@@ -508,6 +514,9 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 .settings-section { display: grid; gap: 12px; }
 .settings-section + .settings-section { padding-top: 16px; border-top: 1px solid var(--line); }
 .settings-section .sub-head { margin-top: 0; }
+.features-fold summary { font-size: 16px; }
+.features-fold summary small { float: right; padding-top: 2px; font-size: 13px; font-weight: 400; color: var(--muted); }
+.features-fold[open] summary { margin-bottom: 8px; }
 .feature-list { display: grid; }
 .feature-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .feature-row:last-child { border-bottom: 0; }
