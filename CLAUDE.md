@@ -61,7 +61,7 @@ Name each branch `claude/` plus a few words saying what the change is, e.g. `cla
 
 - **On GitHub:** every push to `main` runs `.github/workflows/build.yml`. Tests run first, and if they fail nothing is released. Then the APK goes to Releases and the web version to GitHub Pages.
 - **The Android project** is made fresh on every build, in `dist/`. Packages, permissions and Capacitor settings come from each feature's `feature.json` (`native`).
-- **The signing key:** `signing/debug.keystore` is made by the first build and committed by the workflow. **Never delete or replace it**, or new APKs won't install over old ones and people lose their data.
+- **The signing key:** `signing/debug.keystore` is made by the first build and committed by the workflow. **Never delete or replace it**, or new APKs won't install over old ones and people lose their data. The workflow points Gradle at it in `build.gradle` and refuses to release an APK whose signature doesn't match it. (Builds 1–18 were each signed with a throwaway key, because Gradle ignored `~/.android` on GitHub's machines, so people on those builds have to uninstall once.)
 - **The version:** the app's version is in `app/app.json`. Bump it for releases people should notice.
 - **The name:** the app is called Mobile Durham (`name` in `app/app.json`). Its `id` (`timetable`) and `native.appId` (`io.github.timetable.app`) must never change: the id is the start of every saved key, and the appId is what lets new APKs install over old ones.
 

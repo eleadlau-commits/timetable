@@ -40,7 +40,9 @@ You can switch any feature off for yourself in **Settings → Features**. Everyt
 1. *One-off, on GitHub:* go to **Settings → Pages** and set **Source** to **GitHub Actions**.
 2. Open `https://YOUR-USERNAME.github.io/timetable/` in Safari, then tap **Share → Add to Home Screen**.
 
-**Updating:** install a newer APK straight over the old one, even if the old one was still called Timetable. Your notes and settings stay.
+**Updating:** install a newer APK straight over the old one. Your notes and settings stay.
+
+**One-off, if you installed build 18 or earlier:** those builds were each signed with a different key by mistake, so Android refuses to install a newer one over them ("App not installed"). Uninstall the old app once, then install the newest APK. Uninstalling deletes what was saved on the phone (notes, to-dos, colours, the card), so note down anything you need first. From then on, updates install over the app as normal.
 
 ## Connect your timetable
 
