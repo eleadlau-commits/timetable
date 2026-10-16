@@ -7,7 +7,7 @@
 //   'header.status'   { order, text() }               short text in the menu and under view titles
 //   'header.actions'  { id, label, icon, order, onClick(), visible?() }   icon buttons in the top bar,
 //                       left of the account button
-//   'views'           { id, label, icon?, order, mount(container, { head }), render(), step?(direction),
+//   'views'           { id, label, icon?, order, mount(container, { head, actions }), render(), step?(direction),
 //                       visible?(), start?, darkHead?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }
 //   'settings'        { id, title?, order, render() }   a section in the Settings window
 //
@@ -176,15 +176,15 @@ export class Shell {
     for (const v of views) {
       let part = this.sections.get(v);
       if (!part) {
-        part = { title: el('h1'), subtitle: el('p', { class: 'page-sub' }), extra: el('div', { class: 'page-extra' }), body: el('div', { class: 'page-body' }), mounted: false };
-        part.head = el('div', { class: 'page-head' }, el('div', { class: 'page-title' }, part.title, part.subtitle), part.extra);
+        part = { title: el('h1'), subtitle: el('p', { class: 'page-sub' }), actions: el('div', { class: 'page-actions' }), extra: el('div', { class: 'page-extra' }), body: el('div', { class: 'page-body' }), mounted: false };
+        part.head = el('div', { class: 'page-head' }, el('div', { class: 'page-title' }, part.title, part.subtitle, part.actions), part.extra);
         part.section = el('section', { class: `view view-${v.id}` }, part.head, part.body);
         this.sections.set(v, part);
         this.viewHost.append(part.section);
       }
       if (!part.mounted && v === current) {
         part.mounted = true;
-        slot.run(v, (x) => x.mount?.(part.body, { head: part.extra }));
+        slot.run(v, (x) => x.mount?.(part.body, { head: part.extra, actions: part.actions }));
       }
       part.section.hidden = v !== current;
     }

@@ -175,6 +175,9 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
 .page-title { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; }
 .page-title h1 { font-size: 28px; font-weight: 600; letter-spacing: -0.01em; }
 .page-sub { margin: 0; padding-bottom: 4px; font-size: 14px; color: var(--muted); text-align: right; }
+.page-title h1 { margin-right: auto; }
+.page-actions { display: flex; align-items: center; gap: 4px; margin: 0 -6px 0 -8px; }
+.page-actions:empty { display: none; }
 .dark-head .page-sub { color: var(--on-top-muted); }
 .page-extra:empty { display: none; }
 .page-title:not([hidden]) + .page-extra { margin-top: 14px; }

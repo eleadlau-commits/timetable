@@ -43,7 +43,8 @@ function sampleCalendar() {
 export default function seed(app) {
   const area = (name) => app.storage.area(name);
   area('timetable').set('ics', sampleCalendar());
-  area('timetable').set('source', 'file');
+  area('timetable').set('source', 'link');
+  area('timetable').set('url', 'https://timetable.example.invalid/sample.ics'); // so there's a link to refresh (it fails: it isn't real)
   area('timetable').set('updated', Date.now());
   area('notes').set('notes', { [`lec@seed@${at(0, 9).getTime()}`]: 'Bring laptop\nRead chapter 2' });
   area('modules').set('names', { ECON1011: 'Microeconomics' });
