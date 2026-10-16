@@ -34,6 +34,7 @@ export const ICONS = {
   left: '<path d="M15 18l-6-6 6-6"/>',
   right: '<path d="M9 18l6-6-6-6"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
+  check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
   menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   account: '<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
   people: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.3c2.1.7 3.5 2.8 3.5 5.7"/>',

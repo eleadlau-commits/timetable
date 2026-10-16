@@ -182,7 +182,7 @@ The framework's own Settings sections, **Features** (switch features on and off 
 
 `ui`: `el(tag, attrs, ...children)`, `icon(name)`, `ICONS`, `toast(text)`, `dialog({ title, className, onClose })` → `{ open, close, setContent, setTitle, isOpen, element, content }`, `errorBox()` → element with `.show(text)`, `hint(text, { small })`, `missing(reason, attrs)` → a "Missing content" box saying what's missing, `select(options, { value, id, onChange })`, `toggle({ checked, label, onChange })`, `filePicker(accept)` → `{ pick() }`, `onSwipe(element, fn)`, `loadScript(url)`.
 
-Icons in `ui.ICONS`: close, refresh, gear, bell, card, pin, clock, note, trash, left, right, plus, menu, account, people, calendar, home, book, dots, link, palette, qr.
+Icons in `ui.ICONS`: close, refresh, gear, bell, card, pin, clock, note, trash, left, right, plus, check, menu, account, people, calendar, home, book, dots, link, palette, qr.
 
 `time`: `MINUTE`, `HOUR`, `DAY`, `startOfDay`, `addDays`, `startOfWeek`, `sameDay`, `formatTime`, `formatDate`, `formatLongDate`, `formatDateTime`, `dayLabel`, `ago`, `inTime`, `toLocalInput`.
 

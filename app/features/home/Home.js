@@ -3,7 +3,8 @@
 // them. A place with nothing in it shows "Missing content", so the screen keeps its shape.
 //
 // Slots (item: { order, render() → element, or null to show nothing }):
-//   'home.next'  short lines under the clock, e.g. "Next: Linear Algebra II · 16:00 · CG85"
+//   'home.next'  short lines or buttons under the clock, e.g. "Next: Linear Algebra II · 16:00 · CG85"
+//                or the To-do list button
 //   'home.top'   full-width cards, e.g. the library
 //   'home.main'  the large card on the left, e.g. the day's lectures
 //   'home.side'  the narrow card on the right, e.g. the campus card
@@ -16,7 +17,7 @@ const { el } = ui;
 
 export default class Home extends Feature {
   start() {
-    this.defineSlot('home.next', 'Short lines under the clock. Item: { order, render() → element or null }.');
+    this.defineSlot('home.next', 'Short lines or buttons under the clock. Item: { order, render() → element or null }.');
     this.defineSlot('home.top', 'Full-width cards above the bottom pair. Item: { order, render() → element or null }.');
     this.defineSlot('home.main', 'The large card at the bottom left. Item: { order, render() → element or null }.');
     this.defineSlot('home.side', 'The narrow card at the bottom right. Item: { order, render() → element or null }.');
