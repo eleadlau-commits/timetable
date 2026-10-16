@@ -5,7 +5,7 @@
   gap: 10px;
   padding: 14px 16px;
   border: 0;
-  border-radius: var(--radius);
+  border-radius: var(--shape);
   background: var(--surface);
   color: var(--text);
   font: inherit;
@@ -22,7 +22,7 @@
 
 .lib-tag {
   padding: 2px 8px;
-  border-radius: 10px;
+  border-radius: var(--shape-sm);
   font-size: 12px;
   font-weight: 600;
   white-space: nowrap;

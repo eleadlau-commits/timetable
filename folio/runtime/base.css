@@ -17,6 +17,11 @@
   --danger-soft: #fdecec;
   --shadow: 0 1px 2px rgb(16 20 32 / .05), 0 6px 18px rgb(16 20 32 / .06);
   --radius: 14px;
+  /* Corner shapes, from large to small. An app can give them uneven corners in app/theme.css
+     (e.g. a "knife" shape: three small corners and one large one). */
+  --shape: var(--radius);        /* cards, pop-up windows, "Missing content" boxes */
+  --shape-btn: 12px;             /* buttons, text boxes, switches between choices, the selected tab */
+  --shape-sm: 10px;              /* small tags, pills and icon tiles */
   /* Used by the frame. app/theme.css can change any of these. */
   --text-2: var(--text);
   --top: #1d2130;           /* the dark area at the top: top bar and view titles */
@@ -130,7 +135,7 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
   place-items: center;
   margin-left: -10px;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--shape-btn);
   background: transparent;
   color: inherit;
   cursor: pointer;
@@ -205,7 +210,7 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   justify-content: center;
   gap: 4px;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--shape-btn);
   background: transparent;
   color: var(--tab-ink);
   font: inherit;
@@ -245,7 +250,7 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--shape-btn);
   background: var(--surface);
   color: var(--text);
   box-shadow: var(--shadow);
@@ -261,13 +266,13 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   grid-template-columns: repeat(var(--tabs, 3), 1fr);
   gap: 4px;
   padding: 3px;
-  border-radius: 12px;
+  border-radius: var(--shape-btn);
   background: var(--surface-2);
 }
 .seg button {
   height: 34px;
   border: 0;
-  border-radius: 9px;
+  border-radius: var(--shape-btn);
   background: transparent;
   color: var(--muted);
   font: inherit;
@@ -289,7 +294,7 @@ main, .view-host { flex: 1; display: flex; flex-direction: column; }
   gap: 2px;
   padding: 14px 16px;
   border: 1.5px dashed var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--shape);
   color: var(--muted);
   font-size: 13px;
 }
@@ -318,7 +323,7 @@ button.missing { font: inherit; font-size: 13px; text-align: left; background: t
 .panel {
   margin-top: 12px;
   padding: 18px;
-  border-radius: var(--radius);
+  border-radius: var(--shape);
   background: var(--surface);
   box-shadow: var(--shadow);
 }
@@ -335,7 +340,7 @@ input[type="url"], input[type="text"], input[type="datetime-local"], select, tex
   min-width: 0;
   padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: var(--shape-btn);
   background: var(--bg);
   color: var(--text);
   font: inherit;
@@ -351,7 +356,7 @@ input[type="url"]:focus, input[type="text"]:focus, input[type="datetime-local"]:
 .btn {
   padding: 12px 16px;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--shape-btn);
   background: var(--surface-2);
   color: var(--text);
   font: inherit;
@@ -367,7 +372,7 @@ input[type="url"]:focus, input[type="text"]:focus, input[type="datetime-local"]:
 .error {
   margin-top: 12px;
   padding: 10px 12px;
-  border-radius: 12px;
+  border-radius: var(--shape-btn);
   background: var(--danger-soft);
   color: var(--danger);
   font-size: 14px;
@@ -411,7 +416,7 @@ dialog {
   max-height: calc(100dvh - 48px);
   padding: 0;
   border: 0;
-  border-radius: 18px;
+  border-radius: var(--shape);
   background: var(--surface);
   color: var(--text);
   box-shadow: 0 20px 60px rgb(0 0 0 / .25);
@@ -455,7 +460,7 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
   z-index: 50;
   max-width: calc(100vw - 32px);
   padding: 10px 16px;
-  border-radius: 12px;
+  border-radius: var(--shape-btn);
   background: var(--text);
   color: var(--bg);
   font-size: 14px;

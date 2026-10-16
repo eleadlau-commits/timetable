@@ -40,7 +40,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 16px;
-  border-radius: var(--radius);
+  border-radius: var(--shape);
   background: var(--surface);
   overflow-y: auto;
   overscroll-behavior: contain;

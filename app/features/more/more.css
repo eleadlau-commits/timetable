@@ -8,7 +8,7 @@
   letter-spacing: 0.08em;
   color: var(--muted);
 }
-.more-group ul { list-style: none; margin: 0; padding: 0 14px; border-radius: var(--radius); background: var(--surface); }
+.more-group ul { list-style: none; margin: 0; padding: 0 14px; border-radius: var(--shape); background: var(--surface); }
 .more-group li + li { border-top: 1px solid var(--line); }
 .more-row {
   width: 100%;
@@ -29,7 +29,7 @@
   flex: none;
   display: grid;
   place-items: center;
-  border-radius: 10px;
+  border-radius: var(--shape-sm);
   background: var(--accent-soft);
   color: var(--accent);
 }
