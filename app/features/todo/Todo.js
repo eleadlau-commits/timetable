@@ -1,17 +1,19 @@
-// To-do list: a list of things to do, with tags and due dates. A "To-do list" button under the
-// clock on Home (and a row on the More tab) opens it in a pop-up:
+// To-do list: a list of things to do, with tags and due dates. A "Plan Today" button under the
+// clock on Home, with how many things are due today under it (and a "To-do list" row on the More
+// tab) opens it in a pop-up:
+//   - at the top, the to-dos due today that aren't ticked yet
 //   - tags along the top to filter by (All, Academic, Society, and any you add), which can be
 //     added, renamed and deleted; deleting a tag keeps its to-dos, just without a tag
 //   - the list, soonest due first, those without a date last, overdue ones marked in red
 //   - a form to add a to-do with an optional tag and due date
-// The rules (sorting, overdue, tags) are in rules.js, with tests.
+// The rules (sorting, overdue, due today, tags) are in rules.js, with tests.
 //
 // Saved data (on this phone only):
 //   'items' → [{ id, text, tag, due: 'YYYY-MM-DD' or null, done, added }]
 //   'tags'  → [{ id, name }]   (until changed, the starting tags: Academic and Society)
 
 import { Feature, ui } from 'folio';
-import { DEFAULT_TAGS, isOverdue, sortItems, filterItems, addTag, renameTag, deleteTag, dueLabel } from './rules.js';
+import { DEFAULT_TAGS, isOverdue, sortItems, filterItems, addTag, renameTag, deleteTag, dueLabel, dueToday, dueTodayText } from './rules.js';
 
 const { el } = ui;
 
@@ -25,7 +27,9 @@ export default class Todo extends Feature {
 
     this.add('home.next', {
       order: 20,
-      render: () => el('button', { type: 'button', class: 'todo-open', onclick: () => this.open() }, 'To-do list'),
+      render: () => el('div', { class: 'todo-plan' },
+        el('button', { type: 'button', class: 'todo-open', onclick: () => this.open() }, 'Plan Today'),
+        el('small', {}, dueTodayText(dueToday(this.items).length))),
     });
     this.add('more.items', {
       id: 'todo',
@@ -58,12 +62,25 @@ export default class Todo extends Feature {
   render(focus = null) {
     if (!this.tags.some((t) => t.id === this.filter)) this.filter = 'all';
     this.error = ui.errorBox();
-    this.window.setContent(this.tagBar(), this.tagTools(), this.error, this.list(), this.addArea());
+    this.window.setContent(this.todaySection(), this.tagBar(), this.tagTools(), this.error, this.list(), this.addArea());
     if (focus) this.window.element.querySelector(focus)?.focus();
   }
 
   tagName(id) {
     return this.tags.find((t) => t.id === id)?.name || null;
+  }
+
+  // ---- Due today ----
+
+  // At the top: the to-dos due today that aren't ticked yet, whichever tag is chosen below.
+  todaySection() {
+    const today = new Date();
+    const items = sortItems(dueToday(this.items, today));
+    return el('section', { class: 'todo-today' },
+      el('h3', { class: 'todo-head' }, 'Due today'),
+      items.length
+        ? el('ul', { class: 'todo-list' }, items.map((item) => this.row(item, today)))
+        : ui.hint('Nothing due today.', { small: true }));
   }
 
   // ---- Tags ----

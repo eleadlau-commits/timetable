@@ -11,7 +11,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--on-top);
 }
-.home-next { display: grid; justify-items: center; gap: 2px; font-size: 14px; color: var(--on-top-muted); }
+.home-next { align-self: stretch; display: grid; justify-items: center; gap: 2px; font-size: 14px; color: var(--on-top-muted); }
 .home-next:empty { display: none; }
 
 /* Everything below the clock sits at the bottom, just above the tab bar. */

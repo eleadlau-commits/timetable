@@ -1,5 +1,5 @@
 import { test, assert } from 'folio/testing';
-import { DEFAULT_TAGS, dayKey, isOverdue, sortItems, filterItems, addTag, renameTag, deleteTag, dueLabel } from '../rules.js';
+import { DEFAULT_TAGS, dayKey, isOverdue, sortItems, filterItems, addTag, renameTag, deleteTag, dueLabel, dueToday, dueTodayText } from '../rules.js';
 
 const today = new Date(2026, 9, 16, 15, 30); // Friday 16 October 2026, mid-afternoon
 const item = (id, due, extra = {}) => ({ id, text: id, tag: null, due, done: false, added: 0, ...extra });
@@ -88,4 +88,29 @@ test('due dates in words', () => {
   assert.equal(dueLabel('2026-10-15', today), 'Yesterday');
   assert.equal(dueLabel('2026-10-20', today), new Date(2026, 9, 20).toLocaleDateString([], { weekday: 'long' }));
   assert.match(dueLabel('2027-01-04', today), /2027/);
+});
+
+test('due today: only unticked to-dos whose date is today', () => {
+  const items = [
+    item('today', '2026-10-16'),
+    item('ticked', '2026-10-16', { done: true }),
+    item('overdue', '2026-10-15'),
+    item('tomorrow', '2026-10-17'),
+    item('no date', null),
+    item('today too', '2026-10-16', { tag: 'society' }),
+  ];
+  assert.deepEqual(dueToday(items, today).map((x) => x.id), ['today', 'today too']);
+  assert.deepEqual(dueToday([], today), []);
+});
+
+test('due today follows the day, including just before and after midnight', () => {
+  const items = [item('a', '2026-10-16'), item('b', '2026-10-17')];
+  assert.deepEqual(dueToday(items, new Date(2026, 9, 16, 23, 59)).map((x) => x.id), ['a']);
+  assert.deepEqual(dueToday(items, new Date(2026, 9, 17, 0, 0)).map((x) => x.id), ['b']);
+});
+
+test('how many are due today, in words', () => {
+  assert.equal(dueTodayText(0), 'Nothing due today');
+  assert.equal(dueTodayText(1), '1 thing due today');
+  assert.equal(dueTodayText(3), '3 things due today');
 });
