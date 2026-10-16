@@ -70,6 +70,14 @@ jobs:
         working-directory: dist
         run: npx --yes @capacitor/assets generate --android --iconBackgroundColor '#e2dfe7' --iconBackgroundColorDark '#e2dfe7'
 
+      # The icon tool above only makes the old-style PNG icons. Android 8 and newer use the
+      # "adaptive" icon instead, which would otherwise still be the template's default.
+      # android-res/ holds Mobile Durham's own (the cathedral on light grey, as vectors).
+      - name: Use Mobile Durham's adaptive icon
+        run: |
+          cp -r android-res/. dist/android/app/src/main/res/
+          grep -q md_icon_foreground dist/android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+
       - name: Copy the app into the Android project
         working-directory: dist
         run: npx cap sync android
