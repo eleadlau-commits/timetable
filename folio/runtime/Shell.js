@@ -16,6 +16,7 @@
 import { el, icon, toast, onSwipe } from './ui.js';
 import { Menu } from './Menu.js';
 import { Settings } from './Settings.js';
+import { Tabs } from './Tabs.js';
 
 export class Shell {
   constructor(app) {
@@ -35,7 +36,8 @@ export class Shell {
     this.empty = el('div', { class: 'empty', hidden: true });
     this.screenHost = el('div', { class: 'screen-host', hidden: true });
     this.main = el('main', {}, this.viewHost, this.empty);
-    this.tabs = el('nav', { class: 'tabbar', 'aria-label': 'Main', hidden: true });
+    this.tabBar = new Tabs((id) => this.selectView(id));
+    this.tabs = this.tabBar.nav;
 
     const root = document.getElementById('folio-root') || document.body.appendChild(el('div', { id: 'folio-root' }));
     this.frame = el('div', { class: 'app' },
@@ -164,14 +166,7 @@ export class Shell {
     const current = this.currentView;
 
     this.tabs.hidden = views.length < 2;
-    const index = Math.max(0, views.indexOf(current));
-    this.tabs.style.setProperty('--glow-x', `${((index + 0.5) / Math.max(views.length, 1)) * 100}%`);
-    this.tabs.replaceChildren(...views.map((v) => el('button', {
-      type: 'button',
-      class: 'tab',
-      'aria-current': v === current ? 'page' : null,
-      onclick: () => this.selectView(v.id),
-    }, icon(v.icon || 'dots'), el('span', {}, v.label))));
+    this.tabBar.render(views, current);
 
     for (const v of views) {
       let part = this.sections.get(v);
