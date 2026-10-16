@@ -36,8 +36,9 @@ CAPACITOR_VERSION = '^7.0.0'
 # Slots and events the framework itself provides (see folio/runtime/Shell.js and App.js).
 FRAMEWORK_SLOTS = {
     'views': 'Screens you switch between with the tabs at the top.',
-    'header.buttons': 'Buttons in the top bar.',
-    'header.status': 'Short text under the app name.',
+    'header.buttons': 'Rows in the menu.',
+    'header.status': 'Short text in the menu and next to view titles.',
+    'header.actions': 'Icon buttons in the top bar, left of the account button.',
     'settings': 'Sections in the Settings window.',
 }
 FRAMEWORK_EVENTS = {'app:ready', 'app:resume', 'app:tick', 'app:online', 'app:offline'}
@@ -79,6 +80,11 @@ app.start().then(async () => {
     shell.openMenu();
     const row = document.querySelectorAll('dialog[open] .menu-row')[i];
     if (row && row.textContent !== 'Refresh timetable') row.click();
+    await wait(100);
+    closeWindows();
+  }
+  for (const button of document.querySelectorAll('.topbar .top-action')) {
+    button.click();
     await wait(100);
     closeWindows();
   }

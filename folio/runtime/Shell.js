@@ -1,9 +1,11 @@
-// The app's frame: one top bar (menu on the left, account on the right), a title for each
+// The app's frame: one top bar (menu on the left; buttons and account on the right), a title for each
 // view, the tab bar along the bottom, full-screen pages (such as a setup screen), the menu and
 // the Settings window. Features fill it through the framework's own slots:
 //
 //   'header.buttons'  { id, label, icon, order, onClick(), visible?(), busy?() }   rows in the menu
 //   'header.status'   { order, text() }               short text in the menu and under view titles
+//   'header.actions'  { id, label, icon, order, onClick(), visible?() }   icon buttons in the top bar,
+//                       left of the account button
 //   'views'           { id, label, icon?, order, mount(container, { head }), render(), step?(direction),
 //                       visible?(), start?, darkHead?, hideTitle?, subtitle?(), contains?(id), open?(id), subviews?() }
 //   'settings'        { id, title?, order, render() }   a section in the Settings window
@@ -26,6 +28,7 @@ export class Shell {
 
     this.menuButton = el('button', { type: 'button', class: 'top-btn', 'aria-label': 'Menu', onclick: () => this.openMenu() }, icon('menu'));
     this.accountButton = el('button', { type: 'button', class: 'top-btn account', 'aria-label': 'Account and settings', onclick: () => this.openSettings() }, icon('account'));
+    this.actions = el('div', { class: 'top-actions' });
     this.viewHost = el('div', { class: 'view-host' });
     this.empty = el('div', { class: 'empty', hidden: true });
     this.screenHost = el('div', { class: 'screen-host', hidden: true });
@@ -34,7 +37,7 @@ export class Shell {
 
     const root = document.getElementById('folio-root') || document.body.appendChild(el('div', { id: 'folio-root' }));
     this.frame = el('div', { class: 'app' },
-      el('header', { class: 'topbar' }, this.menuButton, this.accountButton),
+      el('header', { class: 'topbar' }, this.menuButton, el('div', { class: 'top-right' }, this.actions, this.accountButton)),
       this.screenHost,
       this.main,
       this.tabs);
@@ -117,6 +120,7 @@ export class Shell {
 
   render() {
     this.renderStatus();
+    this.renderActions();
     if (this.menu?.isOpen) this.renderMenu();
     const screen = this.screens.at(-1);
     this.screenHost.hidden = !screen;
@@ -136,6 +140,20 @@ export class Shell {
     const parts = this.app.slot('header.status').map((s) => s.text());
     if (!navigator.onLine) parts.push('offline');
     this.statusText = parts.filter(Boolean).join(' · ');
+  }
+
+  // Buttons other features put in the top bar ('header.actions'), left of the account button.
+  renderActions() {
+    const slot = this.app.slot('header.actions');
+    this.actions.replaceChildren(...slot.items
+      .filter((a) => slot.run(a, (x) => (x.visible ? x.visible() : true), false))
+      .map((a) => el('button', {
+        type: 'button',
+        class: 'top-btn top-action',
+        'aria-label': a.label,
+        title: a.label,
+        onclick: () => slot.run(a, (x) => x.onClick()),
+      }, icon(a.icon || 'plus'))));
   }
 
   renderViews() {

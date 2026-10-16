@@ -103,7 +103,7 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 }
 .app:has(> .tabbar[hidden]) { padding-bottom: calc(32px + env(safe-area-inset-bottom)); }
 
-/* The top bar: menu on the left, account and settings on the right */
+/* The top bar: menu on the left; other features' buttons, then account and settings, on the right */
 .topbar {
   position: sticky;
   top: 0;
@@ -141,8 +141,13 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
   cursor: pointer;
 }
 .top-btn svg { width: 24px; height: 24px; }
-.top-btn.account { margin: 0; background: rgb(255 255 255 / .14); }
-.top-btn.account svg { width: 22px; height: 22px; }
+.top-right { display: flex; align-items: center; gap: 8px; }
+.top-actions { display: flex; gap: 8px; }
+.top-actions:empty { display: none; }
+.top-btn.top-action { margin: 0; background: rgb(255 255 255 / .14); }
+.top-btn.top-action svg { width: 22px; height: 22px; }
+.top-btn.account { margin: 0 -10px 0 0; }
+.top-btn.account svg { width: 24px; height: 24px; }
 .top-btn:focus-visible, .tab:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
 
 main, .view-host { flex: 1; display: flex; flex-direction: column; }
@@ -456,7 +461,7 @@ dialog::backdrop { background: rgb(0 0 0 / .45); }
 .toast {
   position: fixed;
   left: 50%;
-  bottom: calc(20px + env(safe-area-inset-bottom));
+  bottom: calc(84px + env(safe-area-inset-bottom)); /* above the tab bar */
   z-index: 50;
   max-width: calc(100vw - 32px);
   padding: 10px 16px;
