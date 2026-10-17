@@ -18,3 +18,8 @@
 .wallet .barcode-diagnostics{margin:0 0 24px;font-size:11px}
 .wallet .barcode-diagnostics summary{cursor:pointer;padding:12px 0;min-height:44px}
 .wallet .card-error{margin:0 0 20px}
+
+/* Match the delivered video's intrinsic ratio instead of letterboxing portrait
+   footage inside a forced landscape frame. Capture dimensions are unchanged. */
+.camera-preview{aspect-ratio:auto;flex-shrink:0;border-radius:20px}
+.camera-preview video{display:block;width:100%;height:auto;object-fit:contain;object-position:center}
