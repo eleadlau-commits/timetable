@@ -1,13 +1,13 @@
-// Library: how busy Bill Bryson Library is. A card on Home (busy or not, free seats, a bar) and
-// a card on the Study tab with free seats on each floor. Read from the library's public
-// occupancy page every few minutes while a card is on screen. No booking.
+// Library: how busy Bill Bryson Library is. A small folded bar on Home and on the Study tab (busy
+// or not, free seats, a bar). Tap it for a full-screen pop-up with free seats on each floor.
+// Read from the library's public occupancy page every few minutes while it's on screen. No booking.
 //
 // In the Android app the page is read directly. In the web version the university's server may
 // block that (CORS), so it goes through the personal relay if one is set up.
 //
 // Saved data: 'show' → false if the card is switched off in Settings
 //             'last' → { at, occupancy } the last reading, shown while a new one loads
-//             'open' → no longer used (the card used to fold; the floors are now on the Study tab)
+//             'open' → no longer used (the card used to unfold in place; the floors are now in a pop-up)
 
 import { Feature, ui, time } from 'folio';
 import { SOURCE, textOf, readOccupancy, busyness } from './occupancy.js';
@@ -23,8 +23,8 @@ export default class Library extends Feature {
     this.failed = null;
     this.tried = 0;
 
-    this.add('home.top', { order: 10, render: () => this.homeCard() });
-    this.add('study.cards', { order: 10, render: () => this.studyCard() });
+    this.add('home.top', { order: 10, render: () => this.folded('Library') });
+    this.add('study.cards', { order: 10, render: () => this.folded('Bill Bryson Library') });
     this.add('settings', { id: 'library', title: 'Library', order: 70, render: () => this.settingsSection() });
   }
 
@@ -45,6 +45,7 @@ export default class Library extends Feature {
     this.loading = true;
     this.tried = Date.now();
     this.refresh();
+    if (this.window?.isOpen) this.drawWindow();
     try {
       const occupancy = readOccupancy(textOf(await this.download()));
       if (!occupancy) throw new Error('unreadable');
@@ -56,6 +57,7 @@ export default class Library extends Feature {
     } finally {
       this.loading = false;
       this.refresh();
+      if (this.window?.isOpen) this.drawWindow();
     }
   }
 
@@ -64,35 +66,41 @@ export default class Library extends Feature {
     if (!this.loading && Date.now() - this.tried > FRESH && navigator.onLine) this.load();
   }
 
-  // On Home: one card with how busy it is, the free seats and a bar. Tap it to see the floors.
-  homeCard() {
+  // On Home and the Study tab: a small folded bar with how busy it is, the free seats and a bar.
+  // Tap it to open the floors.
+  folded(name) {
     if (!this.show) return null;
     this.freshen();
     const o = this.last?.occupancy;
-    const openStudy = () => this.app.shell.selectView('study');
+    const open = () => this.openWindow();
     if (!o) {
-      return el('button', { type: 'button', class: 'missing lib-missing', onclick: openStudy },
-        el('b', {}, 'Library'),
+      return el('button', { type: 'button', class: 'missing lib-missing', onclick: open },
+        el('b', {}, name),
         el('span', {}, this.loading ? 'Checking how busy Bill Bryson Library is…' : this.problem()));
     }
     const band = busyness(o.free, o.seats);
     return el('button', {
       type: 'button',
       class: 'lib-home',
-      'aria-label': `Bill Bryson Library, ${band.label.toLowerCase()}, ${o.free} seats free`,
-      onclick: openStudy,
+      'aria-label': `Bill Bryson Library, ${band.label.toLowerCase()}, ${o.free} seats free. Show each floor`,
+      onclick: open,
     },
       el('span', { class: 'lib-line' },
-        el('b', {}, 'Library'),
+        el('b', {}, name),
         el('span', { class: `lib-tag ${band.id}` }, band.label),
         el('span', { class: 'lib-free' }, el('strong', {}, o.free), ' seats free')),
       this.bar(o.free, o.seats));
   }
 
-  // On the Study tab: the whole library and each floor, with when it was last checked.
-  studyCard() {
-    if (!this.show) return null;
+  openWindow() {
+    if (!this.window) this.window = ui.dialog({ title: 'Bill Bryson Library' });
     this.freshen();
+    this.drawWindow();
+    this.window.open();
+  }
+
+  // The pop-up: the whole library and each floor, with when it was last checked.
+  drawWindow() {
     const o = this.last?.occupancy;
     const band = o && busyness(o.free, o.seats);
     const check = el('button', {
@@ -102,15 +110,14 @@ export default class Library extends Feature {
     const status = o
       ? [`Updated ${time.ago(this.last.at)}.`, this.failed && ` ${this.problem()}`]
       : [this.loading ? 'Checking how busy Bill Bryson Library is…' : this.problem()];
-    return el('section', { class: 'lib-card' },
+    this.window.setContent(el('section', { class: 'lib-detail' },
       el('div', { class: 'lib-line' },
-        el('b', {}, 'Bill Bryson Library'),
         band && el('span', { class: `lib-tag ${band.id}` }, band.label),
-        el('span', { class: 'lib-free' }, o ? [el('strong', {}, o.free), ' free'] : '')),
+        el('span', { class: 'lib-free' }, o ? [el('strong', {}, o.free), ' seats free'] : '')),
       o && this.bar(o.free, o.seats),
       ...(o ? o.floors.map((f) => this.floor(f)) : []),
       el('div', { class: 'lib-status' }, el('div', { class: 'hint small' }, ...status.filter(Boolean)), check),
-      el('div', { class: 'lib-foot' }, this.pageLink()));
+      el('div', { class: 'lib-foot' }, this.pageLink())));
   }
 
   floor(f) {

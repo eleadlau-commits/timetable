@@ -8,7 +8,6 @@ Two ways to get the timetable link from one device to another:
 **What it adds:**
 - **Setup screen:** two blocks under "Other ways to get the link in" (`timetable.setup`).
 - **Settings:** a "Send to phone" button (`timetable.settings`).
-- **On the More tab** (`more.items`): a "Send to your phone" row with the QR code, once a link is saved.
 
 **What it needs:**
 - **Requires:** timetable.

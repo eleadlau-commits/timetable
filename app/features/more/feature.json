@@ -1,7 +1,7 @@
 {
   "name": "More",
-  "description": "The More tab: a list of everything else the app can do.",
-  "version": "1.0.0",
+  "description": "The More tab: cards for everything else, such as the campus card.",
+  "version": "2.0.0",
   "main": "More.js",
   "styles": ["more.css"]
 }

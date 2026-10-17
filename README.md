@@ -13,19 +13,19 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 | Feature | What it does |
 |---|---|
 | **Home** | At the top, three pages to swipe between over a photo of Durham: the date, the clock, your next class and a big **Plan Today** button saying how many things are due today; **Explore** (opens Spots); and **Plan your journey** (coming soon). Below them, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
-| **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. What's due today is at the top. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from **Plan Today** on Home, or More. |
+| **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. What's due today is at the top. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from **Plan Today** on Home. |
 | **Friends** | A button at the top right, kept for later. For now it says *coming soon*. |
-| **Planner: Day, Week and Upcoming** | Three ways to see your timetable. Swipe to move between days or weeks. The round button by the title downloads your timetable again. |
+| **Planner: Day, Week and Upcoming** | Three ways to see your timetable. Swipe to move between days or weeks. The round button by the title downloads your timetable again. The **Modules: colours and names** button under the switch lets you rename, recolour or hide modules. |
 | **Session details** | Tap any session for its time, room, description and more. |
 | **Notes** | Your own notes on a session, e.g. "bring laptop". The first line shows on the card. |
 | **Modules** | Rename a module ("ECON1011" → "Microeconomics"), pick its colour, or hide it. |
 | **Maps** | Durham room codes show as buildings (`CLC013 · Calman Learning Centre`), with a map and directions. |
 | **Reminders** | A notification before each class, plus your own reminders. |
-| **Library** | How busy Bill Bryson Library is: a card on Home, and free seats on each floor on the **Study** tab. |
+| **Library** | How busy Bill Bryson Library is: a small bar on Home and on the **Study** tab. Tap it for free seats on each floor. |
 | **Campus card** | Scan your card's barcode (camera or photo), or type the number, and show it on your phone if you lose the card. Reads Durham's Telepen barcode as well as the common types. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
-| **More** | Everything else in one list: to-do list, campus card, reminders, modules, your calendar link. |
-| **Spots** | Kept for later; nothing here yet. The Explore page on Home opens it. |
+| **More** | Everything else, as cards. For now, the campus card. |
+| **Spots** | Cards for **Cafés**, **Pubs** and **Clubs** around Durham, coming soon. The Explore page on Home opens it. |
 | **Help and feedback** | In the menu, kept for later. For now they say *coming soon*. |
 
 You can switch any feature off for yourself in **Settings → Features**. Everything you add (notes, to-dos, colours, reminders, the card) stays on your own phone.

@@ -1,6 +1,7 @@
 {
   "name": "Spots",
-  "description": "The Spots tab, kept for later. Nothing here yet.",
-  "version": "1.0.0",
-  "main": "Spots.js"
+  "description": "The Spots tab: cards for cafés, pubs and clubs around Durham, coming soon.",
+  "version": "1.1.0",
+  "main": "Spots.js",
+  "styles": ["spots.css"]
 }

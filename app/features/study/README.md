@@ -8,7 +8,7 @@ The **Study** tab, for places to study. It only draws the place; other features 
 
 ## What it offers other features
 
-- **Slot `study.cards`:** cards on the Study tab. Item: `{ order, render() → element, or null }`. Library uses it. With no cards, the tab shows **Missing content**.
+- **Slot `study.cards`:** cards on the Study tab. Item: `{ order, render() → element, or null }`. Library uses it, for a small folded bar that opens a full-screen pop-up. With no cards, the tab shows **Missing content**.
 
 ## What it needs
 

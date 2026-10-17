@@ -29,9 +29,9 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | Feature | What it does | Requires (uses) | Adds to | Offers |
 |---|---|---|---|---|
 | `campus-card` | Scan and show the campus card barcode | | home.side, more.items | |
-| `timetable` | Loads and saves the timetable, setup screen, the Planner's refresh button | | status, planner.actions, settings, more.items | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
+| `timetable` | Loads and saves the timetable, setup screen, the Planner's refresh button | | status, planner.actions, settings | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
 | `sessions` | Session cards and the details window | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
-| `planner` | The Planner tab, holding Day, Week and Upcoming | | views | service `planner`; slots `planner.views`, `planner.actions` |
+| `planner` | The Planner tab, holding Day, Week and Upcoming | | views | service `planner`; slots `planner.views`, `planner.actions`, `planner.buttons` |
 | `day-view` | Day view | sessions (planner) | planner.views | slot `day.cards` |
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
 | `friends` | The Friends button in the top bar; says "coming soon" for now | | header.actions | |
@@ -40,15 +40,15 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `journey` | The Plan your journey page on Home; says "coming soon" for now | (home) | home.pages | |
 | `study` | The Study tab | | views | slot `study.cards` |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
-| `library` | How busy Bill Bryson Library is, free seats per floor | (web-relay, home, study) | home.top, study.cards, settings | |
-| `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings, more.items | |
+| `library` | How busy Bill Bryson Library is: a folded bar on Home and Study, free seats per floor in a full-screen pop-up | (web-relay, home, study) | home.top, study.cards, settings | |
+| `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings | |
 | `maps` | Building names, map preview, directions | sessions (durham-rooms) | session.location/details, settings | |
-| `modules` | Rename, recolour or hide modules | sessions | session.name/colour/filter/details, settings, more.items | |
-| `more` | The More tab: everything else, in groups | | views | slot `more.items` |
+| `modules` | Rename, recolour or hide modules; button under the Planner's switch | sessions (planner) | session.name/colour/filter/details, planner.buttons, settings | |
+| `more` | The More tab: cards with a dark bar along the bottom (just the campus card for now) | | views | slot `more.items` |
 | `notes` | Notes on sessions | sessions | session.card/details | |
-| `reminders` | Class and personal reminders | sessions | menu, session.details, more.items | |
-| `spots` | The Spots tab, empty for now ("Coming soon"), and the Explore page on Home | | views, home.pages | |
-| `todo` | To-do list pop-up with tags, due dates and "Due today"; Plan Today button on Home (with how many are due today), row on More | (home, more) | home.next, more.items | |
+| `reminders` | Class and personal reminders | sessions | menu, session.details | |
+| `spots` | The Spots tab: Cafés, Pubs and Clubs cards (coming soon), and the Explore page on Home | | views, home.pages | |
+| `todo` | To-do list pop-up with tags, due dates and "Due today"; Plan Today button on Home (with how many are due today) | (home) | home.next | |
 | `up-next` | "Next:" under the clock, date strip and the day's lectures on Home | sessions (timetable, home) | home.next, home.main | |
 | `upcoming` | Next four weeks (view id `agenda`) | sessions (planner) | planner.views | |
 | `week-view` | Week grid | sessions (day-view, planner) | planner.views | |

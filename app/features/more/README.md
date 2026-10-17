@@ -1,6 +1,6 @@
 # More
 
-The **More** tab: everything else the app can do, as a list of rows in groups.
+The **More** tab: everything else the app can do, as cards. For now there's one: the campus card.
 
 ## What it adds
 
@@ -8,18 +8,15 @@ The **More** tab: everything else the app can do, as a list of rows in groups.
 
 ## What it offers other features
 
-- **Slot `more.items`:** rows on the More tab. Item: `{ id, label, icon, order, group?, detail?() → short text, onClick(), visible?() }`. Rows with the same `group` are shown together under that heading.
+- **Slot `more.items`:** cards on the More tab. Item: `{ id, label, order, detail?() → short text, photo?, onClick(), visible?() }`. Each card has its `label` and `detail` at the top and a dark bar along the bottom with an arrow, the same style as the cards on Spots. Give it a `photo` (an image address) to show a photo in the bar, fading into the dark from the left. With no cards, the tab shows **Missing content**.
 
 Used by:
 
-| Group | Row | From |
-|---|---|---|
-| On the go | To-do list | todo |
-| On the go | Campus card | campus-card |
-| On the go | Reminders | reminders |
-| Your timetable | Modules | modules |
-| Your timetable | Calendar link (opens Settings) | timetable |
-| Your timetable | Send to your phone (QR code, web only) | link-sharing |
+| Card | From |
+|---|---|
+| Campus card | campus-card |
+
+The to-do list, Reminders, Modules, Calendar link and Send to your phone used to be rows here. They're still in the app: the to-do list from *Plan Today* on Home, Reminders from the menu, Modules under the Planner's switch (and in Settings), and the calendar link and *Send to phone* in Settings.
 
 ## What it needs
 
@@ -31,5 +28,5 @@ Nothing.
 
 ## How to check it works
 
-1. Run `python build.py serve --test` and tap **More**. Tap each row.
+1. Run `python build.py serve --test` and tap **More**: one card, Campus card. Tap it: the campus card opens.
 2. Run `python build.py test`.

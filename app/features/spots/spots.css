@@ -1,0 +1,34 @@
+/* Spots: a card for each kind of place, with a name and a short line, and a dark bar along the
+   bottom (the same style as the cards on More). A card's bar can show a photo, fading into the
+   dark from the left. */
+.spot-cards { display: grid; gap: 12px; padding-bottom: 16px; }
+.spot-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--shape);
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.spot-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.spot-card-text { display: flex; flex-direction: column; gap: 2px; padding: 14px 16px 12px; }
+.spot-card-text b { font-size: 17px; font-weight: 600; }
+.spot-card-text span { font-size: 13px; color: var(--muted); }
+.spot-card-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 56px;
+  padding: 0 14px 0 16px;
+  font-size: 13px;
+  color: var(--on-top-muted);
+  background: linear-gradient(to right, var(--top) 15%, transparent 85%), var(--photo, none) center / cover, var(--top-2);
+}
+.spot-card-bar svg { width: 20px; height: 20px; color: var(--on-top); }

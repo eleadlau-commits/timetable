@@ -9,7 +9,7 @@ Sessions are grouped into modules by their code, e.g. ECON1011. For each module 
 - **Rules for sessions:** names (`session.name`), colours (`session.colour`) and hiding (`session.filter`). Hidden sessions show as "2 hidden sessions · Manage modules".
 - **Buttons:** "Colour, name or hide this module" in session details, and "Modules: colours, names and hiding" in Settings.
 - **Windows:** the modules list and the module editor.
-- **On the More tab** (`more.items`): a Modules row that opens the list, once there's a timetable.
+- **Under the Planner's switch** (`planner.buttons`): a **Modules: colours and names** button that opens the list, once there's a timetable.
 
 **Requires:** sessions.
 
