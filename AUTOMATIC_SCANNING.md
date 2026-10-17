@@ -1,5 +1,7 @@
 # Automatic photograph scanning
 
+**Historical report for `1e8eb002`. Its one-second PNG loop has been replaced. See [FAST_SCANNER_REPAIR.md](FAST_SCANNER_REPAIR.md) for current direct-pixel scanning, verified resolution negotiation and comparative measurements.**
+
 Opening **Scan barcode** now starts one automatic native-frame → lossless PNG → `decodePhoto()` loop. There is no Capture barcode button, capture loading state, button-specific error, parallel direct-frame decoder or repeated `ImageCapture.takePhoto()` call. Photo import, manual number entry, verified generation, preview/save, persistence and full-screen display remain available.
 
 ## Investigation: confirmed versus suspected

@@ -1,6 +1,13 @@
 import { BARCODE_FORMATS, CREATABLE_BARCODE_FORMATS } from 'zxing-wasm';
 
 export type BarcodeDiagnostic = {
+  recognition?:'No candidate detected'|'Candidate unreadable'|'Rejected by validation'|'Telepen ambiguity'|'Valid barcode recognised'|'Capture or processing failure';
+  scanningActive?:boolean;
+  resolutionProbe?:string;
+  framesCaptured?:number;
+  captureAverageMs?:number;
+  captureMaxMs?:number;
+  framesRejected?:boolean;
   scan: 'Not started' | 'Scanning' | 'Succeeded' | 'No barcode detected yet' | 'Failed';
   format: string; variant: string;
   canGenerate: boolean | null;

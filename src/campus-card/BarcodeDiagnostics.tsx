@@ -7,6 +7,10 @@ export default function BarcodeDiagnostics() {
     <summary>Barcode diagnostics · development only</summary>
     <dl>
       <dt>Scanning</dt><dd>{diagnostic.scan}</dd>
+      <dt>Scanning active</dt><dd>{diagnostic.scanningActive?'Yes':'No'}</dd>
+      <dt>Recognition status</dt><dd>{diagnostic.recognition??'Pending'}</dd>
+      <dt>Latest frame rejected</dt><dd>{diagnostic.framesRejected?'Yes':'No'}</dd>
+      {diagnostic.resolutionProbe&&<><dt>Resolution negotiation</dt><dd>{diagnostic.resolutionProbe}</dd></>}
       <dt>Detected format</dt><dd>{diagnostic.format}</dd>
       <dt>Detected variant (AIM)</dt><dd>{diagnostic.variant}</dd>
       <dt>Library can generate format</dt><dd>{diagnostic.canGenerate === null ? 'Unknown' : diagnostic.canGenerate ? 'Yes' : 'No'}</dd>
@@ -32,6 +36,8 @@ export default function BarcodeDiagnostics() {
       {diagnostic.captureStatus && <>
         <dt>Automatic photo scan</dt><dd>{diagnostic.captureStatus}</dd>
         <dt>Captures attempted</dt><dd>{diagnostic.captureAttempts??0}</dd>
+        <dt>Frames captured</dt><dd>{diagnostic.framesCaptured??0}</dd>
+        <dt>Capture time average / maximum</dt><dd>{(diagnostic.captureAverageMs??0).toFixed(1)} / {(diagnostic.captureMaxMs??0).toFixed(1)} ms</dd>
         <dt>Actual scanning frequency</dt><dd>{diagnostic.scanFrequency===undefined?'Measuring':`${diagnostic.scanFrequency.toFixed(2)} Hz`}</dd>
         <dt>Frame capture time</dt><dd>{diagnostic.captureTimeMs===undefined?'Pending':`${diagnostic.captureTimeMs.toFixed(1)} ms`}</dd>
         <dt>Capture method</dt><dd>{diagnostic.captureMethod??'Pending'}</dd>

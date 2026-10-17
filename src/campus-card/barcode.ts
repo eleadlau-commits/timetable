@@ -18,26 +18,36 @@ export async function decodeBarcode(input: Blob | ImageData, source: 'scan' | 'p
   let results: ReadResult[];
   try { results = await readBarcodes(input, { tryHarder: true, tryRotate: true, tryInvert: true, maxNumberOfSymbols: 4, textMode: 'Plain' }); }
   catch {
-    reportDiagnostic({ scan: 'Failed', stage: 'Decoder', reason: 'The decoder could not process the image/frame. No successful decode is available.' });
+    reportDiagnostic({recognition:'Capture or processing failure',framesRejected:true, scan: 'Failed', stage: 'Decoder', reason: 'The decoder could not process the image/frame. No successful decode is available.' });
     throw new BarcodeProcessingError('The barcode reader could not process this image. Retry scanning or import another photo.');
   }
-  if (!results.length) { reportDiagnostic({ scan: 'No barcode detected yet', stage: 'Decoder', telepenCandidate:'Not detected', reason: 'No barcode decoded in this image/frame.' }); return null; }
+  if (!results.length) { reportDiagnostic({recognition:'No candidate detected',framesRejected:false, scan: 'No barcode detected yet', stage: 'Decoder', telepenCandidate:'Not detected', reason: 'No candidate returned. An unreadable symbol may also produce no result.' }); return null; }
   const accepted: Card[] = [];
   for (const result of results) {
     const metadata = detectionMetadata(result.format, result.symbologyIdentifier);
     reportDiagnostic({ ...metadata, scan: result.isValid && !result.error ? 'Succeeded' : 'Failed', stage: 'Validation', generation: 'Not attempted', telepenCandidate:result.format.startsWith('Telepen')?'Detected':'Not detected' });
     try { accepted.push(cardFromResult(result, source)); }
-    catch (error) { reportDiagnostic({ telepenCandidate:result.format.startsWith('Telepen')?'Rejected':'Not detected', reason: !metadata.canGenerate ? 'The decoder recognised this format, but the installed writer cannot generate it. No generation was attempted.' : error instanceof CardValidationError ? error.message : 'Unexpected validation failure. Payload details are hidden.' }); }
+    catch (error) { reportDiagnostic({recognition:result.isValid&&!result.error?'Rejected by validation':'Candidate unreadable',framesRejected:true, telepenCandidate:result.format.startsWith('Telepen')?'Rejected':'Not detected', reason: !metadata.canGenerate ? 'The decoder recognised this format, but the installed writer cannot generate it. No generation was attempted.' : error instanceof CardValidationError ? error.message : 'Unexpected validation failure. Payload details are hidden.' }); }
   }
   const unique = accepted.filter((c, i) => accepted.findIndex(x => x.value === c.value && x.format === c.format) === i);
   if (unique.length !== 1) {
-    if (unique.length) reportDiagnostic({ stage: 'Validation', reason: 'Multiple different accepted barcodes were decoded. Crop to one barcode.' });
+    if (unique.length) reportDiagnostic({recognition:'Rejected by validation',framesRejected:true, stage: 'Validation', reason: 'Multiple different accepted barcodes were decoded. Crop to one barcode.' });
     throw new BarcodeProcessingError(unique.length ? 'More than one barcode decoded. Crop the photo to your card barcode.' : results.some(result => result.isValid && !result.error) ? 'Barcode decoded, but this format or variant cannot be reproduced safely by this app.' : 'A barcode was detected, but its checksum could not be verified.');
   }
-  reportDiagnostic({ ...detectionMetadata(unique[0].format, unique[0].symbologyIdentifier), scan: 'Succeeded', stage: 'Validation', telepenCandidate:unique[0].format.startsWith('Telepen')?'Accepted':'Not detected', reason: 'Validation passed. Generation has not been attempted.' });
+  reportDiagnostic({recognition:'Valid barcode recognised',framesRejected:false, ...detectionMetadata(unique[0].format, unique[0].symbologyIdentifier), scan: 'Succeeded', stage: 'Validation', telepenCandidate:unique[0].format.startsWith('Telepen')?'Accepted':'Not detected', reason: 'Validation passed. Generation has not been attempted.' });
   return unique[0];
 }
-export async function decodePhoto(file: Blob, captureMethod?:CaptureMethod, isCancelled?:()=>boolean, automatic?:{onDecode?:()=>void;validateResult?:(image:ImageData,card:Card)=>Promise<Card>}): Promise<Card> {
+type PixelOptions={isCancelled?:()=>boolean;onDecode?:()=>void;validateResult?:(image:ImageData,card:Card)=>Promise<Card>};
+// Shared native pixels: identical reader options and validation for files and video.
+export async function decodePixels(pixels:ImageData,source:'scan'|'photo'='scan',options?:PixelOptions):Promise<Card|null>{
+  if(options?.isCancelled?.())return null;
+  options?.onDecode?.();
+  let card=await decodeBarcode(pixels,source);
+  if(options?.isCancelled?.())return null;
+  if(card&&options?.validateResult)card=await options.validateResult(pixels,card);
+  return card;
+}
+export async function decodePhoto(file: Blob, captureMethod?:CaptureMethod, isCancelled?:()=>boolean, automatic?:PixelOptions): Promise<Card> {
   if(!captureMethod)beginDiagnostic();
   if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureMethod,captureStatus:'Opening image',captureDecoderInvoked:false,photoPipelineInvoked:true});
   if (file.size > 25 * 1024 * 1024) { reportDiagnostic({ scan: 'Failed', stage: 'Decoder', reason: 'The photo exceeds the supported file size.' }); throw new Error('Choose a photo smaller than 25 MB.'); }
@@ -53,11 +63,9 @@ export async function decodePhoto(file: Blob, captureMethod?:CaptureMethod, isCa
     ctx.drawImage(bitmap, 0, 0);
     if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureFrame:`${bitmap.width} × ${bitmap.height}`,captureDecoderInvoked:true,captureStatus:'Decoding'});
     const pixels=ctx.getImageData(0, 0, canvas.width, canvas.height);
-    automatic?.onDecode?.();
-    let card = await decodeBarcode(pixels, 'photo');
+    const card = await decodePixels(pixels,'photo',{...automatic,isCancelled});
     if (!card) throw new Error('No readable barcode found. Try a sharp, well-lit photo cropped around the barcode.');
     if(isCancelled?.())throw new Error('Capture cancelled.');
-    if(automatic?.validateResult)card=await automatic.validateResult(pixels,card);
     if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureStatus:'Succeeded',captureFormat:card.format,captureVariant:card.symbologyIdentifier,captureReason:'None'});
     return card;
   } finally { bitmap.close(); canvas.width = canvas.height = 0; }
