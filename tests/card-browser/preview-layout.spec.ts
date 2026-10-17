@@ -20,7 +20,7 @@ for(const [name,width,height] of [['portrait',720,1280],['landscape',1280,720],[
     expect(Math.abs(dimensions.frame.width/dimensions.frame.height-1.586)).toBeLessThan(.01);expect(dimensions.frame.height).toBeLessThan(240);
     expect(Math.abs(dimensions.image.width-dimensions.frame.width)).toBeLessThan(1);expect(Math.abs(dimensions.image.height-dimensions.frame.height)).toBeLessThan(1);
     const {frame,guide}=dimensions;expect(guide.x).toBeGreaterThan(frame.x);expect(guide.y).toBeGreaterThan(frame.y);
-    expect(Math.abs(guide.width/guide.height-5)).toBeLessThan(.01);expect(guide.width/frame.width).toBeCloseTo(.8,2);expect(guide.height/frame.height).toBeCloseTo(.254,2);
+    expect(Math.abs(guide.width/guide.height-1.586)).toBeLessThan(.01);expect(guide.width/frame.width).toBeCloseTo(.92,2);
     expect(guide.x+guide.width).toBeLessThan(frame.x+frame.width);expect(guide.y+guide.height).toBeLessThan(frame.y+frame.height);
     expect(Math.abs(guide.x+guide.width/2-frame.x-frame.width/2)).toBeLessThan(1);expect(Math.abs(guide.y+guide.height/2-frame.y-frame.height/2)).toBeLessThan(1);
     // Sample actual displayed pixels at both sides, outside the guide. The source
