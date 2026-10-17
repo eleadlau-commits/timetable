@@ -34,7 +34,7 @@ try {
   const page = await browser.newPage();
   const errors = []; page.on('pageerror', e => errors.push(e.message));
   await page.goto(httpsURL);
-  await page.getByRole('heading', { name: 'Campus Card', exact: true }).waitFor();
+  await page.getByRole('button', { name: 'Scan barcode', exact: true }).waitFor();
   assert.equal(await page.evaluate(() => isSecureContext), true);
   await page.getByRole('button', { name: 'Scan barcode', exact: true }).click();
   await page.waitForFunction(() => document.querySelector('video')?.videoWidth > 0);

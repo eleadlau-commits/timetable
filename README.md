@@ -2,6 +2,10 @@
 
 This folder runs Campus Card independently. No Docker, journey backend, external account or paid service is required. The copied planner files are unused by the app; the separate Journey planner project has not been modified.
 
+The default iPhone interface shows only **Scan barcode** when empty, or the saved barcode with **Scan barcode** directly beneath it. Scans pass the existing generation and exact round-trip checks before being saved automatically. Cancellation, verification failure and failed replacement saves retain the previous credential. The number is not displayed. The main screen hides manual entry, photo import, preview confirmation, full screen and delete controls; their implementations remain available internally. Development diagnostics are collapsed below the main viewport and omitted in production. Browser storage remains development-only encrypted storage with the limitations documented below.
+
+The working scanner baseline is `5b957587`, explicitly restored in a separate commit. The subsequent wallet redesign changes presentation and post-validation save orchestration only. Scanner, capture, decoder, model, encoder, storage and the React `Scanner` component remain identical to that baseline. Native capture controls inside the existing scanning interface are preserved.
+
 ## Start and stop on your computer
 
 Node.js v24.11.1 and npm 11.6.2 were detected. Dependencies are installed.
@@ -75,7 +79,7 @@ npm.cmd run test:local
 Verified on 15 October 2026:
 
 - 33 unit tests cover existing behavior and privacy-safe camera telemetry.
-- 45 standalone browser tests cover user-triggered still capture, live/photo parity, quiet-zone preservation, camera processing, direct manual entry, supported-format scanning, persistence and mobile display regressions. See STILL_CAPTURE.md for the capture button, LIVE_CAMERA_INVESTIGATION.md for the 17 October investigation, DURHAM_BARCODE_FINDINGS.md for barcode identification, SCANNER_REPAIR.md for the frame-delivery repair, and SCANNER_PERFORMANCE.md for the earlier performance investigation. Physical-card scanning still requires user verification.
+- 55 standalone browser tests cover the minimal wallet, automatic validated saving, safe replacement/cancellation/failures, reload, native capture, live/photo parity, quiet zones, supported formats and mobile display. The 45 original workflow/scanner tests run through a test-only entry-point fixture that enables the retained complete presentation; 10 additional tests use the normal minimal interface. No runtime query option exposes the old controls. See STILL_CAPTURE.md for the unchanged capture button, LIVE_CAMERA_INVESTIGATION.md for the investigation, and DURHAM_BARCODE_FINDINGS.md for barcode identification. Safari safe areas, Home Screen layout and physical scanning still require device checks.
 - HTTP and HTTPS returned the app; HTTPS certificate chain and IP hostname validation passed using the generated CA.
 - Private-key and stop-token files are blocked by Vite; the HTTP certificate helper returned 404 for private files.
 - An HTTPS Chromium smoke test passed secure-context checks, real browser getUserMedia with a synthetic camera device, live video preview and camera cancellation/track cleanup. Its test process pins only this development certificate's public key; no global browser/OS trust was changed.

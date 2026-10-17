@@ -56,7 +56,7 @@ function Scanner({ onCard, onError, onClose }: { onCard: (c: Card) => void; onEr
   return <><div className="camera-preview"><video ref={video} muted playsInline autoPlay onClick={e => void focus(e.clientX,e.clientY)}/><div className="scan-guide" aria-hidden="true"/></div><button className="primary-card-button" disabled={!tools || capturing} onClick={async () => { if (!tools || capturing) return; setCapturing(true); setCaptureError(''); try { await tools.captureBarcode(); } catch { setCaptureError('Barcode not recognised. Try again.'); } finally { setCapturing(false); } }}>{capturing ? 'Capturing barcode...' : 'Capture barcode'}</button>{captureError && <p role="alert">{captureError}</p>}<p role="status" aria-live="polite">{hint}</p>{tools?.focusAvailable && <p>Tap the barcode to focus.</p>}{tools?.torchAvailable && <button type="button" aria-pressed={torch} onClick={async () => { if (await tools.setTorch(!torch)) setTorch(!torch); else setHint('Torch unavailable. Try brighter, even lighting.'); }}>{torch ? 'Turn off torch' : 'Turn on torch'}</button>}{devices.length > 1 && <label>Camera<select aria-label="Camera" value={deviceId} onChange={e => setDeviceId(e.target.value)}><option value="">Automatic rear camera</option>{devices.map((d, i) => <option key={d.deviceId} value={d.deviceId}>{d.label || `Camera ${i + 1}`}</option>)}</select></label>}<button onClick={onClose}>Cancel scan</button></>;
 }
 
-export default function CampusCard({ storage = cardStorage }: { storage?: CardStorage }) {
+export default function CampusCard({ storage = cardStorage, showLegacyControls = false }: { storage?: CardStorage; showLegacyControls?: boolean }) {
   const [card, setCard] = useState<Card | null>(null);
   const [candidate, setCandidate] = useState<Card | null>(null);
   const [mode, setMode] = useState<'view' | 'setup' | 'scan' | 'manual'>('view');
@@ -81,7 +81,14 @@ export default function CampusCard({ storage = cardStorage }: { storage?: CardSt
   useEffect(() => { if (fullscreen) fullDialog.current?.showModal(); else fullDialog.current?.close(); }, [fullscreen]);
   async function scanned(c: Card) {
     setMode('view'); setBusy(true); setError('');
-    try { await verifyBarcode(c); setCandidate(c); } catch { setError('This barcode could not be reproduced accurately. Please use your physical card.'); }
+    try {
+      await verifyBarcode(c);
+      setCandidate(c);
+      if (!showLegacyControls) {
+        try { await storage.save(c); setCard(c); setVerified(c); setCandidate(null); setDigits(''); }
+        catch { setError('Could not save the card. Your previous card has been kept.'); }
+      }
+    } catch { setError('This barcode could not be reproduced accurately. Please use your physical card.'); }
     finally { setBusy(false); }
   }
   async function save() {
@@ -112,14 +119,19 @@ export default function CampusCard({ storage = cardStorage }: { storage?: CardSt
     } catch (e) { setError(e instanceof Error ? e.message : 'Could not read this photo. Try another image.'); }
     finally { setBusy(false); }
   }
-  return <section className="campus-card" aria-label="Campus Card">
-    <h1>Campus Card</h1>
+  return <section className={`campus-card${showLegacyControls ? '' : ' wallet'}`} aria-label="Campus Card">
+    {showLegacyControls && <h1>Campus Card</h1>}
+    <div className={showLegacyControls ? undefined : 'wallet-content'}>
     {error && <p role="alert" className="card-error">{error}</p>}
     {busy && <p role="status">Checking card…</p>}
     {!loaded && !busy && <><button onClick={() => void load()}>Retry loading card</button><button onClick={() => setConfirmation('delete')}>Delete local card</button></>}
-    <input ref={photoInput} className="photo-input" type="file" accept="image/*" aria-label="Barcode photograph" onChange={e => { const file = e.target.files?.[0]; e.target.value = ''; if (file) void importPhoto(file); }}/>
+    <input ref={photoInput} hidden={!showLegacyControls} className="photo-input" type="file" accept="image/*" aria-label="Barcode photograph" onChange={e => { const file = e.target.files?.[0]; e.target.value = ''; if (file) void importPhoto(file); }}/>
     {loaded && !busy && <>
-      {mode === 'scan' ? <><Scanner onCard={c => void scanned(c)} onError={scanError} onClose={closeScan}/><button onClick={() => { setMode('setup'); photoInput.current?.click(); }}>Import barcode photo</button></> : mode === 'manual' ? <form onSubmit={e => { e.preventDefault(); try { const c = manualCard(digits, verified); void scanned(c); } catch (e) { setError((e as Error).message); } }}>
+      {mode === 'scan' ? <><Scanner onCard={c => void scanned(c)} onError={scanError} onClose={closeScan}/>{showLegacyControls && <button onClick={() => { setMode('setup'); photoInput.current?.click(); }}>Import barcode photo</button>}</> : !showLegacyControls ? <div className="wallet-main">
+        {card && <div className="barcode-panel wallet-barcode"><Barcode card={card}/></div>}
+        <button className="primary-card-button" onClick={() => { setCandidate(null); setError(''); setMode('scan'); }}>Scan barcode</button>
+        {candidate && error && <button onClick={() => void save()}>Retry saving card</button>}
+      </div> : mode === 'manual' ? <form onSubmit={e => { e.preventDefault(); try { const c = manualCard(digits, verified); void scanned(c); } catch (e) { setError((e as Error).message); } }}>
         <label htmlFor="barcode-number">Number underneath the barcode</label>
         <input id="barcode-number" type="text" inputMode="numeric" autoComplete="off" spellCheck={false} value={digits} onChange={e => { setDigits(e.target.value); setError(''); }}/>
         <p>Use the number underneath the barcode, rather than your student ID.</p>
@@ -144,6 +156,7 @@ export default function CampusCard({ storage = cardStorage }: { storage?: CardSt
         {card && <button onClick={() => setMode('view')}>Back to saved card</button>}
       </>}
     </>}
+    </div>
     <dialog ref={dialog} className="card-confirm" onCancel={() => setConfirmation(null)} onClose={() => setConfirmation(null)}>
       <h2>{confirmation === 'delete' ? 'Delete saved card?' : 'Replace saved card?'}</h2>
       <p>{confirmation === 'delete' ? 'This removes the credential from this device.' : 'Your current card will be replaced after the new card is saved.'}</p>
@@ -155,7 +168,7 @@ export default function CampusCard({ storage = cardStorage }: { storage?: CardSt
       <button onClick={() => setFullscreen(false)}>Back to campus card</button>
       <p>Increase screen brightness in Control Centre if needed.</p>
     </dialog>
-    {import.meta.env.DEV && <BarcodeDiagnostics/>}
-    {!Capacitor.isNativePlatform() && <details className="storage-note"><summary>Browser development storage</summary><p>Saved on this browser using encryption. Same-origin scripts can still access it; this is not production Keychain security. Clearing site data deletes your card.</p></details>}
+    {import.meta.env.DEV && <BarcodeDiagnostics expanded={showLegacyControls}/>}
+    {showLegacyControls && !Capacitor.isNativePlatform() && <details className="storage-note"><summary>Browser development storage</summary><p>Saved on this browser using encryption. Same-origin scripts can still access it; this is not production Keychain security. Clearing site data deletes your card.</p></details>}
   </section>;
 }

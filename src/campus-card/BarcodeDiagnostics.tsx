@@ -1,9 +1,9 @@
 import { useSyncExternalStore } from 'react';
 import { diagnosticSnapshot, subscribeDiagnostics } from './diagnostics';
 
-export default function BarcodeDiagnostics() {
+export default function BarcodeDiagnostics({expanded=false}:{expanded?:boolean}) {
   const diagnostic = useSyncExternalStore(subscribeDiagnostics, diagnosticSnapshot, diagnosticSnapshot);
-  return <details open className="storage-note barcode-diagnostics" aria-label="Barcode diagnostics">
+  return <details open={expanded} className="storage-note barcode-diagnostics" aria-label="Barcode diagnostics">
     <summary>Barcode diagnostics · development only</summary>
     <dl>
       <dt>Scanning</dt><dd>{diagnostic.scan}</dd>

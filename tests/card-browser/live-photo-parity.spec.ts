@@ -1,4 +1,4 @@
-import {test,expect} from '@playwright/test';
+import {test,expect} from './legacy-ui.fixture';
 import {readFileSync} from 'node:fs';
 import {prepareZXingModule,writeBarcode} from 'zxing-wasm';
 prepareZXingModule({overrides:{wasmBinary:readFileSync('node_modules/zxing-wasm/dist/full/zxing_full.wasm'),print:()=>{},printErr:()=>{}}});
