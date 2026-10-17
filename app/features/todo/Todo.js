@@ -1,6 +1,5 @@
 // To-do list: a list of things to do, with tags and due dates. A big "Plan Today" button under
-// the clock on Home, with how many things are due today inside it (and a "To-do list" row on the More
-// tab) opens it in a pop-up:
+// the clock on Home, with how many things are due today inside it, opens it in a pop-up:
 //   - at the top, the to-dos due today that aren't ticked yet
 //   - tags along the top to filter by (All, Academic, Society, and any you add), which can be
 //     added, renamed and deleted; deleting a tag keeps its to-dos, just without a tag
@@ -31,18 +30,6 @@ export default class Todo extends Feature {
       render: () => el('button', { type: 'button', class: 'home-button todo-open', onclick: () => this.open() },
         el('span', {}, el('b', {}, 'Plan Today'), el('small', {}, dueTodayText(dueToday(this.items).length))),
         ui.icon('right')),
-    });
-    this.add('more.items', {
-      id: 'todo',
-      group: 'On the go',
-      label: 'To-do list',
-      icon: 'check',
-      order: 5,
-      detail: () => {
-        const left = this.items.filter((item) => !item.done).length;
-        return left ? `${left} to do` : 'Nothing to do';
-      },
-      onClick: () => this.open(),
     });
   }
 

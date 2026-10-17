@@ -1,5 +1,6 @@
-/* Library cards. Green for plenty of seats, orange for fairly busy, red for busy or full. */
-.lib-home, .lib-card {
+/* Library: a small folded bar on Home and Study, and the floors in a pop-up. Green for plenty
+   of seats, orange for fairly busy, red for busy or full. */
+.lib-home {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -11,7 +12,8 @@
   font: inherit;
   text-align: left;
 }
-.lib-home { cursor: pointer; }
+.lib-home { width: 100%; cursor: pointer; }
+.lib-detail { display: flex; flex-direction: column; gap: 12px; }
 .lib-home:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .lib-missing { width: 100%; }
 
@@ -40,7 +42,7 @@
 .lib-dot { width: 10px; height: 10px; flex: none; margin-left: -4px; border-radius: 50%; background: var(--lib-colour); }
 .lib-rest { flex: 1; height: 0; margin-left: 4px; border-top: 3px dotted var(--free-line); }
 
-/* Floors on the Study tab */
+/* Floors, in the pop-up */
 .lib-floor { padding-top: 8px; border-top: 1px solid var(--line); }
 .lib-row { display: grid; grid-template-columns: 64px 1fr 72px; align-items: center; gap: 10px; font-size: 13px; }
 .lib-row b { font-weight: 600; }
@@ -55,6 +57,6 @@
 .lib-status { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .lib-status .hint.small { margin: 0; }
 .lib-check { width: 32px; height: 32px; flex: none; }
-.lib-card a { color: var(--accent); font-size: 14px; }
+.lib-detail a { color: var(--accent); font-size: 14px; }
 
 .lib-setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; }

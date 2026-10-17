@@ -32,17 +32,6 @@ export default class LinkSharing extends Feature {
       render: (context) => el('button', { type: 'button', class: 'btn', onclick: () => this.showQR(context.link()) }, 'Send to phone'),
     });
 
-    this.add('more.items', {
-      id: 'link-sharing',
-      group: 'Your timetable',
-      label: 'Send to your phone',
-      icon: 'qr',
-      order: 30,
-      detail: () => 'A QR code with your timetable link',
-      visible: () => !!this.timetable.url,
-      onClick: () => this.showQR(this.timetable.url),
-    });
-
     this.takeIncoming();
   }
 

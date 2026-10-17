@@ -24,15 +24,10 @@ export default class Modules extends Feature {
       order: 90,
       render: (s) => el('button', { type: 'button', class: 'btn', onclick: () => this.openEditor(moduleOf(s)) }, 'Colour, name or hide this module'),
     });
-    this.add('more.items', {
-      id: 'modules',
-      group: 'Your timetable',
-      label: 'Modules',
-      icon: 'palette',
+    this.add('planner.buttons', {
       order: 10,
-      detail: () => 'Rename, recolour or hide',
-      visible: () => this.sessions.all.length > 0,
-      onClick: () => this.openList(),
+      render: () => this.sessions.all.length > 0
+        && el('button', { type: 'button', class: 'btn small', onclick: () => this.openList() }, ui.icon('palette'), 'Modules: colours and names'),
     });
     this.add('settings', {
       id: 'modules',

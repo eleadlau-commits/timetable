@@ -21,9 +21,7 @@ export default class CampusCard extends Feature {
     this.add('home.side', { order: 10, render: () => this.homeCard() });
     this.add('more.items', {
       id: 'campus-card',
-      group: 'On the go',
       label: 'Campus card',
-      icon: 'card',
       order: 10,
       detail: () => (this.card ? 'Show your barcode for scanning' : 'Scan your card to keep it on your phone'),
       onClick: () => this.openWindow(),

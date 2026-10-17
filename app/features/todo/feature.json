@@ -1,8 +1,8 @@
 {
   "name": "To-do list",
-  "description": "A to-do list with tags and due dates, opened from Home or More. Saved on this phone only.",
+  "description": "A to-do list with tags and due dates, opened from Home. Saved on this phone only.",
   "version": "1.0.0",
   "main": "Todo.js",
   "styles": ["todo.css"],
-  "uses": ["home", "more"]
+  "uses": ["home"]
 }

@@ -1,8 +1,9 @@
-// More: the tab with everything else. Other features add rows, in groups such as
-// "On the go" or "Your timetable". Tapping a row does what the feature says.
+// More: the tab with everything else. Other features add cards to it, such as the campus card.
+// Each card has its name and a short line at the top and a dark bar along the bottom, the same
+// style as the cards on Spots. The bar can show a photo later (`photo`), fading into the dark.
 //
-// Slot 'more.items': rows on the More tab.
-//   Item: { id, label, icon, order, group?, detail?() → short text, onClick(), visible?() }
+// Slot 'more.items': cards on the More tab.
+//   Item: { id, label, order, detail?() → short text, photo?, onClick(), visible?() }
 //
 // Saved data: none.
 
@@ -13,7 +14,7 @@ const { el } = ui;
 export default class More extends Feature {
   start() {
     this.defineSlot('more.items',
-      'Rows on the More tab. Item: { id, label, icon, order, group?, detail?() → short text, onClick(), visible?() }.');
+      'Cards on the More tab. Item: { id, label, order, detail?() → short text, photo? (an image address for the bar), onClick(), visible?() }.');
     this.add('views', {
       id: 'more',
       label: 'More',
@@ -21,7 +22,7 @@ export default class More extends Feature {
       order: 50,
       subtitle: () => 'Everything else',
       mount: (container) => {
-        this.box = el('div', { class: 'more-groups' });
+        this.box = el('div', { class: 'more-cards' });
         container.append(this.box);
       },
       render: () => this.render(),
@@ -30,24 +31,16 @@ export default class More extends Feature {
 
   render() {
     const slot = this.slot('more.items');
-    const groups = new Map(); // group name → rows, in the order of the first row of each group
-    for (const item of slot.items) {
-      if (!slot.run(item, (x) => (x.visible ? x.visible() : true), false)) continue;
-      const name = item.group || 'Other';
-      if (!groups.has(name)) groups.set(name, []);
-      groups.get(name).push(el('li', {},
-        el('button', { type: 'button', class: 'more-row', onclick: () => slot.run(item, (x) => x.onClick()) },
-          el('span', { class: 'more-icon' }, ui.icon(item.icon || 'plus')),
-          el('span', { class: 'more-text' },
-            el('b', {}, item.label),
-            el('span', {}, slot.run(item, (x) => x.detail?.(), '') || '')),
-          el('span', { class: 'more-chevron' }, ui.icon('right')))));
-    }
-    if (!groups.size) {
-      this.box.replaceChildren(ui.missing('Nothing to show here yet.'));
-      return;
-    }
-    this.box.replaceChildren(...[...groups].map(([name, rows]) =>
-      el('section', { class: 'more-group' }, el('h2', {}, name), el('ul', {}, rows))));
+    const cards = slot.items
+      .filter((item) => slot.run(item, (x) => (x.visible ? x.visible() : true), false))
+      .map((item) => el('button', { type: 'button', class: 'more-card', onclick: () => slot.run(item, (x) => x.onClick()) },
+        el('span', { class: 'more-card-text' },
+          el('b', {}, item.label),
+          el('span', {}, slot.run(item, (x) => x.detail?.(), '') || '')),
+        el('span', {
+          class: 'more-card-bar',
+          style: item.photo ? `--photo: url("${encodeURI(item.photo)}")` : null,
+        }, ui.icon('right'))));
+    this.box.replaceChildren(...(cards.length ? cards : [ui.missing('Nothing to show here yet.')]));
   }
 }

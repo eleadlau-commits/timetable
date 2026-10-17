@@ -4,10 +4,11 @@ How busy Bill Bryson Library is right now, with free seats on each floor. It rea
 
 ## What it adds
 
-- **A card on Home** (`home.top`): *Library*, how busy it is (*Plenty of seats*, *Fairly busy*, *Busy*, *Full*, the same bands as the library's page; green, orange, then red for busy and full), the free seats, and a bar that fills up as the library fills up, with a dotted line for the free part. Tap it to open the Study tab. When there are no numbers yet it shows **Missing content** with the reason (for example, that the web version needs the relay).
-- **A card on the Study tab** (`study.cards`): the same, plus free seats on each floor with a small bar, the areas of floors that have more than one (e.g. `North 52 · East 1`), when it was last checked, a refresh button and a link to the library's page.
-- **Updates:** every 5 minutes while a card is on screen, or with the refresh button. The last reading is kept, so the cards show something straight away and while offline.
-- **Settings → Library:** a switch to hide the cards.
+- **A small folded bar on Home** (`home.top`): *Library*, how busy it is (*Plenty of seats*, *Fairly busy*, *Busy*, *Full*, the same bands as the library's page; green, orange, then red for busy and full), the free seats, and a bar that fills up as the library fills up, with a dotted line for the free part. Tap it to open the pop-up below. When there are no numbers yet it shows **Missing content** with the reason (for example, that the web version needs the relay).
+- **The same folded bar on the Study tab** (`study.cards`), called *Bill Bryson Library*.
+- **A full-screen pop-up** when either bar is tapped: how busy it is, free seats on each floor with a small bar, the areas of floors that have more than one (e.g. `North 52 · East 1`), when it was last checked, a refresh button and a link to the library's page.
+- **Updates:** every 5 minutes while the bar or pop-up is on screen, or with the refresh button. The last reading is kept, so the bars show something straight away and while offline.
+- **Settings → Library:** a switch to hide the bars.
 
 ## What it needs
 
@@ -27,6 +28,6 @@ How busy Bill Bryson Library is right now, with free seats on each floor. It rea
 
 ## How to check it works
 
-1. Run `python build.py serve --test`. The card is on Home; tap it for the Study tab.
+1. Run `python build.py serve --test`. The bar is on Home and on the Study tab; tap either to see each floor in a full-screen pop-up.
 2. In the web version the card will probably say the library's website is blocked, unless a relay is set up. In the Android app it shows the numbers.
 3. Run `python build.py test`.

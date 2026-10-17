@@ -8,7 +8,7 @@ This feature doesn't depend on the timetable at all, so it can be copied into an
 
 **What it adds:**
 - **On Home** (`home.side`): a narrow card with the barcode drawn down it and the number under it. Tap it to open the window (a small box, not full screen, so it's quick to show). Without a card it shows **Missing content: Tap to add your campus card**.
-- **On the More tab** (`more.items`): a Campus card row.
+- **On the More tab** (`more.items`): a Campus card card, the only one there.
 
 (It used to be in the menu too. Since the menu became a sliding panel, it's on Home and More only.)
 
