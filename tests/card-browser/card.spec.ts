@@ -180,7 +180,9 @@ test('unsupported barcode photo, unreadable photo and unsupported camera scan ar
   await expect(page.getByRole('alert')).toContainText('cannot be opened');
   await syntheticCamera(page, 'QRCode', 'SYNTHETIC-UNSUPPORTED');
   await page.getByRole('button', { name: 'Scan barcode', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('cannot be reproduced safely');
+  await expect(page.getByLabel('Barcode diagnostics',{exact:true})).toContainText('supported 1D');
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  await expect(page.locator('video')).toBeVisible();
 });
 
 test('storage failure keeps candidate for retry', async ({ page }) => {
@@ -253,7 +255,7 @@ test('valid unsupported format reports decoding success and writer capability se
   const payload = 'SYNTHETIC-DIAGNOSTIC-PRIVATE';
   await syntheticCamera(page, 'QRCode', payload);
   await page.getByRole('button', { name: 'Scan barcode', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('Barcode decoded');
+  await expect(page.getByRole('alert')).toHaveCount(0);
   const panel = page.getByLabel('Barcode diagnostics', { exact: true });
   await expect(panel).toContainText('QRCode'); await expect(panel).toContainText(']Q1');
   await expect(panel.locator('dt').filter({ hasText: /^Scanning$/ }).locator('xpath=following-sibling::dd[1]')).toHaveText('Succeeded');

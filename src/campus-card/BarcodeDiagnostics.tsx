@@ -18,6 +18,7 @@ export default function BarcodeDiagnostics() {
       {diagnostic.cameraTrack && <><dt>Reported stream resolution</dt><dd>{diagnostic.cameraTrack}</dd></>}
       {diagnostic.cameraFocus && <><dt>Reported focus mode</dt><dd>{diagnostic.cameraFocus}</dd></>}
       {diagnostic.cameraExposure && <><dt>Reported exposure mode</dt><dd>{diagnostic.cameraExposure}</dd></>}
+      {diagnostic.cameraCapabilities && <><dt>Advertised dimension ranges</dt><dd>{diagnostic.cameraCapabilities}</dd></>}
       {diagnostic.telepenCandidate && <><dt>Telepen candidate (latest frame)</dt><dd>{diagnostic.telepenCandidate}</dd></>}
       {diagnostic.processing && <><dt>Live processing</dt><dd>{diagnostic.processing}</dd></>}
       {diagnostic.performance && <>
@@ -29,10 +30,14 @@ export default function BarcodeDiagnostics() {
       </>}
       {diagnostic.telepenRejection && <><dt>Last Telepen ambiguity rejection</dt><dd>{diagnostic.telepenRejection}</dd></>}
       {diagnostic.captureStatus && <>
-        <dt>Still capture</dt><dd>{diagnostic.captureStatus}</dd>
+        <dt>Automatic photo scan</dt><dd>{diagnostic.captureStatus}</dd>
+        <dt>Captures attempted</dt><dd>{diagnostic.captureAttempts??0}</dd>
+        <dt>Actual scanning frequency</dt><dd>{diagnostic.scanFrequency===undefined?'Measuring':`${diagnostic.scanFrequency.toFixed(2)} Hz`}</dd>
+        <dt>Frame capture time</dt><dd>{diagnostic.captureTimeMs===undefined?'Pending':`${diagnostic.captureTimeMs.toFixed(1)} ms`}</dd>
         <dt>Capture method</dt><dd>{diagnostic.captureMethod??'Pending'}</dd>
         <dt>Captured dimensions</dt><dd>{diagnostic.captureFrame??'Not available'}</dd>
         <dt>Shared photo decoder invoked</dt><dd>{diagnostic.captureDecoderInvoked?'Yes':'No'}</dd>
+        <dt>decodePhoto() invoked</dt><dd>{diagnostic.photoPipelineInvoked?'Yes':'No'}</dd>
         <dt>Captured barcode format / variant</dt><dd>{diagnostic.captureFormat??'Not detected'} / {diagnostic.captureVariant??'Not detected'}</dd>
         <dt>Capture rejection reason</dt><dd>{diagnostic.captureReason??'None reported'}</dd>
       </>}

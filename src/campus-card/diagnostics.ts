@@ -12,6 +12,7 @@ export type BarcodeDiagnostic = {
   cameraTrack?: string;
   cameraFocus?: string;
   cameraExposure?: string;
+  cameraCapabilities?:string;
   telepenCandidate?: 'Not detected' | 'Detected' | 'Accepted' | 'Rejected';
   processing?: string;
   performance?: {frames:number;fps:number;averageMs:number;maxMs:number;attemptsPerFrame:number;maxAttempts:number;successes:number;failures:number;telepenRejections:number};
@@ -20,9 +21,13 @@ export type BarcodeDiagnostic = {
   captureStatus?:'Capturing'|'Opening image'|'Decoding'|'Succeeded'|'Failed';
   captureFrame?:string;
   captureDecoderInvoked?:boolean;
+  photoPipelineInvoked?:boolean;
   captureFormat?:string;
   captureVariant?:string;
   captureReason?:string;
+  captureAttempts?:number;
+  scanFrequency?:number;
+  captureTimeMs?:number;
 };
 const initial: BarcodeDiagnostic = { scan: 'Not started', format: 'Not detected', variant: 'Not detected', canGenerate: null, generation: 'Not attempted', stage: 'Decoder', reason: 'No scan attempted.' };
 let snapshot = initial;

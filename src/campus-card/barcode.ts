@@ -37,9 +37,9 @@ export async function decodeBarcode(input: Blob | ImageData, source: 'scan' | 'p
   reportDiagnostic({ ...detectionMetadata(unique[0].format, unique[0].symbologyIdentifier), scan: 'Succeeded', stage: 'Validation', telepenCandidate:unique[0].format.startsWith('Telepen')?'Accepted':'Not detected', reason: 'Validation passed. Generation has not been attempted.' });
   return unique[0];
 }
-export async function decodePhoto(file: Blob, captureMethod?:CaptureMethod, isCancelled?:()=>boolean): Promise<Card> {
-  beginDiagnostic();
-  if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureMethod,captureStatus:'Opening image',captureDecoderInvoked:false});
+export async function decodePhoto(file: Blob, captureMethod?:CaptureMethod, isCancelled?:()=>boolean, automatic?:{onDecode?:()=>void;validateResult?:(image:ImageData,card:Card)=>Promise<Card>}): Promise<Card> {
+  if(!captureMethod)beginDiagnostic();
+  if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureMethod,captureStatus:'Opening image',captureDecoderInvoked:false,photoPipelineInvoked:true});
   if (file.size > 25 * 1024 * 1024) { reportDiagnostic({ scan: 'Failed', stage: 'Decoder', reason: 'The photo exceeds the supported file size.' }); throw new Error('Choose a photo smaller than 25 MB.'); }
   // Browser image decoding avoids the WASM file decoder's format limitations.
   const bitmap = await createImageBitmap(file).catch(() => { reportDiagnostic({ scan: 'Failed', stage: 'Decoder', reason: 'The browser could not open the photo.' }); throw new Error('This photo cannot be opened. Try a JPEG or PNG image.'); });
@@ -52,8 +52,12 @@ export async function decodePhoto(file: Blob, captureMethod?:CaptureMethod, isCa
     const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
     ctx.drawImage(bitmap, 0, 0);
     if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureFrame:`${bitmap.width} × ${bitmap.height}`,captureDecoderInvoked:true,captureStatus:'Decoding'});
-    const card = await decodeBarcode(ctx.getImageData(0, 0, canvas.width, canvas.height), 'photo');
+    const pixels=ctx.getImageData(0, 0, canvas.width, canvas.height);
+    automatic?.onDecode?.();
+    let card = await decodeBarcode(pixels, 'photo');
     if (!card) throw new Error('No readable barcode found. Try a sharp, well-lit photo cropped around the barcode.');
+    if(isCancelled?.())throw new Error('Capture cancelled.');
+    if(automatic?.validateResult)card=await automatic.validateResult(pixels,card);
     if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureStatus:'Succeeded',captureFormat:card.format,captureVariant:card.symbologyIdentifier,captureReason:'None'});
     return card;
   } finally { bitmap.close(); canvas.width = canvas.height = 0; }

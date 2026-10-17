@@ -29,17 +29,11 @@ for(const sample of [
       const blob=await new Promise<Blob>(resolve=>canvas.toBlob(blob=>resolve(blob!),'image/png'));
       const photo=await(await import('/src/campus-card/barcode.ts')).decodePhoto(blob);
       setInterval(paint,100);
-      const capturedCanvases=new Set<HTMLCanvasElement>();
       (window as any).__captureSizes=[];
       const draw=CanvasRenderingContext2D.prototype.drawImage;
       CanvasRenderingContext2D.prototype.drawImage=function(...args:Parameters<typeof draw>){
-        if(args[0] instanceof HTMLVideoElement)capturedCanvases.add(this.canvas);
+        if(args[0] instanceof HTMLVideoElement)(window as any).__captureSizes.push([this.canvas.width,this.canvas.height,...args.slice(1)]);
         return draw.apply(this,args);
-      };
-      const get=CanvasRenderingContext2D.prototype.getImageData;
-      CanvasRenderingContext2D.prototype.getImageData=function(...args:Parameters<typeof get>){
-        if(capturedCanvases.has(this.canvas))(window as any).__captureSizes.push([this.canvas.width,this.canvas.height,...args.slice(0,4)]);
-        return get.apply(this,args);
       };
       Object.defineProperty(navigator.mediaDevices,'getUserMedia',{configurable:true,value:async()=>canvas.captureStream(10)});
       return {format:photo.format,value:photo.value,bytes:photo.bytes,variant:photo.symbologyIdentifier};
@@ -53,7 +47,7 @@ for(const sample of [
     if(sample.format==='TelepenNumeric')await expect(diagnostics.locator('dt').filter({hasText:'Telepen candidate (latest frame)'}).locator('+ dd')).toHaveText('Accepted');
     const captures=await page.evaluate(()=>(window as any).__captureSizes);
     expect(captures.length).toBeGreaterThan(0);
-    expect(captures.every((size:number[])=>JSON.stringify(size)===JSON.stringify([640,480,0,0,640,480]))).toBe(true);
+    expect(captures.every((size:number[])=>JSON.stringify(size)===JSON.stringify([640,480,0,0]))).toBe(true);
     await page.getByRole('button',{name:'Save card',exact:true}).click();
     const live=await page.evaluate(async()=>{
       const card=await(await import('/src/campus-card/storage.ts')).cardStorage.load();

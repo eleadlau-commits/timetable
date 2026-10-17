@@ -74,8 +74,8 @@ npm.cmd run test:local
 
 Verified on 15 October 2026:
 
-- 33 unit tests cover existing behavior and privacy-safe camera telemetry.
-- 45 standalone browser tests cover user-triggered still capture, live/photo parity, quiet-zone preservation, camera processing, direct manual entry, supported-format scanning, persistence and mobile display regressions. See STILL_CAPTURE.md for the capture button, LIVE_CAMERA_INVESTIGATION.md for the 17 October investigation, DURHAM_BARCODE_FINDINGS.md for barcode identification, SCANNER_REPAIR.md for the frame-delivery repair, and SCANNER_PERFORMANCE.md for the earlier performance investigation. Physical-card scanning still requires user verification.
+- 36 unit tests cover existing behavior, camera telemetry and adaptive automatic cadence.
+- 44 standalone browser tests cover automatic photograph scanning, live/photo parity, quiet zones, camera processing, direct manual entry, supported formats, persistence and mobile display. See AUTOMATIC_SCANNING.md for the current button-free scanner, LIVE_CAMERA_INVESTIGATION.md for the earlier investigation, DURHAM_BARCODE_FINDINGS.md for barcode identification, and SCANNER_REPAIR.md / SCANNER_PERFORMANCE.md for previous regressions. Physical-card scanning still requires user verification.
 - HTTP and HTTPS returned the app; HTTPS certificate chain and IP hostname validation passed using the generated CA.
 - Private-key and stop-token files are blocked by Vite; the HTTP certificate helper returned 404 for private files.
 - An HTTPS Chromium smoke test passed secure-context checks, real browser getUserMedia with a synthetic camera device, live video preview and camera cancellation/track cleanup. Its test process pins only this development certificate's public key; no global browser/OS trust was changed.

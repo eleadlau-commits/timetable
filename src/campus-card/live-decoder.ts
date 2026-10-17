@@ -1,15 +1,14 @@
 import { readBarcodes } from 'zxing-wasm';
-import { BarcodeProcessingError, decodeBarcode } from './barcode';
+import { BarcodeProcessingError } from './barcode';
+import type { Card } from './model';
 import { reportDiagnostic } from './diagnostics';
 
-// Only the live path changes. Photo import, generation and manual validation stay intact.
+// Retain the established automatic-scan ambiguity guard; not a second broad decoder.
 export class TelepenFrameRejection extends BarcodeProcessingError {}
-export async function decodeLiveFrame(image: ImageData, onAttempt?: () => void) {
-  onAttempt?.();
-  const card=await decodeBarcode(image);
+export async function validateLiveInterpretation(image: ImageData, card:Card, onAttempt?: () => void) {
   // The common path already verifies checksum, digit pairs, bytes and ]B1.
   // Re-decoding a valid Numeric result adds no independent evidence.
-  if (!card || card.format!=='TelepenAlpha') return card;
+  if (card.format!=='TelepenAlpha') return card;
   onAttempt?.();
   const numeric=await readBarcodes(image,{ formats:['TelepenNumeric'], textMode:'Plain', tryHarder:true, tryRotate:true, tryInvert:true });
   if (numeric.some(result => result.isValid && !result.error && result.symbologyIdentifier===']B1' && /^\d{14}$/.test(result.text))) {

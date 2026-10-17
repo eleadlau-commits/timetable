@@ -1,5 +1,7 @@
 # User-triggered barcode capture
 
+**Historical implementation:** the manual Capture barcode button and native still-capture code below have been removed. See [AUTOMATIC_SCANNING.md](AUTOMATIC_SCANNING.md) for the current fully automatic photograph loop. This document records the preceding experiment.
+
 The scanner's **Capture barcode** button takes one still image and uses the exact `decodePhoto` function used by photograph import. Live scanning, import, manual entry, the verified Telepen Numeric encoder, preview/save, persistent storage and full-screen presentation remain available.
 
 ## Capture path
