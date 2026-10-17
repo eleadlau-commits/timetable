@@ -4,7 +4,7 @@ A list of things to do, with tags and due dates. Saved on this phone only.
 
 ## What it adds
 
-- **A "Plan Today" button on Home**, on the left under the "Next: …" line (slot `home.next`): a white outline with white text, no fill. Under it, in small text, how many unticked to-dos are due today: *Nothing due today*, *1 thing due today*, *3 things due today*. It changes as soon as a to-do is added, ticked or changed, and when the day changes.
+- **A big "Plan Today" button on Home**, on the left under the "Next: …" line (slot `home.next`), in Home's big outlined button style (`home-button`). Inside it, in small text under *Plan Today*, how many unticked to-dos are due today: *Nothing due today*, *1 thing due today*, *3 things due today*. It changes as soon as a to-do is added, ticked or changed, and when the day changes.
 - **A "To-do list" row on the More tab** (group *On the go*), showing how many are left.
 - Both open the **To-do list pop-up**:
   - **Due today** at the top: the unticked to-dos due today, whichever tag is chosen. Tick or delete them right there. (They're in the full list below too.)

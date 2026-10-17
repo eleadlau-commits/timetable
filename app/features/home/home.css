@@ -1,18 +1,89 @@
-/* Home: the clock on the dark area, cards at the bottom of the screen. */
-.view-home .page-head { padding-top: 0; padding-bottom: 40px; }
-.home-time { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+/* Home: pages to swipe between on the dark area (with a photo behind them), cards at the
+   bottom of the screen. */
+.view-home .page-head { padding-top: 0; padding-bottom: 14px; }
+
+/* The photo of Durham: half see-through, clearest at the bottom right, fading out towards the
+   top left (where the menu and the words are). Only there once photos/durham.jpg has loaded. */
+.home-photo {
+  position: absolute;
+  inset: 0;
+  background: center 70% / cover no-repeat;
+  opacity: 0;
+  -webkit-mask-image: linear-gradient(135deg, transparent 10%, rgb(0 0 0 / .35) 50%, #000 95%);
+  mask-image: linear-gradient(135deg, transparent 10%, rgb(0 0 0 / .35) 50%, #000 95%);
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+.home-photo.shown { opacity: 0.6; }
+
+/* The pages, side by side; only the open one shows. They reach the screen's edges so they
+   slide in from beyond them. */
+.home-pager { position: relative; margin: 0 calc(-1 * var(--gutter)); }
+.home-pages { overflow: hidden; touch-action: pan-y; }
+.home-track { display: flex; transition: transform 0.3s cubic-bezier(.2, .8, .2, 1); }
+.home-pager.dragging .home-track { transition: none; }
+.home-page { flex: 0 0 100%; min-width: 0; padding: 0 var(--gutter); }
+
+/* Small knife-shaped dots under the pages; the open page's is brighter and longer. */
+.home-dots { display: flex; justify-content: center; gap: 6px; padding-top: 18px; }
+.home-dot {
+  width: 10px;
+  height: 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 2px 2px 5px 2px;
+  background: var(--on-top-dot);
+  cursor: pointer;
+  transition: width 0.2s, background 0.2s;
+}
+.home-dot[aria-selected="true"] { width: 16px; background: var(--on-top-dot-on); }
+.home-dot:focus-visible { outline: 2px solid var(--on-top); outline-offset: 3px; }
+
+/* The first page: the date, the clock and what's next. */
+.home-time { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
 .home-date { font-size: 14px; font-weight: 500; letter-spacing: 0.02em; color: var(--on-top-muted); }
 .home-clock {
   font-family: var(--font-mono);
-  font-size: clamp(64px, 20.5vw, 80px);
+  font-size: 40px;
   font-weight: 500;
-  line-height: 1;
-  letter-spacing: -2px;
+  line-height: 1.05;
+  letter-spacing: -1px;
   font-variant-numeric: tabular-nums;
   color: var(--on-top);
 }
-.home-next { align-self: stretch; display: grid; justify-items: center; gap: 2px; font-size: 14px; color: var(--on-top-muted); }
+.home-next { align-self: stretch; display: grid; justify-items: center; gap: 2px; font-size: 13px; color: var(--on-top-muted); }
 .home-next:empty { display: none; }
+.home-next > .home-button { justify-self: start; margin-top: 24px; }
+
+/* Other pages: a title and a line, e.g. Explore. */
+.home-page-title { margin: 6px 0 0; font-size: 30px; font-weight: 600; line-height: 1.15; color: var(--on-top); }
+.home-page-line { margin: 6px 0 0; font-size: 14px; color: var(--on-top-muted); }
+.home-page .home-button { margin-top: 24px; }
+
+/* The big outlined button on the pages (Plan Today, Open Spots, …): a solid white outline, a
+   see-through inside, as wide as its words plus a little room for the arrow on the right. */
+.home-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 34px;
+  padding: 11px 14px 11px 16px;
+  border: 2px solid var(--on-top);
+  border-radius: var(--shape-btn);
+  background: var(--on-top-fill);
+  color: var(--on-top);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.home-button > span { display: flex; flex-direction: column; gap: 2px; }
+.home-button b { font-size: 20px; font-weight: 600; line-height: 1.2; }
+.home-button small { font-size: 13px; color: var(--on-top-muted); }
+.home-button svg { width: 18px; height: 18px; }
+.home-button:focus-visible { outline: 2px solid var(--on-top); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .home-track, .home-dot, .home-photo { transition: none; }
+}
 
 /* Everything below the clock sits at the bottom, just above the tab bar. */
 .view-home .page-body { padding-bottom: 16px; }

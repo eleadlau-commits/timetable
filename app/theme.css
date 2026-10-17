@@ -61,6 +61,9 @@
   --top-2: #29242f;
   --on-top: #ffffff;
   --on-top-muted: #cbc4d1;
+  --on-top-fill: rgb(255 255 255 / .10);   /* inside the big outlined buttons on Home */
+  --on-top-dot: rgb(255 255 255 / .35);    /* Home's page dots */
+  --on-top-dot-on: rgb(255 255 255 / .85); /* the open page's dot */
 }
 
 @media (prefers-color-scheme: dark) {

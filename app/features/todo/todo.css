@@ -1,19 +1,4 @@
-/* To-do list. "Plan Today" under the clock on Home, on the left: a button with a white outline
-   and white text, no fill, and how many things are due today under it in small text. */
-.todo-plan { justify-self: start; display: grid; justify-items: start; gap: 6px; margin-top: 12px; text-align: left; }
-.todo-plan small { font-size: 12px; color: var(--on-top-muted); }
-.todo-open {
-  padding: 7px 18px;
-  border: 1.5px solid var(--on-top);
-  border-radius: var(--shape-btn);
-  background: transparent;
-  color: var(--on-top);
-  font: inherit;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-}
-.todo-open:focus-visible { outline: 2px solid var(--on-top); outline-offset: 2px; }
+/* To-do list. "Plan Today" on Home uses Home's big outlined button (home-button, in home.css). */
 
 /* Due today, at the top of the pop-up */
 .todo-today { display: grid; gap: 4px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }

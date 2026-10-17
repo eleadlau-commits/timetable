@@ -1,0 +1,7 @@
+{
+  "name": "Plan your journey",
+  "description": "The Plan your journey page on Home. Not built yet, so its button says coming soon.",
+  "version": "1.0.0",
+  "main": "Journey.js",
+  "uses": ["home"]
+}

@@ -36,7 +36,8 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
 | `friends` | The Friends button in the top bar; says "coming soon" for now | | header.actions | |
 | `help` | Help and Feedback in the menu; both say "coming soon" for now | | menu | |
-| `home` | The Home tab: date, clock, cards; the app opens on it | | views | slots `home.next/top/main/side` |
+| `home` | The Home tab: swipeable pages on the dark area (date, clock, Plan Today first) over a Durham photo, then cards; the app opens on it | | views | slots `home.next/pages/top/main/side` |
+| `journey` | The Plan your journey page on Home; says "coming soon" for now | (home) | home.pages | |
 | `study` | The Study tab | | views | slot `study.cards` |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
 | `library` | How busy Bill Bryson Library is, free seats per floor | (web-relay, home, study) | home.top, study.cards, settings | |
@@ -46,13 +47,13 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `more` | The More tab: everything else, in groups | | views | slot `more.items` |
 | `notes` | Notes on sessions | sessions | session.card/details | |
 | `reminders` | Class and personal reminders | sessions | menu, session.details, more.items | |
-| `spots` | The Spots tab, empty for now ("Coming soon") | | views | |
+| `spots` | The Spots tab, empty for now ("Coming soon"), and the Explore page on Home | | views, home.pages | |
 | `todo` | To-do list pop-up with tags, due dates and "Due today"; Plan Today button on Home (with how many are due today), row on More | (home, more) | home.next, more.items | |
 | `up-next` | "Next:" under the clock, date strip and the day's lectures on Home | sessions (timetable, home) | home.next, home.main | |
 | `upcoming` | Next four weeks (view id `agenda`) | sessions (planner) | planner.views | |
 | `week-view` | Week grid | sessions (day-view, planner) | planner.views | |
 
-**The screen:** one top bar (menu on the left; features' buttons from `header.actions` such as Friends, then the account button, on the right), the open tab's title below it (on Home, the dark area continues behind the clock), and the tab bar along the bottom: Study · Planner · Home · Spots · More (tap, or swipe the bar). The menu slides in from the left: *Not signed in* and the status line at the top, then Account, Reminders, Settings, Help, About, Feedback (the framework's own rows mixed with features' `header.buttons` by `order`). The account button and the Account row say "coming soon" until a feature fills Folio's `account` slot. Colours, fonts and the "knife" corner shape are in `app/theme.css` (from `DESIGN.md`); new styles use the names from there (`--shape` for cards and pop-ups, `--shape-btn` for buttons and text boxes, `--shape-sm` for small tags) rather than colours or corners of their own. Day buttons in date strips and round things (tick circles, dots, switches) keep their own shape, and cards have no coloured edges. When a place has nothing to show, use `ui.missing('what is missing')`.
+**The screen:** one top bar (menu on the left; features' buttons from `header.actions` such as Friends, then the account button, on the right), the open tab's title below it (on Home, the dark area continues behind the clock), and the tab bar along the bottom: Study · Planner · Home · Spots · More (tap, or swipe the bar). The menu slides in from the left: *Not signed in* and the status line at the top, then Account, Reminders, Settings, Help, About, Feedback (the framework's own rows mixed with features' `header.buttons` by `order`). The account button and the Account row say "coming soon" until a feature fills Folio's `account` slot. Colours, fonts and the "knife" corner shape are in `app/theme.css` (from `DESIGN.md`); new styles use the names from there (`--shape` for cards and pop-ups, `--shape-btn` for buttons and text boxes, `--shape-sm` for small tags) rather than colours or corners of their own. Day buttons in date strips and round things (tick circles, dots, switches) keep their own shape, and cards have no coloured edges. When a place has nothing to show, use `ui.missing('what is missing')`. On Home's dark area, big buttons use Home's `home-button` class, and its see-through whites are `--on-top-fill`, `--on-top-dot` and `--on-top-dot-on`. The Durham photo is `app/features/home/photos/durham.jpg` (see the README there).
 
 ## Branches
 
