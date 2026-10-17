@@ -18,9 +18,3 @@ test('camera telemetry is tolerant of missing or throwing optional settings and 
   const unknown={getSettings:()=>({focusMode:'PRIVATE',exposureMode:'PRIVATE'})} as unknown as MediaStreamTrack;
   assert.ok(!JSON.stringify(cameraDiagnostics({videoWidth:640,videoHeight:480},unknown,'Refused')).includes('PRIVATE'));
 });
-
-test('camera capabilities report independent ranges without claiming a joint supported mode',()=>{
-  const track={getSettings:()=>({width:1920,height:1080})} as MediaStreamTrack;
-  const result=cameraDiagnostics({videoWidth:1920,videoHeight:1080},track,'Not advertised',{width:{min:320,max:3840},height:{min:240,max:2160}});
-  assert.equal(result.cameraCapabilities,'Width 320..3840; height 240..2160 (independent min/max ranges)');
-});

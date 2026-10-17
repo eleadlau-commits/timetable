@@ -1,13 +1,6 @@
 import { BARCODE_FORMATS, CREATABLE_BARCODE_FORMATS } from 'zxing-wasm';
 
 export type BarcodeDiagnostic = {
-  recognition?:'No candidate detected'|'Candidate unreadable'|'Rejected by validation'|'Telepen ambiguity'|'Valid barcode recognised'|'Capture or processing failure';
-  scanningActive?:boolean;
-  resolutionProbe?:string;
-  framesCaptured?:number;
-  captureAverageMs?:number;
-  captureMaxMs?:number;
-  framesRejected?:boolean;
   scan: 'Not started' | 'Scanning' | 'Succeeded' | 'No barcode detected yet' | 'Failed';
   format: string; variant: string;
   canGenerate: boolean | null;
@@ -19,7 +12,6 @@ export type BarcodeDiagnostic = {
   cameraTrack?: string;
   cameraFocus?: string;
   cameraExposure?: string;
-  cameraCapabilities?:string;
   telepenCandidate?: 'Not detected' | 'Detected' | 'Accepted' | 'Rejected';
   processing?: string;
   performance?: {frames:number;fps:number;averageMs:number;maxMs:number;attemptsPerFrame:number;maxAttempts:number;successes:number;failures:number;telepenRejections:number};
@@ -28,13 +20,9 @@ export type BarcodeDiagnostic = {
   captureStatus?:'Capturing'|'Opening image'|'Decoding'|'Succeeded'|'Failed';
   captureFrame?:string;
   captureDecoderInvoked?:boolean;
-  photoPipelineInvoked?:boolean;
   captureFormat?:string;
   captureVariant?:string;
   captureReason?:string;
-  captureAttempts?:number;
-  scanFrequency?:number;
-  captureTimeMs?:number;
 };
 const initial: BarcodeDiagnostic = { scan: 'Not started', format: 'Not detected', variant: 'Not detected', canGenerate: null, generation: 'Not attempted', stage: 'Decoder', reason: 'No scan attempted.' };
 let snapshot = initial;

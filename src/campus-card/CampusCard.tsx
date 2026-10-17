@@ -27,17 +27,20 @@ function Scanner({ onCard, onError, onClose }: { onCard: (c: Card) => void; onEr
   const [deviceId, setDeviceId] = useState('');
   const [tools, setTools] = useState<CameraTools | null>(null);
   const [torch, setTorch] = useState(false);
-  const [hint, setHint] = useState('Scanning...');
+  const [hint, setHint] = useState('Fit the whole barcode inside the guide');
+  const [capturing, setCapturing] = useState(false);
+  const [captureError, setCaptureError] = useState('');
   useEffect(() => {
     let active = true;
     setTools(null); setTorch(false);
-    const stop = startScanner(video.current!, onCard, onError, { deviceId, onReady: cameraTools => {
+    const stop = startScanner(video.current!, onCard, onError, { deviceId, onHint: message => { if (active) setHint(message); }, onReady: cameraTools => {
       if (active) setTools(cameraTools);
       void navigator.mediaDevices.enumerateDevices().then(found => { if (active) setDevices(found.filter(d => d.kind === 'videoinput')); }).catch(() => {});
     } });
     const hide = () => { if (document.hidden) { stop(); onClose(); } };
     document.addEventListener('visibilitychange', hide);
-    return () => { active = false; stop(); document.removeEventListener('visibilitychange', hide); };
+    const timeout = setTimeout(() => { stop(); onError('No supported barcode found. Retry in good light or use your physical card.'); }, 30000);
+    return () => { active = false; stop(); clearTimeout(timeout); document.removeEventListener('visibilitychange', hide); };
   }, [deviceId]);
   async function focus(clientX: number, clientY: number) {
     const element = video.current;
@@ -50,7 +53,7 @@ function Scanner({ onCard, onError, onClose }: { onCard: (c: Card) => void; onEr
     if (x<0 || x>1 || y<0 || y>1) return;
     if (await tools.focusAt(x,y)) setHint('Hold steady');
   }
-  return <><div className="camera-preview"><video ref={video} muted playsInline autoPlay onClick={e => void focus(e.clientX,e.clientY)}/><div className="scan-guide" aria-hidden="true"/></div><p role="status" aria-live="polite">{hint}</p>{tools?.focusAvailable && <p>Tap the barcode to focus.</p>}{tools?.torchAvailable && <button type="button" aria-pressed={torch} onClick={async () => { if (await tools.setTorch(!torch)) setTorch(!torch); else setHint('Torch unavailable. Try brighter, even lighting.'); }}>{torch ? 'Turn off torch' : 'Turn on torch'}</button>}{devices.length > 1 && <label>Camera<select aria-label="Camera" value={deviceId} onChange={e => setDeviceId(e.target.value)}><option value="">Automatic rear camera</option>{devices.map((d, i) => <option key={d.deviceId} value={d.deviceId}>{d.label || `Camera ${i + 1}`}</option>)}</select></label>}<button onClick={onClose}>Cancel scan</button></>;
+  return <><div className="camera-preview"><video ref={video} muted playsInline autoPlay onClick={e => void focus(e.clientX,e.clientY)}/><div className="scan-guide" aria-hidden="true"/></div><button className="primary-card-button" disabled={!tools || capturing} onClick={async () => { if (!tools || capturing) return; setCapturing(true); setCaptureError(''); try { await tools.captureBarcode(); } catch { setCaptureError('Barcode not recognised. Try again.'); } finally { setCapturing(false); } }}>{capturing ? 'Capturing barcode...' : 'Capture barcode'}</button>{captureError && <p role="alert">{captureError}</p>}<p role="status" aria-live="polite">{hint}</p>{tools?.focusAvailable && <p>Tap the barcode to focus.</p>}{tools?.torchAvailable && <button type="button" aria-pressed={torch} onClick={async () => { if (await tools.setTorch(!torch)) setTorch(!torch); else setHint('Torch unavailable. Try brighter, even lighting.'); }}>{torch ? 'Turn off torch' : 'Turn on torch'}</button>}{devices.length > 1 && <label>Camera<select aria-label="Camera" value={deviceId} onChange={e => setDeviceId(e.target.value)}><option value="">Automatic rear camera</option>{devices.map((d, i) => <option key={d.deviceId} value={d.deviceId}>{d.label || `Camera ${i + 1}`}</option>)}</select></label>}<button onClick={onClose}>Cancel scan</button></>;
 }
 
 export default function CampusCard({ storage = cardStorage }: { storage?: CardStorage }) {
