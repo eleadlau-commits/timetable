@@ -64,6 +64,7 @@ _Statuses checked against the code on 16 October 2026, after the sliding menu an
 - [x] Render the real barcode from it — *draws Code 128, Code 39 and Codabar; drawn down the narrow Home card*
 - [~] Tap to open full-screen at max brightness for scanning — *opens the card window and keeps the screen on; no brightness boost, not full-screen*
 - [x] Setup flow to enter or scan the card number — *camera, photo, or typed*
+- [x] Reading a photo of the card works with a table or hand around it, a small, tilted or sideways card — *fixed two bugs in the ZXing reader (Code 128 and Codabar) on 17 October 2026; `zxing-fixes.js`*
 
 ## 7. Header
 

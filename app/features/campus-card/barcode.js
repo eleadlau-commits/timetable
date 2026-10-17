@@ -40,7 +40,8 @@ const C39 = {
 };
 
 // Codabar: n = narrow, w = wide, for the 7 alternating bars and spaces of each character.
-const CODABAR = {
+// (Also used by zxing-fixes.js to read Codabar.)
+export const CODABAR = {
   0: 'nnnnnww', 1: 'nnnnwwn', 2: 'nnnwnnw', 3: 'wwnnnnn', 4: 'nnwnnwn',
   5: 'wnnnnwn', 6: 'nwnnnnw', 7: 'nwnnwnn', 8: 'nwwnnnn', 9: 'wnnwnnn',
   '-': 'nnnwwnn', $: 'nnwwnnn', ':': 'wnnnwnw', '/': 'wnwnnnw', '.': 'wnwnwnn', '+': 'nnwnwnw',
@@ -103,6 +104,11 @@ export function checkBarcode(format, value) {
   if (!ENCODERS[format]) throw new Error('This barcode type can\'t be drawn.');
   if (!value) throw new Error('Enter the number on the card.');
   ENCODERS[format](value);
+}
+
+// The widths of the bars and spaces, in units, starting with a bar (no white space around).
+export function barWidths(format, value) {
+  return ENCODERS[format](value);
 }
 
 // The barcode as an <svg> that fills the width it is given. Height comes from CSS.

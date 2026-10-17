@@ -5,10 +5,9 @@
 
 import { Feature, ui } from 'folio';
 import { FORMATS, drawableFormat, checkBarcode, barcodeSVG } from './barcode.js';
+import { BarcodeReader } from './reader.js';
 
 const { el } = ui;
-// Barcode reader for phones whose browser has no built-in one (BarcodeDetector).
-const ZXING_LIB = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
 
 export default class CampusCard extends Feature {
   start() {
@@ -17,8 +16,7 @@ export default class CampusCard extends Feature {
     this.replacing = false;
     this.scan = null; // { stream, timer } while the camera is looking for a barcode
     this.wakeLock = null;
-    this.detector = undefined; // the browser's BarcodeDetector, or null once we know to use ZXing
-    this.zxing = null;
+    this.reader = new BarcodeReader();
     this.photos = ui.filePicker('image/*');
     this.add('home.side', { order: 10, render: () => this.homeCard() });
     this.add('more.items', {
@@ -88,9 +86,19 @@ export default class CampusCard extends Feature {
     for (const [value, label] of Object.entries(FORMATS)) this.parts.format.append(el('option', { value }, label));
     part('camera').addEventListener('click', () => this.startScan());
     part('stop').addEventListener('click', () => this.stopScan());
-    part('photo').addEventListener('click', async () => {
+    const photo = part('photo');
+    photo.addEventListener('click', async () => {
       const file = await this.photos.pick();
-      if (file) this.readPhoto(file);
+      if (!file) return;
+      const label = photo.textContent;
+      photo.disabled = true;
+      photo.textContent = 'Reading the photo…';
+      try {
+        await this.readPhoto(file);
+      } finally {
+        photo.disabled = false;
+        photo.textContent = label;
+      }
     });
     part('save').addEventListener('click', () => this.saveTyped());
     this.parts.manual.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.saveTyped(); });
@@ -167,49 +175,6 @@ export default class CampusCard extends Feature {
 
   // ---- Reading barcodes ----
 
-  // Barcodes found in a video frame, image or canvas: [{ value, format }].
-  async readCodes(source) {
-    if (this.detector === undefined) {
-      try {
-        this.detector = 'BarcodeDetector' in window ? new window.BarcodeDetector() : null;
-      } catch {
-        this.detector = null;
-      }
-    }
-    if (this.detector) {
-      try {
-        return (await this.detector.detect(source)).map((b) => ({ value: b.rawValue, format: b.format }));
-      } catch {
-        this.detector = null;
-      }
-    }
-    if (!window.ZXing) await ui.loadScript(ZXING_LIB);
-    const Z = window.ZXing;
-    if (!this.zxing) {
-      const hints = new Map();
-      hints.set(Z.DecodeHintType.POSSIBLE_FORMATS, [
-        Z.BarcodeFormat.CODE_128, Z.BarcodeFormat.CODE_39, Z.BarcodeFormat.CODABAR,
-        Z.BarcodeFormat.ITF, Z.BarcodeFormat.EAN_13, Z.BarcodeFormat.QR_CODE,
-      ]);
-      hints.set(Z.DecodeHintType.TRY_HARDER, true);
-      this.zxing = { reader: new Z.MultiFormatReader(), hints, canvas: document.createElement('canvas') };
-    }
-    const w = source.videoWidth || source.width;
-    const h = source.videoHeight || source.height;
-    const scale = Math.min(1, 1280 / w);
-    const { canvas } = this.zxing;
-    canvas.width = Math.round(w * scale);
-    canvas.height = Math.round(h * scale);
-    canvas.getContext('2d').drawImage(source, 0, 0, canvas.width, canvas.height);
-    try {
-      const bitmap = new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(canvas)));
-      const result = this.zxing.reader.decode(bitmap, this.zxing.hints);
-      return [{ value: result.getText(), format: Z.BarcodeFormat[result.getBarcodeFormat()] }];
-    } catch {
-      return []; // nothing readable in this frame
-    }
-  }
-
   // Saves the first barcode we can redraw. Returns true if one was saved.
   accept(codes) {
     for (const c of codes) {
@@ -254,7 +219,7 @@ export default class CampusCard extends Feature {
       if (this.scan !== scan) return;
       if (video.readyState >= 2) {
         try {
-          if (this.accept(await this.readCodes(video))) return;
+          if (this.accept(await this.reader.read(video))) return;
         } catch {
           if (this.scan === scan) {
             this.stopScan();
@@ -282,17 +247,25 @@ export default class CampusCard extends Feature {
 
   async readPhoto(file) {
     this.showError(null);
+    let bitmap;
     try {
-      const bitmap = await createImageBitmap(file);
-      const codes = await this.readCodes(bitmap);
-      bitmap.close?.();
+      bitmap = await createImageBitmap(file);
+    } catch {
+      this.showError("Couldn't open that photo. Try a JPEG or PNG picture, or take a screenshot of the photo and choose that.");
+      return;
+    }
+    try {
+      const codes = await this.reader.read(bitmap, { photo: true });
       if (!this.accept(codes) && !codes.length) {
         this.showError("Couldn't find a barcode in that photo. Take it closer, in good light, with the barcode filling most of the picture. Or type the number instead.");
       }
     } catch {
       this.showError("Couldn't read barcodes on this device. Check your internet connection and try again, or type the number instead.");
+    } finally {
+      bitmap.close?.();
     }
   }
+
 
   // Keeps the screen on while the card is showing, so a scanner can read it.
   async keepAwake(on) {
