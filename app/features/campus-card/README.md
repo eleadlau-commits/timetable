@@ -17,4 +17,11 @@ This feature doesn't depend on the timetable at all, so it can be copied into an
 
 **Saves:** `card`, the barcode type and value. Brings it across from version 1. It's **not** removed with the timetable.
 
-**Files:** `barcode.js` draws Code 128, Code 39 and Codabar barcodes, across or down the screen (`{ vertical: true }`). It's tested in `tests/barcode.test.js`.
+**Files:**
+- `barcode.js` draws Code 128, Code 39 and Codabar barcodes, across or down the screen (`{ vertical: true }`). It's tested in `tests/barcode.test.js`.
+- `reader.js` reads barcodes from the camera or a photo. It uses the phone's own barcode reader where there is one, and the ZXing library otherwise. For a photo it tries harder: ZXing has a go even if the phone's reader found nothing, then a larger copy of the photo, then the photo turned 30° each way (for a tilted card). While it reads, the button says *Reading the photo…*.
+- `zxing-fixes.js` fixes two bugs in ZXing (version 0.21.3) as it loads, tested in `tests/zxing-fixes.test.js`. Both stopped photos from working whenever something dark (a table, a hand) was on the same line as the barcode:
+  - **Code 128:** ZXing's search for the start of the barcode broke after its first wrong guess, so anything dark to the left of the barcode hid it.
+  - **Codabar:** ZXing took everything from the first dark spot on a line to the last as the barcode (and had the wrong pattern for "+"). The replacement looks for a start and stop letter with white space around them.
+
+**How to check photos work:** take a photo of the card on a table, with the barcode across the middle, and choose **Use a photo of the card**. Photos where the card is small, a little blurry, tilted or sideways should work too. Very dark or very blurry photos may still not.
