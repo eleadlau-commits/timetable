@@ -75,16 +75,18 @@ export function toast(message) {
 
 // A pop-up window with a title and a close button. Create it once, then open() it as often as
 // you like. Put your content in it with setContent(...nodes) or append to `.content`.
-export function dialog({ title = '', className = '', onClose } = {}) {
+// It fills the screen, with the title bar staying at the top; size: 'box' makes it a small box
+// in the middle instead, for something quick such as a barcode.
+export function dialog({ title = '', className = '', size = 'full', onClose } = {}) {
   const heading = el('h2', {}, title);
   const content = el('div', { class: 'dialog-content' });
-  const element = el('dialog', { class: className },
+  const element = el('dialog', { class: `${size === 'box' ? 'dialog-box' : 'dialog-full'} ${className}`.trim() },
     el('div', { class: 'dialog-body' },
       el('div', { class: 'dialog-head' },
         heading,
         el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Close', onclick: () => element.close() }, icon('close'))),
       content));
-  element.addEventListener('click', (e) => { if (e.target === element) element.close(); }); // tap outside to close
+  element.addEventListener('click', (e) => { if (e.target === element) element.close(); }); // tap outside a box to close
   if (onClose) element.addEventListener('close', onClose);
   document.body.append(element);
   return {

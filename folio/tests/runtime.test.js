@@ -5,7 +5,7 @@ import { Slot } from 'folio/Slot.js';
 import { Area, Storage } from 'folio/Storage.js';
 import { Events } from 'folio/Events.js';
 import * as time from 'folio/time.js';
-import { el, missing } from 'folio/ui.js';
+import { el, missing, dialog } from 'folio/ui.js';
 import { Tabs } from 'folio/Tabs.js';
 
 // A stand-in for the app that records reported problems.
@@ -107,6 +107,17 @@ test('missing() says "Missing content" and what is missing', () => {
   assert.equal(box.querySelector('b').textContent, 'Missing content');
   assert.equal(box.querySelector('span').textContent, 'Add your timetable');
   assert.equal(missing().querySelector('span'), null);
+});
+
+test('pop-ups fill the screen unless asked to be a small box', () => {
+  const full = dialog({ title: 'Full', className: 'mine' });
+  const box = dialog({ title: 'Box', size: 'box' });
+  assert.ok(full.element.classList.contains('dialog-full'));
+  assert.ok(full.element.classList.contains('mine'));
+  assert.ok(box.element.classList.contains('dialog-box'));
+  assert.ok(!box.element.classList.contains('dialog-full'));
+  full.element.remove();
+  box.element.remove();
 });
 
 test('the tab bar highlights the open view, and can sit between two tabs while swiping', () => {
