@@ -22,7 +22,7 @@
 .home-pages { overflow: hidden; touch-action: pan-y; }
 .home-track { display: flex; transition: transform 0.3s cubic-bezier(.2, .8, .2, 1); }
 .home-pager.dragging .home-track { transition: none; }
-.home-page { flex: 0 0 100%; min-width: 0; padding: 0 var(--gutter); }
+.home-page { flex: 0 0 100%; min-width: 0; padding: 0 var(--gutter); display: flex; flex-direction: column; }
 
 /* Small knife-shaped dots under the pages; the open page's is brighter and longer. */
 .home-dots { display: flex; justify-content: center; gap: 6px; padding-top: 18px; }
@@ -58,7 +58,10 @@
 /* Other pages: a title and a line, e.g. Explore. */
 .home-page-title { margin: 6px 0 0; font-size: 30px; font-weight: 600; line-height: 1.15; color: var(--on-top); }
 .home-page-line { margin: 6px 0 0; font-size: 14px; color: var(--on-top-muted); }
-.home-page .home-button { margin-top: 24px; }
+/* Every page is as tall as the first, and its button sits at the bottom, level with Plan Today. */
+.home-page > section:not(.home-time) { flex: 1; display: flex; flex-direction: column; align-items: flex-start; }
+.home-page > section:not(.home-time) .home-button { margin-top: auto; }
+.home-page-line { margin-bottom: 24px; }
 
 /* The big outlined button on the pages (Plan Today, Open Spots, …): a solid white outline, a
    see-through inside, as wide as its words plus a little room for the arrow on the right. */
