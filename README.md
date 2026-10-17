@@ -12,7 +12,7 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 
 | Feature | What it does |
 |---|---|
-| **Home** | The date and a big clock, your next class, a **Plan Today** button saying how many things are due today, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
+| **Home** | At the top, three pages to swipe between over a photo of Durham: the date, the clock, your next class and a big **Plan Today** button saying how many things are due today; **Explore** (opens Spots); and **Plan your journey** (coming soon). Below them, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
 | **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. What's due today is at the top. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from **Plan Today** on Home, or More. |
 | **Friends** | A button at the top right, kept for later. For now it says *coming soon*. |
 | **Planner: Day, Week and Upcoming** | Three ways to see your timetable. Swipe to move between days or weeks. The round button by the title downloads your timetable again. |
@@ -25,7 +25,7 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 | **Campus card** | Scan your card's barcode (camera or photo), or type the number, and show it on your phone if you lose the card. Reads Durham's Telepen barcode as well as the common types. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
 | **More** | Everything else in one list: to-do list, campus card, reminders, modules, your calendar link. |
-| **Spots** | Kept for later; nothing here yet. |
+| **Spots** | Kept for later; nothing here yet. The Explore page on Home opens it. |
 | **Help and feedback** | In the menu, kept for later. For now they say *coming soon*. |
 
 You can switch any feature off for yourself in **Settings → Features**. Everything you add (notes, to-dos, colours, reminders, the card) stays on your own phone.

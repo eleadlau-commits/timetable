@@ -30,7 +30,11 @@ _Statuses checked against the code on 16 October 2026, after the sliding menu an
 - [x] Today's full date above the clock — *14 px date, 80 px clock, moved up*
 - [x] "Next: <lecture> · <time> · <room>" line from timetable data — *`up-next` feature*
 - [x] Countdown to the next lecture ("in 47 min"), updating live
-- [x] **Plan Today** button under the "Next:" line, on the left, opening the to-do list — *`todo` feature; was "To-do list"*
+- [x] **Plan Today** button under the "Next:" line, on the left, opening the to-do list — *`todo` feature; was "To-do list"; now a big outlined button with the count inside*
+- [x] Clock smaller (40 px), so Plan Today fits as a big button
+- [x] Swipeable pages on the dark area, with small knife-shaped dots: Today · Explore (opens Spots) · Plan your journey (coming soon) — *`home` slot `home.pages`, `spots`, new `journey` feature*
+- [~] Durham photo behind the pages, half see-through, clearest at the bottom right — *the place is ready (`app/features/home/photos/durham.jpg`, see the README there); the photo itself is still to be added*
+- [ ] Plan your journey: the real thing (directions to your next class?)
 - [x] Under it, how many things are due today ("Nothing due today" / "1 thing due today" / "3 things due today"), updating as to-dos change and when the day changes
 - [ ] Free-time detection: gaps between classes ("free until 16:00") — used by the countdown and future features
 
