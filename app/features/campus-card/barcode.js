@@ -1,7 +1,12 @@
-// Draws the barcode types campus and library cards commonly use (Code 128, Code 39, Codabar)
-// as an SVG, so a scanned card can be shown again without needing the camera or internet.
+// Draws the barcode types campus and library cards commonly use (Telepen, Code 128, Code 39,
+// Codabar) as an SVG, so a scanned card can be shown again without needing the camera or internet.
 
+import { telepenWidths } from './telepen.js';
+
+// The first is picked when typing a number in: Durham University cards use Telepen (numbers).
 export const FORMATS = {
+  telepen_numeric: 'Telepen (numbers)',
+  telepen: 'Telepen',
   code_128: 'Code 128',
   code_39: 'Code 39',
   codabar: 'Codabar',
@@ -91,7 +96,13 @@ function codabar(value) {
   return fromTable(CODABAR, framed);
 }
 
-const ENCODERS = { code_128: code128, code_39: code39, codabar };
+const ENCODERS = {
+  telepen_numeric: (value) => telepenWidths(value, { numeric: true }),
+  telepen: (value) => telepenWidths(value),
+  code_128: code128,
+  code_39: code39,
+  codabar,
+};
 
 // A barcode type name from a scanner (any case, "code_128" or "CODE_128") as one we can draw, or null.
 export function drawableFormat(name) {

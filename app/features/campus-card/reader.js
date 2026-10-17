@@ -1,7 +1,8 @@
 // Reads barcodes from a camera frame or a photo: [{ value, format }].
 //
-// It uses the browser's own barcode reader (BarcodeDetector) where there is one, and the ZXing
-// library otherwise. ZXing is downloaded the first time it's needed, and two of its bugs are
+// It uses the browser's own barcode reader (BarcodeDetector) where there is one, then looks for
+// Telepen (which UK university cards use, and neither of the others reads; see scan.js), then
+// the ZXing library. ZXing is downloaded the first time it's needed, and two of its bugs are
 // fixed as it loads (see zxing-fixes.js).
 //
 // For a photo, which is read only once, it tries harder: if the browser's reader finds
@@ -11,11 +12,12 @@
 
 import { ui } from 'folio';
 import { fixZXing } from './zxing-fixes.js';
+import { findTelepen } from './scan.js';
 
 // Barcode reader for phones whose browser has no built-in one (BarcodeDetector).
 const ZXING_LIB = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
-// What ZXing tries, in turn: how big the picture is made (its longest side, at most), and
-// turned how far.
+// What Telepen and ZXing try, in turn: how big the picture is made (its longest side, at
+// most), and turned how far.
 const TRIES = {
   frame: [{ size: 1280, turn: 0 }],
   photo: [{ size: 1280, turn: 0 }, { size: 2400, turn: 0 }, { size: 1280, turn: 30 }, { size: 1280, turn: -30 }],
@@ -30,8 +32,40 @@ export class BarcodeReader {
   // source: a <video>, an ImageBitmap or a canvas. photo: true for a photo (try harder).
   async read(source, { photo = false } = {}) {
     const found = await this.detect(source);
-    if (found.length || (found.tried && !photo)) return found;
-    return this.readWithZXing(source, photo ? TRIES.photo : TRIES.frame);
+    if (found.length) return found;
+    const tries = photo ? TRIES.photo : TRIES.frame;
+    const telepen = this.readTelepen(source, tries);
+    if (telepen.length || (found.tried && !photo)) return telepen;
+    return this.readWithZXing(source, tries);
+  }
+
+  // Telepen, read here (see scan.js and telepen.js).
+  readTelepen(source, tries) {
+    if (!this.canvas) {
+      this.canvas = document.createElement('canvas');
+      this.canvas.getContext('2d', { willReadFrequently: true }); // its pixels are read every time
+    }
+    const { canvas } = this;
+    for (const { size, turn } of this.sized(source, tries)) {
+      this.draw(canvas, source, size.width, size.height, turn);
+      const found = findTelepen(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height));
+      if (found) return [{ value: found.value, format: found.numeric ? 'telepen_numeric' : 'telepen' }];
+    }
+    return [];
+  }
+
+  // The tries, with the picture's size for each, leaving out sizes the picture is too small for.
+  sized(source, tries) {
+    const w = source.videoWidth || source.width;
+    const h = source.videoHeight || source.height;
+    const done = new Set();
+    return tries.flatMap(({ size, turn }) => {
+      const scale = Math.min(1, size / Math.max(w, h));
+      const key = `${Math.round(scale * w)}/${turn}`;
+      if (done.has(key)) return [];
+      done.add(key);
+      return [{ size: { width: w * scale, height: h * scale }, turn }];
+    });
   }
 
   // The browser's own reader. Returns what it found, marked `tried` if it ran.
@@ -67,16 +101,9 @@ export class BarcodeReader {
       hints.set(Z.DecodeHintType.TRY_HARDER, true);
       this.zxing = { reader: new Z.MultiFormatReader(), hints, canvas: document.createElement('canvas') };
     }
-    const w = source.videoWidth || source.width;
-    const h = source.videoHeight || source.height;
     const { canvas } = this.zxing;
-    const done = new Set();
-    for (const { size, turn } of tries) {
-      const scale = Math.min(1, size / Math.max(w, h));
-      const key = `${Math.round(scale * w)}/${turn}`;
-      if (done.has(key)) continue; // the photo is smaller than this size already
-      done.add(key);
-      this.draw(canvas, source, w * scale, h * scale, turn);
+    for (const { size, turn } of this.sized(source, tries)) {
+      this.draw(canvas, source, size.width, size.height, turn);
       try {
         const bitmap = new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(canvas)));
         const result = this.zxing.reader.decode(bitmap, this.zxing.hints);

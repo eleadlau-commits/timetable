@@ -65,6 +65,8 @@ _Statuses checked against the code on 16 October 2026, after the sliding menu an
 - [~] Tap to open full-screen at max brightness for scanning — *opens the card window and keeps the screen on; no brightness boost, not full-screen*
 - [x] Setup flow to enter or scan the card number — *camera, photo, or typed*
 - [x] Reading a photo of the card works with a table or hand around it, a small, tilted or sideways card — *fixed two bugs in the ZXing reader (Code 128 and Codabar) on 17 October 2026; `zxing-fixes.js`*
+- [x] Durham cards use **Telepen** (number mode), which no barcode library in the app read — *the app now reads and draws Telepen itself (`telepen.js`, `scan.js`); checked with a real Durham card photo*
+- [ ] Check at the library that its scanner reads the Telepen barcode drawn on the phone
 
 ## 7. Header
 
