@@ -1,11 +1,12 @@
-import { BarcodeProcessingError, prepareDecoder } from './barcode';
+import { BarcodeProcessingError, decodePhoto, prepareDecoder } from './barcode';
+import { capturePhoto } from './capture';
 import { decodeLiveFrame, TelepenFrameRejection } from './live-decoder';
 import { ScanPerformance } from './scan-performance';
 import { cameraDiagnostics } from './camera-diagnostics';
-import { beginDiagnostic, reportDiagnostic } from './diagnostics';
+import { beginDiagnostic, diagnosticSnapshot, reportDiagnostic } from './diagnostics';
 import type { Card } from './model';
 
-export type CameraTools = { torchAvailable: boolean; focusAvailable: boolean; setTorch(on:boolean):Promise<boolean>; focusAt(x:number,y:number):Promise<boolean> };
+export type CameraTools = { torchAvailable: boolean; focusAvailable: boolean; setTorch(on:boolean):Promise<boolean>; focusAt(x:number,y:number):Promise<boolean>; captureBarcode():Promise<void> };
 type PhotoCapabilities = MediaTrackCapabilities & { focusMode?:string[]; exposureMode?:string[]; pointsOfInterest?:unknown; torch?:boolean };
 export function cameraError(error: unknown) {
   const name=(error as {name?:string})?.name;
@@ -20,6 +21,8 @@ export function startScanner(video:HTMLVideoElement,onCard:(card:Card)=>void,onE
   const ctx=canvas.getContext('2d',{willReadFrequently:true})!;
   let metrics:ScanPerformance|undefined;
   let focusRequest='Not advertised';
+  let capturing=false,afterCaptureFailure=false,activeFrame:Promise<void>|undefined;
+  let resume=()=>{};
   beginDiagnostic();
   const stop=()=>{ if(!closed&&metrics){const stats=metrics.snapshot(performance.now(),true);if(stats)reportDiagnostic({performance:stats});} closed=true; clearTimeout(timer); if(torchOn){void stream?.getVideoTracks()[0]?.applyConstraints({advanced:[{torch:false} as MediaTrackConstraintSet]}).catch(()=>{});torchOn=false;} stream?.getTracks().forEach(t=>t.stop()); video.pause(); video.srcObject=null; canvas.width=canvas.height=0; };
   const fail=(message:string)=>{ stop(); onError(message); };
@@ -39,6 +42,25 @@ export function startScanner(video:HTMLVideoElement,onCard:(card:Card)=>void,onE
       if(Object.keys(advanced).length){try{await track.applyConstraints({advanced:[advanced as MediaTrackConstraintSet]});focusRequest='Applied';}catch{focusRequest='Refused';/*Optional device controls must not prevent scanning.*/}}
       if(closed)return;
       const tools:CameraTools={
+        async captureBarcode(){
+          if(closed||capturing)return;
+          capturing=true;clearTimeout(timer);
+          try{
+            await activeFrame;
+            if(closed)return;
+            beginDiagnostic();reportDiagnostic({captureStatus:'Capturing',captureDecoderInvoked:false});
+            const captured=await capturePhoto(video,track);
+            if(closed)return;
+            const card=await decodePhoto(captured.blob,captured.method,()=>closed);
+            if(closed)return;
+            stop();onCard(card);
+          }catch{
+            if(closed)return;
+            afterCaptureFailure=true;
+            if(import.meta.env.DEV){const diagnostic=diagnosticSnapshot();reportDiagnostic({captureStatus:'Failed',captureFormat:diagnostic.format,captureVariant:diagnostic.variant,captureReason:diagnostic.captureDecoderInvoked?diagnostic.reason:'Camera still image could not be opened or captured.'});}
+            throw new Error('Barcode not recognised. Try again.');
+          }finally{capturing=false;if(!closed)resume();}
+        },
         torchAvailable:capabilities.torch===true,
         focusAvailable:'pointsOfInterest' in capabilities && !!capabilities.focusMode?.some(mode=>mode==='single-shot'||mode==='continuous'),
         async setTorch(on){if(closed||capabilities.torch!==true)return false;try{await track.applyConstraints({advanced:[{torch:on} as MediaTrackConstraintSet]});torchOn=on&&!closed;return !closed;}catch{return false;}},
@@ -53,7 +75,7 @@ export function startScanner(video:HTMLVideoElement,onCard:(card:Card)=>void,onE
       if(import.meta.env.DEV){metrics=new ScanPerformance(performance.now());reportDiagnostic(cameraDiagnostics(video,track,focusRequest));}
     }catch(error){if(!closed){reportDiagnostic({scan:'Failed',stage:'Camera',reason:cameraError(error)});fail(cameraError(error));}return;}
     const tick=async()=>{
-      if(closed)return;
+      if(closed||capturing)return;
       try{
         // Playback statistics are optional telemetry, not a frame-delivery signal.
         // Some implementations can report the same count while video pixels change.
@@ -84,11 +106,17 @@ export function startScanner(video:HTMLVideoElement,onCard:(card:Card)=>void,onE
           if(card){stop();onCard(card);return;}
           options.onHint?.('Hold steady');
         }
-      }catch(error){if(!closed){if(!(error instanceof BarcodeProcessingError))reportDiagnostic({scan:'Failed',stage:'Decoder',reason:'Camera frame capture or processing failed before a confirmed decode.'});fail(error instanceof BarcodeProcessingError?error.message:'Could not process the camera frame. Retry scanning or import a photo.');}return;}
+      }catch(error){
+        // After a failed manual capture, an unreadable/unsupported live frame must
+        // not dismiss the camera while the user is adjusting the same card.
+        if(!closed&&afterCaptureFailure&&error instanceof BarcodeProcessingError){resume();return;}
+        if(!closed){if(!(error instanceof BarcodeProcessingError))reportDiagnostic({scan:'Failed',stage:'Decoder',reason:'Camera frame capture or processing failed before a confirmed decode.'});fail(error instanceof BarcodeProcessingError?error.message:'Could not process the camera frame. Retry scanning or import a photo.');}return;
+      }
       // Schedule only after decoding completes; one reader job at a time.
-      if(!closed)timer=setTimeout(()=>void tick(),150);
+      resume();
     };
-    if(!closed)void tick();
+    resume=()=>{if(!closed&&!capturing)timer=setTimeout(()=>{activeFrame=tick();},150);};
+    if(!closed)activeFrame=tick();
   })();
   return stop;
 }

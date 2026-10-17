@@ -28,6 +28,14 @@ export default function BarcodeDiagnostics() {
         <dt>Telepen variant rejections</dt><dd>{diagnostic.performance.telepenRejections}</dd>
       </>}
       {diagnostic.telepenRejection && <><dt>Last Telepen ambiguity rejection</dt><dd>{diagnostic.telepenRejection}</dd></>}
+      {diagnostic.captureStatus && <>
+        <dt>Still capture</dt><dd>{diagnostic.captureStatus}</dd>
+        <dt>Capture method</dt><dd>{diagnostic.captureMethod??'Pending'}</dd>
+        <dt>Captured dimensions</dt><dd>{diagnostic.captureFrame??'Not available'}</dd>
+        <dt>Shared photo decoder invoked</dt><dd>{diagnostic.captureDecoderInvoked?'Yes':'No'}</dd>
+        <dt>Captured barcode format / variant</dt><dd>{diagnostic.captureFormat??'Not detected'} / {diagnostic.captureVariant??'Not detected'}</dd>
+        <dt>Capture rejection reason</dt><dd>{diagnostic.captureReason??'None reported'}</dd>
+      </>}
     </dl>
   </details>;
 }

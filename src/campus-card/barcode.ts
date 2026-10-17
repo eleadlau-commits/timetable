@@ -2,6 +2,7 @@ import { prepareZXingModule, readBarcodes, writeBarcode, type ReadResult } from 
 import wasmURL from 'zxing-wasm/full/zxing_full.wasm?url';
 import { CardValidationError, validateCard, type Card } from './model';
 import { beginDiagnostic, detectionMetadata, reportDiagnostic } from './diagnostics';
+import type { CaptureMethod } from './capture';
 
 export class BarcodeProcessingError extends Error {}
 
@@ -36,19 +37,24 @@ export async function decodeBarcode(input: Blob | ImageData, source: 'scan' | 'p
   reportDiagnostic({ ...detectionMetadata(unique[0].format, unique[0].symbologyIdentifier), scan: 'Succeeded', stage: 'Validation', telepenCandidate:unique[0].format.startsWith('Telepen')?'Accepted':'Not detected', reason: 'Validation passed. Generation has not been attempted.' });
   return unique[0];
 }
-export async function decodePhoto(file: Blob): Promise<Card> {
+export async function decodePhoto(file: Blob, captureMethod?:CaptureMethod, isCancelled?:()=>boolean): Promise<Card> {
   beginDiagnostic();
+  if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureMethod,captureStatus:'Opening image',captureDecoderInvoked:false});
   if (file.size > 25 * 1024 * 1024) { reportDiagnostic({ scan: 'Failed', stage: 'Decoder', reason: 'The photo exceeds the supported file size.' }); throw new Error('Choose a photo smaller than 25 MB.'); }
   // Browser image decoding avoids the WASM file decoder's format limitations.
   const bitmap = await createImageBitmap(file).catch(() => { reportDiagnostic({ scan: 'Failed', stage: 'Decoder', reason: 'The browser could not open the photo.' }); throw new Error('This photo cannot be opened. Try a JPEG or PNG image.'); });
   const canvas = document.createElement('canvas');
   try {
-    if (bitmap.width * bitmap.height > 48000000) throw new Error('This photo is too large. Crop it to the barcode first.');
+    if(isCancelled?.())throw new Error('Capture cancelled.');
+    if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureFrame:`${bitmap.width} × ${bitmap.height}`});
+    if (bitmap.width * bitmap.height > 48000000) { reportDiagnostic({reason:'Photo dimensions exceed the supported 48-million-pixel limit.'}); throw new Error('This photo is too large. Crop it to the barcode first.'); }
     canvas.width = bitmap.width; canvas.height = bitmap.height;
     const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
     ctx.drawImage(bitmap, 0, 0);
+    if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureFrame:`${bitmap.width} × ${bitmap.height}`,captureDecoderInvoked:true,captureStatus:'Decoding'});
     const card = await decodeBarcode(ctx.getImageData(0, 0, canvas.width, canvas.height), 'photo');
     if (!card) throw new Error('No readable barcode found. Try a sharp, well-lit photo cropped around the barcode.');
+    if(import.meta.env.DEV&&captureMethod)reportDiagnostic({captureStatus:'Succeeded',captureFormat:card.format,captureVariant:card.symbologyIdentifier,captureReason:'None'});
     return card;
   } finally { bitmap.close(); canvas.width = canvas.height = 0; }
 }
