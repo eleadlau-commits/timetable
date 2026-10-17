@@ -22,7 +22,7 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 | **Maps** | Durham room codes show as buildings (`CLC013 · Calman Learning Centre`), with a map and directions. |
 | **Reminders** | A notification before each class, plus your own reminders. |
 | **Library** | How busy Bill Bryson Library is: a card on Home, and free seats on each floor on the **Study** tab. |
-| **Campus card** | Scan your card's barcode and show it on your phone if you lose the card. |
+| **Campus card** | Scan your card's barcode (camera or photo), or type the number, and show it on your phone if you lose the card. Reads Durham's Telepen barcode as well as the common types. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
 | **More** | Everything else in one list: to-do list, campus card, reminders, modules, your calendar link. |
 | **Spots** | Kept for later; nothing here yet. |
