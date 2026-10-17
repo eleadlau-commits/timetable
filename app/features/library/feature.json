@@ -1,8 +1,0 @@
-{
-  "name": "Library",
-  "description": "How busy Bill Bryson Library is right now, with free seats on each floor.",
-  "version": "2.0.0",
-  "main": "Library.js",
-  "styles": ["library.css"],
-  "uses": ["web-relay", "home", "study"]
-}

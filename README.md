@@ -1,87 +1,93 @@
-# Mobile Durham
+﻿# Durham Campus Card - local development
 
-**Mobile Durham** (it used to be called *Timetable*) shows your Durham University timetable on your phone, with a to-do list, how busy the library is and your campus card. It reads the personal calendar link your university can export, keeps a copy so it works offline, and updates itself whenever you open it.
+This folder runs Campus Card independently. No Docker, journey backend, external account or paid service is required. The copied planner files are unused by the app; the separate Journey planner project has not been modified.
 
-GitHub builds the app for you, so you don't need to install anything. You get:
-- **An Android app** (`MobileDurham.apk`) to download and install.
-- **A web version** (GitHub Pages) to add to your home screen. Use this on an iPhone.
+## Start and stop on your computer
 
-## Features
+Node.js v24.11.1 and npm 11.6.2 were detected. Dependencies are installed.
 
-The app has five tabs along the bottom: **Study · Planner · Home · Spots · More**. It opens on Home. Tap a tab, or swipe left or right on the tab bar to move to the next one. The menu (top left) slides in from the left: it shows whether you're signed in (not yet: accounts are coming) and when the timetable was last updated, then **Account, Reminders, Settings, Help, About** and **Feedback**. Tap outside it, swipe it away or press back to close it. At the top right, the two-people button is for **Friends** and the person icon is for your **Account** (both coming soon). It follows your phone's light or dark setting.
-
-| Feature | What it does |
-|---|---|
-| **Home** | The date and a big clock, your next class, a **Plan Today** button saying how many things are due today, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
-| **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. What's due today is at the top. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from **Plan Today** on Home, or More. |
-| **Friends** | A button at the top right, kept for later. For now it says *coming soon*. |
-| **Planner: Day, Week and Upcoming** | Three ways to see your timetable. Swipe to move between days or weeks. The round button by the title downloads your timetable again. |
-| **Session details** | Tap any session for its time, room, description and more. |
-| **Notes** | Your own notes on a session, e.g. "bring laptop". The first line shows on the card. |
-| **Modules** | Rename a module ("ECON1011" → "Microeconomics"), pick its colour, or hide it. |
-| **Maps** | Durham room codes show as buildings (`CLC013 · Calman Learning Centre`), with a map and directions. |
-| **Reminders** | A notification before each class, plus your own reminders. |
-| **Library** | How busy Bill Bryson Library is: a card on Home, and free seats on each floor on the **Study** tab. |
-| **Campus card** | Scan your card's barcode and show it on your phone if you lose the card. |
-| **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
-| **More** | Everything else in one list: to-do list, campus card, reminders, modules, your calendar link. |
-| **Spots** | Kept for later; nothing here yet. |
-| **Help and feedback** | In the menu, kept for later. For now they say *coming soon*. |
-
-You can switch any feature off for yourself in **Settings → Features**. Everything you add (notes, to-dos, colours, reminders, the card) stays on your own phone.
-
-## Install it
-
-**Android:**
-1. On your phone, open `https://github.com/YOUR-USERNAME/timetable/releases`.
-2. Tap **MobileDurham.apk** (older releases call it **Timetable.apk**) and open the downloaded file.
-3. Allow installing from this source if asked, then tap **Install**. If Play Protect warns about an unknown app, tap **More details → Install anyway**.
-
-**iPhone (or any phone), using the web version:**
-1. *One-off, on GitHub:* go to **Settings → Pages** and set **Source** to **GitHub Actions**.
-2. Open `https://YOUR-USERNAME.github.io/timetable/` in Safari, then tap **Share → Add to Home Screen**.
-
-**Updating:** install a newer APK straight over the old one. Your notes and settings stay.
-
-**One-off, if you installed build 18 or earlier:** those builds were each signed with a different key by mistake, so Android refuses to install a newer one over them ("App not installed"). Uninstall the old app once, then install the newest APK. Uninstalling deletes what was saved on the phone (notes, to-dos, colours, the card), so note down anything you need first. From then on, updates install over the app as normal.
-
-## Connect your timetable
-
-The app walks you through it the first time:
-1. Open your timetable on the university website.
-2. Find **Export** or **Subscribe**, and confirm it.
-3. Copy the link and paste it into the app.
-
-Keep the link private, because anyone with it can see your timetable.
-
-If the web version says the university's server blocked it, either import the `.ics` file, or set up the free relay described in `app/features/web-relay/extras/README.md`.
-
-## How it's made
-
-The app is built with **Folio**, a small framework where every feature is a folder:
-
-```
-app/features/notes/        everything for Notes: code, styles, README, tests
-app/features/reminders/    everything for Reminders
-…
-folio/                     the framework itself (see folio/README.md)
-build.py                   the compiler: python build.py
+```powershell
+Set-Location 'C:\Users\jackc\Documents\Durham app\Campus card'
+npm.cmd ci
+npm.cmd run dev
 ```
 
-Deleting a feature folder removes that feature and nothing else, and the automatic tests check exactly that.
+Open **http://127.0.0.1:5173/**. `npm.cmd start` and `npm.cmd run dev:web` also run the standalone Vite frontend. The server binds to loopback only and fails clearly if port 5173 is occupied. No API proxy or planner is started.
 
-**Adding a feature with Claude:** open this folder in Claude and describe what you want, for example *"Add a feature that shows how long it takes to walk between classes."* Claude reads `CLAUDE.md` and `folio/README.md`, makes a new feature folder, tests it, and tells you which files to upload.
+Stop a server started in your terminal with **Ctrl+C**. To stop the servers already started by Codex, or both local development servers from another terminal:
 
-**Commands** (need Python 3.9+, and Chrome or Edge for the tests):
+```powershell
+npm.cmd run stop
+```
 
-| Command | What it does |
-|---|---|
-| `python build.py` | Compiles the app into `dist/`, with a report in `dist/report.html`. |
-| `python build.py serve --test` | Runs the app on your computer with sample data, at http://localhost:8000. |
-| `python build.py test` | Runs every test, including deleting each feature in turn. |
-| `python build.py new-feature NAME` | Starts a new feature folder. |
-| `python build.py list` | Lists features and what they need. |
+This uses per-server tokens stored in ignored `.dev-run` files to stop only this project's matching development servers; it does not terminate unrelated processes by port. Stale records are harmless. In macOS/Linux shells use `npm` instead of `npm.cmd`.
 
-**Releasing:** every upload to GitHub runs the tests, then builds the APK and the web version. If a test fails, nothing is released, so a broken version never reaches anyone's phone.
+## Private iPhone HTTPS testing
 
-**The `signing` folder on GitHub:** don't delete it. It's what lets new versions install over old ones.
+```powershell
+npm.cmd run dev:iphone
+```
+
+This uses OpenSSL already included with Git for Windows, generates certificates inside ignored `.dev-certs`, and prints the current Wi-Fi address. It does not install anything in your computer's trust store. HTTPS binds only to the selected private LAN IPv4 address, rather than every network interface. No public tunnel, router forwarding or hosting service is used.
+
+Current addresses on 15 October 2026:
+
+- App: **https://10.247.251.111:5443/**
+- Public development CA download: **http://10.247.251.111:5442/campus-card-dev-ca.cer**
+
+On your iPhone, connected to the same Wi-Fi:
+
+1. Open the CA download URL in Safari and allow the configuration profile download. The HTTP helper serves only this public certificate; it cannot serve the app or private keys.
+2. Open Settings > General > VPN & Device Management (or Profile Downloaded), select Campus Card Local Development CA and install it.
+3. Open Settings > General > About > Certificate Trust Settings, then enable full trust for Campus Card Local Development CA. Manually installing the certificate alone does not enable SSL trust. See [Apple's certificate trust instructions](https://support.apple.com/en-gb/102390).
+4. Open the HTTPS app URL in Safari. Tap Scan barcode and allow Camera access. If previously denied, change this site's camera setting in Safari's page/website settings and reload. Screen Time or managed-device policies can also block access.
+5. Remove the development CA profile and disable its trust when testing is finished. Never share `.dev-certs` or its private keys.
+
+The root CA SHA-256 fingerprint can be compared with the terminal's output:
+
+`A9:39:D8:E7:BD:83:76:3B:CA:2D:97:A9:12:8E:49:92:14:C7:6C:40:F4:04:6D:55:4D:E1:45:CC:01:84:90:07`
+
+Only trust the CA generated by your own copy of this project. The fingerprint changes if you regenerate the CA. Root lifetime is one year; the server certificate is 30 days and renewed on restart as needed, including when your IP changes. A regenerated CA must be installed/trusted again.
+
+If Windows Firewall asks, allow Node only on a trusted private network. This setup does not automatically change firewall rules. If the iPhone cannot reach either URL, check firewall settings and whether the Wi-Fi isolates devices; university or guest Wi-Fi may prevent peer connections. A trusted home network or private hotspot can be used instead. Do not open router ports or enable public-network firewall access.
+
+If the address changes, restart `dev:iphone` and use its newly printed URLs. If automatic interface selection is wrong:
+
+```powershell
+$env:CAMPUS_CARD_LAN_IP = 'YOUR_PRIVATE_WIFI_IPV4'
+npm.cmd run dev:iphone
+```
+
+`OPENSSL_PATH` can point to an existing OpenSSL executable on systems without Git's bundled executable.
+
+HTTP localhost qualifies as a secure context for desktop camera access. HTTP to a LAN IP does not, so iPhone scanning uses the trusted HTTPS endpoint. Bypassing a certificate warning is not a substitute for installing/trusting the CA. See [MDN getUserMedia](https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia).
+
+## Verification
+
+```powershell
+npm.cmd test
+npm.cmd run test:browser
+npm.cmd run build
+# With both development servers running:
+npm.cmd run test:local
+```
+
+Verified on 15 October 2026:
+
+- 33 unit tests cover existing behavior and privacy-safe camera telemetry.
+- 37 standalone browser tests cover live/photo parity, quiet-zone preservation, camera processing, direct manual entry, supported-format scanning, persistence and mobile display regressions. See LIVE_CAMERA_INVESTIGATION.md for the 17 October investigation, DURHAM_BARCODE_FINDINGS.md for barcode identification, SCANNER_REPAIR.md for the frame-delivery repair, and SCANNER_PERFORMANCE.md for the earlier performance investigation. Physical-card scanning still requires user verification.
+- HTTP and HTTPS returned the app; HTTPS certificate chain and IP hostname validation passed using the generated CA.
+- Private-key and stop-token files are blocked by Vite; the HTTP certificate helper returned 404 for private files.
+- An HTTPS Chromium smoke test passed secure-context checks, real browser getUserMedia with a synthetic camera device, live video preview and camera cancellation/track cleanup. Its test process pins only this development certificate's public key; no global browser/OS trust was changed.
+- Production TypeScript/Vite build passed. The WASM decoder/writer is bundled locally; no CDN or backend is required for decoding.
+
+Physical desktop cameras and an actual iPhone have not been tested remotely. The phone still needs the trust and camera-permission steps above. Browser tests use synthetic data only. If Playwright Chromium is absent, run `npx.cmd playwright install chromium`.
+
+## Existing feature limitations and Capacitor
+
+- The supplied Durham card is confirmed as Telepen Numeric / ]B1, START 1 / STOP 1, using its printed number and an independent full bar-pattern match. Other supported formats remain available. This does not identify every Durham card generation.
+- Manual entry now uses that confirmed Numeric encoding without a photo, preserves leading zeros and validates digit pairs before preview/save. No university-wide fixed length is assumed. Optional photo verification remains available.
+- Browser credentials now persist encrypted in IndexedDB using AES-GCM and a non-exportable key. They survive reload and open directly on the saved barcode. This remains development storage: same-origin scripts can decrypt, and clearing site data removes the card. In-session offline display works; browser offline cold start is not implemented.
+- Capacitor still consumes Vite `dist` and uses identity `org.durhamcampuscard.app`. Capacitor 8 and a Keychain plugin are installed, and native platforms now select an actual Keychain driver with device-only/unlocked accessibility and no iCloud sync. Native project setup, permissions and real-device verification remain required. The private development URL is not hardcoded into native configuration.
+
+See [DURHAM_BARCODE_FINDINGS.md](DURHAM_BARCODE_FINDINGS.md) for confirmed physical-card evidence and current manual-entry behavior, and [CAMPUS_CARD.md](CAMPUS_CARD.md) for architecture/storage notes. Earlier missing-evidence/manual-blocking notes there are historical. Gate compatibility has not been physically tested.

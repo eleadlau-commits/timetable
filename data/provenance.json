@@ -1,0 +1,72 @@
+{
+  "recorded_at": "2026-10-11T21:07:10.111088+00:00",
+  "reused_downloads": false,
+  "sources": [
+    {
+      "url": "https://data.bus-data.dft.gov.uk/timetable/download/gtfs-file/north_east/",
+      "last_modified": null,
+      "etag": null,
+      "file": "north-east-gtfs.zip",
+      "bytes": 58446334,
+      "sha256": "7bf2fb60e0cb76825ac1102cf2071f0c4ec1e5f628d52dc664b969737ed69ff8",
+      "licence": "Open Government Licence v3.0"
+    },
+    {
+      "url": "https://download.geofabrik.de/europe/united-kingdom/england/durham-latest.osm.pbf",
+      "last_modified": "Thu, 08 Oct 2026 23:13:41 GMT",
+      "etag": "\"16afeff-65d5c61e506a6\"",
+      "file": "durham.osm.pbf",
+      "bytes": 23789311,
+      "sha256": "3105e60204ef51a4d2130f0ab04c959dd5feb5ea3b9ee0ea71510700a9f381e0",
+      "licence": "ODbL 1.0"
+    },
+    {
+      "url": "https://download.geofabrik.de/europe/united-kingdom/england/tyne-and-wear-latest.osm.pbf",
+      "last_modified": "Thu, 08 Oct 2026 23:11:15 GMT",
+      "etag": "\"128e019-65d5c5934002a\"",
+      "file": "tyne-and-wear.osm.pbf",
+      "bytes": 19456025,
+      "sha256": "041d87de0cd02efe6a3489346dbd869fbcd0e08ece6beaf2e514a42ce19f925e",
+      "licence": "ODbL 1.0"
+    },
+    {
+      "url": "https://download.geofabrik.de/europe/united-kingdom/england/northumberland-latest.osm.pbf",
+      "last_modified": "Thu, 08 Oct 2026 23:12:40 GMT",
+      "etag": "\"18fea22-65d5c5e440074\"",
+      "file": "northumberland.osm.pbf",
+      "bytes": 26208802,
+      "sha256": "0941d52928eb4d79efe429ee69c56755a02cfde2416a6688a2410f265a2dfd9e",
+      "licence": "ODbL 1.0"
+    },
+    {
+      "url": "https://download.geofabrik.de/europe/united-kingdom/england/north-yorkshire-latest.osm.pbf",
+      "last_modified": "Thu, 08 Oct 2026 23:12:07 GMT",
+      "etag": "\"3acf9ab-65d5c5c50f18a\"",
+      "file": "north-yorkshire.osm.pbf",
+      "bytes": 61667755,
+      "sha256": "edc5af274ad92c6a4cb1a1c9f78b6304af1840fde77e12935ff6f3a1d4bb57de",
+      "licence": "ODbL 1.0"
+    },
+    {
+      "url": "https://download.geofabrik.de/europe/united-kingdom/england/cumbria-latest.osm.pbf",
+      "last_modified": "Thu, 08 Oct 2026 23:11:44 GMT",
+      "etag": "\"2b98211-65d5c5af89488\"",
+      "file": "cumbria.osm.pbf",
+      "bytes": 45711889,
+      "sha256": "0cae922d89af517cb2840c1c932dd2d7961fc620ea5df5ffb6efa617a6ca55a9",
+      "licence": "ODbL 1.0"
+    }
+  ],
+  "derived_osm": {
+    "file": "data/otp/north-east.osm.pbf",
+    "sha256": "fd3a8ca09fe7a3890c01e5f87d364461aac7f78cc23e1f8a1d87291a417fe94f",
+    "operation": "osmium merge (deduplicated regional extracts)",
+    "input_files": [
+      "durham.osm.pbf",
+      "tyne-and-wear.osm.pbf",
+      "northumberland.osm.pbf",
+      "north-yorkshire.osm.pbf",
+      "cumbria.osm.pbf"
+    ]
+  }
+}

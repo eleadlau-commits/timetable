@@ -1,6 +1,0 @@
-{
-  "name": "Friends",
-  "description": "The Friends button in the top bar. Friends isn't built yet, so it says Coming soon.",
-  "version": "1.0.0",
-  "main": "Friends.js"
-}

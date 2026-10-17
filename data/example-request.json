@@ -1,0 +1,15 @@
+{
+  "query": "query($from: InputCoordinates!, $to: InputCoordinates!, $date: String!, $time: String!) {\n  plan(from: $from, to: $to, date: $date, time: $time,\n       transportModes: [{mode: WALK}, {mode: BUS}], numItineraries: 5) {\n    itineraries { startTime endTime duration walkTime waitingTime numberOfTransfers\n      legs { mode startTime endTime duration transitLeg\n        from { name lat lon } to { name lat lon }\n        route { gtfsId shortName longName agency { name } }\n        trip { gtfsId }\n        legGeometry { points }\n        steps { distance streetName relativeDirection absoluteDirection }\n      }\n    }\n  }\n}",
+  "variables": {
+    "from": {
+      "lat": 54.77726,
+      "lon": -1.581945
+    },
+    "to": {
+      "lat": 54.790713,
+      "lon": -1.595289
+    },
+    "date": "2026-10-12",
+    "time": "09:25:00"
+  }
+}

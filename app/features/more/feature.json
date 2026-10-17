@@ -1,7 +1,0 @@
-{
-  "name": "More",
-  "description": "The More tab: a list of everything else the app can do.",
-  "version": "1.0.0",
-  "main": "More.js",
-  "styles": ["more.css"]
-}
