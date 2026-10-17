@@ -230,7 +230,7 @@ export default class Reminders extends Feature {
   }
 
   buildWindow() {
-    this.window = ui.dialog({ title: 'Reminders' });
+    this.window = ui.dialog({ title: 'Reminders', size: 'box' });
     this.leadChoice = ui.select(LEADS, {
       id: 'reminders-lead',
       onChange: async (value) => {

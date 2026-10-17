@@ -70,6 +70,7 @@ export default class CampusCard extends Feature {
   buildWindow() {
     this.window = ui.dialog({
       title: 'Campus card',
+      size: 'box',
       onClose: () => {
         this.stopScan();
         this.keepAwake(false);
