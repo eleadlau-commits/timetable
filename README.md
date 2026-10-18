@@ -8,7 +8,7 @@ GitHub builds the app for you, so you don't need to install anything. You get:
 
 ## Features
 
-The app has five tabs along the bottom: **Study · Planner · Home · Spots · More**. It opens on Home. Tap a tab, or swipe left or right on the tab bar to move to the next one. The menu (top left) slides in from the left: it shows whether you're signed in (not yet: accounts are coming) and when the timetable was last updated, then **Account, Reminders, Settings, Help, About** and **Feedback**. Tap outside it, swipe it away or press back to close it. At the top right, the two-people button is for **Friends** and the person icon opens your **Account** page, where you can sign in with Google. Friends is coming soon. Mobile Durham is made by students and isn't affiliated with Durham University. It follows your phone's light or dark setting.
+The app has five tabs along the bottom: **Study · Planner · Home · Spots · More**. It opens on Home. Tap a tab, or swipe left or right on the tab bar to move to the next one. The menu (top left) slides in from the left: it shows whether you're signed in (not yet: accounts are coming) and when the timetable was last updated, then **Account, Reminders, Settings, Help, About** and **Feedback**. Tap outside it, swipe it away or press back to close it. At the top right, the two-people button is for **Friends** and the person icon opens your **Account** page, where you can sign in with Google and read the **privacy notice** (what's stored online, who can see it, and how to delete it). Friends is coming soon. Mobile Durham is made by students and isn't affiliated with Durham University. It follows your phone's light or dark setting.
 
 | Feature | What it does |
 |---|---|

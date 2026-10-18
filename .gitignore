@@ -3,3 +3,6 @@ dist/
 node_modules/
 *.apk
 __pycache__/
+
+# Logs from Google's database emulator (firebase/).
+*-debug.log

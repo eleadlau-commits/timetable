@@ -1,6 +1,7 @@
 # Tests the app, then builds the Android app (APK) and publishes the web version to GitHub Pages,
 # every time you upload changes or press "Run workflow" on the Actions tab.
-# If any test fails, nothing is released, so a broken version never reaches anyone's phone.
+# If any test fails (including the database rules' tests), nothing is released, so a broken version
+# never reaches anyone's phone.
 
 name: Build app
 
@@ -31,9 +32,28 @@ jobs:
       - name: Run all tests
         run: python build.py test --require-browser
 
+  rules:
+    name: Database rules
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-java@v4   # Google's database emulator needs Java
+        with:
+          distribution: temurin
+          java-version: '21'
+      # Checks firebase/firestore.rules: only you can read your own data, strangers can't, and so on.
+      - name: Test the database rules
+        working-directory: firebase
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+
   android:
     name: Android app (APK)
-    needs: test
+    needs: [test, rules]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -156,7 +176,7 @@ jobs:
 
   website:
     name: Web version (GitHub Pages)
-    needs: test
+    needs: [test, rules]
     runs-on: ubuntu-latest
     # Only works once Pages is switched on (Settings → Pages → Source: GitHub Actions).
     # Until then this job fails without affecting the APK.

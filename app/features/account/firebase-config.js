@@ -9,3 +9,4 @@ export const FIREBASE_CONFIG = {
   messagingSenderId: '116399300931',
   appId: '1:116399300931:web:c0f2eaccb8a20266044ff6',
 };
+

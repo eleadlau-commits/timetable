@@ -1,5 +1,11 @@
 // Rules for the account, without any screen code, so they can be tested.
 
+// Everything a person has stored online, as database paths. "Delete my account" deletes all of
+// these first. Whatever a later step stores online must be added here (and to firebase/firestore.rules).
+export function onlineData(uid) {
+  return [`users/${uid}/private/main`];
+}
+
 // The few things the app keeps about the signed-in person, from Firebase's user.
 export function toUser(firebaseUser) {
   if (!firebaseUser?.uid) return null;
