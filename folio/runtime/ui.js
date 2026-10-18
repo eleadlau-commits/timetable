@@ -75,8 +75,9 @@ export function toast(message) {
 
 // A pop-up window with a title and a close button. Create it once, then open() it as often as
 // you like. Put your content in it with setContent(...nodes) or append to `.content`.
-// It fills the screen, with the title bar staying at the top; size: 'box' makes it a small box
-// in the middle instead, for something quick such as a barcode.
+// It fills the screen, with the title bar staying at the top; pulling it down from the top
+// closes it. size: 'box' makes it a small box in the middle instead, for something quick such
+// as a barcode.
 export function dialog({ title = '', className = '', size = 'full', onClose } = {}) {
   const heading = el('h2', {}, title);
   const content = el('div', { class: 'dialog-content' });
@@ -88,6 +89,7 @@ export function dialog({ title = '', className = '', size = 'full', onClose } = 
       content));
   element.addEventListener('click', (e) => { if (e.target === element) element.close(); }); // tap outside a box to close
   if (onClose) element.addEventListener('close', onClose);
+  if (size !== 'box') pullToClose(element);
   document.body.append(element);
   return {
     element,
@@ -153,15 +155,72 @@ export function filePicker(accept) {
 }
 
 // Calls fn(+1) for a swipe to the left (next) and fn(-1) for a swipe to the right (previous).
+// fn's second argument is the element the finger started on.
 export function onSwipe(target, fn) {
   let x = 0;
   let y = 0;
-  target.addEventListener('touchstart', (e) => { x = e.changedTouches[0].clientX; y = e.changedTouches[0].clientY; }, { passive: true });
+  let start = null;
+  target.addEventListener('touchstart', (e) => {
+    x = e.changedTouches[0].clientX;
+    y = e.changedTouches[0].clientY;
+    start = e.target;
+  }, { passive: true });
   target.addEventListener('touchend', (e) => {
     const dx = e.changedTouches[0].clientX - x;
     const dy = e.changedTouches[0].clientY - y;
-    if (Math.abs(dx) > 60 && Math.abs(dy) < 45) fn(dx < 0 ? 1 : -1);
+    if (Math.abs(dx) > 60 && Math.abs(dy) < Math.abs(dx) * 0.6) fn(dx < 0 ? 1 : -1, start);
   }, { passive: true });
+}
+
+// Whether a sideways swipe starting on `node` belongs to something there, rather than to the
+// page: an element marked data-own-swipe (e.g. Home's pages), or something that scrolls sideways.
+export function ownsSwipe(node, stop) {
+  for (let n = node instanceof Element ? node : node?.parentElement; n && n !== stop; n = n.parentElement) {
+    if (n.hasAttribute('data-own-swipe')) return true;
+    if (n.scrollWidth > n.clientWidth + 1 && /auto|scroll/.test(getComputedStyle(n).overflowX)) return true;
+  }
+  return false;
+}
+
+// Pulling a full-screen pop-up down, from the top of its content, closes it. It follows the
+// finger, and springs back if it isn't pulled far enough.
+const PULL_DECIDE = 8; // px before a touch counts as a pull down or not
+const PULL_CLOSE = 110; // px pulled down that closes it
+function pullToClose(dialog) {
+  let pull = null; // { x, y, dy, down } while a finger is down at the top
+  const reset = () => {
+    dialog.classList.remove('pulling');
+    dialog.style.transform = '';
+  };
+  dialog.addEventListener('touchstart', (e) => {
+    const t = e.changedTouches[0];
+    const atTop = dialog.scrollTop <= 0;
+    pull = atTop && !e.target.closest?.('input, textarea, select') ? { x: t.clientX, y: t.clientY, dy: 0, down: null } : null;
+  }, { passive: true });
+  dialog.addEventListener('touchmove', (e) => {
+    if (!pull) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - pull.x;
+    pull.dy = t.clientY - pull.y;
+    if (pull.down === null && Math.hypot(dx, pull.dy) > PULL_DECIDE) pull.down = pull.dy > 0 && pull.dy > Math.abs(dx);
+    if (!pull.down) return;
+    dialog.classList.add('pulling');
+    dialog.style.transform = `translateY(${Math.max(0, pull.dy)}px)`;
+  }, { passive: true });
+  const end = () => {
+    const p = pull;
+    pull = null;
+    if (!p?.down) return reset();
+    if (p.dy > PULL_CLOSE) {
+      dialog.close();
+      reset();
+    } else {
+      dialog.classList.remove('pulling');
+      dialog.style.transform = ''; // springs back (see base.css)
+    }
+  };
+  dialog.addEventListener('touchend', end, { passive: true });
+  dialog.addEventListener('touchcancel', end, { passive: true });
 }
 
 // Loads an outside script (e.g. a library from a CDN) once.

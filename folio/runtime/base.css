@@ -526,6 +526,11 @@ dialog.dialog-full {
   max-height: none;
   margin: 0;
   border-radius: 0;
+  transition: transform 0.22s ease; /* springing back after a pull that didn't close it */
+}
+dialog.dialog-full.pulling { transition: none; }
+@media (prefers-reduced-motion: reduce) {
+  dialog.dialog-full { transition: none; }
 }
 .dialog-full .dialog-body {
   width: min(100%, 680px);

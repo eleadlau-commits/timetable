@@ -1,8 +1,8 @@
 // The tab bar along the bottom: one tab per view. The selected tab is filled in the accent colour
 // and the line above the bar glows over it. Both slide when the selection changes.
 //
-// Swiping left or right on the bar (only there) moves to the next or previous tab, stopping at
-// the ends. While the finger is down, the bar shifts with it a little and the highlight moves
+// Swiping left or right on the bar (or anywhere on the page, through move()) moves to the next
+// or previous tab, stopping at the ends. While the finger is down, the bar shifts with it a little and the highlight moves
 // part of the way towards the tab it's heading for. Tapping a tab works as usual.
 
 import { el, icon } from './ui.js';
@@ -36,6 +36,12 @@ export class Tabs {
     }, icon(v.icon || 'dots'), el('span', {}, v.label)));
     this.track.replaceChildren(this.pill, ...this.buttons);
     this.place(this.drag?.sideways ? this.drag.pos : this.index);
+  }
+
+  // Goes to the next (+1) or previous (-1) tab, stopping at the ends.
+  move(direction) {
+    const target = this.views[this.index + direction];
+    if (target) this.select(target.id);
   }
 
   // Puts the highlight and glow at a tab (a fraction is between two tabs).

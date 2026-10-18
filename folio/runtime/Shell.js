@@ -13,7 +13,7 @@
 //
 // See folio/README.md for details and examples.
 
-import { el, icon, toast, onSwipe } from './ui.js';
+import { el, icon, toast, onSwipe, ownsSwipe } from './ui.js';
 import { Menu } from './Menu.js';
 import { Settings } from './Settings.js';
 import { Tabs } from './Tabs.js';
@@ -47,7 +47,9 @@ export class Shell {
       this.tabs);
     root.replaceChildren(this.frame);
 
-    onSwipe(this.viewHost, (dir) => this.step(dir));
+    // Swiping sideways anywhere on the page goes to the next or previous tab, unless the swipe
+    // belongs to something there (see ownsSwipe).
+    onSwipe(this.main, (dir, start) => { if (!ownsSwipe(start, this.main)) this.tabBar.move(dir); });
     document.addEventListener('keydown', (e) => {
       if (this.main.hidden || document.querySelector('dialog[open]')) return;
       if (e.target.matches?.('input, textarea, select')) return;
