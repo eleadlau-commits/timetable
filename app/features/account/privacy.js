@@ -5,7 +5,7 @@ import { ui } from 'folio';
 
 const { el } = ui;
 
-export const UPDATED = '18 October 2026';
+export const UPDATED = '19 October 2026';
 
 // Where people write about their data. Public: it's shown in the app.
 export const CONTACT = 'mobiledurham.help@gmail.com';
@@ -22,15 +22,19 @@ export function privacyNotice() {
     part('With an account',
       'You sign in with Google. Google tells us your name, email address and profile picture, and gives you an account number. We use these only to show who is signed in and to keep your things yours.',
       'While you\'re signed in, your timetable link is backed up to your private area, which only you can read, so your timetable comes back on a new phone. You can switch this off on the account page, which deletes the online copy. Nothing else from your timetable is stored online.',
-      'Friends and timetable sharing aren\'t here yet. Before they are, this notice will say exactly what friends can see.'),
+      'If you use Friends, you get a friend code, and people you give it to can find you by it (there\'s no searching by name or email). Your name for friends (your first name to start with, which you can change) and your list of friends and requests are stored too.'),
+    part('What friends can see',
+      'When you send someone a request, they can see your timetable straight away. You see theirs once they accept. Cancelling, declining or removing a friend stops it both ways, straight away.',
+      'They see your name for friends and your classes for the next 4 weeks: the university\'s names for them, their times and rooms. Never modules you\'ve hidden, your own names for modules, notes, reminders, to-dos, your timetable link, your email or your picture.',
+      'Your shared timetable is kept up to date while you have friends or requests, and deleted when you have none.'),
     part('Where it\'s kept',
-      'With Google\'s Firebase service. Your private area is stored in London. Sign-in is handled by Google.'),
+      'With Google\'s Firebase service, in London. Sign-in is handled by Google.'),
     part('Who can see it',
-      'Only you. The database\'s rules refuse everyone else, and they are tested automatically before every new version of the app. The people who run Mobile Durham could reach the database to fix a problem, but don\'t look at what\'s in it unless the law requires it.'),
+      'Your private area and timetable link: only you. Your shared timetable: only you and the people described above. The database\'s rules refuse everyone else, and they are tested automatically before every new version of the app. The people who run Mobile Durham could reach the database to fix a problem, but don\'t look at what\'s in it unless the law requires it.'),
     part('What we don\'t do',
       'No adverts, no selling or sharing your data, no tracking of what you do in the app.'),
     part('How long it\'s kept, and deleting it',
-      'Until you delete it. Delete my account, on the account page, removes everything stored online straight away and then your account. What\'s on your phone stays until you remove the app.'),
+      'Until you delete it. Delete my account, on the account page, removes everything stored online straight away (your private area, friend code, friendships, requests and shared timetable) and then your account. What\'s on your phone stays until you remove the app.'),
     part('Your rights',
       'You can ask to see, correct or delete what\'s stored about you, and you can delete it all yourself at any time. If you\'re unhappy with how your data is handled, you can complain to the Information Commissioner\'s Office (ico.org.uk).'),
     el('section', { class: 'privacy-part' }, el('h3', {}, 'Contact'),

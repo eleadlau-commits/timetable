@@ -6,6 +6,8 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ---- Who is asking ----
+
     // Signed in with Google (the only way the app signs people in).
     function signedIn() {
       return request.auth != null && request.auth.token.firebase.sign_in_provider == 'google.com';
@@ -15,14 +17,19 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // Your private area: only you can read or change it. One document, "main", holding your
-    // timetable link (if you back it up) and when it was last saved.
+    // ---- Your private area: only you can read or change it ----
+    //   main     your timetable link (if you back it up)
+    //   profile  your name for friends, your friend code, and the people you've asked or
+    //            accepted (at most 50), which limits how many requests and friends you can have
+
     match /users/{uid}/private/{doc} {
-      allow read, delete: if isMe(uid) && doc == 'main';
-      allow create, update: if isMe(uid) && doc == 'main' && validPrivate(request.resource.data);
+      allow read, delete: if isMe(uid) && doc in ['main', 'profile'];
+      allow create, update: if isMe(uid)
+        && ((doc == 'main' && validMain(request.resource.data))
+          || (doc == 'profile' && validProfile(uid, request.resource.data)));
     }
 
-    function validPrivate(d) {
+    function validMain(d) {
       return d.keys().hasOnly(['link', 'updatedAt'])
         && d.keys().hasAll(['updatedAt'])
         && d.updatedAt == request.time
@@ -31,6 +38,135 @@ service cloud.firestore {
 
     function validLink(link) {
       return link is string && link.size() <= 2048 && link.matches('(https|webcal)://[^\\s]+');
+    }
+
+    function validProfile(uid, d) {
+      return d.keys().hasOnly(['name', 'code', 'people', 'updatedAt'])
+        && d.keys().hasAll(['name', 'code', 'people', 'updatedAt'])
+        && validName(d.name)
+        && validCode(d.code)
+        && d.people is list && d.people.size() <= 50 && !(uid in d.people)
+        && d.updatedAt == request.time;
+    }
+
+    function validName(name) {
+      return name is string && name.size() >= 1 && name.size() <= 30;
+    }
+
+    // Friend codes look like MD-7K3Q-9P2X: letters and digits that can't be confused.
+    function validCode(code) {
+      return code is string && code.matches('MD-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}');
+    }
+
+    function profile(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)/private/profile).data;
+    }
+
+    function profileAfter(uid) {
+      return getAfter(/databases/$(database)/documents/users/$(uid)/private/profile).data;
+    }
+
+    // ---- Friend codes: look up who a code belongs to ----
+    // Anyone signed in can look up one code they've been given, but nobody can list codes.
+    // A code can only be made by its owner, and must be the one in their profile.
+
+    match /codes/{code} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn() && validCode(code)
+        && request.resource.data.keys().hasOnly(['uid', 'name'])
+        && request.resource.data.uid == request.auth.uid
+        && validName(request.resource.data.name)
+        && profileAfter(request.auth.uid).code == code;
+      allow update: if isMe(resource.data.uid)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name'])
+        && validName(request.resource.data.name);
+      allow delete: if isMe(resource.data.uid);
+    }
+
+    // ---- Friendships: one document per pair of people, named "<uid>_<uid>" (smaller first) ----
+    //   pending   "from" asked "to". "to" can already see from's timetable.
+    //   accepted  both can see each other's.
+    // Only "from" can create it, only "to" can accept it, either can rename themselves in it,
+    // and either can delete it (cancel, decline or remove).
+
+    function pairId(a, b) {
+      return a < b ? a + '_' + b : b + '_' + a;
+    }
+
+    function friendship(a, b) {
+      return /databases/$(database)/documents/friendships/$(pairId(a, b));
+    }
+
+    match /friendships/{pair} {
+      // You can look at a pair you're part of (even before it exists), and list your own.
+      allow get: if signedIn() && request.auth.uid in pair.split('_');
+      allow list: if signedIn() && request.auth.uid in resource.data.users;
+
+      allow create: if signedIn() && validRequest(pair, request.resource.data);
+
+      // Accepting: only "to", only from pending, and only the status, time and their own name change.
+      allow update: if signedIn() && request.auth.uid == resource.data.to
+        && resource.data.status == 'pending'
+        && request.resource.data.status == 'accepted'
+        && request.resource.data.acceptedAt == request.time
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'acceptedAt', 'names'])
+        && onlyMyName(request.resource.data, resource.data)
+        // Counts against your limit of 50 people.
+        && resource.data.from in profileAfter(request.auth.uid).people;
+
+      // Renaming yourself: only your own name changes.
+      allow update: if signedIn() && request.auth.uid in resource.data.users
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['names'])
+        && onlyMyName(request.resource.data, resource.data);
+
+      allow delete: if signedIn() && request.auth.uid in resource.data.users;
+    }
+
+    function validRequest(pair, d) {
+      let me = request.auth.uid;
+      return d.keys().hasOnly(['users', 'from', 'to', 'status', 'names', 'code', 'createdAt'])
+        && d.from == me
+        && d.to is string && d.to != me
+        && pair == pairId(me, d.to)
+        && d.users == (me < d.to ? [me, d.to] : [d.to, me])
+        && d.status == 'pending'
+        && d.createdAt == request.time
+        // You need their code: it must be a real code belonging to them.
+        && validCode(d.code)
+        && get(/databases/$(database)/documents/codes/$(d.code)).data.uid == d.to
+        // Names: yours and theirs, as shown to each of you.
+        && d.names.keys().hasOnly([me, d.to]) && d.names.keys().hasAll([me, d.to])
+        && validName(d.names[me]) && validName(d.names[d.to])
+        // Counts against your limit of 50 people.
+        && d.to in profileAfter(me).people;
+    }
+
+    function onlyMyName(after, before) {
+      return after.names.diff(before.names).affectedKeys().hasOnly([request.auth.uid])
+        && validName(after.names[request.auth.uid]);
+    }
+
+    // ---- Shared timetables: your classes for the next 4 weeks ----
+    // You can write your own. Someone else can read it only if you've asked them (pending, from
+    // you) or you're friends (accepted).
+
+    match /shared/{uid} {
+      allow read: if isMe(uid) || (signedIn() && canSee(request.auth.uid, uid));
+      allow create, update: if isMe(uid) && validShared(request.resource.data);
+      allow delete: if isMe(uid);
+    }
+
+    function canSee(viewer, owner) {
+      let path = friendship(viewer, owner);
+      return exists(path)
+        && (get(path).data.status == 'accepted' || get(path).data.from == owner);
+    }
+
+    function validShared(d) {
+      return d.keys().hasOnly(['classes', 'updatedAt'])
+        && d.classes is list && d.classes.size() <= 400
+        && d.updatedAt == request.time;
     }
   }
 }

@@ -2,7 +2,14 @@
 
 Mobile Durham's online data lives in Firebase's database (Firestore, project `mobile-durham`, stored in London). **The rules in `firestore.rules` decide who may read or change what.** Anything they don't allow is refused, even for someone using the app.
 
-Right now they allow one thing: **your own private area** (`users/<your account>/private/main`), which only you can read, change or delete. It holds your timetable link, if you back it up, and when it was last saved. Only Google sign-ins count, and what's saved must have exactly the right shape (a link of at most 2,048 characters starting with `https://` or `webcal://`, and a time set by Firebase itself).
+They allow:
+
+- **Your private area** (`users/<you>/private/main` and `…/profile`): only you. `main` holds your timetable link (backup); `profile` your name for friends, friend code and the people you've asked or accepted (at most 50).
+- **Friend codes** (`codes/<code>`): anyone signed in can look up a code they've been given, but nobody can list them. Only you can make your code, and only the one in your profile.
+- **Friendships** (`friendships/<a>_<b>`): only the two people can read one. Only the asker can create it, with a real code belonging to the other person; only the person asked can accept it; each can only change their own name; either can delete it.
+- **Shared timetables** (`shared/<you>`): only you can write yours. You, people you've asked, and friends can read it.
+
+Only Google sign-ins count, and everything must have exactly the right shape (names of 1–30 characters, links of at most 2,048 starting with `https://` or `webcal://`, times set by Firebase itself). The tests in `tests/` (`rules.test.mjs` for your private area, `friends.test.mjs` for friends) check each of these, including what must be refused.
 
 ## Other defences
 

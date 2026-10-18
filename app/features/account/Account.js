@@ -16,10 +16,13 @@
 //   database()      Firebase's database (Firestore), once Firebase knows who is signed in;
 //                   fails with Error('signed-out') if nobody is
 //   serverTime()    a value that the database turns into its own clock's time
+//   fields          Firestore's FieldValue (arrayUnion, arrayRemove, …), once database() has run
 //   open()          opens the account page
 //   redraw()        draws the account page again, if it's open
 // Slot 'account.sections': parts of the signed-in account page, e.g. Backup.
 //   Item: { order, render(user) → element or null }
+// Slot 'account.cleanup': online data other features keep that Delete my account must remove
+//   first, e.g. friendships. Item: { order, remove(db, uid) → Promise }
 // Event 'account:changed': sent with the user (or null) when someone signs in or out.
 // Saved data: 'user' → { uid, name, email, photo }, so the name shows straight away and offline.
 
@@ -35,6 +38,8 @@ export default class Account extends Feature {
     this.user = this.storage.get('user', null);
     this.busy = false;
     this.error = null;
+    this.defineSlot('account.cleanup',
+      'Online data to remove when someone deletes their account, before their own areas. Item: { order, remove(db, uid) → Promise }.');
     this.defineSlot('account.sections',
       'Parts of the signed-in account page, under your name. Item: { order, render(user) → element or null }.');
     this.provide('account', this);
@@ -80,7 +85,11 @@ export default class Account extends Feature {
   }
 
   serverTime() {
-    return window.firebase.firestore.FieldValue.serverTimestamp();
+    return this.fields.serverTimestamp();
+  }
+
+  get fields() {
+    return window.firebase.firestore.FieldValue;
   }
 
   // Gets Firebase ready while the page is open, so tapping Sign in can open Google's window
@@ -141,6 +150,7 @@ export default class Account extends Feature {
       if (!current) return this.setUser(null);
       // First everything stored online (only you are allowed to delete it), then the account.
       const db = await database();
+      for (const item of this.slot('account.cleanup').items) await item.remove(db, current.uid);
       for (const path of onlineData(current.uid)) await db.doc(path).delete();
       try {
         await current.delete();
@@ -234,9 +244,6 @@ export default class Account extends Feature {
         ui.hint('Signed in with Google.', { small: true })),
       error,
       ...this.slot('account.sections').map((section) => section.render(u)).filter(Boolean),
-      el('section', { class: 'account-part' },
-        el('h3', {}, 'Friends'),
-        ui.hint('Coming soon: add friends and see each other\'s timetables, only once you\'ve both agreed.')),
       el('button', { type: 'button', class: 'btn block', disabled: this.busy, onclick: () => this.signOut() },
         this.busy ? 'Please wait…' : 'Sign out'),
       el('button', { type: 'button', class: 'link-btn account-delete', disabled: this.busy, onclick: () => this.deleteAccount() },

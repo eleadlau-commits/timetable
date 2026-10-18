@@ -1,0 +1,91 @@
+/* Friends. A friend's timetable is grey, or tinted with a hue (--h) chosen for them; these set
+   how light and strong the tint is. */
+:root {
+  --fr-s: 60%;
+  --fr-l: 90%;
+  --fr-swatch-l: 68%;
+  --fr-strong-l: 40%;
+  --fr-grey-l: 93%;
+  --fr-grey-swatch-l: 72%;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fr-s: 30%;
+    --fr-l: 22%;
+    --fr-swatch-l: 45%;
+    --fr-strong-l: 72%;
+    --fr-grey-l: 22%;
+    --fr-grey-swatch-l: 45%;
+  }
+}
+
+.fr-page { display: grid; gap: 14px; padding-top: 14px; }
+.fr-out { display: grid; gap: 12px; padding: 24px 0; text-align: center; }
+.fr-out h3 { margin: 0; font-size: 20px; }
+.fr-out p { margin: 0; color: var(--text-2); }
+
+/* Your code */
+.fr-code { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; border-radius: var(--shape); background: var(--accent-soft); }
+.fr-code span { display: grid; gap: 2px; }
+.fr-code small { font-size: 12px; color: var(--muted); }
+.fr-code b { font-family: var(--font-mono); font-size: 20px; letter-spacing: 0.06em; color: var(--accent); }
+.fr-qr { justify-self: center; padding: 12px; border-radius: var(--shape); background: var(--surface-2); }
+.fr-qr img, .fr-qr canvas { display: block; }
+.fr-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fr-me { margin: 0; color: var(--text-2); }
+
+/* Lists of people */
+.fr-group h3 { margin: 0 0 4px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.fr-group ul { list-style: none; margin: 0; padding: 0; }
+.fr-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.fr-open { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 0; border: 0; background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+span.fr-open { cursor: default; }
+.fr-who { min-width: 0; display: grid; }
+.fr-who small { font-size: 12px; color: var(--muted); }
+.fr-actions { display: flex; gap: 6px; flex: none; }
+.fr-avatar {
+  width: 36px;
+  height: 36px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 600;
+  background: hsl(0 0% var(--fr-grey-l));
+  color: var(--text-2);
+}
+.fr-avatar[data-tinted] { background: hsl(var(--h) var(--fr-s) var(--fr-l)); color: hsl(var(--h) 50% var(--fr-strong-l)); }
+.fr-tag { padding: 2px 8px; border-radius: var(--shape-sm); font-size: 12px; font-weight: 600; white-space: nowrap; flex: none; }
+.fr-tag.free { color: var(--plenty-ink); background: var(--plenty-soft); }
+.fr-tag.busy { color: var(--busy-ink); background: var(--busy-soft); }
+
+/* Adding a friend */
+.fr-input { font-family: var(--font-mono); font-size: 18px; letter-spacing: 0.06em; text-transform: uppercase; }
+.fr-result:empty { display: none; }
+.fr-card { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: var(--shape); }
+.fr-card .fr-row { border: 0; padding: 0; }
+.fr-warn { margin: 0; color: var(--text-2); }
+
+/* A friend's timetable: grey, or their tint */
+.fr-tint-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 12px; }
+.fr-tints { display: flex; gap: 6px; flex-wrap: wrap; }
+.fr-tint { width: 30px; height: 30px; padding: 0; border: 3px solid var(--surface); border-radius: 50%; background: hsl(0 0% var(--fr-grey-swatch-l)); cursor: pointer; }
+.fr-tint[data-tinted] { background: hsl(var(--h) var(--fr-s) var(--fr-swatch-l)); }
+.fr-tint[aria-checked="true"] { box-shadow: 0 0 0 2px var(--accent); }
+.fr-timetable { display: grid; gap: 12px; }
+.fr-together { margin: 0; padding: 10px 12px; border-radius: var(--shape); background: var(--plenty-soft); color: var(--plenty-ink); }
+.fr-day h3 { margin: 0 0 6px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.fr-class {
+  display: grid;
+  gap: 2px;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+  border-radius: var(--shape);
+  background: hsl(0 0% var(--fr-grey-l));
+  color: var(--text-2);
+}
+.fr-timetable[data-tinted] .fr-class { background: hsl(var(--h) var(--fr-s) var(--fr-l)); }
+.fr-class b { display: block; font-weight: 500; }
+.fr-class small { font-size: 12px; color: var(--muted); }
+.fr-remove { justify-self: center; color: var(--danger); margin-top: 8px; }

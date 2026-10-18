@@ -6,7 +6,7 @@ Your **account page**, and signing in with Google through Firebase (project `mob
 
 - **The account page** (Folio's `account` slot): it opens from the person button at the top right and from **Account** in the menu, as a full-screen pop-up.
   - **Signed out:** a large person icon, *Not signed in*, what an account is for, that **Mobile Durham is made by students and isn't affiliated with Durham University**, and a **Sign in with Google** button. Google's sign-in window opens and, once you've chosen your account, the page shows you as signed in. A note says everything works without an account.
-  - **Signed in:** your Google picture, name and email, then other features' parts (slot `account.sections`, e.g. **Backup** from `link-backup`) and **Friends** (*coming soon*), **Sign out**, and **Delete my account** (asks first; deletes everything you've stored online, listed by `onlineData()` in `rules.js`, then your account). The not-affiliated line is at the bottom.
+  - **Signed in:** your Google picture, name and email, then other features' parts (slot `account.sections`: **Backup** from `link-backup`, **Friends** from `friends`), **Sign out**, and **Delete my account** (asks first; deletes everything you've stored online, listed by `onlineData()` in `rules.js`, then your account). The not-affiliated line is at the bottom.
   - **Privacy notice** (a link on both): what's stored, where, who can see it, how to delete it, your rights, and the contact address (`CONTACT` in `privacy.js`: mobiledurham.help@gmail.com). In `privacy.js`; update it, and its date, before anything new is stored online.
   - Problems are explained in plain words under the button: offline, the Google window was blocked, couldn't reach Google. Closing the Google window yourself says nothing.
 - **The menu's top line** shows your name instead of *Not signed in*.
@@ -24,7 +24,9 @@ Your **account page**, and signing in with Google through Firebase (project `mob
 ## What it offers other features
 
 - **Service `account`:** `user` (the signed-in person, `{ uid, name, email, photo }`, or `null`), `database()` (Firebase's database once Firebase knows who's signed in; fails with `signed-out` otherwise), `serverTime()` (the database's own clock, for `updatedAt`), `open()` and `redraw()` (the account page).
-- **Slot `account.sections`:** parts of the signed-in account page, under your name. Item: `{ order, render(user) → element or null }`. Link backup adds **Backup**.
+- **Slot `account.sections`:** parts of the signed-in account page, under your name. Item: `{ order, render(user) → element or null }`. Link backup adds **Backup**, Friends adds **Friends**.
+- **Slot `account.cleanup`:** online data other features keep that **Delete my account** must remove first. Item: `{ order, remove(db, uid) → Promise }`. Friends removes your friendships and friend code. Then `onlineData()` (your private area and shared timetable) goes, then the account.
+- `fields` on the service: Firestore's `FieldValue` (`arrayUnion`, `arrayRemove`), once `database()` has run.
 - **Event `account:changed`:** sent with the user (or `null`) when someone signs in or out.
 
 ## What it needs
