@@ -38,7 +38,7 @@ export default class Account extends Feature {
 
   // Follows Firebase's idea of who is signed in (it remembers between visits by itself).
   async watch() {
-    const auth = await connect({ web: !this.native });
+    const auth = await connect();
     if (!this.auth) {
       this.auth = auth;
       auth.onAuthStateChanged((firebaseUser) => this.setUser(toUser(firebaseUser)));

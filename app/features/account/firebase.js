@@ -2,7 +2,7 @@
 // (jsDelivr), so the app doesn't carry it until someone signs in.
 
 import { ui } from 'folio';
-import { FIREBASE_CONFIG, APP_CHECK_SITE_KEY } from './firebase-config.js';
+import { FIREBASE_CONFIG } from './firebase-config.js';
 
 const VERSION = '12.19.0';
 const LIB = (name) => `https://cdn.jsdelivr.net/npm/firebase@${VERSION}/firebase-${name}-compat.js`;
@@ -19,14 +19,11 @@ async function load(...names) {
 }
 
 // Firebase's sign-in service. Fails with Error('load') if its code couldn't be downloaded.
-// { web: true } also switches on App Check (web version only; see firebase-config.js).
-export async function connect({ web = false } = {}) {
+export async function connect() {
   if (auth) return auth;
-  const appCheck = web && APP_CHECK_SITE_KEY;
-  await load('app', ...(appCheck ? ['app-check'] : []), 'auth');
+  await load('app', 'auth');
   const firebase = window.firebase;
   const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
-  if (appCheck) app.appCheck().activate(new firebase.appCheck.ReCaptchaV3Provider(APP_CHECK_SITE_KEY), true);
   auth = app.auth();
   return auth;
 }

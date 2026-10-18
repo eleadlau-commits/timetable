@@ -4,6 +4,10 @@ Mobile Durham's online data lives in Firebase's database (Firestore, project `mo
 
 Right now they allow one thing: **your own private area** (`users/<your account>/private/main`), which only you can read, change or delete. It holds your timetable link, if you back it up, and when it was last saved. Only Google sign-ins count, and what's saved must have exactly the right shape (a link of at most 2,048 characters starting with `https://` or `webcal://`, and a time set by Firebase itself).
 
+## Other defences
+
+Without App Check (it waits until the app is on Google Play), anyone could use the app's public settings from their own script, but they'd still be held to these rules: they can only ever touch their own private area. Other layers: only Google sign-ins count; the project is on the free plan with no card, so misuse can't cost money (online parts just pause until the next day); every account can be seen, disabled or deleted in Firebase → Authentication. A further step is restricting the two API keys to the website and the Android app in the Google Cloud console.
+
 ## Publishing the rules (after they change)
 
 The rules in this folder don't reach Firebase on their own. After a change is merged:

@@ -10,9 +10,3 @@ export const FIREBASE_CONFIG = {
   appId: '1:116399300931:web:c0f2eaccb8a20266044ff6',
 };
 
-// App Check, in the web version: the reCAPTCHA v3 *site key* (Firebase console → App Check →
-// Apps → Mobile Durham web). It's public, like the config above. The *secret* key that comes
-// with it goes only into the Firebase console, never here. Empty means App Check is off.
-// It runs in monitor-only mode: Firebase records requests that fail the check but lets them
-// through, because the Android app (installed from GitHub, not Google Play) can't pass it yet.
-export const APP_CHECK_SITE_KEY = '';
