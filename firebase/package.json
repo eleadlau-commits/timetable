@@ -1,0 +1,13 @@
+{
+  "name": "mobile-durham-database-rules",
+  "private": true,
+  "description": "Tests for the database rules, run against Google's Firestore emulator.",
+  "scripts": {
+    "test": "firebase emulators:exec --only firestore --project demo-mobile-durham \"node --test tests/rules.test.mjs\""
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "5.0.2",
+    "firebase": "12.19.0",
+    "firebase-tools": "15.32.1"
+  }
+}

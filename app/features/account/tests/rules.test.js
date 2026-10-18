@@ -1,5 +1,5 @@
 import { test, assert } from 'folio/testing';
-import { toUser, explain } from '../rules.js';
+import { toUser, explain, onlineData } from '../rules.js';
 
 test('keeps only the name, email and picture of the signed-in person', () => {
   const user = toUser({ uid: 'abc', displayName: 'Sam Smith', email: 'sam@example.com', photoURL: 'https://lh3.example/p.jpg', phoneNumber: '123' });
@@ -38,4 +38,8 @@ test('Google\'s Android sign-in: cancelling says nothing, other problems are exp
   assert.match(explain(new Error('No credentials available')), /no Google account/);
   assert.match(explain(new Error('10: DEVELOPER_ERROR')), /isn't set up/);
   assert.match(explain(new Error('no-token')), /isn't set up/);
+});
+
+test('deleting your account deletes your private area', () => {
+  assert.deepEqual(onlineData('abc'), ['users/abc/private/main']);
 });

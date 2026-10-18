@@ -2,7 +2,10 @@
 // Account row (Folio's 'account' slot). Sign in with Google, through Firebase (firebase.js).
 // Signed out, it explains what an account is for and says the app isn't Durham University's.
 // Signed in, it shows your picture, name and email, with Sign out and Delete my account.
-// Backup and friends come later. Nothing is stored online yet.
+// A Privacy notice link on both. Backup and friends come later.
+//
+// Stored online: only what rules.js's onlineData() lists, in the database protected by
+// firebase/firestore.rules. Delete my account deletes all of it, then the account.
 //
 // In the web version, Google's sign-in window opens. In the Android app Google doesn't allow
 // that window inside apps, so Google's own Android sign-in is used instead (the Capacitor
@@ -13,8 +16,9 @@
 // Saved data: 'user' → { uid, name, email, photo }, so the name shows straight away and offline.
 
 import { Feature, ui } from 'folio';
-import { connect, googleProvider, googleCredential } from './firebase.js';
-import { toUser, explain } from './rules.js';
+import { connect, database, googleProvider, googleCredential } from './firebase.js';
+import { toUser, explain, onlineData } from './rules.js';
+import { privacyNotice } from './privacy.js';
 
 const { el } = ui;
 
@@ -34,7 +38,7 @@ export default class Account extends Feature {
 
   // Follows Firebase's idea of who is signed in (it remembers between visits by itself).
   async watch() {
-    const auth = await connect();
+    const auth = await connect({ web: !this.native });
     if (!this.auth) {
       this.auth = auth;
       auth.onAuthStateChanged((firebaseUser) => this.setUser(toUser(firebaseUser)));
@@ -93,11 +97,14 @@ export default class Account extends Feature {
   }
 
   async deleteAccount() {
-    if (!confirm('Delete your Mobile Durham account? You\'ll be signed out. Everything on this phone stays, and nothing else is stored online yet.')) return;
+    if (!confirm('Delete your Mobile Durham account? Everything you\'ve stored online is deleted straight away, and you\'re signed out. Everything on this phone stays.')) return;
     await this.attempt(async () => {
       const auth = await this.watch();
       const current = auth.currentUser;
       if (!current) return this.setUser(null);
+      // First everything stored online (only you are allowed to delete it), then the account.
+      const db = await database();
+      for (const path of onlineData(current.uid)) await db.doc(path).delete();
       try {
         await current.delete();
       } catch (err) {
@@ -161,11 +168,24 @@ export default class Account extends Feature {
     return el('section', { class: 'account-out' },
       el('span', { class: 'account-avatar' }, ui.icon('account')),
       el('h3', {}, 'Not signed in'),
-      el('p', {}, 'Sign in to back up your to-dos, notes and module colours, and to see your friends\' timetables. ',
+      el('p', {}, 'Sign in to back up your timetable link and see your friends\' timetables (both coming soon). ',
         el('b', {}, 'Mobile Durham is made by students and isn\'t affiliated with Durham University.')),
       button,
       error,
-      ui.hint('Everything works without an account, and your things stay on this phone.', { small: true }));
+      ui.hint('Everything works without an account, and your things stay on this phone.', { small: true }),
+      this.privacyLink());
+  }
+
+  privacyLink() {
+    return el('button', { type: 'button', class: 'link-btn account-privacy', onclick: () => this.openPrivacy() }, 'Privacy notice');
+  }
+
+  openPrivacy() {
+    if (!this.privacy) {
+      this.privacy = ui.dialog({ title: 'Privacy notice', className: 'privacy-dialog' });
+      this.privacy.setContent(privacyNotice());
+    }
+    this.privacy.open();
   }
 
   signedIn(error) {
@@ -178,7 +198,7 @@ export default class Account extends Feature {
       error,
       el('section', { class: 'account-part' },
         el('h3', {}, 'Backup'),
-        ui.hint('Coming soon: your to-dos, notes and module colours, saved to your account so they\'re safe if you change phones. Nothing is stored online yet.')),
+        ui.hint('Coming soon: your timetable link, saved privately to your account so it comes back on a new phone. Nothing is stored online yet.')),
       el('section', { class: 'account-part' },
         el('h3', {}, 'Friends'),
         ui.hint('Coming soon: add friends and see each other\'s timetables, only once you\'ve both agreed.')),
@@ -186,6 +206,7 @@ export default class Account extends Feature {
         this.busy ? 'Please wait…' : 'Sign out'),
       el('button', { type: 'button', class: 'link-btn account-delete', disabled: this.busy, onclick: () => this.deleteAccount() },
         'Delete my account'),
+      this.privacyLink(),
       ui.hint('Mobile Durham is made by students and isn\'t affiliated with Durham University.', { small: true }));
   }
 

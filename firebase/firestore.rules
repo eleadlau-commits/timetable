@@ -1,0 +1,36 @@
+rules_version = '2';
+
+// Mobile Durham's database rules. Anything not allowed below is refused.
+// To publish: Firebase console → Firestore Database → Rules → paste this whole file → Publish.
+// The tests in tests/ check these rules, and GitHub runs them before every release.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Signed in with Google (the only way the app signs people in).
+    function signedIn() {
+      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'google.com';
+    }
+
+    function isMe(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    // Your private area: only you can read or change it. One document, "main", holding your
+    // timetable link (if you back it up) and when it was last saved.
+    match /users/{uid}/private/{doc} {
+      allow read, delete: if isMe(uid) && doc == 'main';
+      allow create, update: if isMe(uid) && doc == 'main' && validPrivate(request.resource.data);
+    }
+
+    function validPrivate(d) {
+      return d.keys().hasOnly(['link', 'updatedAt'])
+        && d.keys().hasAll(['updatedAt'])
+        && d.updatedAt == request.time
+        && (!('link' in d) || validLink(d.link));
+    }
+
+    function validLink(link) {
+      return link is string && link.size() <= 2048 && link.matches('(https|webcal)://[^\\s]+');
+    }
+  }
+}

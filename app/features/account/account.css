@@ -28,3 +28,11 @@ img.account-avatar { object-fit: cover; }
 .account-part h3 { margin: 0; font-size: 16px; font-weight: 600; }
 .account-delete { justify-self: center; color: var(--danger); }
 .dialog-body .account-in .hint.small { margin: 0; text-align: center; }
+.account-privacy { justify-self: center; }
+
+/* The privacy notice */
+.privacy { display: grid; gap: 16px; padding: 16px 0 8px; }
+.privacy-lead { margin: 0; font-weight: 600; }
+.privacy-part { display: grid; gap: 6px; }
+.privacy-part h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.privacy-part p { margin: 0; color: var(--text-2); line-height: 1.45; }
