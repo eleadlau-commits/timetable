@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "116399300931-663spegic4lhi90m9fsmj0a2r8jcca9j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.github.timetable.app",
+            "certificate_hash": "4e155b38bee5dabaff5fca38f50cf3668ca21305"
+          }
+        },
+        {
           "client_id": "116399300931-k8b2igq8ffl7td1arvfjmcrd4qlcc1tm.apps.googleusercontent.com",
           "client_type": 3
         }
