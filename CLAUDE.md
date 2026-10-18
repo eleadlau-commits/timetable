@@ -28,7 +28,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 
 | Feature | What it does | Requires (uses) | Adds to | Offers |
 |---|---|---|---|---|
-| `account` | The account page (from the account button and the menu); signing in with Google is coming next | | account | |
+| `account` | The account page (from the account button and the menu); signing in with Google through Firebase (web version; Android next) | | account | service `account`; event `account:changed` |
 | `campus-card` | Scan and show the campus card barcode | | home.side, more.items | |
 | `timetable` | Loads and saves the timetable, setup screen, the Planner's refresh button | | status, planner.actions, settings | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
 | `sessions` | Session cards and the details window | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
@@ -74,4 +74,5 @@ Name each branch `claude/` plus a few words saying what the change is, e.g. `cla
 - **Timetable downloads:** `CapacitorHttp` is on in the Android app (timetable's `feature.json`), so downloads aren't blocked there. In the web version they can be, which is what `web-relay` is for.
 - **The app icon:** a one-line drawing of Durham Cathedral, dark purple `#2e2440` on light grey `#e2dfe7`. The source is `app/icons/icon.svg`; the PNGs in `app/icons/` are made from it. On Android 8 and newer the launcher uses the adaptive icon in `android-res/` (vector copies of the drawing, copied into the Android project by the "Use Mobile Durham's adaptive icon" step); change it there too if the icon changes. The background colour in the "Generate app icons" step must stay `#e2dfe7`.
 - **Campus card barcodes:** Durham cards use **Telepen** in number mode (the long number under the barcode). Neither the phone's BarcodeDetector nor ZXing reads Telepen, so `campus-card` reads and draws it itself (`telepen.js`, `scan.js`). It also patches two ZXing bugs (`zxing-fixes.js`).
+- **Firebase:** accounts use the Firebase project `mobile-durham` (Google sign-in only). Its web config is in `app/features/account/firebase-config.js`; that's not a password. Never put a service account, private key or anything secret in the repository or the chat. The Firestore database is locked until Backup adds rules that only let each person read and write their own data. Google's sign-in window doesn't work inside the Android app, which needs Google's native sign-in (still to do).
 - **Durham room data:** from AccessAble and OpenStreetMap, October 2026. To change it, edit `app/features/durham-rooms/places.js` and its tests.
