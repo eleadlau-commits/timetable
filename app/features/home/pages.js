@@ -11,7 +11,8 @@ const DECIDE = 8; // px before a touch counts as sideways or not
 export class Pages {
   constructor() {
     this.track = el('div', { class: 'home-track' });
-    this.viewport = el('div', { class: 'home-pages' }, this.track);
+    // Swipes here move between these pages, not between tabs.
+    this.viewport = el('div', { class: 'home-pages', 'data-own-swipe': '' }, this.track);
     this.dots = el('div', { class: 'home-dots', role: 'tablist', 'aria-label': 'Pages' });
     this.element = el('div', { class: 'home-pager' }, this.viewport, this.dots);
     this.index = 0;

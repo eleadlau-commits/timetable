@@ -1,6 +1,6 @@
 # Planner
 
-The **Planner** tab. It holds the timetable views (Day, Week and Upcoming) with a switch between them under the title. Swipes and arrow keys go to the open view.
+The **Planner** tab. It holds the timetable views (Day, Week and Upcoming) with a switch between them under the title. Arrow keys go to the open view; swipes change tab, as everywhere.
 
 ## What it adds
 
