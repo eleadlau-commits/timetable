@@ -1,7 +1,7 @@
 import { test, assert } from 'folio/testing';
 import {
   makeCode, readCode, pairId, firstName, cleanName, initials, sharedClasses, fingerprint,
-  nowStatus, byDay, freeTogether, stalePeople, CODE_PATTERN,
+  nowStatus, byDay, freeTogether, stalePeople, explainProblem, CODE_PATTERN,
 } from '../rules.js';
 
 const at = (day, hour, minute = 0) => new Date(2026, 9, day, hour, minute);
@@ -89,4 +89,12 @@ test('free together: the gaps when neither of you has a class', () => {
 test('people who removed you are taken off your list', () => {
   const friendships = [{ users: ['me', 'sam'] }, { users: ['alex', 'me'] }];
   assert.deepEqual(stalePeople(['sam', 'alex', 'zoe'], friendships, 'me'), ['zoe']);
+});
+
+test('problems are explained, with the database\'s code', () => {
+  assert.match(explainProblem({ code: 'permission-denied' }), /rules may not be published.*\(permission-denied\)/);
+  assert.match(explainProblem({ code: 'unavailable' }), /Couldn't reach.*\(unavailable\)/);
+  assert.match(explainProblem(new Error('full')), /50 friends/);
+  assert.match(explainProblem({ code: 'weird' }), /\(weird\)/);
+  assert.match(explainProblem({ code: 'unavailable' }, false), /offline/);
 });
