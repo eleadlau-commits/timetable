@@ -15,7 +15,7 @@
 
 import { Feature, ui, time } from 'folio';
 import { FriendStore } from './store.js';
-import { readCode, firstName, cleanName, sharedClasses, fingerprint, stalePeople, SHARE_DAYS } from './rules.js';
+import { readCode, firstName, cleanName, sharedClasses, fingerprint, stalePeople, explainProblem, SHARE_DAYS } from './rules.js';
 import { personRow, statusLine, statusTag, tintChoice, timetableView } from './screens.js';
 
 const { el } = ui;
@@ -118,9 +118,7 @@ export default class Friends extends Feature {
   }
 
   explain(err) {
-    if (!navigator.onLine) return 'You\'re offline. Friends needs the internet.';
-    if (err?.message === 'full') return 'You\'ve reached 50 friends and requests. Remove someone first.';
-    return 'Something went wrong. Check you\'re online and try again.';
+    return explainProblem(err, navigator.onLine);
   }
 
   // Runs a change, then loads everything again.

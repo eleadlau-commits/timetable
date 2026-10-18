@@ -109,3 +109,20 @@ export function stalePeople(people, friendships, me) {
   const current = new Set(friendships.map((f) => f.users.find((u) => u !== me)));
   return people.filter((uid) => !current.has(uid));
 }
+
+// What went wrong, in plain words, with the database's own code at the end so it can be looked up.
+export function explainProblem(err, online = true) {
+  if (!online) return 'You\'re offline. Friends needs the internet.';
+  const code = String(err?.code || err?.message || 'unknown');
+  if (code === 'full') return 'You\'ve reached 50 friends and requests. Remove someone first.';
+  if (code === 'signed-out') return 'You\'ve been signed out. Sign in again on the account page.';
+  if (code === 'load') return 'Couldn\'t load the online part of the app. Check you\'re online and try again.';
+  if (code === 'permission-denied') {
+    return 'The online database refused this. If Friends has just been added, its database rules may not be published yet (Firebase console → Firestore Database → Rules). (permission-denied)';
+  }
+  if (code === 'not-found' || code === 'failed-precondition') {
+    return `The online database isn't set up yet, or can't be found. (${code})`;
+  }
+  if (code === 'unavailable' || code === 'deadline-exceeded') return `Couldn't reach the online database. Check you're online and try again. (${code})`;
+  return `Something went wrong. Try again in a moment. (${code})`;
+}
