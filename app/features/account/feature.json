@@ -1,0 +1,7 @@
+{
+  "name": "Account",
+  "description": "Your account page. Signing in with Google, to back up your things and see friends' timetables, is coming soon.",
+  "version": "1.0.0",
+  "main": "Account.js",
+  "styles": ["account.css"]
+}
