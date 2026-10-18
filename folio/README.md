@@ -152,6 +152,7 @@ export default class Notes extends Feature {
 | `toast(message)` | A short message at the bottom of the screen. |
 | `native` | `true` in the Android or iPhone app. |
 | `plugin(name)` | A Capacitor plugin (e.g. `'LocalNotifications'`), or `null` on the web. |
+| `getText(url)` | Downloads text from another website. In the phone apps the phone makes the download itself (CapacitorHttp, called directly), so sites that block web pages still work; on the web it's a fetch. Throws an error with `.status` for an HTTP error. |
 | `app.shell` | The app's frame: `setTitle(text)` (the browser tab's name), `showScreen(owner, node)`, `hideScreen(owner)`, `selectView(id)` (also opens a view inside another, such as Day inside Planner), `openMenu()`, `closeMenu()`, `openSettings()`, `closeSettings()`, `refreshSettings()`, `openAbout()`, `openAccount()`. |
 
 **Defining your own slots.** If your feature shows something other features might want to add to, define a slot and describe the item shape in one sentence. Then draw its items, for example `this.slot('session.card').map((line) => line.render(session))`. Items from features that aren't installed simply aren't there.
@@ -314,3 +315,5 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.7.0:** swiping sideways anywhere on the page changes tab, like swiping the tab bar; it no longer calls the view's `step()`, which is now only for the arrow keys. Something with its own sideways swipe marks itself `data-own-swipe` (anything that scrolls sideways counts too). Full-screen pop-ups close when pulled down from the top of their content. Features written for 1.6 keep working; a view whose swipes changed days now changes tabs instead.
 
 **1.8.0:** Settings starts with **Appearance**: Automatic (follows the phone, as before), Light or Dark, saved on the phone. It works by switching every `@media (prefers-color-scheme: dark)` rule on or off (and the status-bar colour tags), so features don't need anything new: keep writing dark styles inside that media query. The rules are in `runtime/appearance.js`. Features written for 1.7 keep working.
+
+**1.9.0:** features have `this.getText(url)` for downloading text from another website: in the phone apps through the CapacitorHttp plugin directly, on the web with fetch. Use it instead of switching CapacitorHttp on for the whole app, which takes over every request and breaks some services (such as Firebase's database). Features written for 1.8 keep working.

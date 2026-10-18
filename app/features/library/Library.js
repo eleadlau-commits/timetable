@@ -30,8 +30,7 @@ export default class Library extends Feature {
 
   async download() {
     try {
-      const res = await fetch(SOURCE, { cache: 'no-store' });
-      if (res.ok) return await res.text();
+      return await this.getText(SOURCE);
     } catch {
       // Blocked or offline: try the relay below.
     }

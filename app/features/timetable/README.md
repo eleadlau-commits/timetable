@@ -28,7 +28,7 @@ Loads the timetable from the university's calendar export link (`.ics`), saves i
 
 ## What it needs
 
-Nothing. In the Android app, `CapacitorHttp` is switched on (see `feature.json`), so the university's server can't block the download.
+Nothing. In the Android app the download is made by the phone itself (Folio's `this.getText`, through the CapacitorHttp plugin), so the university's server can't block it.
 
 ## What it saves on the phone
 
