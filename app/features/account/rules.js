@@ -1,9 +1,10 @@
 // Rules for the account, without any screen code, so they can be tested.
 
-// Everything a person has stored online, as database paths. "Delete my account" deletes all of
-// these first. Whatever a later step stores online must be added here (and to firebase/firestore.rules).
+// Everything a person has stored online in their own areas, as database paths. "Delete my
+// account" deletes these, after other features' 'account.cleanup' (friendships and the friend
+// code). Whatever is stored online must be covered by one or the other (and firebase/firestore.rules).
 export function onlineData(uid) {
-  return [`users/${uid}/private/main`];
+  return [`users/${uid}/private/main`, `users/${uid}/private/profile`, `shared/${uid}`];
 }
 
 // The few things the app keeps about the signed-in person, from Firebase's user.

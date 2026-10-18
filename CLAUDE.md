@@ -28,20 +28,21 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 
 | Feature | What it does | Requires (uses) | Adds to | Offers |
 |---|---|---|---|---|
-| `account` | The account page (from the account button and the menu); signing in with Google through Firebase (web: Google's window; Android: Google's own sign-in); privacy notice; Delete my account removes all online data | | account | service `account`; event `account:changed` |
+| `account` | The account page (from the account button and the menu); signing in with Google through Firebase (web: Google's window; Android: Google's own sign-in); privacy notice; Delete my account removes all online data | | account | service `account`; slots `account.sections`, `account.cleanup`; event `account:changed` |
 | `campus-card` | Scan and show the campus card barcode | | home.side, more.items | |
 | `timetable` | Loads and saves the timetable, setup screen, the Planner's refresh button | | status, planner.actions, settings | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
 | `sessions` | Session cards and the details window | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
 | `planner` | The Planner tab, holding Day, Week and Upcoming | | views | service `planner`; slots `planner.views`, `planner.actions`, `planner.buttons` |
 | `day-view` | Day view | sessions (planner) | planner.views | slot `day.cards` |
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
-| `friends` | The Friends button in the top bar; says "coming soon" for now | | header.actions | |
+| `friends` | Swap timetables with friends: friend codes, requests, accept/remove, friends' timetables (grey or tinted), Free/Busy | account (sessions) | header.actions, account.sections, account.cleanup | |
 | `help` | Help and Feedback in the menu; both say "coming soon" for now | | menu | |
 | `home` | The Home tab: swipeable pages on the dark area (date, clock, Plan Today first) over a Durham photo, then cards; the app opens on it | | views | slots `home.next/pages/top/main/side` |
 | `journey` | The Plan your journey page on Home; says "coming soon" for now | (home) | home.pages | |
 | `study` | The Study tab | | views | slot `study.cards` |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
 | `library` | How busy Bill Bryson Library is: a folded bar on Home and Study, free seats per floor in a full-screen pop-up | (web-relay, home, study) | home.top, study.cards, settings | |
+| `link-backup` | Backs up the timetable link to your private area while signed in; brings it back on a new phone | account, timetable | account.sections, timetable.setup | |
 | `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings | |
 | `maps` | Building names, map preview, directions | sessions (durham-rooms) | session.location/details, settings | |
 | `modules` | Rename, recolour or hide modules; button under the Planner's switch | sessions (planner) | session.name/colour/filter/details, planner.buttons, settings | |

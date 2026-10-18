@@ -1,6 +1,9 @@
 {
   "name": "Friends",
-  "description": "The Friends button in the top bar. Friends isn't built yet, so it says Coming soon.",
-  "version": "1.0.0",
-  "main": "Friends.js"
+  "description": "Swap timetables with friends using friend codes. Only people you've asked or accepted can see yours.",
+  "version": "2.0.0",
+  "main": "Friends.js",
+  "styles": ["friends.css"],
+  "requires": ["account"],
+  "uses": ["sessions"]
 }
