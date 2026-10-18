@@ -1,0 +1,30 @@
+/* Account: the account page. Signed out, a large person icon, a line about what an account is
+   for (and that the app isn't Durham University's), and the sign-in button. */
+.account-out { display: grid; justify-items: center; gap: 12px; padding: 24px 0 8px; text-align: center; }
+.account-avatar {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.account-avatar svg { width: 36px; height: 36px; }
+.account-out h3 { margin: 0; font-size: 20px; font-weight: 600; }
+.account-out p { margin: 0; max-width: 34em; color: var(--text-2); line-height: 1.45; }
+.account-out p b { font-weight: 600; color: var(--text); }
+.account-out .btn { max-width: 360px; margin-top: 8px; }
+.dialog-body .account-out .hint.small { margin: 0; }
+
+/* Signed in: picture, name and email at the top, then Backup and Friends, then Sign out. */
+img.account-avatar { object-fit: cover; }
+.account-in { display: grid; gap: 16px; padding-top: 16px; }
+.account-who { display: grid; justify-items: center; gap: 8px; text-align: center; }
+.account-name { display: grid; gap: 2px; }
+.account-name b { font-size: 20px; font-weight: 600; }
+.account-name span { color: var(--muted); font-size: 14px; overflow-wrap: anywhere; }
+.account-part { display: grid; gap: 6px; padding-top: 16px; border-top: 1px solid var(--line); }
+.account-part h3 { margin: 0; font-size: 16px; font-weight: 600; }
+.account-delete { justify-self: center; color: var(--danger); }
+.dialog-body .account-in .hint.small { margin: 0; text-align: center; }
