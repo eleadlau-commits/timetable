@@ -177,7 +177,7 @@ export default class Notes extends Feature {
 | `header.status` | `{ order, text() }` | A short line at the top of the menu, under who is signed in, and next to each view's title unless the view gives a `subtitle()`. "offline" is added automatically. |
 | `settings` | `{ id, title?, order, render() }` | A section in the Settings window. Return `null` or `false` to show nothing. |
 
-The framework's own Settings sections, **Features** (switch features on and off for this phone, folded away until you open it) and **About** (version and problems), always come last. About is also its own window, from the menu.
+Settings opens with the framework's **Appearance** choice (Automatic, Light or Dark; write dark styles inside `@media (prefers-color-scheme: dark)` and they follow it). The framework's own Settings sections, **Features** (switch features on and off for this phone, folded away until you open it) and **About** (version and problems), always come last. About is also its own window, from the menu.
 
 **Events:**
 
@@ -198,7 +198,7 @@ Icons in `ui.ICONS`: close, refresh, gear, bell, card, pin, clock, note, trash, 
 
 `time`: `MINUTE`, `HOUR`, `DAY`, `startOfDay`, `addDays`, `startOfWeek`, `sameDay`, `formatTime`, `formatDate`, `formatLongDate`, `formatDateTime`, `dayLabel`, `ago`, `inTime`, `toLocalInput`.
 
-Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`, `small`), `icon-btn` (`ghost`), `link-btn`, `panel`, `hint` (`small`), `label`, `field`, `row`, `stack`, `group`, `error`, `empty`, `missing`, `seg` (a switch between a few choices), `list`, `advanced` (for `<details>`), `check`, `switch`, `sub-head`. Colours are CSS variables: `--bg`, `--surface`, `--surface-2`, `--text`, `--text-2`, `--muted`, `--line`, `--accent`, `--accent-ink`, `--accent-soft`, `--danger`, `--radius`, `--shadow`, the corner shapes `--shape` (cards and pop-ups), `--shape-btn` (buttons, text boxes, switches, the selected tab) and `--shape-sm` (small tags and icon tiles), and for the frame `--top`, `--top-2` (the dark area), `--on-top`, `--on-top-muted`, `--tab-ink`, `--glow`, `--gutter`, `--font`, `--font-mono`. Light and dark mode are automatic. An app sets its own values in `app/theme.css`, and may add names of its own there for its features.
+Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`, `small`), `icon-btn` (`ghost`), `link-btn`, `panel`, `hint` (`small`), `label`, `field`, `row`, `stack`, `group`, `error`, `empty`, `missing`, `seg` (a switch between a few choices), `list`, `advanced` (for `<details>`), `check`, `switch`, `sub-head`. Colours are CSS variables: `--bg`, `--surface`, `--surface-2`, `--text`, `--text-2`, `--muted`, `--line`, `--accent`, `--accent-ink`, `--accent-soft`, `--danger`, `--radius`, `--shadow`, the corner shapes `--shape` (cards and pop-ups), `--shape-btn` (buttons, text boxes, switches, the selected tab) and `--shape-sm` (small tags and icon tiles), and for the frame `--top`, `--top-2` (the dark area), `--on-top`, `--on-top-muted`, `--tab-ink`, `--glow`, `--gutter`, `--font`, `--font-mono`. Light and dark mode follow the phone, or the Appearance choice in Settings. An app sets its own values in `app/theme.css`, and may add names of its own there for its features.
 
 ## 7. Saving data
 
@@ -312,3 +312,5 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.6.0:** a feature can put files into the Android project and set its Gradle settings, with `native.android.files` and `native.android.gradle` in feature.json (for example a plugin's `google-services.json`). The files live in the feature's `native/` folder, which isn't shipped in the app. GitHub's build runs the new `python build.py android-project dist/android` after creating the Android project. Features written for 1.5 keep working.
 
 **1.7.0:** swiping sideways anywhere on the page changes tab, like swiping the tab bar; it no longer calls the view's `step()`, which is now only for the arrow keys. Something with its own sideways swipe marks itself `data-own-swipe` (anything that scrolls sideways counts too). Full-screen pop-ups close when pulled down from the top of their content. Features written for 1.6 keep working; a view whose swipes changed days now changes tabs instead.
+
+**1.8.0:** Settings starts with **Appearance**: Automatic (follows the phone, as before), Light or Dark, saved on the phone. It works by switching every `@media (prefers-color-scheme: dark)` rule on or off (and the status-bar colour tags), so features don't need anything new: keep writing dark styles inside that media query. The rules are in `runtime/appearance.js`. Features written for 1.7 keep working.

@@ -7,6 +7,7 @@ import { Events } from 'folio/Events.js';
 import * as time from 'folio/time.js';
 import { el, missing, dialog } from 'folio/ui.js';
 import { Tabs } from 'folio/Tabs.js';
+import { mediaFor } from 'folio/appearance.js';
 
 // A stand-in for the app that records reported problems.
 const fakeApp = () => ({ problems: [], report(owner, err) { this.problems.push([owner, err.message]); } });
@@ -135,4 +136,14 @@ test('the tab bar highlights the open view, and can sit between two tabs while s
   assert.ok(!buttons[1].classList.contains('lit'));
   buttons[0].click();
   assert.deepEqual(picked, ['a']);
+});
+
+test('appearance: dark styles are switched on, off, or left to the phone', () => {
+  const dark = '(prefers-color-scheme: dark)';
+  assert.equal(mediaFor(dark, 'auto'), dark);
+  assert.equal(mediaFor(dark, 'dark'), 'all');
+  assert.equal(mediaFor(dark, 'light'), 'not all');
+  assert.equal(mediaFor('(prefers-color-scheme: light)', 'dark'), 'not all');
+  assert.equal(mediaFor('(prefers-color-scheme: dark) and (min-width: 600px)', 'dark'), 'all and (min-width: 600px)');
+  assert.equal(mediaFor('(prefers-reduced-motion: reduce)', 'dark'), '(prefers-reduced-motion: reduce)');
 });
