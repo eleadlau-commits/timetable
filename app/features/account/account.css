@@ -36,3 +36,4 @@ img.account-avatar { object-fit: cover; }
 .privacy-part { display: grid; gap: 6px; }
 .privacy-part h3 { margin: 0; font-size: 16px; font-weight: 600; }
 .privacy-part p { margin: 0; color: var(--text-2); line-height: 1.45; }
+.privacy-part a { color: var(--accent); overflow-wrap: anywhere; }

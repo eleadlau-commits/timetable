@@ -7,6 +7,9 @@ const { el } = ui;
 
 export const UPDATED = '18 October 2026';
 
+// Where people write about their data. Public: it's shown in the app.
+export const CONTACT = 'mobiledurham.help@gmail.com';
+
 const part = (title, ...lines) => el('section', { class: 'privacy-part' }, el('h3', {}, title), ...lines.map((l) => el('p', {}, l)));
 
 export function privacyNotice() {
@@ -29,5 +32,7 @@ export function privacyNotice() {
       'Until you delete it. Delete my account, on the account page, removes everything stored online straight away and then your account. What\'s on your phone stays until you remove the app.'),
     part('Your rights',
       'You can ask to see, correct or delete what\'s stored about you, and you can delete it all yourself at any time. If you\'re unhappy with how your data is handled, you can complain to the Information Commissioner\'s Office (ico.org.uk).'),
+    el('section', { class: 'privacy-part' }, el('h3', {}, 'Contact'),
+      el('p', {}, 'For questions or requests about your data, email ', el('a', { href: `mailto:${CONTACT}` }, CONTACT), '.')),
     ui.hint(`Last updated ${UPDATED}.`, { small: true }));
 }
