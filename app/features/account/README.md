@@ -9,13 +9,14 @@ Your **account page**, and signing in with Google through Firebase (project `mob
   - **Signed in:** your Google picture, name and email, then **Backup** and **Friends** (both *coming soon*), **Sign out**, and **Delete my account** (asks first; deletes your sign-in with Mobile Durham, and since nothing is stored online yet, nothing else). The not-affiliated line is at the bottom.
   - Problems are explained in plain words under the button: offline, the Google window was blocked, couldn't reach Google. Closing the Google window yourself says nothing.
 - **The menu's top line** shows your name instead of *Not signed in*.
-- **In the Android app** the button is greyed out with *Signing in on the Android app is coming soon*: Google doesn't allow its sign-in window inside apps, so it needs Google's own Android sign-in, which comes next.
+- **In the Android app**, the same button uses Google's own Android sign-in (the account chooser that slides up from the bottom), because Google doesn't allow its sign-in window inside apps. What it returns signs in to Firebase just like the web version, so everything after that is the same.
 
 ## How it works
 
 - `firebase-config.js`: which Firebase project to use. It isn't a password; it only names the project, and it's in every copy of the app anyway. What keeps data safe are the project's **security rules**. The database is still fully locked, since nothing is stored there yet; its rules come with Backup.
 - `firebase.js`: loads Firebase's sign-in code (`firebase-app-compat.js` and `firebase-auth-compat.js`, version 12.19.0) from jsDelivr the first time it's needed. The page starts loading it as soon as it opens while you're signed out, so tapping the button opens Google's window straight away (browsers block windows that open after a wait). The button says *Getting ready…* until then.
-- `rules.js`: what the app keeps about you (`toUser`) and the plain-words explanations (`explain`). Tested in `tests/rules.test.js`.
+- `rules.js`: what the app keeps about you (`toUser`) and the plain-words explanations (`explain`), including the Android sign-in's own messages. Tested in `tests/rules.test.js`.
+- **Android:** the [Capacitor Firebase Authentication](https://github.com/capawesome-team/capacitor-firebase/tree/main/packages/authentication) plugin (`@capacitor-firebase/authentication`, in `feature.json`) with `skipNativeAuth`, so it only gets Google's sign-in and the app's Firebase code (the same as the web version) does the rest. `native/google-services.json` (from Firebase: Project settings → Your apps → Mobile Durham Android) is copied into the Android project, and `rgcfaIncludeGoogle = true` switches on the plugin's Google part (Folio's `native.android.files` and `native.android.gradle`). Like the web config, google-services.json isn't a password. If it's downloaded again, replace the file here.
 - If you were signed in before, the app checks with Firebase in the background when it starts, and signs you out on the phone if Firebase says you aren't any more (for example, you deleted the account elsewhere).
 
 ## What it offers other features
@@ -26,7 +27,7 @@ Your **account page**, and signing in with Google through Firebase (project `mob
 ## What it needs
 
 - **Requires:** nothing.
-- **Firebase setup:** Google sign-in switched on (Authentication → Sign-in method), and `eleadlau-commits.github.io` in Authentication → Settings → Authorized domains. `localhost` is there already, for trying it out.
+- **Firebase setup:** Google sign-in switched on (Authentication → Sign-in method), and `eleadlau-commits.github.io` in Authentication → Settings → Authorized domains (`localhost` is there already; the Android app uses it too). The Android app registered as `io.github.timetable.app` with the signing key's fingerprints: SHA-1 `4E:15:5B:38:BE:E5:DA:BA:FF:5F:CA:38:F5:0C:F3:66:8C:A2:13:05` and SHA-256 `F7:6E:03:22:8B:C7:62:D6:F1:02:68:B1:95:DE:4E:DD:76:05:45:CA:0D:71:F1:28:BB:A8:B4:70:74:E7:5A:AF`. Without the SHA-1, Google refuses Android sign-in and the app says sign-in *isn't set up for this version of the app yet*.
 
 ## What it saves on the phone
 
@@ -34,8 +35,9 @@ Your **account page**, and signing in with Google through Firebase (project `mob
 
 ## How to check it works
 
-1. Run `python build.py serve` and open http://localhost:8000 in a normal browser (not the Android app).
+1. **Web:** run `python build.py serve` and open http://localhost:8000 in a normal browser.
 2. Tap the person button at the top right. Tap **Sign in with Google**, choose your account: the page shows your picture, name and email, and the menu shows your name.
 3. Reload the page: you're still signed in.
 4. Tap **Sign out**: the page says *Not signed in*.
-5. Run `python build.py test`.
+5. **Android:** install the APK from GitHub's Releases, open the account page and tap **Sign in with Google**: Google's account chooser slides up. Pick your account: the page shows you signed in.
+6. Run `python build.py test`.

@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "116399300931",
+    "project_id": "mobile-durham",
+    "storage_bucket": "mobile-durham.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:116399300931:android:bde6fd87c86b47d8044ff6",
+        "android_client_info": {
+          "package_name": "io.github.timetable.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "116399300931-663spegic4lhi90m9fsmj0a2r8jcca9j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "io.github.timetable.app",
+            "certificate_hash": "4e155b38bee5dabaff5fca38f50cf3668ca21305"
+          }
+        },
+        {
+          "client_id": "116399300931-k8b2igq8ffl7td1arvfjmcrd4qlcc1tm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADq907tlIc_HG-I5JvZJwFoPnvJAwCgVU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "116399300931-k8b2igq8ffl7td1arvfjmcrd4qlcc1tm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

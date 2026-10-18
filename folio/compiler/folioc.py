@@ -49,7 +49,8 @@ FEATURE_KEYS = {'name', 'description', 'version', 'main', 'styles', 'templates',
                 'platforms', 'enabled', 'web', 'native'}
 NATIVE_KEYS = {'packages', 'capacitor', 'android', 'ios'}
 FOLDER_NAME = re.compile(r'^[a-z][a-z0-9]*(-[a-z0-9]+)*$')
-NOT_SHIPPED = {'tests', 'extras'}  # feature subfolders that never go into the app
+NOT_SHIPPED = {'tests', 'extras', 'native'}  # feature subfolders that never go into the app
+GRADLE_NAME = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*$')
 
 # Added to start.js in test builds. Once the app has started, it uses it like a person would
 # (every view, the first item in each, Settings, every top-bar button), then reports back to
@@ -354,10 +355,36 @@ class Project:
         if 'packages' in native and not (isinstance(native['packages'], dict)
                                          and all(isinstance(v, str) for v in native['packages'].values())):
             return f.leave_out('mistake', '"native.packages" must look like { "package-name": "^1.0.0" }')
+        problem = self.check_android_extras(f, native.get('android', {}))
+        if problem:
+            return f.leave_out('mistake', problem)
         web = m.get('web', {})
         if not isinstance(web, dict) or any(k != 'manifest' for k in web):
             return f.leave_out('mistake', '"web" can only contain "manifest"')
         self.scan_code(f)
+
+    @staticmethod
+    def check_android_extras(f: FeatureInfo, android) -> str:
+        """Checks "native.android.files" (files to copy into the Android project) and
+        "native.android.gradle" (settings for its variables.gradle). Returns a problem, or ''."""
+        if not isinstance(android, dict):
+            return '"native.android" must be an object'
+        files = android.get('files', {})
+        if not isinstance(files, dict):
+            return '"native.android.files" must look like { "app/file.json": "native/file.json" }'
+        for to, source in files.items():
+            if not (isinstance(to, str) and isinstance(source, str)):
+                return '"native.android.files" must look like { "app/file.json": "native/file.json" }'
+            for path in (to, source):
+                if path.startswith(('/', '\\')) or '..' in Path(path).parts or ':' in path:
+                    return f'"native.android.files" can only use paths inside the project and the feature: "{path}"'
+            if not (f.path / source).is_file():
+                return f'its Android file "{source}" is missing'
+        gradle = android.get('gradle', {})
+        if not (isinstance(gradle, dict) and all(isinstance(k, str) and GRADLE_NAME.match(k) for k in gradle)
+                and all(isinstance(v, (bool, int, str)) for v in gradle.values())):
+            return '"native.android.gradle" must look like { "settingName": true }'
+        return ''
 
     def scan_code(self, f: FeatureInfo):
         """Reads the feature's JavaScript to check its imports and note which slots, services and
@@ -739,13 +766,24 @@ fetch('/__folio_report', {{ method: 'POST', body: JSON.stringify({{ kind: 'tests
         deep_merge(capacitor, app['native'].get('capacitor', {}))
         (out / 'capacitor.config.json').write_text(json.dumps(capacitor, indent=2) + '\n', 'utf-8')
 
-        android = {'permissions': [], 'features': []}
+        android = {'permissions': [], 'features': [], 'files': [], 'gradle': {}}
         ios = {'plist': {}}
         for f in native_features:
             a = f.native.get('android', {})
             if 'android' in f.platforms:
                 android['permissions'] += [p for p in a.get('permissions', []) if p not in android['permissions']]
                 android['features'] += [x for x in a.get('features', []) if x not in android['features']]
+                # Files for the Android project are kept next to native.json until the project exists.
+                for to, source in a.get('files', {}).items():
+                    kept = Path('android-files') / f.id / source
+                    (out / kept).parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(f.path / source, out / kept)
+                    android['files'].append({'from': kept.as_posix(), 'to': to})
+                for name, value in a.get('gradle', {}).items():
+                    if name in android['gradle'] and android['gradle'][name] != value:
+                        warnings.append(f'{f.id} wants the Android setting {name} = {value!r}, '
+                                        f'but another feature wants {android["gradle"][name]!r}')
+                    android['gradle'].setdefault(name, value)
             if 'ios' in f.platforms:
                 ios['plist'].update(f.native.get('ios', {}).get('plist', {}))
         (out / 'native.json').write_text(json.dumps({'android': android, 'ios': ios}, indent=2) + '\n', 'utf-8')
@@ -1169,6 +1207,36 @@ def cmd_android_manifest(project: Project, args) -> int:
     return 0
 
 
+def gradle_value(value) -> str:
+    if isinstance(value, bool):
+        return 'true' if value else 'false'
+    if isinstance(value, int):
+        return str(value)
+    return "'" + value.replace('\\', '\\\\').replace("'", "\\'") + "'"
+
+
+def cmd_android_project(project: Project, args) -> int:
+    """Copies the files features asked for into the Android project, and adds their settings to
+    its variables.gradle."""
+    out = Path(args.out)
+    native = json.loads((out / 'native.json').read_text('utf-8'))['android']
+    android = Path(args.android)
+    for item in native.get('files', []):
+        target = android / item['to']
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(out / item['from'], target)
+        print(f'Copied into the Android project: {item["to"]}')
+    gradle = native.get('gradle', {})
+    if gradle:
+        lines = '\n'.join(f'    {name} = {gradle_value(value)}' for name, value in gradle.items())
+        with (android / 'variables.gradle').open('a', encoding='utf-8') as f:
+            f.write(f'\n// Added by Folio, from features\' feature.json\next {{\n{lines}\n}}\n')
+        print('Added to variables.gradle: ' + ', '.join(gradle))
+    if not native.get('files') and not gradle:
+        print('Nothing to add to the Android project')
+    return 0
+
+
 def cmd_version(project: Project, args) -> int:
     app = project.load_app(Log(quiet=True))
     if not app:
@@ -1210,6 +1278,9 @@ def main(argv: list[str], root: Path) -> int:
     p = sub.add_parser('android-manifest', help='add features\' Android permissions (used by GitHub)')
     p.add_argument('manifest', help='path to AndroidManifest.xml')
     p.add_argument('--out', default=str(root / 'dist'))
+    p = sub.add_parser('android-project', help='copy features\' Android files and settings (used by GitHub)')
+    p.add_argument('android', help='path to the Android project, e.g. dist/android')
+    p.add_argument('--out', default=str(root / 'dist'))
     sub.add_parser('version', help='print the app\'s version from app.json')
 
     if not argv or argv[0].startswith('-') and argv[0] not in ('-h', '--help'):
@@ -1219,6 +1290,6 @@ def main(argv: list[str], root: Path) -> int:
     commands = {
         'build': cmd_build, 'check': cmd_check, 'list': cmd_list, 'new-feature': cmd_new_feature,
         'serve': cmd_serve, 'test': lambda p, a: run_tests(p, a), 'android-manifest': cmd_android_manifest,
-        'version': cmd_version,
+        'android-project': cmd_android_project, 'version': cmd_version,
     }
     return commands[args.command](project, args)

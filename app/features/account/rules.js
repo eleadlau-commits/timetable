@@ -15,6 +15,15 @@ export function toUser(firebaseUser) {
 // What went wrong while signing in or out, in plain words, or null if there's nothing to say
 // (for example, the person closed the Google window themselves).
 export function explain(err) {
+  const message = String(err?.message || err?.errorMessage || '');
+  // Google's Android sign-in says things in its own words.
+  if (/cancel/i.test(message)) return null;
+  if (/no credentials available|no account/i.test(message)) {
+    return 'There\'s no Google account on this phone. Add one in Android Settings → Accounts, then try again.';
+  }
+  if (/developer_error|\b10:|no-plugin|no-token/i.test(message)) {
+    return 'Google sign-in isn\'t set up for this version of the app yet.';
+  }
   switch (err?.code) {
     case 'auth/popup-closed-by-user':
     case 'auth/cancelled-popup-request':
@@ -31,7 +40,7 @@ export function explain(err) {
     case 'auth/user-disabled':
       return 'This account has been switched off.';
     default:
-      return err?.message === 'load'
+      return message === 'load'
         ? "Couldn't load Google sign-in. Check you're online and try again."
         : 'Something went wrong while signing in. Please try again.';
   }

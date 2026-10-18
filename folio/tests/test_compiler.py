@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(os.path.abspath(__file__)).parents[2]
 sys.path.insert(0, str(ROOT / 'folio' / 'compiler'))
 
-from folioc import Log, Project, deep_merge  # noqa: E402
+from folioc import Log, Project, cmd_android_project, deep_merge  # noqa: E402
 
 
 def make_app(tmp: Path, features: dict) -> Path:
@@ -157,6 +157,44 @@ class CompilerTests(unittest.TestCase):
         capacitor = json.loads((out / 'capacitor.config.json').read_text('utf-8'))
         self.assertEqual(capacitor['server']['allowNavigation'], ['a.example'])
         self.assertTrue((out / 'report.html').exists())
+
+    def test_android_files_and_settings(self):
+        app = make_app(self.tmp, {
+            'login': (feature(native={'android': {
+                'files': {'app/google-services.json': 'native/google-services.json'},
+                'gradle': {'includeGoogle': True, 'someVersion': '1.2.0'},
+            }}), {'native/google-services.json': '{"project_info": {}}'}),
+        })
+        out = self.tmp / 'dist'
+        code, _ = Project(ROOT, app).build(out, Log(quiet=True))
+        self.assertEqual(code, 0)
+        self.assertFalse((out / 'web' / 'features' / 'login' / 'native').exists())  # not shipped in the app
+        native = json.loads((out / 'native.json').read_text('utf-8'))['android']
+        self.assertEqual(native['gradle'], {'includeGoogle': True, 'someVersion': '1.2.0'})
+        self.assertEqual(native['files'][0]['to'], 'app/google-services.json')
+
+        android = self.tmp / 'android'
+        android.mkdir()
+        (android / 'variables.gradle').write_text('ext {\n    minSdkVersion = 23\n}\n')
+        args = type('Args', (), {'out': str(out), 'android': str(android)})()
+        self.assertEqual(cmd_android_project(None, args), 0)
+        self.assertEqual((android / 'app' / 'google-services.json').read_text(), '{"project_info": {}}')
+        gradle = (android / 'variables.gradle').read_text()
+        self.assertIn('minSdkVersion = 23', gradle)
+        self.assertIn('includeGoogle = true', gradle)
+        self.assertIn("someVersion = '1.2.0'", gradle)
+
+    def test_mistakes_in_android_files_and_settings(self):
+        _, found = self.resolve({
+            'missing': feature(native={'android': {'files': {'app/x.json': 'native/x.json'}}}),
+            'outside': (feature(native={'android': {'files': {'../x.json': 'native/x.json'}}}), {'native/x.json': '{}'}),
+            'badname': feature(native={'android': {'gradle': {'not a name': True}}}),
+            'badvalue': feature(native={'android': {'gradle': {'ok': [1]}}}),
+        })
+        self.assertIn('is missing', found['missing'].reason)
+        self.assertIn('inside the project', found['outside'].reason)
+        self.assertIn('native.android.gradle', found['badname'].reason)
+        self.assertIn('native.android.gradle', found['badvalue'].reason)
 
     def test_output_folder_with_other_files_is_not_emptied(self):
         app = make_app(self.tmp, {'core': feature()})

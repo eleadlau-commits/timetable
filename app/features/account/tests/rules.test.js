@@ -32,3 +32,10 @@ test('problems are explained in plain words', () => {
   assert.match(explain(new Error('load')), /Couldn't load/);
   assert.match(explain(new Error('anything')), /try again/);
 });
+
+test('Google\'s Android sign-in: cancelling says nothing, other problems are explained', () => {
+  assert.equal(explain(new Error('activity is cancelled by the user.')), null);
+  assert.match(explain(new Error('No credentials available')), /no Google account/);
+  assert.match(explain(new Error('10: DEVELOPER_ERROR')), /isn't set up/);
+  assert.match(explain(new Error('no-token')), /isn't set up/);
+});

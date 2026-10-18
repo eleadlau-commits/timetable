@@ -65,6 +65,9 @@ jobs:
       - name: Add the permissions features asked for
         run: python build.py android-manifest dist/android/app/src/main/AndroidManifest.xml
 
+      - name: Add the files and settings features asked for
+        run: python build.py android-project dist/android
+
       - name: Generate app icons
         continue-on-error: true   # falls back to the default icon if this fails
         working-directory: dist
