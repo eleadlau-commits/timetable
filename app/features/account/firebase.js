@@ -29,3 +29,9 @@ export function googleProvider() {
   provider.setCustomParameters({ prompt: 'select_account' });
   return provider;
 }
+
+// Turns the sign-in from Google's Android sign-in into one Firebase accepts.
+export function googleCredential(idToken) {
+  if (!idToken) throw new Error('no-token');
+  return window.firebase.auth.GoogleAuthProvider.credential(idToken);
+}

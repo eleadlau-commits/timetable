@@ -65,6 +65,7 @@ app/features/notes/
   README.md         what it does, in plain English
   tests/            *.test.js files (not shipped in the app)
   extras/           anything else that isn't part of the app, e.g. a server script (not shipped)
+  native/           files for the phone app's build, e.g. google-services.json (not shipped; see native.android.files)
 ```
 
 Make a new one with `python build.py new-feature study-timer --requires sessions`.
@@ -87,7 +88,11 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
   "native": {
     "packages": { "@capacitor/local-notifications": "^7.0.0" },
     "capacitor": { "plugins": { } },
-    "android": { "permissions": ["CAMERA"], "features": [{ "name": "android.hardware.camera", "required": false }] },
+    "android": {
+      "permissions": ["CAMERA"], "features": [{ "name": "android.hardware.camera", "required": false }],
+      "files": { "app/google-services.json": "native/google-services.json" },
+      "gradle": { "rgcfaIncludeGoogle": true }
+    },
     "ios": { "plist": { "NSCameraUsageDescription": "Why the camera is needed." } }
   }
 }
@@ -105,7 +110,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
 | `platforms` | no | Where it runs: `web`, `android`, `ios`. Default: everywhere. |
 | `enabled` | no | `false` switches the feature off without deleting it. |
 | `web.manifest` | no | Merged into the web app manifest, e.g. a `share_target`. |
-| `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. |
+| `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). |
 
 The folder name is the feature's id: lowercase words joined by dashes.
 
@@ -222,6 +227,7 @@ this.storage.once('import-v1', fn);    // runs fn only the first time, on each d
 | `python build.py serve` | Compiles, then runs the app at http://localhost:8000. Add `--test` for sample data and the tests page (`/tests.html`). |
 | `python build.py test` | Runs every test, including the delete-a-folder test (see [9](#9-tests)). `--quick` skips that one. |
 | `python build.py --without notes,maps` | Compiles without some features, to see what happens. |
+| `python build.py android-manifest PATH` / `android-project PATH` | Used by GitHub: add features' Android permissions to the manifest, and copy their Android `files` and `gradle` settings into the Android project. |
 
 The compiler only needs Python 3.9 or newer. The browser tests also need Chrome or Edge.
 
@@ -302,3 +308,5 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.4.0:** the menu is a panel that slides in from the left (tap outside, swipe left, Escape or back to close), with who is signed in at the top and the framework's own Account, Settings and About rows mixed in with the `header.buttons` by `order`. A new `account` slot is for apps with accounts; until it's filled, the account button and the Account row say *coming soon* (the account button no longer opens Settings). Swiping the tab bar changes tabs, and the selected tab's highlight slides between tabs. Views get a place for small buttons on the right of their title (`mount`'s `actions`). In Settings, Features is folded away. New icons: help, info, chat. The app's `description` from app.json is in `app.config` and shown in About. Inside the framework, the menu, tab bar and Settings are now in `Menu.js`, `Tabs.js` and `Settings.js`. Features written for 1.3 keep working; a feature whose only way in was a `header.buttons` row still has it.
 
 **1.5.0:** pop-ups (`ui.dialog`, and Settings and About) fill the screen. Their title bar, with the close button, stays at the top while the rest scrolls, and on a wide screen the content keeps to a readable width. For a quick one that should stay a small box in the middle, pass `size: 'box'`. Features written for 1.4 keep working; their pop-ups are simply full screen now.
+
+**1.6.0:** a feature can put files into the Android project and set its Gradle settings, with `native.android.files` and `native.android.gradle` in feature.json (for example a plugin's `google-services.json`). The files live in the feature's `native/` folder, which isn't shipped in the app. GitHub's build runs the new `python build.py android-project dist/android` after creating the Android project. Features written for 1.5 keep working.

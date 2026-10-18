@@ -4,15 +4,16 @@
 // Signed in, it shows your picture, name and email, with Sign out and Delete my account.
 // Backup and friends come later. Nothing is stored online yet.
 //
-// Signing in works in the web version. In the Android app, Google doesn't allow its sign-in
-// window inside apps, so that needs a native sign-in, which comes next; until then it says so.
+// In the web version, Google's sign-in window opens. In the Android app Google doesn't allow
+// that window inside apps, so Google's own Android sign-in is used instead (the Capacitor
+// Firebase Authentication plugin), and what it returns signs in to Firebase in the same way.
 //
 // Service 'account': { user } the signed-in person ({ uid, name, email, photo }) or null.
 // Event 'account:changed': sent with the user (or null) when someone signs in or out.
 // Saved data: 'user' → { uid, name, email, photo }, so the name shows straight away and offline.
 
 import { Feature, ui } from 'folio';
-import { connect, googleProvider } from './firebase.js';
+import { connect, googleProvider, googleCredential } from './firebase.js';
 import { toUser, explain } from './rules.js';
 
 const { el } = ui;
@@ -28,7 +29,7 @@ export default class Account extends Feature {
       open: () => this.openWindow(),
     });
     // Someone signed in before: check with Firebase that they still are, in the background.
-    if (this.user && !this.native) this.on('app:ready', () => this.watch().catch(() => {}));
+    if (this.user) this.on('app:ready', () => this.watch().catch(() => {}));
   }
 
   // Follows Firebase's idea of who is signed in (it remembers between visits by itself).
@@ -44,7 +45,7 @@ export default class Account extends Feature {
   // Gets Firebase ready while the page is open, so tapping Sign in can open Google's window
   // straight away (browsers block windows that open after a wait).
   prepare() {
-    if (this.auth || this.native || this.preparing) return;
+    if (this.auth || this.preparing) return;
     this.preparing = this.watch()
       .catch((err) => { if (!this.user) this.error = explain(err); })
       .finally(() => { this.preparing = null; this.draw(); });
@@ -63,19 +64,30 @@ export default class Account extends Feature {
   // ---- Signing in and out ----
 
   async signIn() {
-    if (this.native) return;
     if (!this.auth) return this.prepare();
     const auth = this.auth;
     await this.attempt(async () => {
-      const result = await auth.signInWithPopup(googleProvider());
+      const result = this.native
+        ? await auth.signInWithCredential(await this.androidCredential())
+        : await auth.signInWithPopup(googleProvider());
       this.setUser(toUser(result.user));
     });
+  }
+
+  // In the Android app: Google's own sign-in, turned into something Firebase accepts.
+  async androidCredential() {
+    const google = this.plugin('FirebaseAuthentication');
+    if (!google) throw new Error('no-plugin');
+    const result = await google.signInWithGoogle();
+    return googleCredential(result?.credential?.idToken);
   }
 
   async signOut() {
     await this.attempt(async () => {
       const auth = await this.watch();
       await auth.signOut();
+      // In the Android app, also forget the Google account, so next time you can choose again.
+      if (this.native) await this.plugin('FirebaseAuthentication')?.signOut().catch(() => {});
       this.setUser(null);
     });
   }
@@ -91,7 +103,8 @@ export default class Account extends Feature {
       } catch (err) {
         if (err?.code !== 'auth/requires-recent-login') throw err;
         // Google wants to be sure it's really you: sign in once more, then delete.
-        await current.reauthenticateWithPopup(googleProvider());
+        if (this.native) await current.reauthenticateWithCredential(await this.androidCredential());
+        else await current.reauthenticateWithPopup(googleProvider());
         await current.delete();
       }
       this.setUser(null);
@@ -142,7 +155,7 @@ export default class Account extends Feature {
     const button = el('button', {
       type: 'button',
       class: 'btn primary block',
-      disabled: this.native || waiting,
+      disabled: waiting,
       onclick: () => this.signIn(),
     }, this.busy ? 'Signing in…' : waiting ? 'Getting ready…' : 'Sign in with Google');
     return el('section', { class: 'account-out' },
@@ -152,9 +165,7 @@ export default class Account extends Feature {
         el('b', {}, 'Mobile Durham is made by students and isn\'t affiliated with Durham University.')),
       button,
       error,
-      ui.hint(this.native
-        ? 'Signing in on the Android app is coming soon. For now you can sign in on the web version. Everything works without an account.'
-        : 'Everything works without an account, and your things stay on this phone.', { small: true }));
+      ui.hint('Everything works without an account, and your things stay on this phone.', { small: true }));
   }
 
   signedIn(error) {
