@@ -12,6 +12,7 @@
 // feature needs is reached through `this`, so it never has to touch another feature's code.
 
 import * as ui from './ui.js';
+import { getText } from './net.js';
 
 export class Feature {
   constructor(app, manifest) {
@@ -90,5 +91,11 @@ export class Feature {
 
   plugin(name) {
     return this.app.platform.plugin(name);
+  }
+
+  // Downloads text from another website (see net.js): through the phone in the Android app,
+  // so sites that block web pages still work; an ordinary fetch on the web.
+  getText(url) {
+    return getText(url, this.app.platform);
   }
 }

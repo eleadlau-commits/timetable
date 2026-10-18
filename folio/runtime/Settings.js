@@ -1,16 +1,19 @@
 // The Settings window and the About window.
 //
-// Settings: the 'settings' sections from features, then the framework's own two:
+// Settings: Appearance (Automatic, Light or Dark) first, then the 'settings' sections from
+// features, then the framework's own two:
 //   Features  switches to turn features on and off for this phone, folded away until opened
 //   About     the app's name and version, and any problems since it opened
 // About is also its own small window, opened from the menu.
 
 import { el, dialog, toggle, hint } from './ui.js';
+import { APPEARANCES, applyAppearance, startAppearance } from './appearance.js';
 
 export class Settings {
   constructor(app) {
     this.app = app;
     this.prefs = app.storage.area('folio');
+    startAppearance(this.prefs.get('appearance', 'auto'));
     this.restartNeeded = false;
     this.featuresOpen = false; // the Features list stays as it was while the window is redrawn
   }
@@ -39,8 +42,25 @@ export class Settings {
       if (!body) return null;
       return el('section', { class: 'settings-section' }, s.title && el('h3', { class: 'sub-head' }, s.title), body);
     });
-    this.window.setContent(...sections, this.featuresSection(), el('section', { class: 'settings-section about' },
+    this.window.setContent(this.appearanceSection(), ...sections, this.featuresSection(), el('section', { class: 'settings-section about' },
       el('h3', { class: 'sub-head' }, 'About'), ...this.aboutParts()));
+  }
+
+  // Light or dark: follow the phone, or always one of them. Saved as 'appearance' on this phone.
+  appearanceSection() {
+    const current = this.prefs.get('appearance', 'auto');
+    const choose = (mode) => {
+      this.prefs.set('appearance', mode);
+      applyAppearance(mode);
+      this.render();
+    };
+    return el('section', { class: 'settings-section' },
+      el('h3', { class: 'sub-head' }, 'Appearance'),
+      el('div', { class: 'seg', role: 'radiogroup', 'aria-label': 'Appearance', style: `--tabs:${APPEARANCES.length}` },
+        APPEARANCES.map(([mode, label]) => el('button', {
+          type: 'button', role: 'radio', 'aria-checked': String(mode === current), 'aria-selected': String(mode === current), onclick: () => choose(mode),
+        }, label))),
+      hint(current === 'auto' ? 'Follows your phone\'s light or dark setting.' : `Always ${current}, whatever your phone is set to.`, { small: true }));
   }
 
   featuresSection() {

@@ -33,11 +33,6 @@ class LoadError extends Error {
   }
 }
 
-async function getText(url) {
-  const res = await fetch(url, { cache: 'no-store' });
-  if (!res.ok) throw new LoadError('http', { status: res.status });
-  return res.text();
-}
 
 export default class Timetable extends Feature {
   start() {
@@ -162,7 +157,7 @@ export default class Timetable extends Feature {
 
   async download(link) {
     try {
-      return await getText(link);
+      return await this.getText(link);
     } catch (err) {
       // An HTTP error came from the university itself; another route won't change that.
       if (err.status) throw err;

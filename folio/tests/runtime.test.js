@@ -7,6 +7,8 @@ import { Events } from 'folio/Events.js';
 import * as time from 'folio/time.js';
 import { el, missing, dialog } from 'folio/ui.js';
 import { Tabs } from 'folio/Tabs.js';
+import { mediaFor } from 'folio/appearance.js';
+import { getText } from 'folio/net.js';
 
 // A stand-in for the app that records reported problems.
 const fakeApp = () => ({ problems: [], report(owner, err) { this.problems.push([owner, err.message]); } });
@@ -135,4 +137,28 @@ test('the tab bar highlights the open view, and can sit between two tabs while s
   assert.ok(!buttons[1].classList.contains('lit'));
   buttons[0].click();
   assert.deepEqual(picked, ['a']);
+});
+
+test('appearance: dark styles are switched on, off, or left to the phone', () => {
+  const dark = '(prefers-color-scheme: dark)';
+  assert.equal(mediaFor(dark, 'auto'), dark);
+  assert.equal(mediaFor(dark, 'dark'), 'all');
+  assert.equal(mediaFor(dark, 'light'), 'not all');
+  assert.equal(mediaFor('(prefers-color-scheme: light)', 'dark'), 'not all');
+  assert.equal(mediaFor('(prefers-color-scheme: dark) and (min-width: 600px)', 'dark'), 'all and (min-width: 600px)');
+  assert.equal(mediaFor('(prefers-reduced-motion: reduce)', 'dark'), '(prefers-reduced-motion: reduce)');
+});
+
+test('getText: in the phone apps the phone downloads it, with HTTP errors kept', async () => {
+  const asked = [];
+  const phone = (status, data) => ({
+    native: true,
+    plugin: (name) => (name === 'CapacitorHttp' ? { request: async (o) => { asked.push(o); return { status, data }; } } : null),
+  });
+  assert.equal(await getText('https://example.ac.uk/a.ics', phone(200, 'BEGIN:VCALENDAR')), 'BEGIN:VCALENDAR');
+  assert.equal(asked[0].url, 'https://example.ac.uk/a.ics');
+  assert.equal(asked[0].method, 'GET');
+  let error = null;
+  try { await getText('https://example.ac.uk/gone.ics', phone(404, '')); } catch (err) { error = err; }
+  assert.equal(error?.status, 404);
 });
