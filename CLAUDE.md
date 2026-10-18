@@ -28,7 +28,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 
 | Feature | What it does | Requires (uses) | Adds to | Offers |
 |---|---|---|---|---|
-| `account` | The account page (from the account button and the menu); signing in with Google through Firebase (web: Google's window; Android: Google's own sign-in); privacy notice; Delete my account removes all online data | | account | service `account`; event `account:changed` |
+| `account` | The account page (from the account button and the menu); signing in with Google through Firebase (web: Google's window; Android: Google's own sign-in); privacy notice; Delete my account removes all online data | | account | service `account`; slot `account.sections`; event `account:changed` |
 | `campus-card` | Scan and show the campus card barcode | | home.side, more.items | |
 | `timetable` | Loads and saves the timetable, setup screen, the Planner's refresh button | | status, planner.actions, settings | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
 | `sessions` | Session cards and the details window | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
@@ -42,6 +42,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `study` | The Study tab | | views | slot `study.cards` |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
 | `library` | How busy Bill Bryson Library is: a folded bar on Home and Study, free seats per floor in a full-screen pop-up | (web-relay, home, study) | home.top, study.cards, settings | |
+| `link-backup` | Backs up the timetable link to your private area while signed in; brings it back on a new phone | account, timetable | account.sections, timetable.setup | |
 | `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings | |
 | `maps` | Building names, map preview, directions | sessions (durham-rooms) | session.location/details, settings | |
 | `modules` | Rename, recolour or hide modules; button under the Planner's switch | sessions (planner) | session.name/colour/filter/details, planner.buttons, settings | |

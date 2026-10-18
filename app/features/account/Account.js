@@ -11,7 +11,15 @@
 // that window inside apps, so Google's own Android sign-in is used instead (the Capacitor
 // Firebase Authentication plugin), and what it returns signs in to Firebase in the same way.
 //
-// Service 'account': { user } the signed-in person ({ uid, name, email, photo }) or null.
+// Service 'account' (this object):
+//   user            the signed-in person ({ uid, name, email, photo }), or null
+//   database()      Firebase's database (Firestore), once Firebase knows who is signed in;
+//                   fails with Error('signed-out') if nobody is
+//   serverTime()    a value that the database turns into its own clock's time
+//   open()          opens the account page
+//   redraw()        draws the account page again, if it's open
+// Slot 'account.sections': parts of the signed-in account page, e.g. Backup.
+//   Item: { order, render(user) → element or null }
 // Event 'account:changed': sent with the user (or null) when someone signs in or out.
 // Saved data: 'user' → { uid, name, email, photo }, so the name shows straight away and offline.
 
@@ -27,6 +35,8 @@ export default class Account extends Feature {
     this.user = this.storage.get('user', null);
     this.busy = false;
     this.error = null;
+    this.defineSlot('account.sections',
+      'Parts of the signed-in account page, under your name. Item: { order, render(user) → element or null }.');
     this.provide('account', this);
     this.add('account', {
       name: () => this.user?.name || null,
@@ -41,9 +51,36 @@ export default class Account extends Feature {
     const auth = await connect();
     if (!this.auth) {
       this.auth = auth;
-      auth.onAuthStateChanged((firebaseUser) => this.setUser(toUser(firebaseUser)));
+      // Firebase answers once it knows who is signed in (from its own memory), then on changes.
+      this.known = new Promise((resolve) => {
+        auth.onAuthStateChanged((firebaseUser) => {
+          this.setUser(toUser(firebaseUser));
+          resolve();
+        });
+      });
     }
+    await this.known;
     return auth;
+  }
+
+  // ---- For other features ----
+
+  open() {
+    this.openWindow();
+  }
+
+  redraw() {
+    this.draw();
+  }
+
+  async database() {
+    const auth = await this.watch();
+    if (!auth.currentUser) throw new Error('signed-out');
+    return database();
+  }
+
+  serverTime() {
+    return window.firebase.firestore.FieldValue.serverTimestamp();
   }
 
   // Gets Firebase ready while the page is open, so tapping Sign in can open Google's window
@@ -196,9 +233,7 @@ export default class Account extends Feature {
         el('span', { class: 'account-name' }, el('b', {}, u.name), u.email && el('span', {}, u.email)),
         ui.hint('Signed in with Google.', { small: true })),
       error,
-      el('section', { class: 'account-part' },
-        el('h3', {}, 'Backup'),
-        ui.hint('Coming soon: your timetable link, saved privately to your account so it comes back on a new phone. Nothing is stored online yet.')),
+      ...this.slot('account.sections').map((section) => section.render(u)).filter(Boolean),
       el('section', { class: 'account-part' },
         el('h3', {}, 'Friends'),
         ui.hint('Coming soon: add friends and see each other\'s timetables, only once you\'ve both agreed.')),

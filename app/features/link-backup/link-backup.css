@@ -1,0 +1,4 @@
+/* Link backup: the Backup part of the account page, and the line on the setup screen. */
+.backup-switch { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; }
+.backup-part .btn { justify-self: start; }
+.dialog-body .account-in .backup-part .hint.small { text-align: left; }

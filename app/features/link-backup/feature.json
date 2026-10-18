@@ -1,0 +1,8 @@
+{
+  "name": "Link backup",
+  "description": "Saves your timetable link privately to your account, and brings your timetable back when you sign in on a new phone.",
+  "version": "1.0.0",
+  "main": "LinkBackup.js",
+  "styles": ["link-backup.css"],
+  "requires": ["account", "timetable"]
+}

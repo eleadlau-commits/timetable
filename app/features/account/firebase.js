@@ -10,6 +10,10 @@ const LIB = (name) => `https://cdn.jsdelivr.net/npm/firebase@${VERSION}/firebase
 let auth = null;
 let db = null;
 
+// For automatic tests only: a test sets this before the app starts, to use Google's emulators
+// instead of the real project, e.g. { auth: 'http://127.0.0.1:9099', firestore: ['127.0.0.1', 8080] }.
+const emulator = () => window.FOLIO_FIREBASE_EMULATOR;
+
 async function load(...names) {
   try {
     for (const name of names) await ui.loadScript(LIB(name));
@@ -25,6 +29,7 @@ export async function connect() {
   const firebase = window.firebase;
   const app = firebase.apps.length ? firebase.app() : firebase.initializeApp(FIREBASE_CONFIG);
   auth = app.auth();
+  if (emulator()) auth.useEmulator(emulator().auth);
   return auth;
 }
 
@@ -33,6 +38,7 @@ export async function database() {
   if (db) return db;
   await load('firestore');
   db = window.firebase.app().firestore();
+  if (emulator()) db.useEmulator(...emulator().firestore);
   return db;
 }
 
