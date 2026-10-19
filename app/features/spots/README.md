@@ -5,7 +5,7 @@ The **Spots** tab, for places around Durham. For now it has a card for each kind
 ## What it adds
 
 - **The Spots tab** (view id `spots`, pin icon), with the line *Places around Durham* next to its title. Three cards: **Cafés**, **Pubs** and **Clubs**. Each has its name and a short line at the top, and a dark bar along the bottom saying *Coming soon*. Tapping a card shows a short *coming soon* message. The cards look the same as the one on More.
-- **The Explore page on Home** (slot `home.pages`, order 10): the title *Explore*, the line *Places to study, eat and meet around Durham.*, and a big outlined **Open Spots** button (*Cafés, pubs and clubs* under it) that opens the Spots tab.
+- **The Explore page on Home** (slot `home.pages`, order 10): the title *Explore*, the line *Cafés, pubs and clubs*, and an outlined **Open Spots** button on the right that opens the Spots tab.
 
 ## Adding a photo to a card
 

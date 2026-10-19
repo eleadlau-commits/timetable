@@ -33,7 +33,8 @@ export default class CampusCard extends Feature {
     return c.format === 'codabar' ? c.value.replace(/^[A-D](.+)[A-D]$/, '$1') : c.value;
   }
 
-  // On Home: a narrow card with the barcode drawn down it. Tap to open the full card.
+  // On Home: a narrow card with the barcode drawn down it, the number, and a Tap button under
+  // them. Tapping anywhere on it opens the full card.
   homeCard() {
     const c = this.card;
     if (!c) {
@@ -47,9 +48,9 @@ export default class CampusCard extends Feature {
       code = ui.hint('Scan the card again', { small: true });
     }
     return el('button', { type: 'button', class: 'cc-home', 'aria-label': 'Campus card: open the barcode for scanning', onclick: () => this.openWindow() },
-      el('span', { class: 'cc-label' }, 'Card'),
       el('span', { class: 'cc-code' }, code),
-      el('span', { class: 'cc-number' }, this.printedNumber(c)));
+      el('span', { class: 'cc-number' }, this.printedNumber(c)),
+      el('span', { class: 'cc-tap', 'aria-hidden': 'true' }, 'Tap'));
   }
 
   // Before this app used Folio, the card was saved in "tt.prefs".

@@ -1,6 +1,6 @@
-/* Home: pages to swipe between on the dark area (with a photo behind them), cards at the
-   bottom of the screen. */
-.view-home .page-head { padding-top: 0; padding-bottom: 14px; }
+/* Home: small pages to swipe between on the dark area (with a photo behind them), then cards
+   filling the rest of the screen. */
+.view-home .page-head { padding-top: 0; padding-bottom: 10px; }
 
 /* The photo of Durham: half see-through, clearest at the bottom right, fading out towards the
    top left (where the menu and the words are). Only there once photos/durham.jpg has loaded. */
@@ -25,7 +25,7 @@
 .home-page { flex: 0 0 100%; min-width: 0; padding: 0 var(--gutter); display: flex; flex-direction: column; }
 
 /* Small knife-shaped dots under the pages; the open page's is brighter and longer. */
-.home-dots { display: flex; justify-content: center; gap: 6px; padding-top: 18px; }
+.home-dots { display: flex; justify-content: center; gap: 6px; padding-top: 10px; }
 .home-dot {
   width: 10px;
   height: 5px;
@@ -39,9 +39,12 @@
 .home-dot[aria-selected="true"] { width: 16px; background: var(--on-top-dot-on); }
 .home-dot:focus-visible { outline: 2px solid var(--on-top); outline-offset: 3px; }
 
-/* The first page: the date, the clock and what's next. */
-.home-time { display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; }
-.home-date { font-size: 14px; font-weight: 500; letter-spacing: 0.02em; color: var(--on-top-muted); }
+/* Every page is the same small height, about as tall as the date and clock. */
+.home-page { height: 64px; justify-content: center; }
+
+/* The first page: the date and the clock. */
+.home-time { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.home-date { font-size: 13px; font-weight: 500; letter-spacing: 0.02em; color: var(--on-top-muted); }
 .home-clock {
   font-family: var(--font-mono);
   font-size: 40px;
@@ -51,52 +54,52 @@
   font-variant-numeric: tabular-nums;
   color: var(--on-top);
 }
-.home-next { align-self: stretch; display: grid; justify-items: center; gap: 2px; font-size: 13px; color: var(--on-top-muted); }
-.home-next:empty { display: none; }
-.home-next > .home-button { justify-self: start; margin-top: 24px; }
 
-/* Other pages: a title and a line, e.g. Explore. */
-.home-page-title { margin: 6px 0 0; font-size: 30px; font-weight: 600; line-height: 1.15; color: var(--on-top); }
-.home-page-line { margin: 6px 0 0; font-size: 14px; color: var(--on-top-muted); }
-/* Every page is as tall as the first, and its button sits at the bottom, level with Plan Today. */
-.home-page > section:not(.home-time) { flex: 1; display: flex; flex-direction: column; align-items: flex-start; }
-.home-page > section:not(.home-time) .home-button { margin-top: auto; }
-.home-page-line { margin-bottom: 24px; }
+/* Other pages, in one row: a title and a line on the left, a button on the right. */
+.home-page-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.home-page-row > div { min-width: 0; }
+.home-page-title { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.15; color: var(--on-top); }
+.home-page-line { margin: 2px 0 0; font-size: 13px; color: var(--on-top-muted); }
 
-/* The big outlined button on the pages (Plan Today, Open Spots, …): a solid white outline, a
-   see-through inside, as wide as its words plus a little room for the arrow on the right. */
+/* The outlined button on the pages (Open, Open Spots, …): a solid white outline and a
+   see-through inside. */
 .home-button {
+  flex: none;
   display: inline-flex;
   align-items: center;
-  gap: 34px;
-  padding: 11px 14px 11px 16px;
+  gap: 10px;
+  padding: 9px 12px 9px 16px;
   border: 2px solid var(--on-top);
   border-radius: var(--shape-btn);
   background: var(--on-top-fill);
   color: var(--on-top);
   font: inherit;
-  text-align: left;
   cursor: pointer;
 }
-.home-button > span { display: flex; flex-direction: column; gap: 2px; }
-.home-button b { font-size: 20px; font-weight: 600; line-height: 1.2; }
-.home-button small { font-size: 13px; color: var(--on-top-muted); }
-.home-button svg { width: 18px; height: 18px; }
+.home-button b { font-size: 15px; font-weight: 600; }
+.home-button svg { width: 16px; height: 16px; }
 .home-button:focus-visible { outline: 2px solid var(--on-top); outline-offset: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
   .home-track, .home-dot, .home-photo { transition: none; }
 }
 
-/* Everything below the clock sits at the bottom, just above the tab bar. */
+/* Below the pages: the full-width cards, then the pair filling the rest of the screen. */
 .view-home .page-body { padding-bottom: 16px; }
-.home-space { flex: 1; min-height: 8px; }
 .home-top { display: grid; gap: 12px; margin-bottom: 16px; }
 .home-top:empty { display: none; }
-.home-pair { display: flex; gap: 12px; height: clamp(260px, 40vh, 320px); }
+.home-pair { flex: 1; min-height: 220px; display: flex; gap: 12px; } /* on a very short screen, Home scrolls after all */
 .home-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
 .home-side { width: 104px; flex: none; display: flex; flex-direction: column; gap: 12px; }
 .home-main > *, .home-side > * { min-height: 0; }
 .home-main > .missing, .home-side > .missing { flex: 1; }
 .home-side > .missing { padding: 12px; }
 .home-clock small { margin-left: 6px; font-size: 0.25em; letter-spacing: 0; vertical-align: 0.15em; }
+
+/* While Home is open, the screen doesn't scroll: the cards at the bottom fill the space between
+   the clock and the tab bar exactly, and the lectures shrink to fit it. */
+.app:has(.view-home:not([hidden])) { height: 100vh; height: 100dvh; min-height: 0; }
+.app:has(.view-home:not([hidden])) > main,
+.app:has(.view-home:not([hidden])) .view-host,
+.view-home, .view-home .page-body { min-height: 0; }
+.view-home .page-body { flex: 1; }

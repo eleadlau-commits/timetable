@@ -14,7 +14,7 @@
 .card-scan { display: grid; gap: 10px; }
 .card-scan video { width: 100%; max-height: 50vh; border-radius: 12px; background: #000; object-fit: cover; }
 
-/* On Home: a narrow card with the barcode drawn down it. */
+/* On Home: a narrow card with the barcode drawn down it, the number and a Tap button. */
 .cc-home {
   flex: 1;
   display: flex;
@@ -30,8 +30,17 @@
   cursor: pointer;
 }
 .cc-home:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.cc-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; text-align: left; }
-.cc-code { flex: 1; min-height: 0; display: flex; padding: 6px; border-radius: 8px; background: var(--barcode-bg, #fff); }
+/* The barcode is a fixed height, so the number and the Tap button sit right under it, with any
+   room left over at the bottom of the card. */
+.cc-code { flex: 0 1 230px; min-height: 0; display: flex; padding: 6px; border-radius: 8px; background: var(--barcode-bg, #fff); }
 .cc-code svg { width: 100%; height: 100%; stroke: none; fill: initial; }
 .cc-number { font-family: var(--font-mono); font-size: 9px; letter-spacing: -0.2px; overflow-wrap: anywhere; } /* 14 digits (a Telepen card) fit on one line */
 button.missing.cc-home { background: transparent; text-align: left; }
+.cc-tap {
+  padding: 8px 0;
+  border-radius: var(--shape-btn);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 14px;
+  font-weight: 600;
+}

@@ -1,5 +1,5 @@
-// Library: how busy Bill Bryson Library is. A small folded bar on Home and on the Study tab (busy
-// or not, free seats, a bar). Tap it for a full-screen pop-up with free seats on each floor.
+// Library: how busy Bill Bryson Library is. A thin row on Home (name, free seats, a bar) and a
+// small folded bar on the Study tab (busy or not, free seats, a bar). Tap it for a full-screen pop-up with free seats on each floor.
 // Read from the library's public occupancy page every few minutes while it's on screen. No booking.
 //
 // In the Android app the page is read directly. In the web version the university's server may
@@ -23,7 +23,7 @@ export default class Library extends Feature {
     this.failed = null;
     this.tried = 0;
 
-    this.add('home.top', { order: 10, render: () => this.folded('Library') });
+    this.add('home.top', { order: 10, render: () => this.thin() });
     this.add('study.cards', { order: 10, render: () => this.folded('Bill Bryson Library') });
     this.add('settings', { id: 'library', title: 'Library', order: 70, render: () => this.settingsSection() });
   }
@@ -65,8 +65,8 @@ export default class Library extends Feature {
     if (!this.loading && Date.now() - this.tried > FRESH && navigator.onLine) this.load();
   }
 
-  // On Home and the Study tab: a small folded bar with how busy it is, the free seats and a bar.
-  // Tap it to open the floors.
+  // On the Study tab (and on Home before the first reading): a small folded bar with how busy
+  // it is, the free seats and a bar. Tap it to open the floors.
   folded(name) {
     if (!this.show) return null;
     this.freshen();
@@ -88,6 +88,22 @@ export default class Library extends Feature {
         el('b', {}, name),
         el('span', { class: `lib-tag ${band.id}` }, band.label),
         el('span', { class: 'lib-free' }, el('strong', {}, o.free), ' seats free')),
+      this.bar(o.free, o.seats));
+  }
+
+  // On Home: one thin row with the name, the free seats and the bar. Tap it to open the floors.
+  thin() {
+    if (!this.show) return null;
+    const o = this.last?.occupancy;
+    if (!o) return this.folded('Library');
+    return el('button', {
+      type: 'button',
+      class: 'lib-home lib-thin',
+      'aria-label': `Bill Bryson Library, ${busyness(o.free, o.seats).label.toLowerCase()}, ${o.free} seats free. Show each floor`,
+      onclick: () => this.openWindow(),
+    },
+      el('b', {}, 'Library'),
+      el('span', { class: 'lib-free' }, el('strong', {}, o.free), ' seats free'),
       this.bar(o.free, o.seats));
   }
 

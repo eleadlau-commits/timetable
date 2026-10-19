@@ -4,7 +4,7 @@ A list of things to do, with tags and due dates. Saved on this phone only.
 
 ## What it adds
 
-- **A big "Plan Today" button on Home**, on the left under the "Next: …" line (slot `home.next`), in Home's big outlined button style (`home-button`). Inside it, in small text under *Plan Today*, how many unticked to-dos are due today: *Nothing due today*, *1 thing due today*, *3 things due today*. It changes as soon as a to-do is added, ticked or changed, and when the day changes.
+- **The Plan Today page on Home** (slot `home.pages`, order 5, so it comes straight after the clock): the title *Plan Today*, how many unticked to-dos are due today under it (*Nothing due today*, *1 thing due today*, *3 things due today*), and an outlined **Open** button on the right that opens the list. It changes as soon as a to-do is added, ticked or changed, and when the day changes.
 - Both open the **To-do list pop-up**:
   - **Due today** at the top: the unticked to-dos due today, whichever tag is chosen. Tick or delete them right there. (They're in the full list below too.)
   - **Tags along the top** to filter by: *All*, then each tag (*Academic* and *Society* to start with), then **+ Add tag**. Pick a tag to see **Rename tag** and **Delete tag** under the tags. Deleting a tag keeps its to-dos, just without a tag.
@@ -14,7 +14,7 @@ A list of things to do, with tags and due dates. Saved on this phone only.
 ## What it needs
 
 - **Requires:** nothing.
-- **Uses if present:** `home` (for the button). Without it, there's no way to open the list, but nothing breaks.
+- **Uses if present:** `home` (for the page). Without it, there's no way to open the list, but nothing breaks.
 
 ## What it saves on the phone
 
@@ -32,7 +32,7 @@ Sorting, overdue, due today (`dueToday`, and `dueTodayText` for the words), filt
 ## How to check it works
 
 1. Run `python build.py serve --test` and open the app. The sample data has five to-dos: one overdue, one ticked, and one due today, so Home says *1 thing due today*.
-2. Tap **Plan Today** under the clock. *Email tutor about the seminar* is under **Due today**; tick it, and Home says *Nothing due today*. Tick and untick one, delete one, add one with a tag and a date.
+2. On Home, swipe to **Plan Today** and tap **Open**. *Email tutor about the seminar* is under **Due today**; tick it, and Home says *Nothing due today*. Tick and untick one, delete one, add one with a tag and a date.
 3. Pick **Society**, tap **Rename tag**, rename it; then add a tag and delete it. Its to-dos stay, without a tag.
 4. Reload the page: everything you changed is still there (in the test build the sample to-dos come back, because the sample data is loaded again).
 5. Run `python build.py test`.
