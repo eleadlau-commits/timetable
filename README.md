@@ -12,8 +12,8 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 
 | Feature | What it does |
 |---|---|
-| **Home** | At the top, three pages to swipe between over a photo of Durham: the date, the clock, your next class and a big **Plan Today** button saying how many things are due today; **Explore** (opens Spots); and **Plan your journey** (coming soon). Below them, how busy the library is, the day's lectures (tap the date strip for other days) and your campus card. Anything that isn't set up yet shows **Missing content**. |
-| **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. What's due today is at the top. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from **Plan Today** on Home. |
+| **Home** | At the top, four small pages to swipe between over a photo of Durham: the date and clock; **Plan Today** (how many things are due today, and a button to open the to-do list); **Explore** (opens Spots); and **Plan a journey** (coming soon). Below them, a thin bar showing how busy the library is, all of today's lectures (no scrolling) and your campus card with a **Tap** button. Anything that isn't set up yet shows **Missing content**. |
+| **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. What's due today is at the top. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from the **Plan Today** page on Home. |
 | **Friends** | The two-people button at the top. Give friends your friend code, or add theirs, to swap timetables: when you ask someone they can see yours, and you see theirs once they accept. See who's free right now, when you're both free today, and each friend's next 4 weeks of classes (in grey, or a colour you pick). Remove a friend at any time. Needs signing in. |
 | **Planner: Day, Week and Upcoming** | Three ways to see your timetable. Use the date strip or the arrows to move between days or weeks. The round button by the title downloads your timetable again. The **Modules: colours and names** button under the switch lets you rename, recolour or hide modules. |
 | **Session details** | Tap any session for its time, room, description and more. |
@@ -21,7 +21,7 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 | **Modules** | Rename a module ("ECON1011" → "Microeconomics"), pick its colour, or hide it. |
 | **Maps** | Durham room codes show as buildings (`CLC013 · Calman Learning Centre`), with a map and directions. |
 | **Reminders** | A notification before each class, plus your own reminders. |
-| **Library** | How busy Bill Bryson Library is: a small bar on Home and on the **Study** tab. Tap it for free seats on each floor. |
+| **Library** | How busy Bill Bryson Library is: a thin bar on Home and a small one on the **Study** tab. Tap it for free seats on each floor. |
 | **Campus card** | Scan your card's barcode (camera or photo), or type the number, and show it on your phone if you lose the card. Reads Durham's Telepen barcode as well as the common types. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
 | **More** | Everything else, as cards. For now, the campus card. |

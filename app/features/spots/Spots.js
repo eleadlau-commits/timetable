@@ -30,12 +30,12 @@ export default class Spots extends Feature {
     this.add('home.pages', {
       id: 'explore',
       order: 10,
-      render: () => el('section', { 'aria-label': 'Explore' },
-        el('h2', { class: 'home-page-title' }, 'Explore'),
-        el('p', { class: 'home-page-line' }, 'Places to study, eat and meet around Durham.'),
+      render: () => el('section', { class: 'home-page-row', 'aria-label': 'Explore' },
+        el('div', {},
+          el('h2', { class: 'home-page-title' }, 'Explore'),
+          el('p', { class: 'home-page-line' }, 'Cafés, pubs and clubs')),
         el('button', { type: 'button', class: 'home-button', onclick: () => this.app.shell.selectView('spots') },
-          el('span', {}, el('b', {}, 'Open Spots'), el('small', {}, 'Cafés, pubs and clubs')),
-          ui.icon('right'))),
+          el('b', {}, 'Open Spots'), ui.icon('right'))),
     });
   }
 

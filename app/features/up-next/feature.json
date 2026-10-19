@@ -1,6 +1,6 @@
 {
   "name": "Up next",
-  "description": "Your next class under the clock, and a day of lectures on Home.",
+  "description": "Today's lectures on Home, all on the card without scrolling.",
   "version": "1.0.0",
   "main": "UpNext.js",
   "styles": ["up-next.css"],

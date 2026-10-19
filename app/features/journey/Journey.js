@@ -1,5 +1,5 @@
-// Plan your journey: the third page at the top of Home (slot 'home.pages'). Journey planning
-// isn't built yet, so its button just says it's coming soon.
+// Plan your journey: the last page at the top of Home (slot 'home.pages'), "Plan a journey".
+// Journey planning isn't built yet, so its Soon button just says it's coming soon.
 //
 // Saved data: none.
 
@@ -12,12 +12,12 @@ export default class Journey extends Feature {
     this.add('home.pages', {
       id: 'journey',
       order: 20,
-      render: () => el('section', { 'aria-label': 'Plan your journey' },
-        el('h2', { class: 'home-page-title' }, 'Plan your journey'),
-        el('p', { class: 'home-page-line' }, 'Getting to your next class, and back home.'),
+      render: () => el('section', { class: 'home-page-row', 'aria-label': 'Plan your journey' },
+        el('div', {},
+          el('h2', { class: 'home-page-title' }, 'Plan a journey'),
+          el('p', { class: 'home-page-line' }, 'To your next class, and back home')),
         el('button', { type: 'button', class: 'home-button', onclick: () => this.toast('Plan your journey is coming soon.') },
-          el('span', {}, el('b', {}, 'Plan a journey'), el('small', {}, 'Coming soon')),
-          ui.icon('right'))),
+          el('b', {}, 'Soon'), ui.icon('right'))),
     });
   }
 }

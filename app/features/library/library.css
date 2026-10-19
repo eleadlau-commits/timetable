@@ -60,3 +60,9 @@
 .lib-detail a { color: var(--accent); font-size: 14px; }
 
 .lib-setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; }
+
+/* On Home: one thin row. */
+.lib-home.lib-thin { flex-direction: row; align-items: center; gap: 12px; padding: 10px 16px; }
+.lib-thin > b { font-size: 15px; font-weight: 600; }
+.lib-thin .lib-free { margin-left: 0; }
+.lib-thin .lib-bar { flex: 1; min-width: 40px; width: auto; }

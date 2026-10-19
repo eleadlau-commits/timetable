@@ -1,5 +1,6 @@
-// To-do list: a list of things to do, with tags and due dates. A big "Plan Today" button under
-// the clock on Home, with how many things are due today inside it, opens it in a pop-up:
+// To-do list: a list of things to do, with tags and due dates. The Plan Today page at the top
+// of Home (second, after the clock), with how many things are due today, has an Open button
+// that opens it in a pop-up:
 //   - at the top, the to-dos due today that aren't ticked yet
 //   - tags along the top to filter by (All, Academic, Society, and any you add), which can be
 //     added, renamed and deleted; deleting a tag keeps its to-dos, just without a tag
@@ -24,12 +25,14 @@ export default class Todo extends Feature {
     this.editing = null; // null, 'add-tag' or 'rename'
     this.adding = false; // the add-a-to-do form is open
 
-    this.add('home.next', {
-      order: 20,
-      // Home's big outlined button (class home-button), with how many are due today inside.
-      render: () => el('button', { type: 'button', class: 'home-button todo-open', onclick: () => this.open() },
-        el('span', {}, el('b', {}, 'Plan Today'), el('small', {}, dueTodayText(dueToday(this.items).length))),
-        ui.icon('right')),
+    this.add('home.pages', {
+      id: 'plan-today',
+      order: 5,
+      render: () => el('section', { class: 'home-page-row', 'aria-label': 'Plan Today' },
+        el('div', {},
+          el('h2', { class: 'home-page-title' }, 'Plan Today'),
+          el('p', { class: 'home-page-line' }, dueTodayText(dueToday(this.items).length))),
+        el('button', { type: 'button', class: 'home-button', onclick: () => this.open() }, el('b', {}, 'Open'), ui.icon('right'))),
     });
   }
 

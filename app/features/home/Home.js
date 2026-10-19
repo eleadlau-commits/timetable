@@ -1,18 +1,17 @@
-// Home: the tab the app opens on. At the top, on the dark area, pages you swipe between (or
-// pick with the dots under them): the first has the date, the clock and what's next; other
-// features add more (Explore, Plan your journey). Behind them, a photo of Durham if there is
-// one (photos/durham.jpg). Under that, cards from other features at the bottom of the screen.
-// Home only draws the places; other features fill them. A card place with nothing in it shows
-// "Missing content", so the screen keeps its shape.
+// Home: the tab the app opens on. At the top, on the dark area, small pages you swipe between
+// (or pick with the dots under them): the first has the date and the clock; other features add
+// more (Plan Today, Explore, Plan your journey). Behind them, a photo of Durham if there is one
+// (photos/durham.jpg). Under that, cards from other features, filling the screen down to the
+// tab bar: Home doesn't scroll. Home only draws the places; other features fill them. A card
+// place with nothing in it shows "Missing content", so the screen keeps its shape.
 //
 // Slots (item: { order, render() → element, or null to show nothing }):
-//   'home.next'  short lines or buttons under the clock, e.g. "Next: Linear Algebra II · 16:00 · CG85"
-//                or the Plan Today button
-//   'home.pages' more pages at the top, after the first, e.g. Explore. Item: { id, order, render() }
-//                For a page's big outlined button, use the class "home-button" (see home.css):
-//                <button class="home-button"><span><b>Title</b><small>detail</small></span>›</button>
+//   'home.pages' more pages at the top, after the clock, e.g. Plan Today. Item: { id, order, render() }
+//                Each page is one short row: a title and a line on the left, a button on the right:
+//                <section class="home-page-row"><div><h2 class="home-page-title">Explore</h2>
+//                <p class="home-page-line">…</p></div><button class="home-button"><b>Open</b>›</button></section>
 //   'home.top'   full-width cards, e.g. the library
-//   'home.main'  the large card on the left, e.g. the day's lectures
+//   'home.main'  the large card on the left, e.g. today's lectures; it gets all the height left
 //   'home.side'  the narrow card on the right, e.g. the campus card
 //
 // Saved data: none. Home always opens on the first page.
@@ -27,10 +26,9 @@ const PHOTO = new URL('photos/durham.jpg', import.meta.url).href;
 
 export default class Home extends Feature {
   start() {
-    this.defineSlot('home.next', 'Short lines or buttons under the clock. Item: { order, render() → element or null }.');
-    this.defineSlot('home.pages', 'More pages at the top of Home, swiped to after the first. Item: { id, order, render() → element or null }. Use the class home-button for a big outlined button.');
+    this.defineSlot('home.pages', 'More pages at the top of Home, swiped to after the clock. Item: { id, order, render() → element or null }. One short row: use home-page-row, home-page-title, home-page-line and home-button.');
     this.defineSlot('home.top', 'Full-width cards above the bottom pair. Item: { order, render() → element or null }.');
-    this.defineSlot('home.main', 'The large card at the bottom left. Item: { order, render() → element or null }.');
+    this.defineSlot('home.main', 'The large card at the bottom left, as tall as the space left. Item: { order, render() → element or null }.');
     this.defineSlot('home.side', 'The narrow card at the bottom right. Item: { order, render() → element or null }.');
     this.timer = 0;
 
@@ -54,8 +52,7 @@ export default class Home extends Feature {
   mount(container, head) {
     this.date = el('div', { class: 'home-date' });
     this.clock = el('div', { class: 'home-clock' });
-    this.next = el('div', { class: 'home-next' });
-    this.first = el('section', { class: 'home-time', 'aria-label': 'Current time' }, this.date, this.clock, this.next);
+    this.first = el('section', { class: 'home-time', 'aria-label': 'Current time' }, this.date, this.clock);
     this.pages = new Pages();
     this.photo = el('div', { class: 'home-photo', 'aria-hidden': 'true' });
     head.append(this.photo, this.pages.element);
@@ -64,7 +61,7 @@ export default class Home extends Feature {
     this.top = el('div', { class: 'home-top' });
     this.main = el('div', { class: 'home-main' });
     this.side = el('div', { class: 'home-side' });
-    container.append(el('div', { class: 'home-space' }), this.top, el('div', { class: 'home-pair' }, this.main, this.side));
+    container.append(this.top, el('div', { class: 'home-pair' }, this.main, this.side));
   }
 
   // The items of a slot, or a "Missing content" box if none of them has anything to show.
@@ -81,7 +78,6 @@ export default class Home extends Feature {
     const period = parts.find((p) => p.type === 'dayPeriod')?.value;
     const digits = parts.filter((p) => p.type !== 'dayPeriod').map((p) => p.value).join('').trim();
     this.clock.replaceChildren(...[digits, period && el('small', {}, period)].filter(Boolean));
-    this.next.replaceChildren(...this.slot('home.next').map((item) => item.render()).filter(Boolean));
     this.pages.setPages([this.first, ...this.slot('home.pages').map((page) => page.render()).filter(Boolean)]);
     this.top.replaceChildren(...this.fill('home.top', ''));
     this.main.replaceChildren(...this.fill('home.main', 'Nothing to show here yet.'));

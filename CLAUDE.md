@@ -37,11 +37,11 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
 | `friends` | Swap timetables with friends: friend codes, requests, accept/remove, friends' timetables (grey or tinted), Free/Busy | account (sessions) | header.actions, account.sections, account.cleanup | |
 | `help` | Help and Feedback in the menu; both say "coming soon" for now | | menu | |
-| `home` | The Home tab: swipeable pages on the dark area (date, clock, Plan Today first) over a Durham photo, then cards; the app opens on it | | views | slots `home.next/pages/top/main/side` |
+| `home` | The Home tab: small swipeable pages on the dark area (date and clock first) over a Durham photo, then cards filling the screen without scrolling; the app opens on it | | views | slots `home.pages/top/main/side` |
 | `journey` | The Plan your journey page on Home; says "coming soon" for now | (home) | home.pages | |
 | `study` | The Study tab | | views | slot `study.cards` |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
-| `library` | How busy Bill Bryson Library is: a folded bar on Home and Study, free seats per floor in a full-screen pop-up | (web-relay, home, study) | home.top, study.cards, settings | |
+| `library` | How busy Bill Bryson Library is: a thin row on Home, a folded bar on Study, free seats per floor in a full-screen pop-up | (web-relay, home, study) | home.top, study.cards, settings | |
 | `link-backup` | Backs up the timetable link to your private area while signed in; brings it back on a new phone | account, timetable | account.sections, timetable.setup | |
 | `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings | |
 | `maps` | Building names, map preview, directions | sessions (durham-rooms) | session.location/details, settings | |
@@ -50,8 +50,8 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `notes` | Notes on sessions | sessions | session.card/details | |
 | `reminders` | Class and personal reminders | sessions | menu, session.details | |
 | `spots` | The Spots tab: Cafés, Pubs and Clubs cards (coming soon), and the Explore page on Home | | views, home.pages | |
-| `todo` | To-do list pop-up with tags, due dates and "Due today"; Plan Today button on Home (with how many are due today) | (home) | home.next | |
-| `up-next` | "Next:" under the clock, date strip and the day's lectures on Home | sessions (timetable, home) | home.next, home.main | |
+| `todo` | To-do list pop-up with tags, due dates and "Due today"; the Plan Today page on Home (with how many are due today) | (home) | home.pages | |
+| `up-next` | Today's lectures on Home, squeezed to fit without scrolling | sessions (timetable, home) | home.main | |
 | `upcoming` | Next four weeks (view id `agenda`) | sessions (planner) | planner.views | |
 | `week-view` | Week grid | sessions (day-view, planner) | planner.views | |
 
