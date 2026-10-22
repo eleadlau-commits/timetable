@@ -69,6 +69,14 @@ export default function seed(app) {
     { id: 't4', text: 'Buy a new notebook', tag: null, due: null, done: false, added: 4 },
     { id: 't5', text: 'Email tutor about the seminar', tag: 'academic', due: day(0), done: false, added: 5 },
   ]);
+  const studied = (start, minutes, module, session) => ({ start: start.getTime(), end: start.getTime() + minutes * 60000, module, session });
+  area('study-timer').set('history', [
+    studied(at(-2, 10), 50, 'MATH2031', 1), studied(at(-2, 11), 50, 'MATH2031', 1),
+    studied(at(-1, 14), 25, 'ECON1011', 2), studied(at(-1, 14, 30), 25, 'ECON1011', 2), studied(at(-1, 19), 60, null, 3),
+    studied(new Date(Date.now() - 3 * 3600000), 45, 'MATH2041', 4),
+    studied(at(-8, 10), 120, 'ECON1011', 5),
+  ]);
+  area('study-timer').set('goal', 10);
   const view = new URLSearchParams(location.hash.slice(1)).get('view');
   if (view) area('folio').set('view', view);
 }
