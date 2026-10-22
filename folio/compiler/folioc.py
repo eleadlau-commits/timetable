@@ -12,12 +12,14 @@ Run `python build.py --help` for the commands.
 from __future__ import annotations
 
 import argparse
+import copy
 import datetime
 import functools
 import hashlib
 import html
 import json
 import os
+import plistlib
 import re
 import shutil
 import subprocess
@@ -51,6 +53,9 @@ NATIVE_KEYS = {'packages', 'capacitor', 'android', 'ios'}
 FOLDER_NAME = re.compile(r'^[a-z][a-z0-9]*(-[a-z0-9]+)*$')
 NOT_SHIPPED = {'tests', 'extras', 'native'}  # feature subfolders that never go into the app
 GRADLE_NAME = re.compile(r'^[A-Za-z_][A-Za-z0-9_]*$')
+BUNDLE_ID = re.compile(r'^[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$')
+TEAM_ID = re.compile(r'^[A-Z0-9]{10}$')
+IOS_DEVICES = ('iphone', 'iphone-and-ipad')
 
 # Added to start.js in test builds. Once the app has started, it uses it like a person would
 # (every view, the first item in each, Settings, every top-bar button), then reports back to
@@ -241,6 +246,19 @@ def deep_merge(base: dict, extra: dict) -> dict:
     return base
 
 
+def merge_plist(base: dict, extra: dict) -> dict:
+    """Adds Info.plist entries to base: dictionaries are merged, lists are added to (without
+    repeats), anything else is replaced."""
+    for key, value in extra.items():
+        if isinstance(value, dict) and isinstance(base.get(key), dict):
+            merge_plist(base[key], value)
+        elif isinstance(value, list) and isinstance(base.get(key), list):
+            base[key] += [x for x in value if x not in base[key]]
+        else:
+            base[key] = copy.deepcopy(value)
+    return base
+
+
 class Project:
     """One app made with Folio: the framework in folio/ and the app in app/."""
 
@@ -289,11 +307,29 @@ class Project:
         theme.setdefault('background', '#f5f6fa')
         theme.setdefault('backgroundDark', '#0f1117')
         app.setdefault('native', {}).setdefault('appId', f"io.folio.{app['id'].replace('-', '')}")
+        problem = self.check_app_ios(app['native'].get('ios', {}))
+        if problem:
+            log.error(f'app.json: {problem}')
+            return None
         icons = self.app_dir / 'icons'
         for name in ('icon-192.png', 'icon-512.png', 'apple-touch-icon.png'):
             if not (icons / name).exists():
                 log.warn(f'app/icons/{name} is missing, so the app has no icon there.')
         return app
+
+    @staticmethod
+    def check_app_ios(ios) -> str:
+        """Checks "native.ios" in app.json: the iPhone app's own id if it differs from "appId",
+        Info.plist entries for the whole app, and which devices it runs on. Returns a problem, or ''."""
+        if not isinstance(ios, dict) or any(k not in ('appId', 'plist', 'devices') for k in ios):
+            return '"native.ios" can only contain appId, plist and devices'
+        if 'appId' in ios and not (isinstance(ios['appId'], str) and BUNDLE_ID.match(ios['appId'])):
+            return '"native.ios.appId" must look like "com.example.app"'
+        if not isinstance(ios.get('plist', {}), dict):
+            return '"native.ios.plist" must look like { "Key": "value" }'
+        if ios.get('devices', 'iphone-and-ipad') not in IOS_DEVICES:
+            return f'"native.ios.devices" must be one of {", ".join(IOS_DEVICES)}'
+        return ''
 
     # ---- Finding and checking features ----
 
@@ -355,7 +391,7 @@ class Project:
         if 'packages' in native and not (isinstance(native['packages'], dict)
                                          and all(isinstance(v, str) for v in native['packages'].values())):
             return f.leave_out('mistake', '"native.packages" must look like { "package-name": "^1.0.0" }')
-        problem = self.check_android_extras(f, native.get('android', {}))
+        problem = self.check_android_extras(f, native.get('android', {})) or self.check_ios_extras(f, native.get('ios', {}))
         if problem:
             return f.leave_out('mistake', problem)
         web = m.get('web', {})
@@ -384,6 +420,32 @@ class Project:
         if not (isinstance(gradle, dict) and all(isinstance(k, str) and GRADLE_NAME.match(k) for k in gradle)
                 and all(isinstance(v, (bool, int, str)) for v in gradle.values())):
             return '"native.android.gradle" must look like { "settingName": true }'
+        return ''
+
+    @staticmethod
+    def check_ios_extras(f: FeatureInfo, ios) -> str:
+        """Checks "native.ios": "plist" (Info.plist entries), "files" (files to add to the iPhone
+        app, e.g. GoogleService-Info.plist) and "pods" (lines for the Podfile's app target).
+        Returns a problem, or ''."""
+        if not isinstance(ios, dict) or any(k not in ('plist', 'files', 'pods') for k in ios):
+            return '"native.ios" can only contain plist, files and pods'
+        if not isinstance(ios.get('plist', {}), dict):
+            return '"native.ios.plist" must look like { "Key": "value" }'
+        files = ios.get('files', {})
+        shape = '"native.ios.files" must look like { "GoogleService-Info.plist": "native/GoogleService-Info.plist" }'
+        if not isinstance(files, dict):
+            return shape
+        for to, source in files.items():
+            if not (isinstance(to, str) and isinstance(source, str)):
+                return shape
+            for path in (to, source):
+                if path.startswith(('/', '\\')) or '..' in Path(path).parts or ':' in path:
+                    return f'"native.ios.files" can only use paths inside the project and the feature: "{path}"'
+            if not (f.path / source).is_file():
+                return f'its iPhone file "{source}" is missing'
+        pods = ios.get('pods', [])
+        if not (isinstance(pods, list) and all(isinstance(x, str) and x.strip().startswith('pod ') and '\n' not in x for x in pods)):
+            return '"native.ios.pods" must be a list of Podfile lines, like ["pod \'Name\', :path => \'...\'"]'
         return ''
 
     def scan_code(self, f: FeatureInfo):
@@ -743,10 +805,11 @@ fetch('/__folio_report', {{ method: 'POST', body: JSON.stringify({{ kind: 'tests
                     .replace('__FILES__', json.dumps(files, indent=2)))
 
     def _native(self, app: dict, included: list[FeatureInfo], out: Path) -> list[str]:
-        """Writes what Capacitor needs to build the Android (and later iPhone) app."""
+        """Writes what Capacitor needs to build the Android and iPhone apps."""
         warnings = []
         native_features = [f for f in included if 'android' in f.platforms or 'ios' in f.platforms]
-        deps = {'@capacitor/android': CAPACITOR_VERSION, '@capacitor/core': CAPACITOR_VERSION}
+        deps = {'@capacitor/android': CAPACITOR_VERSION, '@capacitor/core': CAPACITOR_VERSION,
+                '@capacitor/ios': CAPACITOR_VERSION}
         for f in native_features:
             for package, version in f.native.get('packages', {}).items():
                 if package in deps and deps[package] != version:
@@ -767,7 +830,9 @@ fetch('/__folio_report', {{ method: 'POST', body: JSON.stringify({{ kind: 'tests
         (out / 'capacitor.config.json').write_text(json.dumps(capacitor, indent=2) + '\n', 'utf-8')
 
         android = {'permissions': [], 'features': [], 'files': [], 'gradle': {}}
-        ios = {'plist': {}}
+        app_ios = app['native'].get('ios', {})
+        ios = {'appId': app_ios.get('appId', app['native']['appId']), 'version': app['version'], 'devices': app_ios.get('devices', 'iphone-and-ipad'),
+               'plist': merge_plist({}, app_ios.get('plist', {})), 'files': [], 'pods': []}
         for f in native_features:
             a = f.native.get('android', {})
             if 'android' in f.platforms:
@@ -785,7 +850,15 @@ fetch('/__folio_report', {{ method: 'POST', body: JSON.stringify({{ kind: 'tests
                                         f'but another feature wants {android["gradle"][name]!r}')
                     android['gradle'].setdefault(name, value)
             if 'ios' in f.platforms:
-                ios['plist'].update(f.native.get('ios', {}).get('plist', {}))
+                i = f.native.get('ios', {})
+                merge_plist(ios['plist'], i.get('plist', {}))
+                # Like Android's, files for the iPhone app wait next to native.json.
+                for to, source in i.get('files', {}).items():
+                    kept = Path('ios-files') / f.id / source
+                    (out / kept).parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(f.path / source, out / kept)
+                    ios['files'].append({'from': kept.as_posix(), 'to': to})
+                ios['pods'] += [line.strip() for line in i.get('pods', []) if line.strip() not in ios['pods']]
         (out / 'native.json').write_text(json.dumps({'android': android, 'ios': ios}, indent=2) + '\n', 'utf-8')
 
         icon = self.app_dir / 'icons' / 'icon-only.png'
@@ -1237,6 +1310,89 @@ def cmd_android_project(project: Project, args) -> int:
     return 0
 
 
+def cmd_ios_project(project: Project, args) -> int:
+    """Prepares the iPhone project Capacitor made (e.g. dist/ios/App) for building: features'
+    Info.plist entries, files added to the app (copied in and listed in the Xcode project), lines
+    for the Podfile, and the app's id, version, build number, devices and Apple team."""
+    native = json.loads((Path(args.out) / 'native.json').read_text('utf-8'))['ios']
+    ios = Path(args.ios)
+    pbx = ios / 'App.xcodeproj' / 'project.pbxproj'
+    if not pbx.is_file():
+        print(f'{ios} isn\'t an iPhone project made by Capacitor (no App.xcodeproj). Run "npx cap add ios" first.')
+        return 1
+    if args.team and not TEAM_ID.match(args.team):
+        print(f'"{args.team}" isn\'t an Apple team id (10 capital letters and numbers, from developer.apple.com → Membership).')
+        return 1
+
+    plist_path = ios / 'App' / 'Info.plist'
+    with plist_path.open('rb') as f:
+        info = plistlib.load(f)
+    merge_plist(info, native.get('plist', {}))
+    with plist_path.open('wb') as f:
+        plistlib.dump(info, f)
+    print('Added to Info.plist: ' + (', '.join(native['plist']) if native.get('plist') else 'nothing'))
+
+    files = native.get('files', [])
+    if files:
+        try:
+            from pbxproj import XcodeProject
+        except ImportError:
+            print('Adding files to the iPhone app needs the pbxproj package: pip install pbxproj')
+            return 1
+        xcode = XcodeProject.load(str(pbx))
+        group = xcode.get_or_create_group('App')
+        for item in files:
+            target = ios / 'App' / item['to']
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(Path(args.out) / item['from'], target)
+            xcode.add_file(f'App/{item["to"]}', parent=group, target_name='App', force=False)
+            print(f'Added to the iPhone app: {item["to"]}')
+        xcode.save()
+
+    pods = native.get('pods', [])
+    if pods:
+        podfile = ios / 'Podfile'
+        text = podfile.read_text('utf-8')
+        marker = '# Add your Pods here'
+        if marker not in text:
+            print(f'Couldn\'t find "{marker}" in the Podfile, so its lines weren\'t added.')
+            return 1
+        new = [p for p in pods if p not in text]
+        text = text.replace(marker, marker + ''.join(f'\n  {p}' for p in new), 1)
+        podfile.write_text(text, 'utf-8')
+        print('Added to the Podfile: ' + (', '.join(new) if new else 'nothing new'))
+
+    text = pbx.read_text('utf-8')
+    settings = {
+        'PRODUCT_BUNDLE_IDENTIFIER': native['appId'],
+        'MARKETING_VERSION': native.get('version', '1.0.0'),
+        'CURRENT_PROJECT_VERSION': str(args.build or 1),
+    }
+    if native.get('devices') == 'iphone':
+        settings['TARGETED_DEVICE_FAMILY'] = '1'
+    for name, value in settings.items():
+        text, count = re.subn(rf'(\b{name} = )[^;]*;', lambda m: m.group(1) + pbx_value(value) + ';', text)
+        if not count and name != 'TARGETED_DEVICE_FAMILY':
+            print(f'Couldn\'t find {name} in the Xcode project.')
+            return 1
+    if args.team:
+        text = re.sub(r'\n(\s*)DEVELOPMENT_TEAM = [^;]*;', '', text)
+        text, count = re.subn(r'(\n(\s*)CODE_SIGN_STYLE = Automatic;)', rf'\1\n\2DEVELOPMENT_TEAM = {args.team};', text)
+        if not count:
+            print('Couldn\'t find where to set the Apple team in the Xcode project.')
+            return 1
+    pbx.write_text(text, 'utf-8')
+    print(f'iPhone app: {native["appId"]}, version {settings["MARKETING_VERSION"]} '
+          f'(build {settings["CURRENT_PROJECT_VERSION"]})' + (f', team {args.team}' if args.team else '')
+          + (', iPhone only' if native.get('devices') == 'iphone' else ''))
+    return 0
+
+
+def pbx_value(value: str) -> str:
+    """A value as the Xcode project file writes it: bare if it's simple, otherwise in quotes."""
+    return value if re.fullmatch(r'[A-Za-z0-9_.\-/]+', value) else '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+
 def cmd_version(project: Project, args) -> int:
     app = project.load_app(Log(quiet=True))
     if not app:
@@ -1281,6 +1437,11 @@ def main(argv: list[str], root: Path) -> int:
     p = sub.add_parser('android-project', help='copy features\' Android files and settings (used by GitHub)')
     p.add_argument('android', help='path to the Android project, e.g. dist/android')
     p.add_argument('--out', default=str(root / 'dist'))
+    p = sub.add_parser('ios-project', help='prepare the iPhone project for building (used by GitHub)')
+    p.add_argument('ios', help='path to the iPhone project, e.g. dist/ios/App')
+    p.add_argument('--out', default=str(root / 'dist'))
+    p.add_argument('--build', help='build number, e.g. from GitHub')
+    p.add_argument('--team', help='Apple team id, for signing')
     sub.add_parser('version', help='print the app\'s version from app.json')
 
     if not argv or argv[0].startswith('-') and argv[0] not in ('-h', '--help'):
@@ -1290,6 +1451,6 @@ def main(argv: list[str], root: Path) -> int:
     commands = {
         'build': cmd_build, 'check': cmd_check, 'list': cmd_list, 'new-feature': cmd_new_feature,
         'serve': cmd_serve, 'test': lambda p, a: run_tests(p, a), 'android-manifest': cmd_android_manifest,
-        'android-project': cmd_android_project, 'version': cmd_version,
+        'android-project': cmd_android_project, 'ios-project': cmd_ios_project, 'version': cmd_version,
     }
     return commands[args.command](project, args)

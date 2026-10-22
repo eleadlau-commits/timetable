@@ -1,6 +1,6 @@
 // Reminders: a notification a set time before every class (changeable per session), plus the
-// person's own one-off reminders. The Android app schedules real notifications, which arrive
-// even when it's closed. The web version can only show them while it's open.
+// person's own one-off reminders. The phone apps (Android and iPhone) schedule real notifications,
+// which arrive even when the app is closed. The web version can only show them while it's open.
 //
 // Saved data: 'lead' → minutes before each class (0 = off), 'sessions' → { [session key]: minutes },
 // 'custom' → [{ id, title, at }]
@@ -23,7 +23,7 @@ function notificationId(text) {
 export default class Reminders extends Feature {
   start() {
     this.sessions = this.use('sessions');
-    this.notifier = this.plugin('LocalNotifications'); // only in the Android app
+    this.notifier = this.plugin('LocalNotifications'); // only in the phone apps (Android and iPhone)
     this.lead = this.storage.get('lead', 0);
     this.perSession = this.storage.get('sessions', {});
     this.custom = this.storage.get('custom', []);
@@ -100,7 +100,7 @@ export default class Reminders extends Feature {
     return out.sort((a, b) => a.at - b.at).slice(0, MAX_SCHEDULED);
   }
 
-  // ---- Android: schedule real notifications ----
+  // ---- Phone apps: schedule real notifications ----
 
   sync() {
     if (!this.notifier) return;
@@ -164,7 +164,7 @@ export default class Reminders extends Feature {
           return true;
         }
       } catch { /* fall through to the message */ }
-      this.toast('Notifications are blocked. Turn them on in Android Settings → Apps → Mobile Durham → Notifications.');
+      this.toast('Notifications are blocked. Turn them on for Mobile Durham in your phone\'s Settings (Apps → Mobile Durham → Notifications).');
       return false;
     }
     if ('Notification' in window && Notification.permission === 'default') {
@@ -237,7 +237,7 @@ export default class Reminders extends Feature {
       this.whenInput,
       this.error,
       el('button', { type: 'button', class: 'btn primary', onclick: () => this.addCustom() }, 'Add reminder'),
-      !this.notifier && ui.hint('In the web version, reminders only appear while the app is open. The Android app sends them as notifications even when it\'s closed.', { small: true }));
+      !this.notifier && ui.hint('In the web version, reminders only appear while the app is open. The phone app sends them as notifications even when it\'s closed.', { small: true }));
   }
 
   renderList() {

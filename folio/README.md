@@ -93,7 +93,11 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
       "files": { "app/google-services.json": "native/google-services.json" },
       "gradle": { "rgcfaIncludeGoogle": true }
     },
-    "ios": { "plist": { "NSCameraUsageDescription": "Why the camera is needed." } }
+    "ios": {
+      "plist": { "NSCameraUsageDescription": "Why the camera is needed." },
+      "files": { "GoogleService-Info.plist": "native/GoogleService-Info.plist" },
+      "pods": ["pod 'CapacitorFirebaseAuthentication/Google', :path => '../../node_modules/@capacitor-firebase/authentication'"]
+    }
   }
 }
 ```
@@ -110,7 +114,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
 | `platforms` | no | Where it runs: `web`, `android`, `ios`. Default: everywhere. |
 | `enabled` | no | `false` switches the feature off without deleting it. |
 | `web.manifest` | no | Merged into the web app manifest, e.g. a `share_target`. |
-| `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). |
+| `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). For iPhone also `files` (added to the app: its name in the app → the file in `native/`, e.g. Firebase's `GoogleService-Info.plist`) and `pods` (lines added to the Podfile's app target, e.g. a plugin's optional part). iPhone `plist` entries are merged: lists are added to, dictionaries combined. |
 
 The folder name is the feature's id: lowercase words joined by dashes.
 
@@ -229,6 +233,7 @@ this.storage.once('import-v1', fn);    // runs fn only the first time, on each d
 | `python build.py test` | Runs every test, including the delete-a-folder test (see [9](#9-tests)). `--quick` skips that one. |
 | `python build.py --without notes,maps` | Compiles without some features, to see what happens. |
 | `python build.py android-manifest PATH` / `android-project PATH` | Used by GitHub: add features' Android permissions to the manifest, and copy their Android `files` and `gradle` settings into the Android project. |
+| `python build.py ios-project PATH --build N --team TEAM` | Used by GitHub: prepare the iPhone project Capacitor made (`dist/ios/App`): features' Info.plist entries, `files` (copied in and listed in the Xcode project; needs `pip install pbxproj`) and Podfile lines, and the app's id, version, build number, devices and Apple team. |
 
 The compiler only needs Python 3.9 or newer. The browser tests also need Chrome or Edge.
 
@@ -247,7 +252,7 @@ The compiler only needs Python 3.9 or newer. The browser tests also need Chrome 
 6. **Writes what the phone apps need:**
    - `dist/package.json` (Capacitor and the packages features asked for)
    - `dist/capacitor.config.json` (merged from every feature)
-   - `dist/native.json` (Android permissions and iPhone settings)
+   - `dist/native.json` (Android permissions and files, iPhone settings, files and Podfile lines)
    - `dist/assets/icon-only.png`
 7. **Writes `dist/report.html`:** the features, their slots, services and events, and the log.
 
@@ -293,6 +298,7 @@ On GitHub, these run before every release. If anything fails, nothing is release
      "theme": { "accent": "#00897b", "accentDark": "#4db6ac" },
      "native": { "appId": "io.github.studyplanner.app" } }
    ```
+   For the iPhone app, `native.ios` can add `appId` (if the iPhone app needs a different id, e.g. because Apple says it's taken), `plist` (Info.plist entries for the whole app, e.g. `"ITSAppUsesNonExemptEncryption": false`) and `devices` (`"iphone"`, or the default `"iphone-and-ipad"`).
 3. Optionally, set the app's own colours and fonts in `app/theme.css`, with font files in `app/fonts/`.
 4. Add icons to `app/icons/`: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, and `icon-only.png` (1024×1024, for the phone app).
 5. Create features with `python build.py new-feature …`. Features that aren't tied to one app can be copied between apps, such as campus-card.
@@ -317,3 +323,5 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.8.0:** Settings starts with **Appearance**: Automatic (follows the phone, as before), Light or Dark, saved on the phone. It works by switching every `@media (prefers-color-scheme: dark)` rule on or off (and the status-bar colour tags), so features don't need anything new: keep writing dark styles inside that media query. The rules are in `runtime/appearance.js`. Features written for 1.7 keep working.
 
 **1.9.0:** features have `this.getText(url)` for downloading text from another website: in the phone apps through the CapacitorHttp plugin directly, on the web with fetch. Use it instead of switching CapacitorHttp on for the whole app, which takes over every request and breaks some services (such as Firebase's database). Features written for 1.8 keep working.
+
+**1.10.0:** the iPhone app. Features' `native.ios` can now also list `files` to add to the iPhone app and `pods` (Podfile lines), alongside `plist`; app.json's `native.ios` can set the iPhone app's own `appId`, app-wide `plist` entries and `devices`. The new `python build.py ios-project` prepares the iPhone project Capacitor makes, like `android-project` does for Android, and `@capacitor/ios` is always in `dist/package.json`. Features written for 1.9 keep working.
