@@ -11,6 +11,12 @@
     "backgroundDark": "#110f14"
   },
   "native": {
-    "appId": "io.github.timetable.app"
+    "appId": "io.github.timetable.app",
+    "ios": {
+      "devices": "iphone",
+      "plist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    }
   }
 }

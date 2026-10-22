@@ -1,5 +1,6 @@
-# Tests the app, then builds the Android app (APK) and publishes the web version to GitHub Pages,
-# every time you upload changes or press "Run workflow" on the Actions tab.
+# Tests the app, then builds the Android app (APK), sends the iPhone app to TestFlight, and publishes
+# the web version to GitHub Pages, every time you upload changes or press "Run workflow" on the
+# Actions tab.
 # If any test fails (including the database rules' tests), nothing is released, so a broken version
 # never reaches anyone's phone.
 
@@ -54,6 +55,9 @@ jobs:
   android:
     name: Android app (APK)
     needs: [test, rules]
+    # Only from main, so trying a branch with "Run workflow" (e.g. for the iPhone app) never
+    # releases an APK.
+    if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -174,9 +178,129 @@ jobs:
           files: MobileDurham.apk
           make_latest: true
 
+  iphone:
+    name: iPhone app (TestFlight)
+    needs: [test, rules]
+    runs-on: macos-15
+    # Needs four Apple settings in GitHub (Settings → Secrets and variables → Actions); see
+    # "The iPhone app" in README.md. Until they're there, this job says so and stops, without
+    # affecting the APK or the website.
+    env:
+      TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      KEY: ${{ secrets.APP_STORE_CONNECT_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the Apple settings are there
+        id: apple
+        run: |
+          missing=""
+          # Without it, Firebase (sign-in) would close the app as soon as it opens.
+          [ -f app/features/account/native/GoogleService-Info.plist ] || missing="$missing app/features/account/native/GoogleService-Info.plist"
+          [ -n "$TEAM_ID" ] || missing="$missing APPLE_TEAM_ID"
+          [ -n "$KEY_ID" ] || missing="$missing APP_STORE_CONNECT_KEY_ID"
+          [ -n "$ISSUER_ID" ] || missing="$missing APP_STORE_CONNECT_ISSUER_ID"
+          [ -n "$KEY" ] || missing="$missing APP_STORE_CONNECT_KEY"
+          if [ -n "$missing" ]; then
+            echo "::notice::The iPhone app wasn't built. Missing:$missing (see 'The iPhone app' in README.md)."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.apple.outputs.ready == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - if: steps.apple.outputs.ready == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Apple only accepts apps built with a recent Xcode.
+      - if: steps.apple.outputs.ready == 'true'
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Compile the app
+        if: steps.apple.outputs.ready == 'true'
+        run: python build.py --build ${{ github.run_number }}
+
+      - name: Install Capacitor and the packages features asked for
+        if: steps.apple.outputs.ready == 'true'
+        working-directory: dist
+        run: npm install
+
+      - name: Create the iPhone project
+        if: steps.apple.outputs.ready == 'true'
+        working-directory: dist
+        run: npx cap add ios --packagemanager CocoaPods
+
+      # Info.plist entries, files (such as Firebase's GoogleService-Info.plist) and Podfile lines
+      # from features' feature.json, plus the app's id, version, build number and Apple team.
+      - name: Add the settings and files features asked for
+        if: steps.apple.outputs.ready == 'true'
+        run: |
+          pip install pbxproj
+          python build.py ios-project dist/ios/App --build ${{ github.run_number }} --team "$TEAM_ID"
+
+      - name: Generate app icons
+        if: steps.apple.outputs.ready == 'true'
+        working-directory: dist
+        run: npx --yes @capacitor/assets generate --ios --iconBackgroundColor '#e2dfe7' --iconBackgroundColorDark '#e2dfe7'
+
+      - name: Copy the app into the iPhone project
+        if: steps.apple.outputs.ready == 'true'
+        working-directory: dist
+        run: npx cap sync ios
+
+      # Xcode signs the app itself, using the App Store Connect key (it needs Admin access to make
+      # and keep the certificates), then sends it to App Store Connect, where it appears in
+      # TestFlight after Apple has processed it (usually 5–30 minutes).
+      - name: Build the iPhone app
+        if: steps.apple.outputs.ready == 'true'
+        working-directory: dist/ios/App
+        run: |
+          printf '%s' "$KEY" > "$RUNNER_TEMP/AuthKey.p8"
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+            -destination 'generic/platform=iOS' -archivePath "$RUNNER_TEMP/MobileDurham.xcarchive" \
+            -allowProvisioningUpdates -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID" \
+            archive | tail -n 200; test "${PIPESTATUS[0]}" -eq 0
+
+      - name: Send it to TestFlight
+        if: steps.apple.outputs.ready == 'true'
+        run: |
+          cat > "$RUNNER_TEMP/ExportOptions.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          EOF
+          xcodebuild -exportArchive -archivePath "$RUNNER_TEMP/MobileDurham.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates -authenticationKeyPath "$RUNNER_TEMP/AuthKey.p8" \
+            -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER_ID"
+
+      - name: Forget the key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/AuthKey.p8"
+
   website:
     name: Web version (GitHub Pages)
     needs: [test, rules]
+    if: github.ref_name == 'main'
     runs-on: ubuntu-latest
     # Only works once Pages is switched on (Settings → Pages → Source: GitHub Actions).
     # Until then this job fails without affecting the APK.

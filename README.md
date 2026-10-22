@@ -37,6 +37,11 @@ You can switch any feature off for yourself in **Settings → Features**. Everyt
 2. Tap **MobileDurham.apk** (older releases call it **Timetable.apk**) and open the downloaded file.
 3. Allow installing from this source if asked, then tap **Install**. If Play Protect warns about an unknown app, tap **More details → Install anyway**.
 
+**iPhone, the app (through TestFlight):** once it's set up (see [The iPhone app](#the-iphone-app) below), every upload to `main` sends a new build to Apple's TestFlight.
+1. Install **TestFlight** from the App Store.
+2. Open the invitation email (or the public TestFlight link) on your iPhone and tap **Accept**, then **Install**.
+3. New builds appear in TestFlight; tap **Update**. Each build works for 90 days, so keep updating.
+
 **iPhone (or any phone), using the web version:**
 1. *One-off, on GitHub:* go to **Settings → Pages** and set **Source** to **GitHub Actions**.
 2. Open `https://YOUR-USERNAME.github.io/timetable/` in Safari, then tap **Share → Add to Home Screen**.
@@ -44,6 +49,30 @@ You can switch any feature off for yourself in **Settings → Features**. Everyt
 **Updating:** install a newer APK straight over the old one. Your notes and settings stay.
 
 **One-off, if you installed build 18 or earlier:** those builds were each signed with a different key by mistake, so Android refuses to install a newer one over them ("App not installed"). Uninstall the old app once, then install the newest APK. Uninstalling deletes what was saved on the phone (notes, to-dos, colours, the card), so note down anything you need first. From then on, updates install over the app as normal.
+
+## The iPhone app
+
+GitHub builds the iPhone app on one of its Macs and sends it to TestFlight, so you don't need a Mac. Until the steps below are done, the *iPhone app (TestFlight)* job on the Actions tab just says what's missing; the Android app and website carry on as before.
+
+**One-off setup** (about an hour, with an Apple Developer account):
+
+1. **Register the app's id.** At [developer.apple.com](https://developer.apple.com/account) → **Certificates, IDs & Profiles → Identifiers → +** → **App IDs → App**. Description: *Mobile Durham*. Bundle ID: **Explicit**, `io.github.timetable.app`. Leave the capabilities alone and tap **Register**. *If Apple says the id is taken, pick another, e.g. `io.github.yourname.mobiledurham`, and put it in `app/app.json` under `native.ios.appId`.*
+2. **Make the app in App Store Connect.** At [appstoreconnect.apple.com](https://appstoreconnect.apple.com) → **Apps → + → New App**: iOS, name *Mobile Durham* (it has to be unique on the App Store; if it's taken, add a word), language English (UK), the bundle id from step 1, and SKU `mobile-durham`.
+3. **Make an upload key.** App Store Connect → **Users and Access → Integrations → App Store Connect API → Team Keys → +**. Name it *GitHub* and give it **Admin** access (Xcode needs that to make the signing certificates itself). **Download** the `.p8` file (Apple only lets you download it once) and note the **Key ID** and the **Issuer ID** shown above the list.
+4. **Find your Team ID**: developer.apple.com → **Account → Membership details → Team ID** (10 letters and numbers).
+5. **Give GitHub the four settings.** On GitHub, the repository → **Settings → Secrets and variables → Actions → New repository secret**, four times:
+   - `APPLE_TEAM_ID`: the Team ID.
+   - `APP_STORE_CONNECT_KEY_ID`: the Key ID.
+   - `APP_STORE_CONNECT_ISSUER_ID`: the Issuer ID.
+   - `APP_STORE_CONNECT_KEY`: open the `.p8` file in Notepad (or TextEdit) and paste all of it, including the `BEGIN` and `END` lines.
+
+   These are secrets: never put them in a file in the repository, or in a chat. Keep the `.p8` file somewhere safe.
+6. **Add the iPhone app to Firebase** (for signing in). In the [Firebase console](https://console.firebase.google.com) → project *mobile-durham* → **Project settings → Your apps → Add app → Apple (iOS)**. Use the same bundle id, give it the nickname *Mobile Durham iPhone*, and download **GoogleService-Info.plist**. Put it in `app/features/account/native/` (on the GitHub website: open that folder, **Add file → Upload files**). It isn't a password, just like `google-services.json` next to it. Then ask Claude to connect it: the account feature's iPhone settings need a code from inside the file (for Google sign-in to return to the app).
+7. **Run it.** Upload to `main`, or press **Run workflow** on the Actions tab and pick a branch to try it first (from a branch, only the tests and the iPhone app run; the APK and website are only released from `main`). The iPhone job takes about 20–30 minutes; then Apple processes the build for a few minutes more and it appears under the app's **TestFlight** tab in App Store Connect.
+
+**Inviting people**, in App Store Connect → the app → **TestFlight**:
+- **You** (and anyone in your App Store Connect team): **Internal Testing → +**, add yourself. Builds are ready to install straight away.
+- **Friends:** **External Testing → +**, make a group (e.g. *Friends*), add their emails or switch on a **public link**. Apple checks the first build of each version (usually within a day; it asks for a short "what to test" note and a contact email). Later builds of the same version usually go straight through.
 
 ## Connect your timetable
 

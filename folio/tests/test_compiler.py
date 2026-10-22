@@ -10,7 +10,8 @@ from pathlib import Path
 ROOT = Path(os.path.abspath(__file__)).parents[2]
 sys.path.insert(0, str(ROOT / 'folio' / 'compiler'))
 
-from folioc import Log, Project, cmd_android_project, deep_merge  # noqa: E402
+import plistlib  # noqa: E402
+from folioc import Log, Project, cmd_android_project, cmd_ios_project, deep_merge, merge_plist  # noqa: E402
 
 
 def make_app(tmp: Path, features: dict) -> Path:
@@ -33,6 +34,26 @@ def make_app(tmp: Path, features: dict) -> Path:
             (folder / name).parent.mkdir(parents=True, exist_ok=True)
             (folder / name).write_text(text, 'utf-8')
     return app
+
+
+# The parts of the iPhone project Capacitor makes (npx cap add ios) that cmd_ios_project changes.
+# The Xcode project file from Capacitor 7's iPhone template.
+TEMPLATE_PBX = Path(__file__).parent / 'fixtures' / 'capacitor-ios.pbxproj'
+FAKE_PODFILE = "target 'App' do\n  capacitor_pods\n  # Add your Pods here\nend\n"
+
+
+def fake_ios_project(folder: Path) -> Path:
+    (folder / 'App.xcodeproj').mkdir(parents=True)
+    (folder / 'App.xcodeproj' / 'project.pbxproj').write_text(TEMPLATE_PBX.read_text('utf-8'), 'utf-8')
+    (folder / 'App').mkdir()
+    with (folder / 'App' / 'Info.plist').open('wb') as f:
+        plistlib.dump({'CFBundleDisplayName': 'Test app', 'UISupportedInterfaceOrientations': ['UIInterfaceOrientationPortrait']}, f)
+    (folder / 'Podfile').write_text(FAKE_PODFILE, 'utf-8')
+    return folder
+
+
+def ios_args(out, ios, build=None, team=None):
+    return type('Args', (), {'out': str(out), 'ios': str(ios), 'build': build, 'team': team})()
 
 
 def feature(**extra):
@@ -195,6 +216,87 @@ class CompilerTests(unittest.TestCase):
         self.assertIn('inside the project', found['outside'].reason)
         self.assertIn('native.android.gradle', found['badname'].reason)
         self.assertIn('native.android.gradle', found['badvalue'].reason)
+
+    def test_iphone_settings(self):
+        app = make_app(self.tmp, {
+            'camera': feature(native={'ios': {
+                'plist': {'NSCameraUsageDescription': 'To scan cards.', 'UISupportedInterfaceOrientations': ['UIInterfaceOrientationLandscapeLeft']},
+                'pods': ["pod 'Extra/Google', :path => '../../node_modules/extra'"],
+            }}),
+            'android-only': feature(platforms=['android'], native={'ios': {'plist': {'Ignored': True}}}),
+        })
+        settings = json.loads((app / 'app.json').read_text())
+        settings['version'] = '3.2.0'
+        settings['native'] = {'appId': 'io.example.app', 'ios': {'appId': 'io.example.iphone', 'devices': 'iphone',
+                                                                  'plist': {'ITSAppUsesNonExemptEncryption': False}}}
+        (app / 'app.json').write_text(json.dumps(settings))
+        out = self.tmp / 'dist'
+        code, _ = Project(ROOT, app).build(out, Log(quiet=True))
+        self.assertEqual(code, 0)
+        self.assertIn('@capacitor/ios', json.loads((out / 'package.json').read_text())['dependencies'])
+        ios = json.loads((out / 'native.json').read_text())['ios']
+        self.assertEqual(ios['appId'], 'io.example.iphone')
+        self.assertNotIn('Ignored', ios['plist'])
+
+        project = fake_ios_project(self.tmp / 'ios' / 'App')
+        self.assertEqual(cmd_ios_project(None, ios_args(out, project, build='57', team='ABCDE12345')), 0)
+        with (project / 'App' / 'Info.plist').open('rb') as f:
+            info = plistlib.load(f)
+        self.assertEqual(info['NSCameraUsageDescription'], 'To scan cards.')
+        self.assertIs(info['ITSAppUsesNonExemptEncryption'], False)
+        self.assertEqual(info['UISupportedInterfaceOrientations'], ['UIInterfaceOrientationPortrait', 'UIInterfaceOrientationLandscapeLeft'])
+        self.assertEqual(info['CFBundleDisplayName'], 'Test app')
+        pbx = (project / 'App.xcodeproj' / 'project.pbxproj').read_text()
+        for line in ('PRODUCT_BUNDLE_IDENTIFIER = io.example.iphone;', 'MARKETING_VERSION = 3.2.0;',
+                     'CURRENT_PROJECT_VERSION = 57;', 'DEVELOPMENT_TEAM = ABCDE12345;', 'TARGETED_DEVICE_FAMILY = 1;'):
+            self.assertIn(line, pbx)
+        podfile = (project / 'Podfile').read_text()
+        self.assertIn("# Add your Pods here\n  pod 'Extra/Google', :path => '../../node_modules/extra'\nend", podfile)
+
+        # Running it again changes nothing more.
+        self.assertEqual(cmd_ios_project(None, ios_args(out, project, build='57', team='ABCDE12345')), 0)
+        self.assertEqual((project / 'Podfile').read_text(), podfile)
+        self.assertEqual((project / 'App.xcodeproj' / 'project.pbxproj').read_text().count('DEVELOPMENT_TEAM'), 2)  # Debug and Release
+        self.assertNotEqual(cmd_ios_project(None, ios_args(out, project, team='not a team')), 0)
+        self.assertNotEqual(cmd_ios_project(None, ios_args(out, self.tmp / 'nothing')), 0)
+
+    def test_iphone_files(self):
+        try:
+            import pbxproj  # noqa: F401  (installed on GitHub's iPhone build only)
+        except ImportError:
+            self.skipTest('needs the pbxproj package')
+        app = make_app(self.tmp, {
+            'login': (feature(native={'ios': {'files': {'GoogleService-Info.plist': 'native/GoogleService-Info.plist'}}}),
+                      {'native/GoogleService-Info.plist': '<plist><dict/></plist>'}),
+        })
+        out = self.tmp / 'dist'
+        self.assertEqual(Project(ROOT, app).build(out, Log(quiet=True))[0], 0)
+        self.assertFalse((out / 'web' / 'features' / 'login' / 'native').exists())
+        project = fake_ios_project(self.tmp / 'ios' / 'App')
+        pbx = project / 'App.xcodeproj' / 'project.pbxproj'
+        self.assertEqual(cmd_ios_project(None, ios_args(out, project)), 0)
+        self.assertTrue((project / 'App' / 'GoogleService-Info.plist').is_file())
+        self.assertIn('GoogleService-Info.plist in Resources', pbx.read_text())
+
+    def test_mistakes_in_iphone_settings(self):
+        _, found = self.resolve({
+            'missing': feature(native={'ios': {'files': {'X.plist': 'native/X.plist'}}}),
+            'outside': (feature(native={'ios': {'files': {'../X.plist': 'native/X.plist'}}}), {'native/X.plist': '<plist/>'}),
+            'badpods': feature(native={'ios': {'pods': ['rm -rf /']}}),
+            'unknown': feature(native={'ios': {'gradle': {}}}),
+        })
+        self.assertIn('is missing', found['missing'].reason)
+        self.assertIn('inside the project', found['outside'].reason)
+        self.assertIn('native.ios.pods', found['badpods'].reason)
+        self.assertIn('native.ios', found['unknown'].reason)
+        self.assertIn('appId', Project.check_app_ios({'appId': 'not an id'}))
+        self.assertIn('devices', Project.check_app_ios({'devices': 'watch'}))
+        self.assertEqual(Project.check_app_ios({'appId': 'io.example.app', 'devices': 'iphone', 'plist': {}}), '')
+
+    def test_merge_plist(self):
+        base = {'A': 1, 'List': ['x'], 'Dict': {'k': 1}}
+        merge_plist(base, {'A': 2, 'List': ['x', 'y'], 'Dict': {'j': 2}, 'New': True})
+        self.assertEqual(base, {'A': 2, 'List': ['x', 'y'], 'Dict': {'k': 1, 'j': 2}, 'New': True})
 
     def test_output_folder_with_other_files_is_not_emptied(self):
         app = make_app(self.tmp, {'core': feature()})
