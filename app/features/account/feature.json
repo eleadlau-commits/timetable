@@ -1,7 +1,7 @@
 {
   "name": "Account",
   "description": "Your account page: sign in with Google. Backup and friends' timetables come later.",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "main": "Account.js",
   "styles": ["account.css"],
   "native": {
@@ -14,6 +14,15 @@
     "android": {
       "files": { "app/google-services.json": "native/google-services.json" },
       "gradle": { "rgcfaIncludeGoogle": true }
+    },
+    "ios": {
+      "files": { "GoogleService-Info.plist": "native/GoogleService-Info.plist" },
+      "plist": {
+        "CFBundleURLTypes": [
+          { "CFBundleURLSchemes": ["com.googleusercontent.apps.116399300931-q596uj8ttmh7nm43ll60evrrm523e6n0"] }
+        ]
+      },
+      "pods": ["pod 'CapacitorFirebaseAuthentication/Google', :path => '../../node_modules/@capacitor-firebase/authentication'"]
     }
   }
 }

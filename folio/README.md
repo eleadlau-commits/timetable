@@ -233,7 +233,7 @@ this.storage.once('import-v1', fn);    // runs fn only the first time, on each d
 | `python build.py test` | Runs every test, including the delete-a-folder test (see [9](#9-tests)). `--quick` skips that one. |
 | `python build.py --without notes,maps` | Compiles without some features, to see what happens. |
 | `python build.py android-manifest PATH` / `android-project PATH` | Used by GitHub: add features' Android permissions to the manifest, and copy their Android `files` and `gradle` settings into the Android project. |
-| `python build.py ios-project PATH --build N --team TEAM` | Used by GitHub: prepare the iPhone project Capacitor made (`dist/ios/App`): features' Info.plist entries, `files` (copied in and listed in the Xcode project; needs `pip install pbxproj`) and Podfile lines, and the app's id, version, build number, devices and Apple team. |
+| `python build.py ios-project PATH --build N --team TEAM` | Used by GitHub: prepare the iPhone project Capacitor made (`dist/ios/App`): features' Info.plist entries, `files` (copied in and listed in the Xcode project; needs `pip install pbxproj`) and Podfile lines (dropping `Podfile.lock`, so the `npx cap sync ios` that follows really installs them), and the app's id, version, build number, devices and Apple team. |
 
 The compiler only needs Python 3.9 or newer. The browser tests also need Chrome or Edge.
 
@@ -323,5 +323,7 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.8.0:** Settings starts with **Appearance**: Automatic (follows the phone, as before), Light or Dark, saved on the phone. It works by switching every `@media (prefers-color-scheme: dark)` rule on or off (and the status-bar colour tags), so features don't need anything new: keep writing dark styles inside that media query. The rules are in `runtime/appearance.js`. Features written for 1.7 keep working.
 
 **1.9.0:** features have `this.getText(url)` for downloading text from another website: in the phone apps through the CapacitorHttp plugin directly, on the web with fetch. Use it instead of switching CapacitorHttp on for the whole app, which takes over every request and breaks some services (such as Firebase's database). Features written for 1.8 keep working.
+
+**1.10.1:** `python build.py ios-project` now deletes the iPhone project's `Podfile.lock` when it adds features' Podfile lines. `npx cap add ios` has already run `pod install`, so the lock listed the Podfile as it was before, and CocoaPods quietly ignored the new lines: a plugin's optional part (`CapacitorFirebaseAuthentication/Google`, which Google sign-in needs) was left out of the app altogether. Features written for 1.10 keep working.
 
 **1.10.0:** the iPhone app. Features' `native.ios` can now also list `files` to add to the iPhone app and `pods` (Podfile lines), alongside `plist`; app.json's `native.ios` can set the iPhone app's own `appId`, app-wide `plist` entries and `devices`. The new `python build.py ios-project` prepares the iPhone project Capacitor makes, like `android-project` does for Android, and `@capacitor/ios` is always in `dist/package.json`. Features written for 1.9 keep working.
