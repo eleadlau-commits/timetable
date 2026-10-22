@@ -1,6 +1,6 @@
 # Mobile Durham
 
-**Mobile Durham** (it used to be called *Timetable*) shows your Durham University timetable on your phone, with a to-do list, how busy the library is and your campus card. It reads the personal calendar link your university can export, keeps a copy so it works offline, and updates itself whenever you open it.
+**Mobile Durham** (it used to be called *Timetable*) shows your Durham University timetable on your phone, with a to-do list, a study timer, how busy the library is and your campus card. It reads the personal calendar link your university can export, keeps a copy so it works offline, and updates itself whenever you open it.
 
 GitHub builds the app for you, so you don't need to install anything. You get:
 - **An Android app** (`MobileDurham.apk`) to download and install.
@@ -22,6 +22,7 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 | **Maps** | Durham room codes show as buildings (`CLC013 · Calman Learning Centre`), with a map and directions. |
 | **Reminders** | A notification before each class, plus your own reminders. |
 | **Library** | How busy Bill Bryson Library is: a thin bar on Home and a small one on the **Study** tab. Tap it for free seats on each floor. |
+| **Study timer** | A card on the **Study** tab: how long you've studied today, your weekly goal and a **Start** button. Build a pattern of study and rest blocks (drag a block's end to change its length, or use *Simple hour*, *Pomodoro* or *Long focus*), repeat it, pick a module and start. A big countdown with **Pause**, **Skip** and **Stop**; it keeps time with the phone locked, and the phone app sends a notification when each block ends. **This week** shows hours per day by module, against your goal and last week. Saved on your phone only. |
 | **Campus card** | Scan your card's barcode (camera or photo), or type the number, and show it on your phone if you lose the card. Reads Durham's Telepen barcode as well as the common types. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
 | **More** | Everything else, as cards. For now, the campus card. |

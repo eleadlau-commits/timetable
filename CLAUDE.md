@@ -40,6 +40,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `home` | The Home tab: small swipeable pages on the dark area (date and clock first) over a Durham photo, then cards filling the screen without scrolling; the app opens on it | | views | slots `home.pages/top/main/side` |
 | `journey` | The Plan your journey page on Home; says "coming soon" for now | (home) | home.pages | |
 | `study` | The Study tab | | views | slot `study.cards` |
+| `study-timer` | The Study timer card on Study: build a pattern of study and rest blocks, run it (keeps time from the clock; notifications in the phone apps), this week's hours by module and a weekly goal; saved on the phone only | (study, sessions) | study.cards, settings | |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
 | `library` | How busy Bill Bryson Library is: a thin row on Home, a folded bar on Study, free seats per floor in a full-screen pop-up | (web-relay, home, study) | home.top, study.cards, settings | |
 | `link-backup` | Backs up the timetable link to your private area while signed in; brings it back on a new phone | account, timetable | account.sections, timetable.setup | |

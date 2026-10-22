@@ -1,0 +1,11 @@
+{
+  "name": "Study timer",
+  "description": "A study timer on the Study tab: build a pattern of study and rest blocks, run it, and see this week's study time.",
+  "version": "1.0.0",
+  "main": "StudyTimer.js",
+  "styles": ["style.css"],
+  "uses": ["study", "sessions"],
+  "native": {
+    "packages": { "@capacitor/local-notifications": "^7.0.0" }
+  }
+}
