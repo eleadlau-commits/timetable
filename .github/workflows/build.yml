@@ -181,7 +181,7 @@ jobs:
   iphone:
     name: iPhone app (TestFlight)
     needs: [test, rules]
-    runs-on: macos-15
+    runs-on: macos-15-intel   # Intel: GitHub often had no arm64 Mac free (macos-15), so the job was cancelled before it started
     # Needs four Apple settings in GitHub (Settings → Secrets and variables → Actions); see
     # "The iPhone app" in README.md. Until they're there, this job says so and stops, without
     # affecting the APK or the website.
