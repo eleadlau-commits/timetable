@@ -1,6 +1,6 @@
-# Tests the app, then builds the Android app (APK), sends the iPhone app to TestFlight, and publishes
-# the web version to GitHub Pages, every time you upload changes or press "Run workflow" on the
-# Actions tab.
+# Tests the app, then builds the Android app (APK, plus the Google Play version, sent to its
+# internal testing track), sends the iPhone app to TestFlight, and publishes the web version to
+# GitHub Pages, every time you upload changes or press "Run workflow" on the Actions tab.
 # If any test fails (including the database rules' tests), nothing is released, so a broken version
 # never reaches anyone's phone.
 
@@ -55,9 +55,9 @@ jobs:
   android:
     name: Android app (APK)
     needs: [test, rules]
-    # Only from main, so trying a branch with "Run workflow" (e.g. for the iPhone app) never
-    # releases an APK.
-    if: github.ref_name == 'main'
+    # Builds on main, or on any branch with "Run workflow" to try it. Only main releases anything
+    # (the APK on Releases, the Google Play upload).
+    if: github.ref_name == 'main' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -148,6 +148,15 @@ jobs:
           sed -i -E "s/versionCode [0-9]+/versionCode ${{ github.run_number }}/; s/versionName \"[^\"]*\"/versionName \"$VERSION (build ${{ github.run_number }})\"/" dist/android/app/build.gradle
           grep -E "versionCode|versionName" dist/android/app/build.gradle
 
+      # Google Play only accepts apps made for Android 16 (API level 36) or newer. Capacitor 7 makes
+      # them for Android 15, so raise it. Android 16 always draws the app under the status and
+      # navigation bars; "adjustMarginsForEdgeToEdge": "auto" in capacitor.config.json keeps it clear
+      # of them.
+      - name: Make it for Android 16
+        run: |
+          sed -i -E 's/targetSdkVersion = [0-9]+/targetSdkVersion = 36/' dist/android/variables.gradle
+          grep -q 'targetSdkVersion = 36' dist/android/variables.gradle
+
       - name: Build the APK
         working-directory: dist/android
         run: ./gradlew assembleDebug --no-daemon
@@ -170,13 +179,129 @@ jobs:
         run: cp dist/android/app/build/outputs/apk/debug/app-debug.apk MobileDurham.apk
 
       - name: Publish it as a release
+        if: github.ref_name == 'main'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
           name: Mobile Durham (build ${{ github.run_number }})
-          body: Open this page on your Android phone, tap **MobileDurham.apk** to download it, then open the file to install.
+          body: Open this page on your Android phone, tap **MobileDurham.apk** to download it, then open the file to install. (MobileDurham-GooglePlay.aab is for Google Play; phones can't install it.)
           files: MobileDurham.apk
           make_latest: true
+
+      # The Google Play version. It needs PLAY_UPLOAD_KEY_PASSWORD in GitHub (Settings → Secrets and
+      # variables → Actions) to build, and PLAY_SERVICE_ACCOUNT_JSON to upload; see "The Google Play
+      # app" in README.md. Until they're there, these steps say so and stop. The APK above is
+      # already out either way.
+      - name: Check the Google Play settings are there
+        id: play
+        env:
+          PASSWORD: ${{ secrets.PLAY_UPLOAD_KEY_PASSWORD }}
+          ACCOUNT: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$PASSWORD" ]; then
+            echo "::notice::The Google Play version wasn't built. Missing: PLAY_UPLOAD_KEY_PASSWORD (see 'The Google Play app' in README.md)."
+            echo "bundle=false" >> "$GITHUB_OUTPUT"
+          elif [ ${#PASSWORD} -lt 20 ]; then
+            echo "::error::PLAY_UPLOAD_KEY_PASSWORD must be at least 20 characters, because it protects the upload key saved in this (public) repository."
+            exit 1
+          else
+            echo "bundle=true" >> "$GITHUB_OUTPUT"
+            if [ -z "$ACCOUNT" ]; then
+              echo "::notice::The Google Play version was built but not uploaded. Missing: PLAY_SERVICE_ACCOUNT_JSON (see 'The Google Play app' in README.md)."
+            elif [ "${{ github.ref_name }}" = main ]; then
+              echo "upload=true" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      # Google Play remembers the key the first version was signed with (the "upload key") and only
+      # accepts versions signed with the same one. Like the APK's key, the first build creates it
+      # and saves it in the repository, locked with PLAY_UPLOAD_KEY_PASSWORD. (Google signs the app
+      # people download with its own key, so this one can be replaced through Play support if it's
+      # ever lost or leaked.)
+      - name: Use the same upload key for every Google Play build
+        if: steps.play.outputs.bundle == 'true'
+        env:
+          PLAY_UPLOAD_KEY_PASSWORD: ${{ secrets.PLAY_UPLOAD_KEY_PASSWORD }}
+        run: |
+          if [ ! -f signing/upload.p12 ]; then
+            keytool -genkeypair -keystore signing/upload.p12 -storetype pkcs12 \
+              -storepass:env PLAY_UPLOAD_KEY_PASSWORD -alias upload -keyalg RSA -keysize 2048 \
+              -validity 10000 -dname "CN=Mobile Durham, O=Mobile Durham, C=GB"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add signing/upload.p12
+            git commit -m "Save the Google Play upload key (locked with PLAY_UPLOAD_KEY_PASSWORD)"
+            # A key that isn't saved would be lost after this build, and Google Play would refuse
+            # every later version, so stop rather than make a bundle with it.
+            git push origin "HEAD:${{ github.ref_name }}" || { echo "::error::Couldn't save the upload key, so nothing was sent to Google Play. Run the workflow again."; exit 1; }
+          fi
+          if ! keytool -list -keystore signing/upload.p12 -storepass:env PLAY_UPLOAD_KEY_PASSWORD > /dev/null; then
+            echo "::error::PLAY_UPLOAD_KEY_PASSWORD doesn't unlock signing/upload.p12. Put back the password it was made with."
+            exit 1
+          fi
+          # The password stays in the environment, never in a file.
+          cat >> dist/android/app/build.gradle <<EOF
+
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file("$GITHUB_WORKSPACE/signing/upload.p12")
+                      storeType "pkcs12"
+                      storePassword System.getenv("PLAY_UPLOAD_KEY_PASSWORD")
+                      keyAlias "upload"
+                      keyPassword System.getenv("PLAY_UPLOAD_KEY_PASSWORD")
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          EOF
+
+      - name: Build the Google Play version
+        if: steps.play.outputs.bundle == 'true'
+        working-directory: dist/android
+        env:
+          PLAY_UPLOAD_KEY_PASSWORD: ${{ secrets.PLAY_UPLOAD_KEY_PASSWORD }}
+        run: ./gradlew bundleRelease --no-daemon
+
+      - name: Check it's signed with the saved upload key
+        if: steps.play.outputs.bundle == 'true'
+        env:
+          PLAY_UPLOAD_KEY_PASSWORD: ${{ secrets.PLAY_UPLOAD_KEY_PASSWORD }}
+        run: |
+          fingerprint() { grep -m1 'SHA256:' | sed -E 's/.*SHA256: *//' | tr -d ': ' ; }
+          SAVED=$(keytool -list -v -keystore signing/upload.p12 -storepass:env PLAY_UPLOAD_KEY_PASSWORD | fingerprint)
+          AAB=$(keytool -printcert -jarfile dist/android/app/build/outputs/bundle/release/app-release.aab | fingerprint)
+          echo "Saved key:  $SAVED"
+          echo "Bundle key: $AAB"
+          if [ -z "$SAVED" ] || [ "$SAVED" != "$AAB" ]; then
+            echo "::error::The bundle isn't signed with signing/upload.p12, so Google Play would refuse it."
+            exit 1
+          fi
+          cp dist/android/app/build/outputs/bundle/release/app-release.aab MobileDurham-GooglePlay.aab
+
+      # Kept on the release too, for uploading by hand (the very first version has to be).
+      - name: Add it to the release
+        if: steps.play.outputs.bundle == 'true' && github.ref_name == 'main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          files: MobileDurham-GooglePlay.aab
+
+      # Testers on the internal testing track get it within minutes, without Google reviewing it.
+      - name: Send it to Google Play (internal testing)
+        if: steps.play.outputs.upload == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: io.github.timetable.app
+          releaseFiles: MobileDurham-GooglePlay.aab
+          releaseName: ${{ github.run_number }}
+          track: internal
+          status: completed
 
   iphone:
     name: iPhone app (TestFlight)
