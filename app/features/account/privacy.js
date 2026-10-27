@@ -5,7 +5,7 @@ import { ui } from 'folio';
 
 const { el } = ui;
 
-export const UPDATED = '19 October 2026';
+export const UPDATED = '27 October 2026';
 
 // Where people write about their data. Public: it's shown in the app.
 export const CONTACT = 'mobiledurham.help@gmail.com';
@@ -18,7 +18,8 @@ export function privacyNotice() {
       'Mobile Durham is made by students. It isn\'t affiliated with Durham University, and the university doesn\'t run it or see anything in it.'),
     part('Without an account',
       'Everything you add (your timetable, to-dos, notes, reminders, module colours and campus card) stays on your phone. Nothing is sent to us.',
-      'To do its job, the app talks directly to your university\'s calendar link, the library\'s page of free seats, and OpenStreetMap for maps. We don\'t see any of that.'),
+      'To do its job, the app talks directly to your university\'s calendar link, the library\'s page of free seats, and OpenStreetMap for maps. We don\'t see any of that.',
+      'The cafés, pubs and clubs on Spots come from our database. The app only reads them, the same list for everyone, and sends nothing about you to get them.'),
     part('With an account',
       'You sign in with Google. Google tells us your name, email address and profile picture, and gives you an account number. We use these only to show who is signed in and to keep your things yours.',
       'While you\'re signed in, your timetable link is backed up to your private area, which only you can read, so your timetable comes back on a new phone. You can switch this off on the account page, which deletes the online copy. Nothing else from your timetable is stored online.',

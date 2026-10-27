@@ -1,0 +1,8 @@
+{
+  "name": "Listings",
+  "description": "The cafés, pubs and clubs on Spots, with their student deals, from the online database.",
+  "version": "1.0.0",
+  "main": "Listings.js",
+  "requires": ["account"],
+  "uses": ["spots"]
+}

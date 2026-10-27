@@ -15,6 +15,8 @@
 //   user            the signed-in person ({ uid, name, email, photo }), or null
 //   database()      Firebase's database (Firestore), once Firebase knows who is signed in;
 //                   fails with Error('signed-out') if nobody is
+//   publicDatabase() the database without needing anyone signed in, for what everyone may
+//                   read (such as the places on Spots); the rules decide what that is
 //   serverTime()    a value that the database turns into its own clock's time
 //   fields          Firestore's FieldValue (arrayUnion, arrayRemove, …), once database() has run
 //   open()          opens the account page
@@ -81,6 +83,11 @@ export default class Account extends Feature {
   async database() {
     const auth = await this.watch();
     if (!auth.currentUser) throw new Error('signed-out');
+    return database();
+  }
+
+  async publicDatabase() {
+    await connect();
     return database();
   }
 
