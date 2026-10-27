@@ -150,23 +150,18 @@ export default class Sessions extends Feature {
     const badge = this.badge(s);
     const link = this.placeLink(s.location);
     const label = this.placeLabel(s.location);
+    // Tapping anywhere on the card opens the details. For keyboards and screen readers the name is
+    // the button, because a card that is itself a button can't hold the place link and features'
+    // buttons inside it.
     return el('article', {
       class: `card${past ? ' past' : ''}${live ? ' now' : ''}${s.cancelled ? ' cancelled' : ''}`,
       style: `--h:${this.hue(s)}`,
-      role: 'button',
-      tabindex: '0',
       onclick: () => this.open(s),
-      onkeydown: (e) => {
-        if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
-          e.preventDefault();
-          this.open(s);
-        }
-      },
     },
       el('div', { class: 'time' },
         s.allDay ? el('span', {}, 'All day') : [el('span', {}, time.formatTime(s.start)), el('span', {}, time.formatTime(s.end))]),
       el('div', { class: 'body' },
-        el('div', { class: 'title' }, el('span', { class: 'title-text' }, this.name(s)), badge && el('span', { class: 'badge' }, badge)),
+        el('div', { class: 'title' }, el('button', { type: 'button', class: 'title-text', onclick: (e) => { e.stopPropagation(); this.open(s); } }, this.name(s)), badge && el('span', { class: 'badge' }, badge)),
         s.location && (link
           ? el('a', { class: 'meta', href: link, target: '_blank', rel: 'noopener', onclick: (e) => e.stopPropagation() },
             ui.icon('pin'), el('span', {}, label))

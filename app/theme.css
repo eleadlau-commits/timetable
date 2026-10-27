@@ -32,9 +32,9 @@
   --text: #1d1a21;
   --text-2: #3a3540;          /* secondary text */
   --muted: #57515e;
-  --fade-1: #77717e;          /* later lectures, each one fainter */
-  --fade-2: #8f8a95;
-  --fade-3: #a7a2ad;
+  --fade-1: #5f5966;          /* later lectures, each one fainter (all readable: 4.5:1 or more) */
+  --fade-2: #68626f;
+  --fade-3: #75707c;
   --line: #ebe8ef;            /* dividers */
   --accent: #6b3fa0;          /* today, the selected tab; white text on it */
   --accent-ink: #ffffff;
@@ -74,9 +74,9 @@
     --text: #f2eff5;
     --text-2: #d6d0db;
     --muted: #b3abb9;
-    --fade-1: #8f8796;
-    --fade-2: #77707e;
-    --fade-3: #625c69;
+    --fade-1: #b3acb9;
+    --fade-2: #a49dab;
+    --fade-3: #968f9d;
     --line: #3d3842;
     --accent: #8457c0;
     --accent-ink: #ffffff;
