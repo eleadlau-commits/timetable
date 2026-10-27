@@ -8,8 +8,9 @@ They allow:
 - **Friend codes** (`codes/<code>`): anyone signed in can look up a code they've been given, but nobody can list them. Only you can make your code, and only the one in your profile.
 - **Friendships** (`friendships/<a>_<b>`): only the two people can read one. Only the asker can create it, with a real code belonging to the other person; only the person asked can accept it; each can only change their own name; either can delete it.
 - **Shared timetables** (`shared/<you>`): only you can write yours. You, people you've asked, and friends can read it.
+- **Places on Spots** (`spots/<place>`): everyone can read the published ones (`published` is `true`), signed in or not, at most 100 at a time. Nobody can change them from the app. The team edits them in the Firebase console, which these rules don't apply to; see `app/features/listings/README.md` for how.
 
-Only Google sign-ins count, and everything must have exactly the right shape (names of 1–30 characters, links of at most 2,048 starting with `https://` or `webcal://`, times set by Firebase itself). The tests in `tests/` (`rules.test.mjs` for your private area, `friends.test.mjs` for friends) check each of these, including what must be refused.
+Only Google sign-ins count, and everything must have exactly the right shape (names of 1–30 characters, links of at most 2,048 starting with `https://` or `webcal://`, times set by Firebase itself). The tests in `tests/` (`rules.test.mjs` for your private area, `friends.test.mjs` for friends, `spots.test.mjs` for the places on Spots) check each of these, including what must be refused.
 
 ## Other defences
 

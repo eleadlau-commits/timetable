@@ -32,3 +32,48 @@
   background: linear-gradient(to right, var(--top) 15%, transparent 85%), var(--photo, none) center / cover, var(--top-2);
 }
 .spot-card-bar svg { width: 20px; height: 20px; color: var(--on-top); }
+
+/* Places: Student deals at the top of the tab, and the list in each kind's window. A place is a
+   plain card with its name, the deal (if there is one) in the accent colour, and where it is. */
+.spot-tab { display: grid; gap: 16px; }
+.spot-deals .sub-head { margin: 0 0 8px; }
+.spot-places { display: grid; gap: 10px; }
+.spot-place {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--shape);
+  background: var(--surface);
+  color: var(--text);
+}
+.spot-place-head { display: flex; flex-direction: column; gap: 2px; }
+.spot-place-head b { font-size: 16px; font-weight: 600; }
+.spot-place-head span { font-size: 13px; color: var(--muted); }
+.spot-deal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--shape-sm);
+  background: var(--accent-soft);
+  font-size: 14px;
+  font-weight: 600;
+}
+.spot-deal-tag {
+  padding: 1px 6px;
+  border-radius: var(--shape-sm);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.spot-deal small { font-size: 12px; font-weight: 400; color: var(--text-2); }
+.spot-place-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.spot-place-where { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); min-width: 0; }
+.spot-place-where svg { flex: none; width: 16px; height: 16px; }
+.spot-place-foot .btn { flex: none; margin-left: auto; }
+.spot-dialog .spot-places { padding-bottom: 16px; }
+.spot-dialog .spot-place { background: var(--surface-2); }

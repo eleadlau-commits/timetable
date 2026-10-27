@@ -77,6 +77,19 @@ export default function seed(app) {
     studied(at(-8, 10), 120, 'ECON1011', 5),
   ]);
   area('study-timer').set('goal', 10);
+  // Places on Spots, as if just fetched (so the tests don't ask the real database).
+  const place = (id, kind, name, line, extra = {}) => ({ id, kind, name, line, deal: null, dealEnds: null, address: '', link: null, order: 50, ...extra });
+  area('listings').set('saved', {
+    at: Date.now(),
+    places: [
+      place('p1', 'cafes', 'Flat White Kitchen', 'Brunch and coffee by the river',
+        { deal: '10% off with your campus card', address: '21a Elvet Bridge', link: 'https://example.invalid/flat-white', order: 1 }),
+      place('p2', 'cafes', 'Cafe on the Green', 'Cake, soup and a quiet corner',
+        { deal: 'Free refill on filter coffee', dealEnds: at(6, 12).getTime(), address: 'Palace Green' }),
+      place('p3', 'cafes', 'Old Deal Cafe', 'A deal that has ended', { deal: 'Ended', dealEnds: at(-3, 12).getTime() }),
+      place('p4', 'pubs', 'The Swan and Three Cygnets', 'Pints with a view', { address: 'Elvet Bridge' }),
+    ],
+  });
   const view = new URLSearchParams(location.hash.slice(1)).get('view');
   if (view) area('folio').set('view', view);
 }

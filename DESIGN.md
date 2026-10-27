@@ -67,7 +67,7 @@ Open either file in a browser to see it. They are static mockups: every number, 
 | Text | `#1d1a21` | `#f2eff5` |
 | Text, secondary | `#3a3540` | `#d6d0db` |
 | Text, muted | `#57515e` | `#b3abb9` |
-| Later lectures, fade step 1 / 2 / 3 | `#77717e` / `#8f8a95` / `#a7a2ad` | `#8f8796` / `#77707e` / `#625c69` |
+| Later lectures, fade step 1 / 2 / 3 (each still 4.5:1 or more on the card, so readable) | `#5f5966` / `#68626f` / `#75707c` | `#b3acb9` / `#a49dab` / `#968f9d` |
 | Divider | `#ebe8ef` | `#3d3842` |
 | Accent fill (today, Home tab) — white text on it | `#6b3fa0` | `#8457c0` |
 | Tab inactive icons/labels | `#2e2440` | `#c9aee6` |

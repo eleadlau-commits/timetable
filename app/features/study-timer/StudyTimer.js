@@ -222,17 +222,15 @@ export default class StudyTimer extends Feature {
     const today = studiedToday(this.history, now) + (p ? this.liveStudy(p) : 0);
     const week = weekStats(this.history, now).total;
     const goal = this.goal * 60 * MINUTE;
+    // Tapping anywhere on the card opens the timer. For keyboards and screen readers the title is
+    // the button, because a card that is itself a button can't hold the Start/Open button.
     this.card = el('div', {
       class: `stt-card${p ? ' on' : ''}`,
-      role: 'button',
-      tabindex: '0',
-      'aria-label': 'Study timer. Open',
       style: p ? this.colourStyle(this.run.module) : '',
       onclick: open,
-      onkeydown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } },
     },
       el('div', { class: 'stt-card-line' },
-        el('b', {}, 'Study timer'),
+        el('button', { type: 'button', class: 'stt-card-title', onclick: (e) => { e.stopPropagation(); open(); } }, 'Study timer'),
         p ? el('span', { class: `stt-tag ${p.block.kind}` }, p.paused ? 'Paused' : (p.block.kind === 'study' ? 'Study' : 'Rest')) : null,
         button),
       p

@@ -14,9 +14,9 @@
   color: var(--text);
   cursor: pointer;
 }
-.stt-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .stt-card-line { display: flex; align-items: center; gap: 8px; }
-.stt-card-line > b { font-size: 15px; font-weight: 600; }
+.stt-card-title { padding: 0; border: 0; background: none; color: inherit; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; }
+.stt-card-title:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .stt-card-line .btn { margin-left: auto; }
 .stt-card-sub { font-size: 13px; color: var(--muted); }
 .stt-card-run { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }

@@ -23,7 +23,7 @@ Your **account page**, and signing in with Google through Firebase (project `mob
 
 ## What it offers other features
 
-- **Service `account`:** `user` (the signed-in person, `{ uid, name, email, photo }`, or `null`), `database()` (Firebase's database once Firebase knows who's signed in; fails with `signed-out` otherwise), `serverTime()` (the database's own clock, for `updatedAt`), `open()` and `redraw()` (the account page).
+- **Service `account`:** `user` (the signed-in person, `{ uid, name, email, photo }`, or `null`), `database()` (Firebase's database once Firebase knows who's signed in; fails with `signed-out` otherwise), `publicDatabase()` (the database without needing anyone signed in, for what the rules let everyone read, such as the places on Spots), `serverTime()` (the database's own clock, for `updatedAt`), `open()` and `redraw()` (the account page).
 - **Slot `account.sections`:** parts of the signed-in account page, under your name. Item: `{ order, render(user) → element or null }`. Link backup adds **Backup**, Friends adds **Friends**.
 - **Slot `account.cleanup`:** online data other features keep that **Delete my account** must remove first. Item: `{ order, remove(db, uid) → Promise }`. Friends removes your friendships and friend code. Then `onlineData()` (your private area and shared timetable) goes, then the account.
 - `fields` on the service: Firestore's `FieldValue` (`arrayUnion`, `arrayRemove`), once `database()` has run.
