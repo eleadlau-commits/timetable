@@ -33,7 +33,9 @@ You can switch any feature off for yourself in **Settings → Features**. Everyt
 
 ## Install it
 
-**Android:**
+**Android, from Google Play (for invited testers):** see [The Google Play app](#the-google-play-app) below.
+
+**Android, the APK:**
 1. On your phone, open `https://github.com/YOUR-USERNAME/timetable/releases`.
 2. Tap **MobileDurham.apk** (older releases call it **Timetable.apk**) and open the downloaded file.
 3. Allow installing from this source if asked, then tap **Install**. If Play Protect warns about an unknown app, tap **More details → Install anyway**.
@@ -69,11 +71,42 @@ GitHub builds the iPhone app on one of its Macs and sends it to TestFlight, so y
 
    These are secrets: never put them in a file in the repository, or in a chat. Keep the `.p8` file somewhere safe.
 6. **Add the iPhone app to Firebase** (for signing in). In the [Firebase console](https://console.firebase.google.com) → project *mobile-durham* → **Project settings → Your apps → Add app → Apple (iOS)**. Use the same bundle id, give it the nickname *Mobile Durham iPhone*, and download **GoogleService-Info.plist**. Put it in `app/features/account/native/` (on the GitHub website: open that folder, **Add file → Upload files**). It isn't a password, just like `google-services.json` next to it. Then ask Claude to connect it: the account feature's iPhone settings need a code from inside the file (for Google sign-in to return to the app).
-7. **Run it.** Upload to `main`, or press **Run workflow** on the Actions tab and pick a branch to try it first (from a branch, only the tests and the iPhone app run; the APK and website are only released from `main`). The iPhone job takes about 20–30 minutes; then Apple processes the build for a few minutes more and it appears under the app's **TestFlight** tab in App Store Connect.
+7. **Run it.** Upload to `main`, or press **Run workflow** on the Actions tab and pick a branch to try it first (from a branch, the APK is built but not released, and the website isn't published; those only happen from `main`). The iPhone job takes about 20–30 minutes; then Apple processes the build for a few minutes more and it appears under the app's **TestFlight** tab in App Store Connect.
 
 **Inviting people**, in App Store Connect → the app → **TestFlight**:
 - **You** (and anyone in your App Store Connect team): **Internal Testing → +**, add yourself. Builds are ready to install straight away.
 - **Friends:** **External Testing → +**, make a group (e.g. *Friends*), add their emails or switch on a **public link**. Apple checks the first build of each version (usually within a day; it asks for a short "what to test" note and a contact email). Later builds of the same version usually go straight through.
+
+## The Google Play app
+
+Every upload to `main` also builds a Google Play version of the Android app and sends it to Google Play's **internal testing** track (Google's version of TestFlight: up to 100 people you invite, no review, ready within minutes). Until the steps below are done, the *Android app (APK)* job on the Actions tab just says what's missing; the APK on Releases carries on as before.
+
+**One-off setup** (an hour or so, plus a few days' wait for Google to check your ID):
+
+1. **Make a Google Play developer account** at [play.google.com/console/signup](https://play.google.com/console/signup). Choose a **personal** account. It costs **$25 once**. Google asks for photo ID, and for you to confirm you have an Android phone (through the Play Console app); the check can take a few days.
+2. **Make the app.** In the [Play Console](https://play.google.com/console) → **Create app**: name *Mobile Durham*, default language English (United Kingdom), **App**, **Free**, tick the two declarations, **Create app**.
+3. **Give GitHub a password for the upload key.** GitHub signs each Google Play version with an "upload key", which the first build makes and saves in the repository, locked with this password. Make up a long one (at least 20 characters; a password manager can make one) and **also save it in your password manager**. On GitHub, the repository → **Settings → Secrets and variables → Actions → New repository secret**: name `PLAY_UPLOAD_KEY_PASSWORD`, value the password.
+4. **Run a build.** Upload to `main` (or press **Run workflow** on the Actions tab, on `main`). When it's finished, the new release on the Releases page has **MobileDurham-GooglePlay.aab** next to the APK. Download it to your computer.
+5. **Upload the first version by hand** (Google insists the first one is). Play Console → the app → **Test and release → Testing → Internal testing**:
+   - **Testers** tab → **Create email list**, call it *Testers*, add your Gmail address (and friends', if you like) → **Save**, and tick the list.
+   - **Create new release**. If it asks about app signing, keep **Use Google-generated key**. Upload the `.aab` file, then **Next → Save and publish** (or **Roll out**).
+   - If it first asks you to finish some setup questions (privacy policy, content rating, and so on), do those; Claude can help with the answers.
+6. **Let GitHub upload the next versions.** This needs a "service account", a robot Google account that's only allowed to upload test versions:
+   1. Open the [Google Cloud console](https://console.cloud.google.com) and pick the project **mobile-durham** at the top (your Firebase project is also a Google Cloud project).
+   2. Search for **Google Play Android Developer API** and tap **Enable**.
+   3. Go to **IAM & Admin → Service accounts → Create service account**. Name: *github-play-upload*. **Create and continue**, skip the roles, **Done**.
+   4. Tap the new account and copy its email (it ends in `iam.gserviceaccount.com`). Then **Keys → Add key → Create new key → JSON → Create**. A file downloads.
+   5. In the Play Console → **Users and permissions → Invite new users**. Paste the robot's email. Under **App permissions → Add app**, pick *Mobile Durham* and tick **Release apps to testing tracks**. **Invite user**.
+   6. On GitHub, add another secret: name `PLAY_SERVICE_ACCOUNT_JSON`, value: open the downloaded file in Notepad (or TextEdit) and paste all of it. Then delete the file (you can always make a new key).
+
+   These are secrets: never put them in a file in the repository, or in a chat.
+7. **Make Google sign-in work in the Google Play version.** Google re-signs the app with its own key, which Firebase doesn't know yet. Play Console → **Test and release → App integrity → App signing**, and copy the **SHA-1** and **SHA-256** of the *App signing key certificate*. In the [Firebase console](https://console.firebase.google.com) → *mobile-durham* → **Project settings → Your apps → Mobile Durham Android → Add fingerprint**, add both. Then download **google-services.json** again there and replace `app/features/account/native/google-services.json` with it (on the GitHub website: open that folder, **Add file → Upload files**).
+
+**Installing it, for you and your testers:** Play Console → **Internal testing → Testers** → **Copy link** ("Join on the web"). Open the link on the phone, tap **Accept**, then **Download it on Google Play**. From then on, every upload to `main` appears as an update in the Play Store a few minutes after the build.
+
+**Switching from the APK:** the Google Play version is signed by Google, so Android won't install it over the APK version. Uninstall the APK version first. That deletes what was saved on the phone (notes, to-dos, colours, the card), so note down anything you need first.
+
+**Going public later:** Google makes new personal accounts run a **closed test** with at least 12 people who stay opted in for 14 days in a row before the app can go public. It also needs a store listing (description, screenshots, a 512×512 icon, a banner), a privacy policy web page, the Data safety form and a web link for deleting an account. Claude can help with all of those.
 
 ## Connect your timetable
 
