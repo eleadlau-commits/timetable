@@ -151,11 +151,13 @@ jobs:
       # Google Play only accepts apps made for Android 16 (API level 36) or newer. Capacitor 7 makes
       # them for Android 15, so raise it. Android 16 always draws the app under the status and
       # navigation bars; "adjustMarginsForEdgeToEdge": "auto" in capacitor.config.json keeps it clear
-      # of them.
-      - name: Make it for Android 16
+      # of them. Google Play's automatic protection also needs Android 7 (API level 24) or newer, one
+      # step up from Capacitor's Android 6.
+      - name: Make it for Android 16 (and Android 7 or newer)
         run: |
-          sed -i -E 's/targetSdkVersion = [0-9]+/targetSdkVersion = 36/' dist/android/variables.gradle
+          sed -i -E 's/targetSdkVersion = [0-9]+/targetSdkVersion = 36/; s/minSdkVersion = [0-9]+/minSdkVersion = 24/' dist/android/variables.gradle
           grep -q 'targetSdkVersion = 36' dist/android/variables.gradle
+          grep -q 'minSdkVersion = 24' dist/android/variables.gradle
 
       - name: Build the APK
         working-directory: dist/android
