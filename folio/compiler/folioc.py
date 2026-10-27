@@ -1361,6 +1361,14 @@ def cmd_ios_project(project: Project, args) -> int:
         text = text.replace(marker, marker + ''.join(f'\n  {p}' for p in new), 1)
         podfile.write_text(text, 'utf-8')
         print('Added to the Podfile: ' + (', '.join(new) if new else 'nothing new'))
+        # "npx cap add ios" has already run "pod install", so Podfile.lock lists what the Podfile
+        # held before these lines. CocoaPods keeps to the lock and quietly ignores them, which for
+        # a plugin's optional part (CapacitorFirebaseAuthentication/Google) means Google sign-in
+        # isn't in the app at all. Dropping the lock makes "npx cap sync ios" work it out again.
+        lock = ios / 'Podfile.lock'
+        if new and lock.is_file():
+            lock.unlink()
+            print('Removed Podfile.lock, so CocoaPods installs them')
 
     text = pbx.read_text('utf-8')
     settings = {
