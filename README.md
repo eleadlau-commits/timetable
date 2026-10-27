@@ -26,7 +26,7 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 | **Campus card** | Scan your card's barcode (camera or photo), or type the number, and show it on your phone if you lose the card. Reads Durham's Telepen barcode as well as the common types. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |
 | **More** | Everything else, as cards. For now, the campus card. |
-| **Spots** | Cards for **Cafés**, **Pubs** and **Clubs** around Durham, coming soon. The Explore page on Home opens it. |
+| **Spots** | **Student deals** at the top, then cards for **Cafés**, **Pubs** and **Clubs** around Durham: tap one for its places (name, deal, where it is, website). Kinds with no places yet say coming soon. Places and deals come from the online database, so they change without a new version of the app; the team adds them in the Firebase console (see `app/features/listings/README.md`). The Explore page on Home opens it. |
 | **Help and feedback** | In the menu, kept for later. For now they say *coming soon*. |
 
 You can switch any feature off for yourself in **Settings → Features**. Everything you add (notes, to-dos, colours, reminders, the card) stays on your own phone.

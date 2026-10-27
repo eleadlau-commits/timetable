@@ -3,7 +3,7 @@
   "private": true,
   "description": "Tests for the database rules, run against Google's Firestore emulator.",
   "scripts": {
-    "test": "firebase emulators:exec --only firestore --project demo-mobile-durham \"node --test --test-concurrency=1 tests/rules.test.mjs tests/friends.test.mjs\""
+    "test": "firebase emulators:exec --only firestore --project demo-mobile-durham \"node --test --test-concurrency=1 tests/rules.test.mjs tests/friends.test.mjs tests/spots.test.mjs\""
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "5.0.2",

@@ -168,5 +168,19 @@ service cloud.firestore {
         && d.classes is list && d.classes.size() <= 400
         && d.updatedAt == request.time;
     }
+
+    // ---- Places on Spots: cafés, pubs and clubs, with their student deals ----
+    // Everyone can read the published ones, signed in or not (they're public, like a poster).
+    // Nobody can change them from the app: the team adds and edits them in the Firebase console,
+    // which only people added to the Firebase project can open (the console isn't bound by
+    // these rules). Unpublished places are drafts, which only the console shows.
+    // The app asks for at most 100 at once; asking for more, or for all of them, is refused,
+    // which keeps each look small on the free plan's daily reads.
+
+    match /spots/{place} {
+      allow get: if resource.data.published == true;
+      allow list: if resource.data.published == true && request.query.limit <= 100;
+      allow write: if false;
+    }
   }
 }
