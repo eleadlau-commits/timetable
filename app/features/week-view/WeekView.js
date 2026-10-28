@@ -1,48 +1,24 @@
 // Week view: the week as a grid of hours, with sessions that clash shown side by side.
-// Saturday and Sunday only appear when something is on. Tapping a day opens it in the
-// Day view, if that's installed.
+// Saturday and Sunday only appear when something is on. Tapping a day zooms in to it in the
+// Planner (or opens the Day view, without the Planner).
 
 import { Feature, ui, time } from 'folio';
 
 const { el } = ui;
 const HOUR_PX = 52; // keep in sync with the hour lines in week-view.css
 
-// Places overlapping blocks side by side: each gets a lane and the number of lanes.
-function layoutLanes(blocks) {
-  blocks.sort((a, b) => a.top - b.top || b.bottom - a.bottom);
-  let cluster = [];
-  let clusterEnd = -1;
-  const flush = () => {
-    const laneEnds = [];
-    for (const b of cluster) {
-      let lane = laneEnds.findIndex((end) => end <= b.top);
-      if (lane < 0) {
-        lane = laneEnds.length;
-        laneEnds.push(0);
-      }
-      laneEnds[lane] = b.bottom;
-      b.lane = lane;
-    }
-    for (const b of cluster) b.lanes = laneEnds.length;
-    cluster = [];
-  };
-  for (const b of blocks) {
-    if (cluster.length && b.top >= clusterEnd) flush();
-    cluster.push(b);
-    clusterEnd = Math.max(clusterEnd, b.bottom);
-  }
-  if (cluster.length) flush();
-  return blocks;
-}
-
 export default class WeekView extends Feature {
   start() {
     this.sessions = this.use('sessions');
+    this.planner = this.use('planner');
     // Inside the Planner tab if it's installed, otherwise a tab of its own.
     this.add(this.use('planner') ? 'planner.views' : 'views', {
       icon: 'calendar',
       id: 'week',
       label: 'Week',
+      short: 'W',
+      zoom: 30,
+      crumb: (day) => (time.sameDay(time.startOfWeek(day), time.startOfWeek(new Date())) ? 'This week' : 'Week'),
       order: 20,
       mount: (container) => this.mount(container),
       render: () => this.render(),
@@ -83,20 +59,9 @@ export default class WeekView extends Feature {
       if (i < 5 || items.length) days.push({ day, items });
     }
 
-    // Minutes from the start of `day`, clamped to that day.
-    const mins = (t, day) => (t >= time.addDays(day, 1) ? 1440 : t <= day ? 0 : t.getHours() * 60 + t.getMinutes());
-
-    let startH = 9;
-    let endH = 17;
-    let anyTimed = false;
-    for (const { day, items } of days) {
-      for (const s of items) {
-        if (s.allDay) continue;
-        anyTimed = true;
-        startH = Math.min(startH, Math.floor(mins(s.start, day) / 60));
-        endH = Math.max(endH, Math.ceil(mins(s.end, day) / 60));
-      }
-    }
+    const { layoutLanes, minutesInto: mins, hourRange } = sessions.layout;
+    const anyTimed = days.some(({ items }) => items.some((s) => !s.allDay));
+    const { start: startH, end: endH } = hourRange(days);
     const hours = endH - startH;
     const px = (m) => ((m - startH * 60) / 60) * HOUR_PX;
 
@@ -107,7 +72,8 @@ export default class WeekView extends Feature {
         'aria-label': `Open ${time.formatLongDate(day)}`,
         onclick: () => {
           sessions.select(day);
-          this.app.shell.selectView('day');
+          if (this.planner) this.planner.zoomIn();
+          else this.app.shell.selectView('day');
         },
       }, el('span', {}, day.toLocaleDateString([], { weekday: 'short' })), el('b', {}, day.getDate()))));
 

@@ -10,12 +10,16 @@
 //   card(s, { now, extra }) a session card element
 //   open(s)                 opens the session details window
 //   selected, select(date)  the day the views are showing
+//   hues(date, max)         the colours of the modules on a day (for dots on calendars)
+//   layout                  rules for calendar grids, from layout.js: layoutLanes, minutesInto,
+//                           hourRange, monthGrid, academicYear, addMonths
 //   changed()               call after changing how sessions look (names, colours, hiding, places)
 //
 // Events it sends: 'sessions:changed' after changed().
 
 import { Feature, ui, time } from 'folio';
 import { moduleKey, hueFor, kindOf, webLink } from './format.js';
+import * as layout from './layout.js';
 
 const { el } = ui;
 const timeRange = (s) => (s.allDay ? 'All day' : `${time.formatTime(s.start)}–${time.formatTime(s.end)}`);
@@ -25,6 +29,7 @@ export default class Sessions extends Feature {
     this.timetable = this.use('timetable');
     this.selected = time.startOfDay(new Date());
     this.current = null;
+    this.layout = layout;
 
     this.defineSlot('session.filter',
       'Hides sessions. Item: { hides(session) → true to hide, manageLabel?, manage?() opens a place to change it }.');
@@ -101,6 +106,19 @@ export default class Sessions extends Feature {
 
   hue(s) {
     return this.slot('session.colour').first((c) => c.hue(s)) ?? hueFor(this.moduleOf(s));
+  }
+
+  // One colour for each module on the day (not cancelled ones), at most `max`.
+  hues(date, max = 4) {
+    const hues = [];
+    const seen = new Set();
+    for (const s of this.onDay(date)) {
+      if (s.cancelled || seen.has(this.moduleOf(s))) continue;
+      seen.add(this.moduleOf(s));
+      hues.push(this.hue(s));
+      if (hues.length >= max) break;
+    }
+    return hues;
   }
 
   kind(s) {

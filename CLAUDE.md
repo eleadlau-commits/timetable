@@ -31,9 +31,9 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `account` | The account page (from the account button and the menu); signing in with Google through Firebase (web: Google's window; Android: Google's own sign-in); privacy notice; Delete my account removes all online data | | account | service `account`; slots `account.sections`, `account.cleanup`; event `account:changed` |
 | `campus-card` | Scan and show the campus card barcode | | home.side, more.items | |
 | `timetable` | Loads and saves the timetable, setup screen, the Planner's refresh button | | status, planner.actions, settings | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
-| `sessions` | Session cards and the details window | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
-| `planner` | The Planner tab, holding Day, Week and Upcoming | | views | service `planner`; slots `planner.views`, `planner.actions`, `planner.buttons` |
-| `day-view` | Day view | sessions (planner) | planner.views | slot `day.cards` |
+| `sessions` | Session cards and the details window; calendar grid rules (`layout.js`) | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
+| `planner` | The Planner tab: one calendar you zoom in and out of (Year → Month → Week → Day; tap, the purple zoom-out label, pinch, or the Y M W D switch), Upcoming as a list button; opens on today's Day each time the app starts | (sessions) | views | service `planner` (`zoomIn/zoomOut/show`); slots `planner.views` (with `zoom`, `short`, `crumb`), `planner.actions`, `planner.buttons` |
+| `day-view` | Day view: a timeline of hours | sessions (planner) | planner.views | slot `day.cards` |
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
 | `friends` | Swap timetables with friends: friend codes, requests, accept/remove, friends' timetables (grey or tinted), Free/Busy | account (sessions) | header.actions, account.sections, account.cleanup | |
 | `help` | Help and Feedback in the menu; both say "coming soon" for now | | menu | |
@@ -46,7 +46,8 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `link-backup` | Backs up the timetable link to your private area while signed in; brings it back on a new phone | account, timetable | account.sections, timetable.setup | |
 | `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings | |
 | `maps` | Building names, map preview, directions | sessions (durham-rooms) | session.location/details, settings | |
-| `modules` | Rename, recolour or hide modules; button under the Planner's switch | sessions (planner) | session.name/colour/filter/details, planner.buttons, settings | |
+| `modules` | Rename, recolour or hide modules; palette button next to the Planner's level switch | sessions (planner) | session.name/colour/filter/details, planner.buttons, settings | |
+| `month-view` | Month view: module dots on each day, the chosen day's classes underneath | sessions (planner) | planner.views | |
 | `more` | The More tab: cards with a dark bar along the bottom (just the campus card for now) | | views | slot `more.items` |
 | `notes` | Notes on sessions | sessions | session.card/details | |
 | `reminders` | Class and personal reminders | sessions | menu, session.details | |
@@ -54,8 +55,9 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `listings` | The places on Spots (cafés, pubs, clubs and their student deals) from the database's `spots` collection, edited by the team in the Firebase console; kept on the phone, fetched again after 6 hours | account (spots) | spots.places | |
 | `todo` | To-do list pop-up with tags, due dates and "Due today"; the Plan Today page on Home (with how many are due today) | (home) | home.pages | |
 | `up-next` | Today's lectures on Home, squeezed to fit without scrolling | sessions (timetable, home) | home.main | |
-| `upcoming` | Next four weeks (view id `agenda`) | sessions (planner) | planner.views | |
+| `upcoming` | Next four weeks (view id `agenda`); the Planner's list button | sessions (planner) | planner.views | |
 | `week-view` | Week grid | sessions (day-view, planner) | planner.views | |
+| `year-view` | Year view: September–August, days with classes dark, tap a month | sessions (planner) | planner.views | |
 
 **The screen:** one top bar (menu on the left; features' buttons from `header.actions` such as Friends, then the account button, on the right), the open tab's title below it (on Home, the dark area continues behind the clock), and the tab bar along the bottom: Study · Planner · Home · Spots · More (tap, or swipe the bar). The menu slides in from the left: *Not signed in* and the status line at the top, then Account, Reminders, Settings, Help, About, Feedback (the framework's own rows mixed with features' `header.buttons` by `order`). The account button and the Account row open the `account` feature's page (Folio's `account` slot); without that feature they say "coming soon". Pop-ups fill the screen, with their title bar staying at the top; only Reminders and the campus card stay small boxes (`size: 'box'`). Light or dark follows the phone, or Settings → Appearance (Folio switches every `@media (prefers-color-scheme: dark)` rule, so dark styles go inside that query as usual). Colours, fonts and the "knife" corner shape are in `app/theme.css` (from `DESIGN.md`); new styles use the names from there (`--shape` for cards and pop-ups, `--shape-btn` for buttons and text boxes, `--shape-sm` for small tags) rather than colours or corners of their own. Day buttons in date strips and round things (tick circles, dots, switches) keep their own shape, and cards have no coloured edges. When a place has nothing to show, use `ui.missing('what is missing')`. On Home's dark area, big buttons use Home's `home-button` class, and its see-through whites are `--on-top-fill`, `--on-top-dot` and `--on-top-dot-on`. The Durham photo is `app/features/home/photos/durham.jpg` (see the README there).
 

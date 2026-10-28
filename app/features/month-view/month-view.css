@@ -1,0 +1,61 @@
+/* Month view: a grid of days with module dots, then the chosen day's classes. */
+.monthhead { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+.monthhead h2 { flex: 1; font-size: 18px; }
+.mo-dow, .mo-week { display: grid; grid-template-columns: repeat(7, 1fr); }
+.mo-dow { padding: 0 6px 6px; font-size: 12px; font-weight: 600; color: var(--muted); text-align: center; }
+.mo-grid { padding: 4px 6px 8px; border-radius: var(--shape); background: var(--surface); }
+.mo-week + .mo-week { border-top: 1px solid var(--line); }
+.mo-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 50px;
+  padding: 5px 0 0;
+  border: 0;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.mo-day b {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-size: 16px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.mo-day.other b { color: var(--muted); opacity: .55; }
+.mo-day.sel b { background: var(--accent-soft); color: var(--accent); font-weight: 650; }
+.mo-day.today b { background: var(--accent); color: var(--accent-ink); font-weight: 650; }
+.mo-dots { display: flex; gap: 2px; height: 6px; }
+.mo-dots i { width: 6px; height: 6px; border-radius: 50%; background: hsl(var(--h) 65% var(--stripe-l)); }
+.mo-day.other .mo-dots { opacity: .5; }
+
+.mo-dayhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 16px 2px 8px; }
+.mo-dayhead h3 { font-size: 13px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.mo-open { display: flex; gap: 14px; }
+.mo-list { display: grid; gap: 6px; }
+.mo-none { margin: 4px 2px; color: var(--muted); }
+.mo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: var(--shape-btn);
+  background: hsl(var(--h) var(--card-s) var(--card-l));
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.mo-row.past { opacity: .55; }
+.mo-row.cancelled b { text-decoration: line-through; }
+.mo-time { flex: none; min-width: 48px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.mo-what { display: flex; flex-direction: column; min-width: 0; }
+.mo-what b { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mo-what small { font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

@@ -1,0 +1,9 @@
+{
+  "name": "Year view",
+  "description": "The academic year at a glance, September to August; tap a month to open it.",
+  "version": "1.0.0",
+  "main": "YearView.js",
+  "styles": ["year-view.css"],
+  "requires": ["sessions"],
+  "uses": ["planner"]
+}

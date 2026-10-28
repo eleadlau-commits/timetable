@@ -9,6 +9,7 @@ How a session (a class) looks. It draws the session cards the views use, and the
 - **How they look:** `name(s)`, `shortName(s)`, `hue(s)`, `defaultHue(module)`, `kind(s)`, `badge(s)`, `moduleOf(s)`, `placeLabel(location)`, `placeLink(location)`
 - **Drawing:** `card(s, { now, extra })`, `open(s)`
 - **The day the views show:** `selected`, `select(date)`
+- **Calendars:** `hues(date, max)` (a colour per module on a day, for dots), and `layout`, the rules from `layout.js`: `layoutLanes`, `minutesInto`, `hourRange`, `monthGrid`, `academicYear`, `addMonths`
 - **Updating:** `changed()`, which tells everyone that how sessions look has changed
 
 **Slots** (see `Sessions.js` for each item's shape):
@@ -31,3 +32,4 @@ Requires **timetable**.
 ## Files
 
 - `format.js`: rules that don't need the screen (module codes, colours, session types). Tested in `tests/format.test.js`.
+- `layout.js`: rules for calendar grids (sessions side by side when they clash, the hours a grid needs, the weeks of a month, the academic year). Tested in `tests/layout.test.js`.

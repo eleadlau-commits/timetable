@@ -1,0 +1,9 @@
+{
+  "name": "Month view",
+  "description": "A month at a time, with a dot for each module on each day and the chosen day's classes underneath.",
+  "version": "1.0.0",
+  "main": "MonthView.js",
+  "styles": ["month-view.css"],
+  "requires": ["sessions"],
+  "uses": ["planner"]
+}

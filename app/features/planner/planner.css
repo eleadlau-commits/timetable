@@ -1,7 +1,49 @@
-/* Planner: each view inside it fills the space under the switch. */
+/* Planner: one calendar you zoom in and out of. The bar under the title holds the zoom-out
+   label, the level switch (Y M W D), buttons for other views (Upcoming) and features' buttons. */
+.zoombar { display: flex; align-items: center; gap: 6px; min-height: 40px; }
+.zoom-crumb {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  margin-right: auto;
+  padding: 6px 6px 6px 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.zoom-crumb[hidden] { display: none; }
+.zoom-crumb svg { flex: none; width: 20px; height: 20px; stroke-width: 2.2; }
+.zoom-crumb span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.zoom-crumb[hidden] + .zoom-levels { margin-left: auto; }
+.page-head .seg.zoom-levels { flex: none; width: auto; padding: 3px; }
+.page-head .seg.zoom-levels { gap: 2px; }
+.seg.zoom-levels button { width: 31px; min-width: 0; padding: 6px 0; font-weight: 600; }
+.zoom-extras, .planner-buttons { display: flex; gap: 6px; flex: none; }
+.zoom-extras[hidden], .planner-buttons[hidden] { display: none; }
+.zoom-other, .planner-buttons .icon-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--shape-btn);
+  background: var(--surface);
+  color: var(--text-2);
+}
+.zoom-other svg, .planner-buttons .icon-btn svg { width: 19px; height: 19px; }
+.zoom-other.on { background: var(--accent); color: var(--accent-ink); }
+
+/* Each view fills the space under the bar. Pinching zooms the calendar, not the page. */
+.planner-host { touch-action: pan-x pan-y; }
 .planner-view { display: flex; flex-direction: column; }
 
-/* Buttons under the switch, such as Modules. */
-.planner-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-.planner-buttons .btn { display: inline-flex; align-items: center; gap: 6px; }
-.planner-buttons .btn svg { width: 16px; height: 16px; }
+/* Zooming: the new level grows out of what you tapped, or shrinks back into it. */
+@keyframes planner-zoom-in { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: none; } }
+@keyframes planner-zoom-out { from { opacity: 0; transform: scale(1.5); } to { opacity: 1; transform: none; } }
+.planner-view.zoom-in { animation: planner-zoom-in .32s cubic-bezier(.2, .8, .2, 1); }
+.planner-view.zoom-out { animation: planner-zoom-out .32s cubic-bezier(.2, .8, .2, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .planner-view.zoom-in, .planner-view.zoom-out { animation: none; }
+}

@@ -81,7 +81,7 @@
   overflow: hidden;
   cursor: pointer;
 }
-.blk b { font-weight: 650; overflow-wrap: anywhere; }
+.blk b { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .blk small { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .blk.past { opacity: 0.6; }
 .blk.cancelled { opacity: 0.5; }
