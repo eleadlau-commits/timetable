@@ -18,7 +18,10 @@ export default class CampusCard extends Feature {
     this.wakeLock = null;
     this.reader = new BarcodeReader();
     this.photos = ui.filePicker('image/*');
-    this.add('home.side', { order: 10, render: () => this.homeCard() });
+    this.add('home.widgets', {
+      id: 'campus-card', label: 'Campus card', order: 30, sizes: ['tall', 'wide'],
+      render: (size) => this.homeCard(size === 'wide'),
+    });
     this.add('more.items', {
       id: 'campus-card',
       label: 'Campus card',
@@ -34,20 +37,21 @@ export default class CampusCard extends Feature {
   }
 
   // On Home: a narrow card with the barcode drawn down it, the number, and a Tap button under
-  // them. Tapping anywhere on it opens the full card.
-  homeCard() {
+  // them; or, as a wide strip, the barcode across with the number beside it. Tapping anywhere
+  // on it opens the full card.
+  homeCard(wide = false) {
     const c = this.card;
     if (!c) {
-      return el('button', { type: 'button', class: 'missing cc-home', onclick: () => this.openWindow() },
+      return el('button', { type: 'button', class: `missing cc-home${wide ? ' cc-wide' : ''}`, onclick: () => this.openWindow() },
         el('b', {}, 'Missing content'), el('span', {}, 'Tap to add your campus card'));
     }
     let code;
     try {
-      code = barcodeSVG(c.format, c.value, { vertical: true });
+      code = barcodeSVG(c.format, c.value, { vertical: !wide });
     } catch {
       code = ui.hint('Scan the card again', { small: true });
     }
-    return el('button', { type: 'button', class: 'cc-home', 'aria-label': 'Campus card: open the barcode for scanning', onclick: () => this.openWindow() },
+    return el('button', { type: 'button', class: `cc-home${wide ? ' cc-wide' : ''}`, 'aria-label': 'Campus card: open the barcode for scanning', onclick: () => this.openWindow() },
       el('span', { class: 'cc-code' }, code),
       el('span', { class: 'cc-number' }, this.printedNumber(c)),
       el('span', { class: 'cc-tap', 'aria-hidden': 'true' }, 'Tap'));

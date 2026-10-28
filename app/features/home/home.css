@@ -84,16 +84,38 @@
   .home-track, .home-dot, .home-photo { transition: none; }
 }
 
-/* Below the pages: the full-width cards, then the pair filling the rest of the screen. */
+/* Below the pages: the widgets, on a grid 3 columns wide filling the rest of the screen (the
+   rows are set by Home.js, as many as fit; see grid.js). Each widget fills its space. */
 .view-home .page-body { padding-bottom: 16px; }
-.home-top { display: grid; gap: 12px; margin-bottom: 16px; }
-.home-top:empty { display: none; }
-.home-pair { flex: 1; min-height: 220px; display: flex; gap: 12px; } /* on a very short screen, Home scrolls after all */
-.home-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 12px; }
-.home-side { width: 104px; flex: none; display: flex; flex-direction: column; gap: 12px; }
-.home-main > *, .home-side > * { min-height: 0; }
-.home-main > .missing, .home-side > .missing { flex: 1; }
-.home-side > .missing { padding: 12px; }
+.home-grid {
+  flex: 1;
+  min-height: 272px; /* 4 rows: on a very short screen, Home scrolls after all */
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.home-widget { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.home-widget > * { flex: 1; min-height: 0; }
+.home-nothing { grid-column: 1 / -1; grid-row: 1 / -1; }
+
+/* Small buttons at the right of the dots (home.tools), such as Customise Home's pencil. The dots'
+   row stays even with one page, so the buttons have somewhere to sit. */
+.home-pager.has-tools .home-dots[hidden] { display: flex !important; visibility: hidden; }
+.home-tools { position: absolute; right: var(--gutter); bottom: -9px; display: flex; gap: 6px; }
+.home-tool {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--shape-sm);
+  background: var(--on-top-fill);
+  color: var(--on-top-muted);
+  cursor: pointer;
+}
+.home-tool svg { width: 16px; height: 16px; }
+.home-tool:focus-visible { outline: 2px solid var(--on-top); outline-offset: 2px; }
 .home-clock small { margin-left: 6px; font-size: 0.25em; letter-spacing: 0; vertical-align: 0.15em; }
 
 /* While Home is open, the screen doesn't scroll: the cards at the bottom fill the space between

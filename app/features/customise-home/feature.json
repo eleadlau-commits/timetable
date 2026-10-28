@@ -1,0 +1,8 @@
+{
+  "name": "Customise Home",
+  "description": "Choose Home's photo, and which pages and cards it shows, in what order.",
+  "version": "1.0.0",
+  "main": "CustomiseHome.js",
+  "styles": ["style.css"],
+  "requires": ["home"]
+}

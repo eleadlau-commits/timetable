@@ -34,6 +34,24 @@ export default class Todo extends Feature {
           el('p', { class: 'home-page-line' }, dueTodayText(dueToday(this.items).length))),
         el('button', { type: 'button', class: 'home-button', onclick: () => this.open() }, el('b', {}, 'Open'), ui.icon('right'))),
     });
+    // On Home, if someone adds it there (Customise Home): off until then.
+    this.add('home.widgets', {
+      id: 'todo', label: 'To-do list', order: 50, sizes: ['tall', 'wide'], start: false,
+      render: (size) => this.widget(size),
+    });
+  }
+
+  // The Home widget: how many are due today, then the to-dos still to do, soonest first.
+  // Tap it to open the list.
+  widget(size) {
+    const today = new Date();
+    const due = dueToday(this.items, today).length;
+    const open = sortItems(this.items.filter((item) => !item.done)).slice(0, 6);
+    return el('button', { type: 'button', class: `todo-widget todo-${size}`, 'aria-label': `To-do list, ${dueTodayText(due).toLowerCase()}. Open`, onclick: () => this.open() },
+      el('span', { class: 'todo-widget-head' }, el('b', {}, 'To-do'), el('span', {}, dueTodayText(due))),
+      open.length
+        ? el('ul', { class: 'todo-widget-list' }, open.map((item) => el('li', { class: isOverdue(item, today) ? 'overdue' : '' }, item.text)))
+        : el('span', { class: 'todo-widget-empty' }, 'Nothing to do. Tap to add something.'));
   }
 
   save() {

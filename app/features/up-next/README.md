@@ -4,7 +4,7 @@ What's coming up, on the **Home** tab.
 
 ## What it adds
 
-- **Today's lectures**, in the large card on Home (`home.main`): the class on now (*Now · until 10:00*) or the next one (*Up next · in 47 min*) in full, with its time, type and room. Then the rest of the day, each one fainter than the one before (three steps). Classes already over are left out. Tap any class for its details.
+- **Today's lectures**, a widget on Home (`home.widgets`) in three sizes: **large** (the usual one, described here), **tall** (the same list in a narrow column) and **wide** (a strip with only the class on now or the next one). In the large card: the class on now (*Now · until 10:00*) or the next one (*Up next · in 47 min*) in full, with its time, type and room. Then the rest of the day, each one fainter than the one before (three steps). Classes already over are left out. Tap any class for its details.
 - **Everything fits without scrolling.** If the lectures don't fit, the card squeezes them a step at a time: first each later lecture goes on one line (start time and name), then the first one gets smaller, then it drops its type and room line.
 - A day with nothing on, and the end of the day (*That's all for today.*), have their own message. Without a timetable the card shows **Missing content**.
 

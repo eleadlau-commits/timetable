@@ -2,7 +2,7 @@
   "id": "timetable",
   "name": "Mobile Durham",
   "description": "Your Durham timetable, to-dos, library and campus card on your phone.",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "lang": "en",
   "theme": {
     "accent": "#6b3fa0",

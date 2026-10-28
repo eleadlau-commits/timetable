@@ -4,7 +4,7 @@ How busy Bill Bryson Library is right now, with free seats on each floor. It rea
 
 ## What it adds
 
-- **A thin row on Home** (`home.top`): *Library*, the free seats and the bar, all in one row (the bar's colour shows how busy it is). Tap it to open the pop-up below. Before the first reading it shows the same **Missing content** box as the Study tab.
+- **A widget on Home** (`home.widgets`), in two sizes: **wide** (the usual one, a thin row with *Library*, the free seats and the bar, all in one row; the bar's colour shows how busy it is) or **tall** (the free seats in big numbers, how busy it is and the bar). Tap it to open the pop-up below. Before the first reading it shows the same **Missing content** box as the Study tab.
 - **A small folded bar on the Study tab** (`study.cards`): *Bill Bryson Library*, how busy it is (*Plenty of seats*, *Fairly busy*, *Busy*, *Full*, the same bands as the library's page; green, orange, then red for busy and full), the free seats, and a bar that fills up as the library fills up, with a dotted line for the free part. Tap it to open the pop-up below. When there are no numbers yet it shows **Missing content** with the reason (for example, that the web version needs the relay).
 - **The same folded bar on the Study tab** (`study.cards`), called *Bill Bryson Library*.
 - **A full-screen pop-up** when either bar is tapped: how busy it is, free seats on each floor with a small bar, the areas of floors that have more than one (e.g. `North 52 · East 1`), when it was last checked, a refresh button and a link to the library's page.

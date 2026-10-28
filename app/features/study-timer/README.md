@@ -5,6 +5,7 @@ A study timer on the **Study** tab. Build a pattern of study and rest blocks, ru
 ## What it adds
 
 - **A card on the Study tab** (`study.cards`, under the library bar): *Study timer*, how long you've studied today, how far you are towards your weekly goal (if you've set one) and a **Start** button. While a timer runs, it shows the time left and whether it's study or rest. Tap it to open the pop-up.
+- **A widget for Home** (`home.widgets`, off until someone adds it with Customise Home), in two sizes: **wide** (the same card as on Study) or **tall** (the title, the Start or Open button and the time stacked). While a timer runs it counts down there too.
 - **The pop-up** (full screen):
   1. **Build a pattern.** A strip of blocks whose widths show their lengths: study blocks in the accent colour (or the module's colour), rest blocks pale. **+ Study** and **+ Rest** add blocks. Drag a block's right edge to make it longer or shorter, in 5-minute steps; tap a block to type an exact length (1–240 minutes) or delete it. **Repeat ×N** repeats the whole strip. Start from a preset (*Simple hour*: study 60; *Pomodoro*: study 25, rest 5, ×4; *Long focus*: study 50, rest 10) or a pattern you saved with **Save this pattern**. Choose a **module** from your timetable, or none. Then **Start**.
   2. **The running timer.** A big countdown, and the strip with a marker moving along it. **Pause** / **Resume**, **Skip** (to the next block) and **Stop**. Blocks carry on into the next one by themselves.
