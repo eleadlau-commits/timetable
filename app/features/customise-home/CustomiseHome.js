@@ -93,6 +93,7 @@ export default class CustomiseHome extends Feature {
   change(list) {
     if (!this.home.fits(list)) {
       this.message.textContent = NO_ROOM;
+      this.message.scrollIntoView({ block: 'center', behavior: 'smooth' }); // next to the picture of the grid
       return;
     }
     this.widgets = list;

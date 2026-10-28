@@ -55,6 +55,21 @@ export default class Spots extends Feature {
             el('b', {}, 'Open Spots'), ui.icon('right')));
       },
     });
+    // On Home, if someone adds it there (Customise Home): off until then.
+    this.add('home.widgets', {
+      id: 'student-deals', label: 'Student deals', order: 60, sizes: ['wide', 'tall'], start: false,
+      render: (size) => this.dealsWidget(size),
+    });
+  }
+
+  // The Home widget: the student deals on now (place and deal). Tap it to open Spots.
+  dealsWidget(size) {
+    const deals = this.deals().slice(0, 4);
+    return el('button', { type: 'button', class: `spot-widget spot-widget-${size}`, 'aria-label': 'Student deals. Open Spots', onclick: () => this.app.shell.selectView('spots') },
+      el('b', {}, 'Student deals'),
+      deals.length
+        ? el('ul', {}, deals.map((place) => el('li', {}, el('span', { class: 'spot-widget-name' }, place.name), el('span', { class: 'spot-widget-deal' }, place.deal))))
+        : el('span', { class: 'spot-widget-empty' }, 'No deals on right now.'));
   }
 
   // ---- Where the places come from ----

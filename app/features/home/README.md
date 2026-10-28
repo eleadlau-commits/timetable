@@ -26,7 +26,7 @@ Slots, each item `{ order, render() → element, or null to show nothing }`:
 | Slot | Where | Used by |
 |---|---|---|
 | `home.pages` | More pages at the top, after the clock. Item `{ id, order, render() }`. One short row: use `home-page-row`, `home-page-title`, `home-page-line` and `home-button`. | To-do list (Plan Today, order 5), Spots (Explore, order 10), Journey (Plan a journey, order 20) |
-| `home.widgets` | Widgets on the grid. Item `{ id, label, order, sizes, start?, render(size) }`: `sizes` lists the sizes it can be drawn in (`'wide'`, `'tall'`, `'large'`), the first being how it starts out; `start: false` leaves it off Home until someone adds it; `render(size)` returns an element that fills the space, or null for nothing. | Library (wide, tall), Up next (large, tall, wide), Campus card (tall, wide) |
+| `home.widgets` | Widgets on the grid. Item `{ id, label, order, sizes, start?, render(size) }`: `sizes` lists the sizes it can be drawn in (`'wide'`, `'tall'`, `'large'`), the first being how it starts out; `start: false` leaves it off Home until someone adds it; `render(size)` returns an element that fills the space, or null for nothing. | Library (wide, tall), Up next (large, tall, wide), Campus card (tall, wide); off until added: Study timer (wide, tall), To-do list (tall, wide), Student deals (wide, tall) |
 | `home.layout` | The person's choices. Only the first item is used. Item `{ widgets() → [{ id, size }] or undefined for the usual ones, photo() → an address or undefined for Home's own }`. | Customise Home |
 | `home.tools` | Small buttons on the dark area, at the right of the dots. Item `{ id, label, icon, order, onClick() }`. | Customise Home (the pencil) |
 

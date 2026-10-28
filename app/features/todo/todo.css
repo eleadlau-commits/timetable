@@ -65,3 +65,30 @@
 .todo-form-row { display: flex; gap: 8px; }
 .todo-form-row > * { flex: 1; min-width: 0; }
 .todo-field { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+
+/* The to-do widget on Home (Customise Home): the count due today, then the to-dos still to do. */
+.todo-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--shape);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+}
+.todo-widget:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.todo-widget-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.todo-widget-head b { font-size: 15px; font-weight: 600; }
+.todo-widget-head span { font-size: 12px; color: var(--muted); }
+.todo-widget-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; min-height: 0; }
+.todo-widget-list li { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-top: 4px; border-top: 1px solid var(--line); }
+.todo-widget-list li.overdue { color: var(--danger); }
+.todo-widget-empty { font-size: 13px; color: var(--muted); }
+.todo-widget.todo-wide { justify-content: center; gap: 2px; padding: 8px 16px; }
+.todo-wide .todo-widget-list li:nth-child(n+2) { display: none; }
+.todo-wide .todo-widget-list li { border-top: 0; padding-top: 0; }

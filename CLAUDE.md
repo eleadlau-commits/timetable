@@ -41,7 +41,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `customise-home` | Customise Home: the pencil on Home and Settings → Home; add, remove, resize and reorder widgets (says when there's no room), and choose the photo (Durham or your own); saved on the phone only | home | home.layout, home.tools, settings | |
 | `journey` | The Plan your journey page on Home; says "coming soon" for now | (home) | home.pages | |
 | `study` | The Study tab | | views | slot `study.cards` |
-| `study-timer` | The Study timer card on Study: build a pattern of study and rest blocks, run it (keeps time from the clock; notifications in the phone apps), this week's hours by module and a weekly goal; saved on the phone only | (study, sessions) | study.cards, settings | |
+| `study-timer` | The Study timer card on Study (and a wide or tall widget people can add to Home): build a pattern of study and rest blocks, run it (keeps time from the clock; notifications in the phone apps), this week's hours by module and a weekly goal; saved on the phone only | (study, sessions) | study.cards, home.widgets, settings | |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
 | `library` | How busy Bill Bryson Library is: a wide or tall widget on Home, a folded bar on Study, free seats per floor in a full-screen pop-up | (web-relay, home, study) | home.widgets, study.cards, settings | |
 | `link-backup` | Backs up the timetable link to your private area while signed in; brings it back on a new phone | account, timetable | account.sections, timetable.setup | |
@@ -52,9 +52,9 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `more` | The More tab: cards with a dark bar along the bottom (just the campus card for now) | | views | slot `more.items` |
 | `notes` | Notes on sessions | sessions | session.card/details | |
 | `reminders` | Class and personal reminders | sessions | menu, session.details | |
-| `spots` | The Spots tab: Student deals, then Cafés, Pubs and Clubs cards (each opens its places, or says coming soon), and the Explore page on Home | | views, home.pages | slot `spots.places` |
+| `spots` | The Spots tab: Student deals, then Cafés, Pubs and Clubs cards (each opens its places, or says coming soon), the Explore page on Home, and a Student deals widget people can add to Home | | views, home.pages, home.widgets | slot `spots.places` |
 | `listings` | The places on Spots (cafés, pubs, clubs and their student deals) from the database's `spots` collection, edited by the team in the Firebase console; kept on the phone, fetched again after 6 hours | account (spots) | spots.places | |
-| `todo` | To-do list pop-up with tags, due dates and "Due today"; the Plan Today page on Home (with how many are due today) | (home) | home.pages | |
+| `todo` | To-do list pop-up with tags, due dates and "Due today"; the Plan Today page on Home (with how many are due today), and a To-do widget people can add to Home | (home) | home.pages, home.widgets | |
 | `up-next` | Today's lectures on Home (large, tall or wide widget), squeezed to fit without scrolling | sessions (timetable, home) | home.widgets | |
 | `upcoming` | Next four weeks (view id `agenda`); the Planner's list button | sessions (planner) | planner.views | |
 | `week-view` | Week grid | sessions (day-view, planner) | planner.views | |

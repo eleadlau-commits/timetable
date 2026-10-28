@@ -7,7 +7,7 @@ Lets people choose **Home's widgets and photo**. Home itself stays the same at t
 - **A pencil** on Home, at the right of the dots under the clock (Home's `home.tools` slot), and a **Home** section in Settings with a **Customise** button. Both open the **Customise Home** pop-up:
   - **Photo:** Durham (Home's own) or **your own**. Tap *Choose your own* to pick a photo from the phone. It's shrunk (at most 1400 px across, a JPEG) and saved on this phone only. *Choose a different photo* swaps it.
   - **Your Home:** a small picture of Home's grid, with the widgets where they go and the **free space** left (worked out for this phone's height). Then each widget on Home with its **sizes** (Wide, Tall, Large, each with a little drawing of its shape; tap one to change size), **up and down** buttons to move it and **×** to remove it.
-  - **Add a widget:** the widgets not on Home, each with its sizes. Tap a size to add it at the end.
+  - **Add a widget:** the widgets not on Home, each with its sizes, including ones from other tabs that start off Home (the study timer, the to-do list and student deals). Tap a size to add it at the end.
   - If a change won't fit, nothing changes and it says **"No room for this. Remove a widget or pick a smaller size."** Sizes that won't fit are shown faded.
   - **Back to the original** puts the usual widgets and the Durham photo back.
 - Home asks for the choices through its `home.layout` slot. Without this feature, Home shows its usual widgets and photo.

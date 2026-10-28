@@ -5,6 +5,7 @@ A list of things to do, with tags and due dates. Saved on this phone only.
 ## What it adds
 
 - **The Plan Today page on Home** (slot `home.pages`, order 5, so it comes straight after the clock): the title *Plan Today*, how many unticked to-dos are due today under it (*Nothing due today*, *1 thing due today*, *3 things due today*), and an outlined **Open** button on the right that opens the list. It changes as soon as a to-do is added, ticked or changed, and when the day changes.
+- **A To-do widget for Home** (`home.widgets`, off until someone adds it with Customise Home), in two sizes: **tall** (*To-do*, how many are due today, then up to six to-dos still to do, soonest first, overdue ones in red) or **wide** (the count and the first one). Tap it to open the list.
 - Both open the **To-do list pop-up**:
   - **Due today** at the top: the unticked to-dos due today, whichever tag is chosen. Tick or delete them right there. (They're in the full list below too.)
   - **Tags along the top** to filter by: *All*, then each tag (*Academic* and *Society* to start with), then **+ Add tag**. Pick a tag to see **Rename tag** and **Delete tag** under the tags. Deleting a tag keeps its to-dos, just without a tag.

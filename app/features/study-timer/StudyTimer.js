@@ -48,12 +48,17 @@ export default class StudyTimer extends Feature {
     this.goal = this.storage.get('goal', 0);
     this.lastIndex = this.run ? position(this.run, Date.now()).index : -1;
     this.naming = false;
-    this.card = null;
+    this.cards = []; // the cards on screen (Study, and Home if it's a widget there): { card, time, what }
     this.live = null;
     this.timer = 0;
     this.channelMade = false;
 
     this.add('study.cards', { order: 20, render: () => this.drawCard() });
+    // On Home too, if someone adds it there (Customise Home): off until then.
+    this.add('home.widgets', {
+      id: 'study-timer', label: 'Study timer', order: 40, sizes: ['wide', 'tall'], start: false,
+      render: (size) => this.drawCard(size),
+    });
     this.add('settings', { id: 'study-timer', title: 'Study timer', order: 72, render: () => this.goalField() });
     this.on('app:resume', () => this.tick());
     this.on('app:ready', () => this.tick());
@@ -210,7 +215,8 @@ export default class StudyTimer extends Feature {
 
   // ---- The card on the Study tab ----
 
-  drawCard() {
+  // The card: on the Study tab, or on Home as a 'wide' or 'tall' widget.
+  drawCard(size = null) {
     const now = Date.now();
     const p = this.run && position(this.run, now);
     const time = el('b', { class: 'stt-card-time' });
@@ -224,8 +230,8 @@ export default class StudyTimer extends Feature {
     const goal = this.goal * 60 * MINUTE;
     // Tapping anywhere on the card opens the timer. For keyboards and screen readers the title is
     // the button, because a card that is itself a button can't hold the Start/Open button.
-    this.card = el('div', {
-      class: `stt-card${p ? ' on' : ''}`,
+    const card = el('div', {
+      class: `stt-card${p ? ' on' : ''}${size ? ` stt-home stt-${size}` : ''}`,
       style: p ? this.colourStyle(this.run.module) : '',
       onclick: open,
     },
@@ -237,16 +243,17 @@ export default class StudyTimer extends Feature {
         ? el('div', { class: 'stt-card-run' }, time, what)
         : el('div', { class: 'stt-card-sub' }, `Today ${formatStudied(today)}`, goal ? ` · This week ${formatStudied(week)} of ${formatMinutes(this.goal * 60)}` : ''),
       goal && !p ? this.goalBar(week, goal) : null);
-    this.cardParts = { time, what };
+    this.cards = [...this.cards.filter((c) => c.card.isConnected), { card, time, what }];
     if (p) this.updateCard(p);
-    return this.card;
+    return card;
   }
 
   updateCard(p) {
-    if (!this.card?.isConnected || !this.cardParts) return;
-    this.cardParts.time.textContent = formatClock(p.left);
     const info = this.moduleInfo(this.run.module);
-    this.cardParts.what.textContent = `left of this ${p.block.kind === 'study' ? 'study' : 'rest'} block${this.run.module ? ` · ${info.label}` : ''}`;
+    for (const { time, what } of this.cards) {
+      time.textContent = formatClock(p.left);
+      what.textContent = `left of this ${p.block.kind === 'study' ? 'study' : 'rest'} block${this.run.module ? ` · ${info.label}` : ''}`;
+    }
   }
 
   // Study time done so far in the running session (it's added to the history when it ends).
