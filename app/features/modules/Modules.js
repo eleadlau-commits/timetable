@@ -27,7 +27,13 @@ export default class Modules extends Feature {
     this.add('planner.buttons', {
       order: 10,
       render: () => this.sessions.all.length > 0
-        && el('button', { type: 'button', class: 'btn small', onclick: () => this.openList() }, ui.icon('palette'), 'Modules: colours and names'),
+        && el('button', {
+          type: 'button',
+          class: 'icon-btn',
+          title: 'Modules: colours and names',
+          'aria-label': 'Modules: colours and names',
+          onclick: () => this.openList(),
+        }, ui.icon('palette')),
     });
     this.add('settings', {
       id: 'modules',

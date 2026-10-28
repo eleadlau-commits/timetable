@@ -35,3 +35,56 @@
 .dayhead h2 { font-size: 18px; }
 .dayhead h2 span { color: var(--muted); font-weight: 500; }
 .day-list { min-height: 45vh; }
+
+/* The timeline: hours down the left, sessions placed at their times. Cards have no coloured
+   edges; each is tinted in its module's colour, like session cards. */
+.tl-allday { display: grid; gap: 8px; margin-bottom: 12px; }
+.tl {
+  position: relative;
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  margin: 8px 0 12px;
+}
+.tl-hours { position: relative; }
+.tl-hour {
+  position: absolute;
+  right: 8px;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tl-area {
+  position: relative;
+  border-radius: var(--shape);
+  background-color: var(--surface);
+  background-image: repeating-linear-gradient(to bottom, var(--line) 0 1px, transparent 1px 76px);
+}
+.tl-blk {
+  position: absolute;
+  left: calc(var(--lane) * 100% / var(--lanes));
+  width: calc(100% / var(--lanes) - 6px);
+  margin-left: 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px 10px;
+  border-radius: var(--shape-sm);
+  background: hsl(var(--h) var(--card-s) var(--blk-day-l, 91%));
+  overflow: hidden;
+  cursor: pointer;
+}
+.tl-blk > * { flex: none; }
+.tl-blk.short { flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: 8px; padding-top: 4px; }
+.tl-blk.past { opacity: 0.6; }
+.tl-blk.cancelled .title-text { text-decoration: line-through; }
+.tl-title { max-width: 100%; font-weight: 650; font-size: 15px; line-height: 1.25; }
+.tl-title .title-text { overflow-wrap: break-word; }
+.tl-meta { max-width: 100%; color: var(--muted); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.tl-blk .meta { margin-top: 0; font-size: 13px; }
+.tl-blk .pill { margin-top: 2px; }
+.tl .now-line { position: absolute; left: 0; right: 0; height: 2px; background: var(--danger); z-index: 2; pointer-events: none; }
+.tl .now-line::before { content: ""; position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+@media (prefers-color-scheme: dark) { :root { --blk-day-l: 22%; } }

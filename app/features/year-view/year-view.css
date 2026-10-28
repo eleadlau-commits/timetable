@@ -1,0 +1,44 @@
+/* Year view: twelve small months. */
+.yearhead { display: flex; align-items: center; gap: 4px; margin-bottom: 8px; }
+.yearhead h2 { flex: 1; font-size: 18px; }
+.yr-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 8px;
+  border-radius: var(--shape);
+  background: var(--surface);
+}
+.yr-month {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 4px 8px;
+  border: 0;
+  border-radius: var(--shape-sm);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.yr-month:hover { background: var(--surface-2); }
+.yr-month > b { padding-left: 2px; font-size: 14px; font-weight: 650; }
+.yr-month.now > b { color: var(--accent); }
+.yr-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  row-gap: 2px;
+  font-size: 8.5px;
+  font-weight: 500;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.yr-days span { line-height: 14px; opacity: .55; }
+.yr-days span.busy { color: var(--text); font-weight: 700; opacity: 1; }
+.yr-days span.today { justify-self: center; width: 14px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); opacity: 1; }
+.yr-key { display: flex; gap: 16px; margin: 12px 4px 0; font-size: 13px; color: var(--muted); }
+.yr-key i { display: inline-block; width: 8px; height: 8px; margin-right: 6px; border-radius: 50%; vertical-align: 1px; }
+.yr-key i.busy { background: var(--text); }
+.yr-key i.today { background: var(--accent); }

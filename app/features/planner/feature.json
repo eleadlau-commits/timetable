@@ -1,7 +1,8 @@
 {
   "name": "Planner",
-  "description": "The Planner tab: Day, Week and Upcoming in one place.",
-  "version": "1.0.0",
+  "description": "The Planner tab: one calendar you zoom in and out of (Year, Month, Week, Day), plus Upcoming.",
+  "version": "2.0.0",
   "main": "Planner.js",
-  "styles": ["planner.css"]
+  "styles": ["planner.css"],
+  "uses": ["sessions"]
 }
