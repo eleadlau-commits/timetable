@@ -169,7 +169,10 @@ jobs:
         run: |
           fingerprint() { grep -m1 'SHA256:' | sed -E 's/.*SHA256: *//' | tr -d ': ' ; }
           SAVED=$(keytool -list -v -keystore signing/debug.keystore -storepass android | fingerprint)
-          APK=$(keytool -printcert -jarfile dist/android/app/build/outputs/apk/debug/app-debug.apk | fingerprint)
+          # apksigner, not keytool: from Android 7 (minSdkVersion 24) the APK only has the newer
+          # signature, which keytool can't read.
+          APKSIGNER=$(ls -d "$ANDROID_HOME"/build-tools/*/ | sort -V | tail -n 1)apksigner
+          APK=$("$APKSIGNER" verify --print-certs dist/android/app/build/outputs/apk/debug/app-debug.apk | grep -m1 'certificate SHA-256 digest:' | sed -E 's/.*digest: *//' | tr 'a-f' 'A-F')
           echo "Saved key: $SAVED"
           echo "APK key:   $APK"
           if [ -z "$SAVED" ] || [ "$SAVED" != "$APK" ]; then
