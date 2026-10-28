@@ -20,7 +20,8 @@ The owner isn't a developer. They describe what they want, and Claude builds it.
 5. **Write tests** for rules in `tests/*.test.js`. Keep rules in small files without screen code so they're testable.
 6. **Run `python build.py test`** and fix everything before handing over. It includes the delete-a-folder test. If you changed `firebase/firestore.rules`, also run `npm test` in `firebase/` (needs Java).
 7. **Check it in a browser** with `python build.py serve --test`, which uses the sample data in `app/tests/seed.js`.
-8. **Update the docs:** the feature's `README.md`, the table below, and `README.md` for anything people see.
+8. **Offer a Home widget** for anything with a card or something to glance at: add to `home.widgets` with `sizes` (at least `'wide'` and `'tall'`), `start: false` (so it's off until someone adds it in Customise Home) and `render(size)` filling its space. See `app/features/home/README.md`.
+9. **Update the docs:** the feature's `README.md`, the table below, and `README.md` for anything people see.
 
 ## Features
 
