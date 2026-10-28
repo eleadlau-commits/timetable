@@ -29,7 +29,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | Feature | What it does | Requires (uses) | Adds to | Offers |
 |---|---|---|---|---|
 | `account` | The account page (from the account button and the menu); signing in with Google through Firebase (web: Google's window; Android: Google's own sign-in); privacy notice; Delete my account removes all online data | | account | service `account`; slots `account.sections`, `account.cleanup`; event `account:changed` |
-| `campus-card` | Scan and show the campus card barcode | | home.side, more.items | |
+| `campus-card` | Scan and show the campus card barcode; tall or wide widget on Home | | home.widgets, more.items | |
 | `timetable` | Loads and saves the timetable, setup screen, the Planner's refresh button | | status, planner.actions, settings | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
 | `sessions` | Session cards and the details window; calendar grid rules (`layout.js`) | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
 | `planner` | The Planner tab: one calendar you zoom in and out of (Year → Month → Week → Day; tap, the purple zoom-out label, pinch, or the Y M W D switch), Upcoming as a list button; opens on today's Day each time the app starts | (sessions) | views | service `planner` (`zoomIn/zoomOut/show`); slots `planner.views` (with `zoom`, `short`, `crumb`), `planner.actions`, `planner.buttons` |
@@ -37,12 +37,13 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
 | `friends` | Swap timetables with friends: friend codes, requests, accept/remove, friends' timetables (grey or tinted), Free/Busy | account (sessions) | header.actions, account.sections, account.cleanup | |
 | `help` | Help and Feedback in the menu; both say "coming soon" for now | | menu | |
-| `home` | The Home tab: small swipeable pages on the dark area (date and clock first) over a Durham photo, then cards filling the screen without scrolling; the app opens on it | | views | slots `home.pages/top/main/side` |
+| `home` | The Home tab: small swipeable pages on the dark area (date and clock first) over a Durham photo, then widgets on a 3-column grid (`grid.js`: wide, tall and large sizes) filling the screen without scrolling; the app opens on it | | views | service `home`; slots `home.pages/widgets/layout/tools` |
+| `customise-home` | Customise Home: the pencil on Home and Settings → Home; add, remove, resize and reorder widgets (says when there's no room), and choose the photo (Durham or your own); saved on the phone only | home | home.layout, home.tools, settings | |
 | `journey` | The Plan your journey page on Home; says "coming soon" for now | (home) | home.pages | |
 | `study` | The Study tab | | views | slot `study.cards` |
 | `study-timer` | The Study timer card on Study: build a pattern of study and rest blocks, run it (keeps time from the clock; notifications in the phone apps), this week's hours by module and a weekly goal; saved on the phone only | (study, sessions) | study.cards, settings | |
 | `web-relay` | Relay for the web version when downloads are blocked (web only) | timetable | timetable.fetch/explain, settings | service `relay` |
-| `library` | How busy Bill Bryson Library is: a thin row on Home, a folded bar on Study, free seats per floor in a full-screen pop-up | (web-relay, home, study) | home.top, study.cards, settings | |
+| `library` | How busy Bill Bryson Library is: a wide or tall widget on Home, a folded bar on Study, free seats per floor in a full-screen pop-up | (web-relay, home, study) | home.widgets, study.cards, settings | |
 | `link-backup` | Backs up the timetable link to your private area while signed in; brings it back on a new phone | account, timetable | account.sections, timetable.setup | |
 | `link-sharing` | QR code and Android share (web only) | timetable (web-relay) | timetable.setup/settings | |
 | `maps` | Building names, map preview, directions | sessions (durham-rooms) | session.location/details, settings | |
@@ -54,7 +55,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `spots` | The Spots tab: Student deals, then Cafés, Pubs and Clubs cards (each opens its places, or says coming soon), and the Explore page on Home | | views, home.pages | slot `spots.places` |
 | `listings` | The places on Spots (cafés, pubs, clubs and their student deals) from the database's `spots` collection, edited by the team in the Firebase console; kept on the phone, fetched again after 6 hours | account (spots) | spots.places | |
 | `todo` | To-do list pop-up with tags, due dates and "Due today"; the Plan Today page on Home (with how many are due today) | (home) | home.pages | |
-| `up-next` | Today's lectures on Home, squeezed to fit without scrolling | sessions (timetable, home) | home.main | |
+| `up-next` | Today's lectures on Home (large, tall or wide widget), squeezed to fit without scrolling | sessions (timetable, home) | home.widgets | |
 | `upcoming` | Next four weeks (view id `agenda`); the Planner's list button | sessions (planner) | planner.views | |
 | `week-view` | Week grid | sessions (day-view, planner) | planner.views | |
 | `year-view` | Year view: September–August, days with classes dark, tap a month | sessions (planner) | planner.views | |

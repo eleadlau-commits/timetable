@@ -43,3 +43,15 @@
 .un-card.tightest .un-where { display: none; }
 .un-card.tightest .un-later { padding-top: 4px; }
 .un-card.tightest .un-lead + .un-later { margin-top: 4px; }
+
+/* As a tall widget on Home: the same list, narrower. */
+.un-card.un-narrow { padding: 12px; }
+.un-card.un-narrow .un-name { font-size: 16px; }
+.un-card.un-narrow .un-line { font-size: 13px; }
+
+/* As a wide strip on Home: only the class on now or the next one. */
+.un-card.un-strip { justify-content: center; gap: 2px; padding: 8px 16px; cursor: pointer; }
+.un-strip-line { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.un-strip-name { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.un-strip-when { flex: none; font-size: 13px; color: var(--text-2); }
+.un-card.un-strip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

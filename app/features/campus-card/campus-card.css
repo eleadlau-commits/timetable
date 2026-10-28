@@ -44,3 +44,8 @@ button.missing.cc-home { flex: 1; background: transparent; text-align: left; }
   font-size: 14px;
   font-weight: 600;
 }
+
+/* As a wide strip on Home: the barcode across, the number under it. */
+.cc-home.cc-wide { flex-direction: column; justify-content: center; gap: 4px; padding: 8px 14px; }
+.cc-wide .cc-code { flex: 1 1 auto; min-height: 18px; max-height: 64px; padding: 4px 8px; }
+.cc-wide .cc-tap { display: none; }

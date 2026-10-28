@@ -15,7 +15,15 @@ export default class UpNext extends Feature {
   start() {
     this.sessions = this.use('sessions');
     this.timetable = this.use('timetable');
-    this.add('home.main', { order: 10, render: () => this.fit(this.dayCard(time.startOfDay(new Date()))) });
+    this.add('home.widgets', {
+      id: 'up-next', label: "Today's lectures", order: 20, sizes: ['large', 'tall', 'wide'],
+      render: (size) => {
+        if (size === 'wide') return this.strip();
+        const card = this.dayCard(time.startOfDay(new Date()));
+        if (size === 'tall') card.classList.add('un-narrow');
+        return this.fit(card);
+      },
+    });
   }
 
   // Squeezes the card until every lecture fits without scrolling, one step at a time: each
@@ -63,6 +71,25 @@ export default class UpNext extends Feature {
           el('span', {}, s.allDay ? 'All day' : time.formatTime(s.start)),
           s.location && el('span', { class: 'un-room' }, ` · ${s.location}`),
           s.cancelled && ' · Cancelled'))));
+  }
+
+  // As a wide strip on Home: only the class on now, or the next one.
+  strip() {
+    if (!this.hasTimetable) return ui.missing('Add your timetable to see your lectures here.', { class: 'missing un-card' });
+    const now = new Date();
+    const today = time.startOfDay(now);
+    const { lead, over } = dayPlan(this.sessions.onDay(today), now);
+    if (!lead) {
+      const message = over ? 'That\'s all for today.' : isWeekend(today) ? 'Nothing on, enjoy the weekend.' : 'No classes today.';
+      return el('article', { class: 'un-card un-strip' }, el('span', { class: 'un-label' }, 'Today'), el('span', { class: 'un-strip-name' }, message));
+    }
+    const label = isOn(lead, now) ? `Now · until ${time.formatTime(lead.end)}` : `Up next · ${time.inTime(lead.start - now)}`;
+    const place = this.sessions.placeLabel(lead.location);
+    return el('article', this.opens(lead, 'un-card un-strip'),
+      el('span', { class: 'un-label' }, label),
+      el('span', { class: 'un-strip-line' },
+        el('span', { class: 'un-strip-name' }, this.sessions.name(lead)),
+        el('span', { class: 'un-strip-when' }, [lead.allDay ? 'All day' : time.formatTime(lead.start), place].filter(Boolean).join(' · '))));
   }
 
   // Makes a row open the session's details when tapped.

@@ -23,7 +23,10 @@ export default class Library extends Feature {
     this.failed = null;
     this.tried = 0;
 
-    this.add('home.top', { order: 10, render: () => this.thin() });
+    this.add('home.widgets', {
+      id: 'library', label: 'Library', order: 10, sizes: ['wide', 'tall'],
+      render: (size) => (size === 'tall' ? this.tall() : this.thin()),
+    });
     this.add('study.cards', { order: 10, render: () => this.folded('Bill Bryson Library') });
     this.add('settings', { id: 'library', title: 'Library', order: 70, render: () => this.settingsSection() });
   }
@@ -104,6 +107,24 @@ export default class Library extends Feature {
     },
       el('b', {}, 'Library'),
       el('span', { class: 'lib-free' }, el('strong', {}, o.free), ' seats free'),
+      this.bar(o.free, o.seats));
+  }
+
+  // On Home, as a tall widget: the free seats in big numbers, how busy it is, and the bar.
+  tall() {
+    if (!this.show) return null;
+    const o = this.last?.occupancy;
+    if (!o) return this.folded('Library');
+    const band = busyness(o.free, o.seats);
+    return el('button', {
+      type: 'button',
+      class: 'lib-home lib-tall',
+      'aria-label': `Bill Bryson Library, ${band.label.toLowerCase()}, ${o.free} seats free. Show each floor`,
+      onclick: () => this.openWindow(),
+    },
+      el('b', {}, 'Library'),
+      el('span', { class: 'lib-big' }, el('strong', {}, o.free), el('span', {}, 'seats free')),
+      el('span', { class: `lib-tag ${band.id}` }, band.label),
       this.bar(o.free, o.seats));
   }
 
