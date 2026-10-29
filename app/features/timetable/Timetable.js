@@ -8,6 +8,7 @@
 //   load(link)      downloads and saves a timetable (throws an error that explain() describes)
 //   reload({ silent })    downloads it again from the saved link
 //   importFile()    lets the person choose an .ics file
+//   openSetup()     opens the setup screen (with Back to my timetable if there is one)
 //   prefill(link)   opens the setup screen with a link filled in
 //   typedLink       whatever is typed in the setup screen's link box
 //   clear()         removes the timetable from the device
@@ -21,6 +22,7 @@
 
 import { Feature, ui, time } from 'folio';
 import { parseICS, expandEvents } from './ics.js';
+import { INTRO, PRIVATE, steps } from './guide.js';
 
 const { el } = ui;
 const STALE_MS = 30 * time.MINUTE;
@@ -76,6 +78,7 @@ export default class Timetable extends Feature {
     this.add('header.status', { order: 10, text: () => this.statusText() });
     this.add('planner.actions', { order: 10, render: () => this.refreshButton() });
     this.add('settings', { id: 'timetable', title: 'Timetable', order: 10, render: () => this.settingsSection() });
+    this.addHelp();
 
     this.on('app:ready', () => {
       this.updateScreen();
@@ -275,12 +278,59 @@ export default class Timetable extends Feature {
     }, ui.icon('refresh'));
   }
 
+  // ---- Help ----
+
+  addHelp() {
+    const timetable = this;
+    this.add('help.questions', {
+      group: 'start', order: 10, page: true,
+      question: 'How do I connect my timetable?',
+      answer: () => [
+        INTRO,
+        steps('**Paste it into the app.** Tap the button below, paste the link and tap _Load timetable_.'),
+        el('p', {}, el('b', {}, 'Copied it on a computer?'),
+          ' Email or message the link to yourself, open it on your phone, then press and hold the link and choose ', el('i', {}, 'Copy'), '.'),
+        el('p', {}, el('b', {}, 'Got a file instead of a link?'), ' Import it on the setup screen. A file won\'t update by itself, so import it again when your timetable changes.'),
+        PRIVATE,
+      ],
+      action: {
+        get label() { return timetable.hasData ? 'Change my timetable link' : 'Set up my timetable'; },
+        run: () => this.openSetup(),
+      },
+    });
+    this.add('help.questions', {
+      group: 'timetable', order: 10,
+      question: 'How often does my timetable update?',
+      answer: () => [
+        'Whenever you open the app and your copy is more than 30 minutes old, it downloads it again from your link. To update it straight away, tap the round arrow on the Planner tab, next to "Updated … ago".',
+        'A timetable imported from a file doesn\'t update by itself. Import it again when it changes.',
+      ],
+    });
+    this.add('help.questions', {
+      group: 'timetable', order: 20,
+      question: 'My timetable looks wrong or out of date',
+      answer: () => [
+        'First, update it with the round arrow on the Planner tab. If it says it couldn\'t update, check you\'re online.',
+        'If the university gave you a new link, or you turned the export off and on again, the old link stops working. Paste the new one in Settings → Timetable.',
+        'Classes the university changes show up after the next update. The app shows what the university\'s calendar says.',
+      ],
+    });
+    this.add('help.questions', {
+      group: 'privacy', order: 10,
+      question: 'Who can see my timetable link?',
+      answer: () => [PRIVATE],
+    });
+  }
+
   // ---- Setup screen ----
 
   buildSetup() {
     const page = this.template('setup');
     const part = (name) => page.querySelector(`[data-part="${name}"]`);
     this.setupNode = page.querySelector('.setup');
+    part('intro').textContent = INTRO;
+    part('guide').replaceWith(steps());
+    part('private').textContent = PRIVATE;
     this.linkInput = part('link');
     this.received = part('received');
     this.loadButton = part('load');
@@ -321,6 +371,11 @@ export default class Timetable extends Feature {
   // Whatever is typed in the setup screen's link box.
   get typedLink() {
     return this.linkInput.value;
+  }
+
+  openSetup() {
+    this.showingSetup = true;
+    this.updateScreen();
   }
 
   // Opens the setup screen with a link filled in, e.g. one that arrived from another device.

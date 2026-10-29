@@ -24,6 +24,7 @@ const RESHARE = 12 * time.HOUR;
 
 export default class Friends extends Feature {
   start() {
+    this.addHelp();
     this.account = this.use('account');
     this.sessions = this.use('sessions');
     this.store = new FriendStore(this.account);
@@ -346,5 +347,21 @@ export default class Friends extends Feature {
         ? `Friends see you as ${profile.name}. Your code is ${profile.code}.`
         : 'Swap timetables with friends. Only people you\'ve asked or accepted can see yours.'),
       el('button', { type: 'button', class: 'btn small', onclick: () => this.open() }, 'Open Friends'));
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'friends', order: 10, question: 'How do I add a friend?', answer: () => [
+        'Sign in first. Then tap the Friends button (two people) at the top. Give a friend your friend code or show them your QR code, or type their code under Add a friend and send a request. There\'s no searching by name or email.',
+      ] },
+      { group: 'friends', order: 20, question: 'What can my friends see?', answer: () => [
+        'Your name for friends and your classes for the next 4 weeks, with their times and rooms. Never hidden modules, your own module names, notes, reminders, to-dos, your timetable link, your email or your picture.',
+        'When you send a request, they can see yours straight away. You see theirs once they accept.',
+      ] },
+      { group: 'friends', order: 30, question: 'How do I stop sharing with someone?', answer: () => [
+        'Open them in Friends and tap Remove. You both stop seeing each other\'s timetable straight away. For a request you sent, tap Cancel.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

@@ -38,6 +38,7 @@ const copy = (p) => ({ blocks: p.blocks.map((b) => ({ ...b })), repeat: p.repeat
 
 export default class StudyTimer extends Feature {
   start() {
+    this.addHelp();
     this.sessions = this.use('sessions');
     this.notifier = this.plugin('LocalNotifications'); // only in the phone apps
     this.draft = this.storage.get('draft', null) || copy(PRESETS[1]);
@@ -507,5 +508,15 @@ export default class StudyTimer extends Feature {
     },
       el('label', { class: 'label' }, 'Weekly goal (hours)'),
       el('div', { class: 'field' }, input, el('button', { type: 'submit', class: 'btn small' }, 'Save')));
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'study', order: 20, question: 'How does the study timer work?', answer: () => [
+        'On the Study tab, open Study timer. Build a pattern of study and rest blocks (or start from one like Pomodoro), choose a module if you like, and tap Start.',
+        'It keeps time even with the phone locked, and the phone apps send a notification at each change. Only study time counts towards your week.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

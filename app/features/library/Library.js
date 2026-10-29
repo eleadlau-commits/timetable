@@ -17,6 +17,7 @@ const FRESH = 5 * time.MINUTE;
 
 export default class Library extends Feature {
   start() {
+    this.addHelp();
     this.show = this.storage.get('show', true);
     this.last = this.storage.get('last', null);
     this.loading = false;
@@ -201,5 +202,14 @@ export default class Library extends Feature {
           this.refresh();
         },
       }));
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'study', order: 10, question: 'Where do the library numbers come from?', answer: () => [
+        'From the library\'s own page of free seats at Bill Bryson Library. The app checks it every 5 minutes while the numbers are on screen, and you can tap the bar to see each floor.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

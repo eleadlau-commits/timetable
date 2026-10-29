@@ -94,6 +94,7 @@ test('people who removed you are taken off your list', () => {
 test('problems are explained, with the database\'s code', () => {
   assert.match(explainProblem({ code: 'permission-denied' }), /rules may not be published.*\(permission-denied\)/);
   assert.match(explainProblem({ code: 'unavailable' }), /Couldn't reach.*\(unavailable\)/);
+  assert.match(explainProblem(new Error('unverified')), /Confirm your email/);
   assert.match(explainProblem(new Error('full')), /50 friends/);
   assert.match(explainProblem({ code: 'weird' }), /\(weird\)/);
   assert.match(explainProblem({ code: 'unavailable' }, false), /offline/);
