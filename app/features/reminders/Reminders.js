@@ -22,6 +22,7 @@ function notificationId(text) {
 
 export default class Reminders extends Feature {
   start() {
+    this.addHelp();
     this.sessions = this.use('sessions');
     this.notifier = this.plugin('LocalNotifications'); // only in the phone apps (Android and iPhone)
     this.lead = this.storage.get('lead', 0);
@@ -271,5 +272,15 @@ export default class Reminders extends Feature {
     this.renderList();
     await this.allowNotifications();
     this.toast(`Reminder set for ${time.formatDateTime(at)}`);
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'timetable', order: 30, question: 'Can I get a reminder before class?', answer: () => [
+        'Yes. Open Reminders in the menu and choose how long before each class, from 5 minutes to 2 hours. To change it for one class, tap the class. You can add your own reminders too, such as a deadline.',
+        'The phone apps send notifications even when the app is closed. The web version can only remind you while it\'s open.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

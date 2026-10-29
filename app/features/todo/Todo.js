@@ -19,6 +19,7 @@ const { el } = ui;
 
 export default class Todo extends Feature {
   start() {
+    this.addHelp();
     this.items = this.storage.get('items', []);
     this.tags = this.storage.get('tags', DEFAULT_TAGS);
     this.filter = 'all'; // 'all' or a tag id
@@ -270,5 +271,14 @@ export default class Todo extends Feature {
     el('div', { class: 'todo-form-row' },
       el('button', { type: 'submit', class: 'btn primary' }, 'Add'),
       el('button', { type: 'button', class: 'btn', onclick: () => { this.adding = false; this.render(); } }, 'Done')));
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'home', order: 30, question: 'Where\'s my to-do list?', answer: () => [
+        'On Home, swipe the dark area at the top to Plan Today and tap Open. You can also add a To-do widget to Home.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

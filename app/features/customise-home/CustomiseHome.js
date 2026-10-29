@@ -25,6 +25,7 @@ const PHOTO_SIZES = [[1400, 0.8], [1000, 0.72], [700, 0.65]]; // tried in turn u
 
 export default class CustomiseHome extends Feature {
   start() {
+    this.addHelp();
     this.home = this.use('home');
     this.widgets = cleanWidgets(this.storage.get('widgets', null));
     this.photo = PHOTOS.includes(this.storage.get('photo')) ? this.storage.get('photo') : 'durham';
@@ -217,6 +218,15 @@ export default class CustomiseHome extends Feature {
       el('ul', { class: 'ch-list' }, others.map((w) => el('li', { class: 'ch-row' },
         el('div', { class: 'ch-row-top' }, el('span', { class: 'ch-name' }, w.label)),
         this.sizeButtons(w, null)))));
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'home', order: 10, question: 'How do I change what\'s on Home?', answer: () => [
+        'Tap the pencil under the clock on Home, or Settings → Home → Customise. You can add, remove, move and resize widgets, and choose your own photo.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }
 

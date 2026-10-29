@@ -19,6 +19,7 @@ function buildingOf(location) {
 
 export default class Maps extends Feature {
   start() {
+    this.addHelp();
     this.sessions = this.use('sessions');
     this.places = this.use('places'); // null if Durham rooms isn't installed
     this.typedNames = this.storage.get('typed', {});
@@ -157,5 +158,14 @@ export default class Maps extends Feature {
       el('label', { class: 'label', for: 'maps-area' }, 'Area for map searches'),
       input,
       ui.hint('Added to map searches for buildings the app doesn\'t know, so Maps finds the right place.', { small: true }));
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'around', order: 10, question: 'How do I find my room?', answer: () => [
+        'Tap a class to see its building, street and a small map. Tap the location to open directions in Google Maps. If a building is missing or wrong, type the right name there and it\'s remembered.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

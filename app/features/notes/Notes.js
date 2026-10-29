@@ -9,6 +9,7 @@ const { el } = ui;
 
 export default class Notes extends Feature {
   start() {
+    this.addHelp();
     this.notes = this.storage.get('notes', {});
     this.importOldData();
 
@@ -59,5 +60,14 @@ export default class Notes extends Feature {
     if (text) this.notes[this.editing] = text;
     else delete this.notes[this.editing];
     this.storage.set('notes', this.notes);
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'timetable', order: 50, question: 'Can I add notes to a class?', answer: () => [
+        'Yes. Tap the class and type in Your notes. It saves as you type, and the first line shows on the class\'s card.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

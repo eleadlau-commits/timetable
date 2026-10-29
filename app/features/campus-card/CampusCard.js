@@ -11,6 +11,7 @@ const { el } = ui;
 
 export default class CampusCard extends Feature {
   start() {
+    this.addHelp();
     this.card = this.storage.get('card');
     this.importOldData();
     this.replacing = false;
@@ -282,5 +283,14 @@ export default class CampusCard extends Feature {
     } catch {
       this.wakeLock = null;
     }
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'home', order: 40, question: 'How do I add my campus card?', answer: () => [
+        'Tap the campus card on Home or on the More tab. Scan the barcode with the camera, choose a photo of it, or type the long number under the barcode. It\'s saved on this phone only.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

@@ -28,6 +28,7 @@ const SPOTS = [
 
 export default class Spots extends Feature {
   start() {
+    this.addHelp();
     this.defineSlot('spots.places',
       "Places on the Spots tab. Only the first item is used. Item: { places(kind) → [{ id, name, line?, deal?, until?, address?, link? }], deals() → places with a deal on now, update?() }, kind 'cafes', 'pubs' or 'clubs'.");
     this.add('views', {
@@ -144,5 +145,14 @@ export default class Spots extends Feature {
     this.window.setContent(places.length
       ? el('div', { class: 'spot-places' }, places.map((place) => this.place(place)))
       : ui.missing(`${spot.label} to show`));
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'around', order: 20, question: 'What\'s on Spots?', answer: () => [
+        'Cafés, pubs and clubs around Durham, with student deals on now at the top. We\'re adding places over time, and kinds with none yet say Coming soon.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

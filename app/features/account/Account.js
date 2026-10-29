@@ -37,6 +37,7 @@ const { el } = ui;
 
 export default class Account extends Feature {
   start() {
+    this.addHelp();
     this.user = this.storage.get('user', null);
     this.busy = false;
     this.error = null;
@@ -266,5 +267,23 @@ export default class Account extends Feature {
     const img = el('img', { class: 'account-avatar', src: u.photo, alt: '', referrerpolicy: 'no-referrer' });
     img.addEventListener('error', () => img.replaceWith(fallback()));
     return img;
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'account', order: 10, question: 'Do I need an account?', answer: () => [
+        'No. Everything works without one, and your things stay on your phone. An account lets you back up your timetable link and swap timetables with friends.',
+      ] },
+      { group: 'account', order: 20, question: 'How do I sign in?', answer: () => [
+        'Tap the person button at the top right, or Account in the menu, then Sign in with Google.',
+      ] },
+      { group: 'account', order: 90, question: 'How do I delete my account?', answer: () => [
+        'Open your account page and tap Delete my account at the bottom. Everything stored online is deleted straight away, then the account. What\'s on this phone stays until you remove the app.',
+      ] },
+      { group: 'privacy', order: 1, question: 'What do you do with my data?', answer: () => [
+        'Without an account, nothing leaves your phone. With one, only what\'s needed for backup and friends is stored, and never sold or used for adverts. The privacy notice explains it all.',
+      ], action: { label: 'Read the privacy notice', run: () => this.openPrivacy() } },
+    ]) this.add('help.questions', item);
   }
 }

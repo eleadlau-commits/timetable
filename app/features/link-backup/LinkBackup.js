@@ -21,6 +21,7 @@ const { el } = ui;
 
 export default class LinkBackup extends Feature {
   start() {
+    this.addHelp();
     this.account = this.use('account');
     this.timetable = this.use('timetable');
     this.enabled = this.storage.get('on', true);
@@ -159,5 +160,15 @@ export default class LinkBackup extends Feature {
     return el('div', {},
       el('b', {}, 'Used Mobile Durham on another phone?'), ' If you backed up your timetable there, sign in and it comes back.',
       el('button', { type: 'button', class: 'btn block', onclick: () => this.account.open() }, 'Sign in'));
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'account', order: 30, question: 'I\'ve got a new phone. How do I get my timetable back?', answer: () => [
+        'If you were signed in on your old phone, your timetable link was backed up. Sign in on the new phone with the same account and your timetable comes back. If it doesn\'t, tap Bring back my timetable on the account page.',
+        'Notes, to-dos, reminders and your campus card are kept on the phone only, so they don\'t move across.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }

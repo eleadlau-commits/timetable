@@ -10,6 +10,7 @@ const PALETTE = [0, 22, 42, 95, 140, 172, 198, 222, 255, 285, 320];
 
 export default class Modules extends Feature {
   start() {
+    this.addHelp();
     this.sessions = this.use('sessions');
     this.names = this.storage.get('names', {});
     this.colours = this.storage.get('colours', {});
@@ -192,5 +193,14 @@ export default class Modules extends Feature {
         this.changed();
       },
     }, o.auto ? 'A' : '')));
+  }
+
+  // Questions and answers for the Help page.
+  addHelp() {
+    for (const item of [
+      { group: 'timetable', order: 40, question: 'Can I rename, recolour or hide a module?', answer: () => [
+        'Yes. Tap the palette button next to the Planner\'s switch, or tap a class and choose Colour, name or hide this module. Hidden modules don\'t show and don\'t send reminders.',
+      ] },
+    ]) this.add('help.questions', item);
   }
 }
