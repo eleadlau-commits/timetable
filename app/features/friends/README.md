@@ -9,7 +9,7 @@ Swap timetables with friends. The **Friends** button (two people) in the top bar
 - **Asking you:** **Accept** or **Decline**. Tap the person to see their timetable first: you can already see theirs, because asking shares.
 - **Friends:** each with **Free** or **Busy** right now (e.g. *In MATH2031 Lecture until 11:00*, *Free until 14:00*). Tap one to see their timetable.
 - **Waiting for them:** your requests, with **Cancel**.
-- **Your name for friends:** your Google first name to start with; **Change** it on the Friends page. It's updated everywhere friends see it.
+- **Your name for friends:** your first name to start with (from Google, or the name you gave when creating an email account); **Change** it on the Friends page. It's updated everywhere friends see it.
 
 | | You see theirs? | They see yours? |
 |---|---|---|

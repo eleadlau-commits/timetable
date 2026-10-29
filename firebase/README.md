@@ -10,11 +10,11 @@ They allow:
 - **Shared timetables** (`shared/<you>`): only you can write yours. You, people you've asked, and friends can read it.
 - **Places on Spots** (`spots/<place>`): everyone can read the published ones (`published` is `true`), signed in or not, at most 100 at a time. Nobody can change them from the app. The team edits them in the Firebase console, which these rules don't apply to; see `app/features/listings/README.md` for how.
 
-Only Google sign-ins count, and everything must have exactly the right shape (names of 1–30 characters, links of at most 2,048 starting with `https://` or `webcal://`, times set by Firebase itself). The tests in `tests/` (`rules.test.mjs` for your private area, `friends.test.mjs` for friends, `spots.test.mjs` for the places on Spots) check each of these, including what must be refused.
+Only Google sign-ins and email sign-ins whose address has been confirmed count, and everything must have exactly the right shape (names of 1–30 characters, links of at most 2,048 starting with `https://` or `webcal://`, times set by Firebase itself). The tests in `tests/` (`rules.test.mjs` for your private area, `friends.test.mjs` for friends, `spots.test.mjs` for the places on Spots) check each of these, including what must be refused.
 
 ## Other defences
 
-Without App Check (it waits until the app is on Google Play), anyone could use the app's public settings from their own script, but they'd still be held to these rules: they can only ever touch their own private area. Other layers: only Google sign-ins count; the project is on the free plan with no card, so misuse can't cost money (online parts just pause until the next day); every account can be seen, disabled or deleted in Firebase → Authentication. A further step is restricting the two API keys to the website and the Android app in the Google Cloud console.
+Without App Check (it waits until the app is on Google Play), anyone could use the app's public settings from their own script, but they'd still be held to these rules: they can only ever touch their own private area. Other layers: only Google sign-ins and confirmed email sign-ins count (so nobody can use a made-up address); the project is on the free plan with no card, so misuse can't cost money (online parts just pause until the next day); every account can be seen, disabled or deleted in Firebase → Authentication. A further step is restricting the two API keys to the website and the Android app in the Google Cloud console.
 
 ## Publishing the rules (after they change)
 
@@ -29,7 +29,7 @@ The Rules tab keeps a history of earlier versions, so you can go back if somethi
 
 ## The tests
 
-`tests/rules.test.mjs` checks the rules against Google's own database emulator: you can use your private area; strangers, people who aren't signed in and non-Google sign-ins can't; and badly shaped data is refused. **GitHub runs them before every release** (the *Database rules* step), and if one fails nothing is released.
+`tests/rules.test.mjs` checks the rules against Google's own database emulator: you can use your private area; strangers, people who aren't signed in, other kinds of sign-in and emails that haven't been confirmed can't; and badly shaped data is refused. **GitHub runs them before every release** (the *Database rules* step), and if one fails nothing is released.
 
 To run them on a computer (needs Node.js and Java 21):
 

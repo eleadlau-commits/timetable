@@ -8,9 +8,14 @@ service cloud.firestore {
 
     // ---- Who is asking ----
 
-    // Signed in with Google (the only way the app signs people in).
+    // Signed in with Google, or with an email and password once the email address has been
+    // confirmed (the link Firebase emails after Create account). That stops made-up addresses
+    // from using backup and friends.
     function signedIn() {
-      return request.auth != null && request.auth.token.firebase.sign_in_provider == 'google.com';
+      return request.auth != null
+        && (request.auth.token.firebase.sign_in_provider == 'google.com'
+          || (request.auth.token.firebase.sign_in_provider == 'password'
+            && request.auth.token.email_verified == true));
     }
 
     function isMe(uid) {

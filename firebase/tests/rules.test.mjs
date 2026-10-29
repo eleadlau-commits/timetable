@@ -55,10 +55,26 @@ test('people who are not signed in can do nothing', async () => {
   await assertFails(setDoc(theirs, { link: LINK, updatedAt: serverTimestamp() }));
 });
 
-test('only Google sign-ins are accepted', async () => {
+test('only Google and confirmed email sign-ins are accepted', async () => {
   const anonymous = env.authenticatedContext('sam', { firebase: { sign_in_provider: 'anonymous' } }).firestore();
   await assertFails(setDoc(mine('sam', anonymous), { link: LINK, updatedAt: serverTimestamp() }));
   await assertFails(getDoc(mine('sam', anonymous)));
+});
+
+test('an email sign-in works once the email address is confirmed', async () => {
+  const confirmed = env.authenticatedContext('sam', { email_verified: true, firebase: { sign_in_provider: 'password' } }).firestore();
+  await assertSucceeds(setDoc(mine('sam', confirmed), { link: LINK, updatedAt: serverTimestamp() }));
+  await assertSucceeds(getDoc(mine('sam', confirmed)));
+  await assertSucceeds(deleteDoc(mine('sam', confirmed)));
+});
+
+test('an email sign-in can do nothing until the email address is confirmed', async () => {
+  await seedSam();
+  const unconfirmed = env.authenticatedContext('sam', { email_verified: false, firebase: { sign_in_provider: 'password' } }).firestore();
+  await assertFails(setDoc(mine('sam', unconfirmed), { link: LINK, updatedAt: serverTimestamp() }));
+  await assertFails(getDoc(mine('sam', unconfirmed)));
+  const noClaim = env.authenticatedContext('sam', { firebase: { sign_in_provider: 'password' } }).firestore();
+  await assertFails(getDoc(mine('sam', noClaim)));
 });
 
 test('only the one private document is allowed', async () => {

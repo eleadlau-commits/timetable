@@ -324,6 +324,8 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 
 **1.9.0:** features have `this.getText(url)` for downloading text from another website: in the phone apps through the CapacitorHttp plugin directly, on the web with fetch. Use it instead of switching CapacitorHttp on for the whole app, which takes over every request and breaks some services (such as Firebase's database). Features written for 1.8 keep working.
 
+**1.11.0:** email and password boxes (`input type="email"` and `type="password"`) look like the other text boxes. Features written for 1.10 keep working.
+
 **1.10.1:** `python build.py ios-project` now deletes the iPhone project's `Podfile.lock` when it adds features' Podfile lines. `npx cap add ios` has already run `pod install`, so the lock listed the Podfile as it was before, and CocoaPods quietly ignored the new lines: a plugin's optional part (`CapacitorFirebaseAuthentication/Google`, which Google sign-in needs) was left out of the app altogether. Features written for 1.10 keep working.
 
 **1.10.0:** the iPhone app. Features' `native.ios` can now also list `files` to add to the iPhone app and `pods` (Podfile lines), alongside `plist`; app.json's `native.ios` can set the iPhone app's own `appId`, app-wide `plist` entries and `devices`. The new `python build.py ios-project` prepares the iPhone project Capacitor makes, like `android-project` does for Android, and `@capacitor/ios` is always in `dist/package.json`. Features written for 1.9 keep working.

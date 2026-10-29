@@ -116,6 +116,7 @@ export function explainProblem(err, online = true) {
   const code = String(err?.code || err?.message || 'unknown');
   if (code === 'full') return 'You\'ve reached 50 friends and requests. Remove someone first.';
   if (code === 'signed-out') return 'You\'ve been signed out. Sign in again on the account page.';
+  if (code === 'unverified') return 'Confirm your email first: tap the link we sent you, then tap I\'ve confirmed it on the account page.';
   if (code === 'load') return 'Couldn\'t load the online part of the app. Check you\'re online and try again.';
   if (code === 'permission-denied') {
     return 'The online database refused this. If Friends has just been added, its database rules may not be published yet (Firebase console → Firestore Database → Rules). (permission-denied)';
