@@ -222,6 +222,7 @@ class CompilerTests(unittest.TestCase):
             'camera': feature(native={'ios': {
                 'plist': {'NSCameraUsageDescription': 'To scan cards.', 'UISupportedInterfaceOrientations': ['UIInterfaceOrientationLandscapeLeft']},
                 'pods': ["pod 'Extra/Google', :path => '../../node_modules/extra'"],
+                'entitlements': {'com.apple.developer.applesignin': ['Default']},
             }}),
             'android-only': feature(platforms=['android'], native={'ios': {'plist': {'Ignored': True}}}),
         })
@@ -250,6 +251,9 @@ class CompilerTests(unittest.TestCase):
         for line in ('PRODUCT_BUNDLE_IDENTIFIER = io.example.iphone;', 'MARKETING_VERSION = 3.2.0;',
                      'CURRENT_PROJECT_VERSION = 57;', 'DEVELOPMENT_TEAM = ABCDE12345;', 'TARGETED_DEVICE_FAMILY = 1;'):
             self.assertIn(line, pbx)
+        self.assertIn('CODE_SIGN_ENTITLEMENTS = App/App.entitlements;', pbx)
+        with (project / 'App' / 'App.entitlements').open('rb') as f:
+            self.assertEqual(plistlib.load(f), {'com.apple.developer.applesignin': ['Default']})
         podfile = (project / 'Podfile').read_text()
         self.assertIn("# Add your Pods here\n  pod 'Extra/Google', :path => '../../node_modules/extra'\nend", podfile)
 
@@ -257,6 +261,7 @@ class CompilerTests(unittest.TestCase):
         self.assertEqual(cmd_ios_project(None, ios_args(out, project, build='57', team='ABCDE12345')), 0)
         self.assertEqual((project / 'Podfile').read_text(), podfile)
         self.assertEqual((project / 'App.xcodeproj' / 'project.pbxproj').read_text().count('DEVELOPMENT_TEAM'), 2)  # Debug and Release
+        self.assertEqual((project / 'App.xcodeproj' / 'project.pbxproj').read_text().count('CODE_SIGN_ENTITLEMENTS'), 2)
         self.assertNotEqual(cmd_ios_project(None, ios_args(out, project, team='not a team')), 0)
         self.assertNotEqual(cmd_ios_project(None, ios_args(out, self.tmp / 'nothing')), 0)
 

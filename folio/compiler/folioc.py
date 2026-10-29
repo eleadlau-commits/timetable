@@ -424,13 +424,16 @@ class Project:
 
     @staticmethod
     def check_ios_extras(f: FeatureInfo, ios) -> str:
-        """Checks "native.ios": "plist" (Info.plist entries), "files" (files to add to the iPhone
-        app, e.g. GoogleService-Info.plist) and "pods" (lines for the Podfile's app target).
+        """Checks "native.ios": "plist" (Info.plist entries), "entitlements" (the app's
+        capabilities, e.g. Sign in with Apple), "files" (files to add to the iPhone app, e.g.
+        GoogleService-Info.plist) and "pods" (lines for the Podfile's app target).
         Returns a problem, or ''."""
-        if not isinstance(ios, dict) or any(k not in ('plist', 'files', 'pods') for k in ios):
-            return '"native.ios" can only contain plist, files and pods'
+        if not isinstance(ios, dict) or any(k not in ('plist', 'entitlements', 'files', 'pods') for k in ios):
+            return '"native.ios" can only contain plist, entitlements, files and pods'
         if not isinstance(ios.get('plist', {}), dict):
             return '"native.ios.plist" must look like { "Key": "value" }'
+        if not isinstance(ios.get('entitlements', {}), dict):
+            return '"native.ios.entitlements" must look like { "com.apple.developer.applesignin": ["Default"] }'
         files = ios.get('files', {})
         shape = '"native.ios.files" must look like { "GoogleService-Info.plist": "native/GoogleService-Info.plist" }'
         if not isinstance(files, dict):
@@ -832,7 +835,7 @@ fetch('/__folio_report', {{ method: 'POST', body: JSON.stringify({{ kind: 'tests
         android = {'permissions': [], 'features': [], 'files': [], 'gradle': {}}
         app_ios = app['native'].get('ios', {})
         ios = {'appId': app_ios.get('appId', app['native']['appId']), 'version': app['version'], 'devices': app_ios.get('devices', 'iphone-and-ipad'),
-               'plist': merge_plist({}, app_ios.get('plist', {})), 'files': [], 'pods': []}
+               'plist': merge_plist({}, app_ios.get('plist', {})), 'entitlements': {}, 'files': [], 'pods': []}
         for f in native_features:
             a = f.native.get('android', {})
             if 'android' in f.platforms:
@@ -852,6 +855,7 @@ fetch('/__folio_report', {{ method: 'POST', body: JSON.stringify({{ kind: 'tests
             if 'ios' in f.platforms:
                 i = f.native.get('ios', {})
                 merge_plist(ios['plist'], i.get('plist', {}))
+                merge_plist(ios['entitlements'], i.get('entitlements', {}))
                 # Like Android's, files for the iPhone app wait next to native.json.
                 for to, source in i.get('files', {}).items():
                     kept = Path('ios-files') / f.id / source
@@ -1312,7 +1316,7 @@ def cmd_android_project(project: Project, args) -> int:
 
 def cmd_ios_project(project: Project, args) -> int:
     """Prepares the iPhone project Capacitor made (e.g. dist/ios/App) for building: features'
-    Info.plist entries, files added to the app (copied in and listed in the Xcode project), lines
+    Info.plist entries and entitlements, files added to the app (copied in and listed in the Xcode project), lines
     for the Podfile, and the app's id, version, build number, devices and Apple team."""
     native = json.loads((Path(args.out) / 'native.json').read_text('utf-8'))['ios']
     ios = Path(args.ios)
@@ -1331,6 +1335,14 @@ def cmd_ios_project(project: Project, args) -> int:
     with plist_path.open('wb') as f:
         plistlib.dump(info, f)
     print('Added to Info.plist: ' + (', '.join(native['plist']) if native.get('plist') else 'nothing'))
+
+    # The app's capabilities (such as Sign in with Apple) go in App/App.entitlements, which the
+    # Xcode project then points to (CODE_SIGN_ENTITLEMENTS, below).
+    entitlements = native.get('entitlements', {})
+    if entitlements:
+        with (ios / 'App' / 'App.entitlements').open('wb') as f:
+            plistlib.dump(entitlements, f)
+        print('Added to App.entitlements: ' + ', '.join(entitlements))
 
     files = native.get('files', [])
     if files:
@@ -1388,6 +1400,12 @@ def cmd_ios_project(project: Project, args) -> int:
         text, count = re.subn(r'(\n(\s*)CODE_SIGN_STYLE = Automatic;)', rf'\1\n\2DEVELOPMENT_TEAM = {args.team};', text)
         if not count:
             print('Couldn\'t find where to set the Apple team in the Xcode project.')
+            return 1
+    if entitlements:
+        text = re.sub(r'\n(\s*)CODE_SIGN_ENTITLEMENTS = [^;]*;', '', text)
+        text, count = re.subn(r'(\n(\s*)CODE_SIGN_STYLE = Automatic;)', r'\1\n\2CODE_SIGN_ENTITLEMENTS = App/App.entitlements;', text)
+        if not count:
+            print('Couldn\'t find where to set the entitlements in the Xcode project.')
             return 1
     pbx.write_text(text, 'utf-8')
     print(f'iPhone app: {native["appId"]}, version {settings["MARKETING_VERSION"]} '

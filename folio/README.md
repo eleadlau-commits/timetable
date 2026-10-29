@@ -95,6 +95,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
     },
     "ios": {
       "plist": { "NSCameraUsageDescription": "Why the camera is needed." },
+      "entitlements": { "com.apple.developer.applesignin": ["Default"] },
       "files": { "GoogleService-Info.plist": "native/GoogleService-Info.plist" },
       "pods": ["pod 'CapacitorFirebaseAuthentication/Google', :path => '../../node_modules/@capacitor-firebase/authentication'"]
     }
@@ -114,7 +115,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
 | `platforms` | no | Where it runs: `web`, `android`, `ios`. Default: everywhere. |
 | `enabled` | no | `false` switches the feature off without deleting it. |
 | `web.manifest` | no | Merged into the web app manifest, e.g. a `share_target`. |
-| `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). For iPhone also `files` (added to the app: its name in the app → the file in `native/`, e.g. Firebase's `GoogleService-Info.plist`) and `pods` (lines added to the Podfile's app target, e.g. a plugin's optional part). iPhone `plist` entries are merged: lists are added to, dictionaries combined. |
+| `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). For iPhone also `entitlements` (the app's capabilities, put in `App/App.entitlements`, e.g. `{ "com.apple.developer.applesignin": ["Default"] }` for Sign in with Apple), `files` (added to the app: its name in the app → the file in `native/`, e.g. Firebase's `GoogleService-Info.plist`) and `pods` (lines added to the Podfile's app target, e.g. a plugin's optional part). iPhone `plist` entries are merged: lists are added to, dictionaries combined. |
 
 The folder name is the feature's id: lowercase words joined by dashes.
 
@@ -155,6 +156,7 @@ export default class Notes extends Feature {
 | `template(name)` | A copy of a template from templates.html. |
 | `toast(message)` | A short message at the bottom of the screen. |
 | `native` | `true` in the Android or iPhone app. |
+| `platform` | Where it's running: `'web'`, `'android'` or `'ios'`. |
 | `plugin(name)` | A Capacitor plugin (e.g. `'LocalNotifications'`), or `null` on the web. |
 | `getText(url)` | Downloads text from another website. In the phone apps the phone makes the download itself (CapacitorHttp, called directly), so sites that block web pages still work; on the web it's a fetch. Throws an error with `.status` for an HTTP error. |
 | `app.shell` | The app's frame: `setTitle(text)` (the browser tab's name), `showScreen(owner, node)`, `hideScreen(owner)`, `selectView(id)` (also opens a view inside another, such as Day inside Planner), `openMenu()`, `closeMenu()`, `openSettings()`, `closeSettings()`, `refreshSettings()`, `openAbout()`, `openAccount()`. |
@@ -323,6 +325,8 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.8.0:** Settings starts with **Appearance**: Automatic (follows the phone, as before), Light or Dark, saved on the phone. It works by switching every `@media (prefers-color-scheme: dark)` rule on or off (and the status-bar colour tags), so features don't need anything new: keep writing dark styles inside that media query. The rules are in `runtime/appearance.js`. Features written for 1.7 keep working.
 
 **1.9.0:** features have `this.getText(url)` for downloading text from another website: in the phone apps through the CapacitorHttp plugin directly, on the web with fetch. Use it instead of switching CapacitorHttp on for the whole app, which takes over every request and breaks some services (such as Firebase's database). Features written for 1.8 keep working.
+
+**1.11.0:** features' `native.ios` can list `entitlements`, the iPhone app's capabilities (such as Sign in with Apple). `python build.py ios-project` writes them to `App/App.entitlements` and points the Xcode project at it. Features also have `this.platform` (`'web'`, `'android'` or `'ios'`), for the few things that differ between the two phone apps. Features written for 1.10 keep working.
 
 **1.10.1:** `python build.py ios-project` now deletes the iPhone project's `Podfile.lock` when it adds features' Podfile lines. `npx cap add ios` has already run `pod install`, so the lock listed the Podfile as it was before, and CocoaPods quietly ignored the new lines: a plugin's optional part (`CapacitorFirebaseAuthentication/Google`, which Google sign-in needs) was left out of the app altogether. Features written for 1.10 keep working.
 

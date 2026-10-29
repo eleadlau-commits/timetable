@@ -89,6 +89,11 @@ export class Feature {
     return this.app.platform.native;
   }
 
+  // 'web', 'android' or 'ios'.
+  get platform() {
+    return this.app.platform.name;
+  }
+
   plugin(name) {
     return this.app.platform.plugin(name);
   }

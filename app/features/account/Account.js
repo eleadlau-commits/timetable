@@ -1,18 +1,19 @@
 // Account: the account page, opened by the account button at the top right and the menu's
-// Account row (Folio's 'account' slot). Sign in with Google, through Firebase (firebase.js).
-// Signed out, it explains what an account is for and says the app isn't Durham University's.
-// Signed in, it shows your picture, name and email, with Sign out and Delete my account.
-// A Privacy notice link on both. Backup and friends come later.
+// Account row (Folio's 'account' slot). Sign in with Google or Apple, through Firebase
+// (firebase.js). Signed out, it explains what an account is for and says the app isn't Durham
+// University's. Signed in, it shows your picture, name and email, with Sign out and Delete my
+// account. A Privacy notice link on both.
 //
 // Stored online: only what rules.js's onlineData() lists, in the database protected by
 // firebase/firestore.rules. Delete my account deletes all of it, then the account.
 //
-// In the web version, Google's sign-in window opens. In the Android app Google doesn't allow
-// that window inside apps, so Google's own Android sign-in is used instead (the Capacitor
-// Firebase Authentication plugin), and what it returns signs in to Firebase in the same way.
+// In the web version, Google's or Apple's sign-in window opens. Those windows don't work inside
+// the phone apps, so there the phone's own sign-in is used instead (the Capacitor Firebase
+// Authentication plugin): Google's on Android and iPhone, Apple's on iPhone. What it returns
+// signs in to Firebase in the same way. Which ways are offered where: methodsFor() in rules.js.
 //
 // Service 'account' (this object):
-//   user            the signed-in person ({ uid, name, email, photo }), or null
+//   user            the signed-in person ({ uid, name, email, photo, via }), or null
 //   database()      Firebase's database (Firestore), once Firebase knows who is signed in;
 //                   fails with Error('signed-out') if nobody is
 //   publicDatabase() the database without needing anyone signed in, for what everyone may
@@ -26,11 +27,12 @@
 // Slot 'account.cleanup': online data other features keep that Delete my account must remove
 //   first, e.g. friendships. Item: { order, remove(db, uid) → Promise }
 // Event 'account:changed': sent with the user (or null) when someone signs in or out.
-// Saved data: 'user' → { uid, name, email, photo }, so the name shows straight away and offline.
+// Saved data: 'user' → { uid, name, email, photo, via }, so the name shows straight away and
+// offline ('via' is 'google' or 'apple'; older saves don't have it, and mean Google).
 
 import { Feature, ui } from 'folio';
-import { connect, database, googleProvider, googleCredential } from './firebase.js';
-import { toUser, explain, onlineData } from './rules.js';
+import { connect, database, googleProvider, googleCredential, appleProvider, appleCredential } from './firebase.js';
+import { toUser, explain, onlineData, methodsFor } from './rules.js';
 import { privacyNotice } from './privacy.js';
 
 const { el } = ui;
@@ -120,30 +122,49 @@ export default class Account extends Feature {
 
   // ---- Signing in and out ----
 
-  async signIn() {
+  // method: 'google' or 'apple'.
+  async signIn(method) {
     if (!this.auth) return this.prepare();
     const auth = this.auth;
+    this.method = method;
     await this.attempt(async () => {
-      const result = this.native
-        ? await auth.signInWithCredential(await this.androidCredential())
-        : await auth.signInWithPopup(googleProvider());
+      let name = null;
+      let result;
+      if (this.native) {
+        const phone = await this.phoneSignIn(method);
+        name = phone.name;
+        result = await auth.signInWithCredential(phone.credential);
+      } else {
+        result = await auth.signInWithPopup(method === 'apple' ? appleProvider() : googleProvider());
+      }
+      // Apple gives the person's name only the first time, and only to the app, not to
+      // Firebase, so it's kept on their Firebase account here.
+      if (name && !result.user.displayName) await result.user.updateProfile({ displayName: name }).catch(() => {});
       this.setUser(toUser(result.user));
     });
   }
 
-  // In the Android app: Google's own sign-in, turned into something Firebase accepts.
-  async androidCredential() {
-    const google = this.plugin('FirebaseAuthentication');
-    if (!google) throw new Error('no-plugin');
-    const result = await google.signInWithGoogle();
-    return googleCredential(result?.credential?.idToken);
+  // In the phone apps: the phone's own sign-in, turned into something Firebase accepts, and the
+  // person's name if Apple gave it.
+  async phoneSignIn(method) {
+    const plugin = this.plugin('FirebaseAuthentication');
+    if (!plugin) throw new Error('no-plugin');
+    if (method === 'apple') {
+      const result = await plugin.signInWithApple();
+      return {
+        credential: appleCredential(result?.credential?.idToken, result?.credential?.nonce),
+        name: result?.user?.displayName || null,
+      };
+    }
+    const result = await plugin.signInWithGoogle();
+    return { credential: googleCredential(result?.credential?.idToken), name: null };
   }
 
   async signOut() {
     await this.attempt(async () => {
       const auth = await this.watch();
       await auth.signOut();
-      // In the Android app, also forget the Google account, so next time you can choose again.
+      // In the phone apps, also forget the Google account, so next time you can choose again.
       if (this.native) await this.plugin('FirebaseAuthentication')?.signOut().catch(() => {});
       this.setUser(null);
     });
@@ -163,9 +184,10 @@ export default class Account extends Feature {
         await current.delete();
       } catch (err) {
         if (err?.code !== 'auth/requires-recent-login') throw err;
-        // Google wants to be sure it's really you: sign in once more, then delete.
-        if (this.native) await current.reauthenticateWithCredential(await this.androidCredential());
-        else await current.reauthenticateWithPopup(googleProvider());
+        // Firebase wants to be sure it's really you: sign in once more, the same way, then delete.
+        const method = toUser(current).via;
+        if (this.native) await current.reauthenticateWithCredential((await this.phoneSignIn(method)).credential);
+        else await current.reauthenticateWithPopup(method === 'apple' ? appleProvider() : googleProvider());
         await current.delete();
       }
       this.setUser(null);
@@ -213,18 +235,20 @@ export default class Account extends Feature {
 
   signedOut(error) {
     const waiting = this.busy || (!this.auth && this.preparing);
-    const button = el('button', {
+    const label = (method) => (this.busy && this.method === method ? 'Signing in…'
+      : waiting ? 'Getting ready…' : `Sign in with ${method === 'apple' ? 'Apple' : 'Google'}`);
+    const buttons = methodsFor(this.platform).map((method) => el('button', {
       type: 'button',
-      class: 'btn primary block',
+      class: `btn block sign-in sign-in-${method}`,
       disabled: waiting,
-      onclick: () => this.signIn(),
-    }, this.busy ? 'Signing in…' : waiting ? 'Getting ready…' : 'Sign in with Google');
+      onclick: () => this.signIn(method),
+    }, method === 'apple' ? appleLogo() : googleLogo(), el('span', {}, label(method))));
     return el('section', { class: 'account-out' },
       el('span', { class: 'account-avatar' }, ui.icon('account')),
       el('h3', {}, 'Not signed in'),
-      el('p', {}, 'Sign in to back up your timetable link and see your friends\' timetables (both coming soon). ',
+      el('p', {}, 'Sign in to back up your timetable link and swap timetables with friends. ',
         el('b', {}, 'Mobile Durham is made by students and isn\'t affiliated with Durham University.')),
-      button,
+      el('div', { class: 'sign-in-buttons' }, ...buttons),
       error,
       ui.hint('Everything works without an account, and your things stay on this phone.', { small: true }),
       this.privacyLink());
@@ -248,7 +272,7 @@ export default class Account extends Feature {
       el('section', { class: 'account-who' },
         this.picture(u),
         el('span', { class: 'account-name' }, el('b', {}, u.name), u.email && el('span', {}, u.email)),
-        ui.hint('Signed in with Google.', { small: true })),
+        ui.hint(`Signed in with ${u.via === 'apple' ? 'Apple' : 'Google'}.`, { small: true })),
       error,
       ...this.slot('account.sections').map((section) => section.render(u)).filter(Boolean),
       el('button', { type: 'button', class: 'btn block', disabled: this.busy, onclick: () => this.signOut() },
@@ -267,4 +291,34 @@ export default class Account extends Feature {
     img.addEventListener('error', () => img.replaceWith(fallback()));
     return img;
   }
+}
+
+// The logos on the sign-in buttons, drawn as each company asks.
+const SVG = 'http://www.w3.org/2000/svg';
+
+function logo(viewBox, paths) {
+  const svg = document.createElementNS(SVG, 'svg');
+  svg.setAttribute('viewBox', viewBox);
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('class', 'sign-in-logo');
+  for (const [d, fill] of paths) {
+    const path = document.createElementNS(SVG, 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', fill);
+    svg.append(path);
+  }
+  return svg;
+}
+
+function appleLogo() {
+  return logo('0 0 17 20', [['M14.04 10.63c-.02-2.2 1.8-3.26 1.88-3.31-1.03-1.5-2.62-1.7-3.18-1.72-1.35-.14-2.64.8-3.33.8-.69 0-1.74-.78-2.87-.76-1.47.02-2.83.86-3.59 2.18-1.53 2.66-.39 6.6 1.1 8.75.73 1.05 1.6 2.24 2.73 2.2 1.1-.04 1.51-.71 2.84-.71 1.32 0 1.7.71 2.86.69 1.18-.02 1.93-1.07 2.65-2.13.84-1.22 1.18-2.4 1.2-2.46-.03-.01-2.3-.88-2.32-3.5zM11.86 4.17c.6-.73 1.01-1.75.9-2.76-.87.04-1.92.58-2.54 1.31-.56.64-1.05 1.67-.92 2.66.97.08 1.96-.49 2.56-1.21z', 'currentColor']]);
+}
+
+function googleLogo() {
+  return logo('0 0 18 18', [
+    ['M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62z', '#4285F4'],
+    ['M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.33-1.58-5.04-3.71H.96v2.33A9 9 0 0 0 9 18z', '#34A853'],
+    ['M3.96 10.71A5.41 5.41 0 0 1 3.68 9c0-.59.1-1.17.28-1.71V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.83.96 4.04l3-2.33z', '#FBBC05'],
+    ['M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58A9 9 0 0 0 .96 4.96l3 2.33C4.67 5.16 6.66 3.58 9 3.58z', '#EA4335'],
+  ]);
 }

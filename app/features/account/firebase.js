@@ -48,8 +48,22 @@ export function googleProvider() {
   return provider;
 }
 
-// Turns the sign-in from Google's Android sign-in into one Firebase accepts.
+export function appleProvider() {
+  const provider = new window.firebase.auth.OAuthProvider('apple.com');
+  provider.addScope('email');
+  provider.addScope('name');
+  return provider;
+}
+
+// Turns the sign-in from Google's own phone sign-in into one Firebase accepts.
 export function googleCredential(idToken) {
   if (!idToken) throw new Error('no-token');
   return window.firebase.auth.GoogleAuthProvider.credential(idToken);
+}
+
+// The same for Apple's sign-in on the iPhone. The nonce is the one-off code the plugin made
+// for this sign-in, which Firebase checks against the one Apple signed.
+export function appleCredential(idToken, rawNonce) {
+  if (!idToken) throw new Error('no-token');
+  return new window.firebase.auth.OAuthProvider('apple.com').credential({ idToken, rawNonce });
 }
