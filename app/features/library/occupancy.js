@@ -2,9 +2,11 @@
 // No screen code here, so it can be tested on its own.
 //
 // The page lists each area as "free/total" under a "Level N" heading, for example
-// "Level 4 … North 52/139 … East 1/132". The totals are those areas added up: the page's own
-// headline number doesn't always match its areas, so it isn't used. The reader only looks at
-// the page's words, not its layout, so small changes to the page's design shouldn't break it.
+// "Level 4 … North 52/139 … East 1/132", and has a headline such as "707 free spaces".
+// The headline is the library's own count, and the app shows it as the total of free seats,
+// even when it doesn't match the areas added up (the page itself is sometimes out). Each floor's
+// numbers are its areas added up. The reader only looks at the page's words, not its layout, so
+// small changes to the page's design shouldn't break it.
 
 export const SOURCE = 'https://apps.dur.ac.uk/study-spaces/library/bill-bryson/occupancy/display';
 
@@ -34,8 +36,16 @@ export function textOf(html) {
   return pieces.join('\n');
 }
 
-// → { free, seats, floors: [{ name, free, seats, zones: [{ name, free, seats }] }] },
-//   or null if the page has no seat numbers.
+// The library's own count of free seats ("707 free spaces"), or null if the page has none.
+export function headline(text) {
+  const m = text.match(/(\d[\d,]*)\s+(?:free|available)\s+(?:study\s+)?(?:spaces|seats)\b/i);
+  return m ? Number(m[1].replace(/,/g, '')) : null;
+}
+
+// → { free, seats, counted, floors: [{ name, free, seats, zones: [{ name, free, seats }] }] },
+//   or null if the page has no seat numbers. `free` is the library's own headline count when the
+//   page has one; `counted` is the floors added up. `seats` is every seat on the floors (never
+//   fewer than `free`, so the bar stays sensible).
 export function readOccupancy(text) {
   const words = /(?:level|floor)\s*(\d+)|(\d+)\s*(?:\/|of|out of)\s*(\d+)|((?!(?:level|floor)\b)[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’&.-]*(?: (?!(?:level|floor)\b)[A-Za-zÀ-ÿ'’&.-]+)*)/gi;
   const floors = [];
@@ -67,9 +77,12 @@ export function readOccupancy(text) {
     f.free = f.zones.reduce((n, z) => n + z.free, 0);
     f.seats = f.zones.reduce((n, z) => n + z.seats, 0);
   }
+  const counted = used.reduce((n, f) => n + f.free, 0);
+  const free = headline(text) ?? counted;
   return {
-    free: used.reduce((n, f) => n + f.free, 0),
-    seats: used.reduce((n, f) => n + f.seats, 0),
+    free,
+    seats: Math.max(used.reduce((n, f) => n + f.seats, 0), free),
+    counted,
     floors: used,
   };
 }
