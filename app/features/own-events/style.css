@@ -1,0 +1,12 @@
+/* Own events: the form, and Edit and Delete in the session details window. */
+.own-form { display: grid; gap: 12px; }
+.own-field { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.own-field[hidden] { display: none; }
+.own-row { display: flex; gap: 10px; }
+.own-row > * { flex: 1; min-width: 0; }
+.own-repeat { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 15px; }
+.own-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.own-actions > .btn { flex: 1; }
+.own-stack { flex-direction: column; margin-top: 12px; }
+.own-details { display: grid; gap: 10px; }
+.own-note { margin: 0; font-size: 13px; color: var(--muted); }

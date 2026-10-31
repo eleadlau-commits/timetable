@@ -1,0 +1,9 @@
+{
+  "name": "Own events",
+  "description": "Add things of your own to the Planner (a society meeting, the gym, a shift), drawn as outlines next to your classes.",
+  "version": "1.0.0",
+  "main": "OwnEvents.js",
+  "styles": ["style.css"],
+  "requires": ["sessions"],
+  "uses": ["planner"]
+}

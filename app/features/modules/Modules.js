@@ -23,7 +23,7 @@ export default class Modules extends Feature {
     this.add('session.filter', { hides: (s) => !!this.hidden[moduleOf(s)], manageLabel: 'Manage modules', manage: () => this.openList() });
     this.add('session.details', {
       order: 90,
-      render: (s) => el('button', { type: 'button', class: 'btn', onclick: () => this.openEditor(moduleOf(s)) }, 'Colour, name or hide this module'),
+      render: (s) => (s.own ? null : el('button', { type: 'button', class: 'btn', onclick: () => this.openEditor(moduleOf(s)) }, 'Colour, name or hide this module')),
     });
     this.add('planner.buttons', {
       order: 10,

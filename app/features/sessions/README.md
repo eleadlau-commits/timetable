@@ -5,7 +5,7 @@ How a session (a class) looks. It draws the session cards the views use, and the
 ## What it offers other features
 
 **Service `sessions`:**
-- **Finding sessions:** `all`, `onDay(date)`, `hiddenNote(date)`, `isShown(s)`
+- **Finding sessions:** `all` (the timetable's classes), `extra` (sessions from `session.extra`, such as your own events), `onDay(date)` (both), `hiddenNote(date)`, `isShown(s)`
 - **How they look:** `name(s)`, `shortName(s)`, `hue(s)`, `defaultHue(module)`, `kind(s)`, `badge(s)`, `moduleOf(s)`, `placeLabel(location)`, `placeLink(location)`
 - **Drawing:** `card(s, { now, extra })`, `open(s)`
 - **The day the views show:** `selected`, `select(date)`
@@ -21,7 +21,10 @@ How a session (a class) looks. It draws the session cards the views use, and the
 | `session.colour` | colours | Modules |
 | `session.location` | how a location is shown and linked | Maps |
 | `session.card` | extra lines on cards | Notes |
-| `session.details` | sections in the details window | Maps, Notes, Reminders, Modules |
+| `session.details` | sections in the details window | Maps, Notes, Reminders, Modules, Own events |
+| `session.extra` | adds sessions that aren't classes (`{ sessions() }`; call `changed()` when they change). They show in the views through `onDay`, but not in `all`, so they're never shared with friends or listed as modules | Own events |
+
+A session can carry `hue` (its colour, before any from `session.colour`) and `outline: true` (drawn as an outline instead of filled: cards here, and the Day and Week views' blocks). Own events use both, plus `own: true`.
 
 **Events:** `sessions:changed`.
 
