@@ -62,6 +62,11 @@ export default function seed(app) {
     occupancy: { floors, free: floors.reduce((n, f) => n + f.free, 0), seats: floors.reduce((n, f) => n + f.seats, 0) },
   });
   const day = (offset) => { const d = at(offset, 12); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+  // Your own events in the Planner: a weekly one this evening and a one-off tomorrow lunchtime.
+  area('own-events').set('items', [
+    { id: 'e1', title: 'Choir rehearsal', date: day(0), start: '18:00', end: '19:30', place: 'Castle Great Hall', weekly: true, until: '', skip: [] },
+    { id: 'e2', title: 'Lunch with Sam', date: day(1), start: '12:00', end: '13:00', place: '', weekly: false, until: '', skip: [] },
+  ]);
   area('todo').set('items', [
     { id: 't1', text: 'Hand in economics essay', tag: 'academic', due: day(-1), done: false, added: 1 },
     { id: 't2', text: 'Book room for society social', tag: 'society', due: day(2), done: false, added: 2 },

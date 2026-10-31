@@ -81,7 +81,7 @@ export default class WeekView extends Feature {
     const allDayRow = anyAllDay && el('div', { class: 'wk-row wk-allday' },
       el('span', { class: 'wk-gutter' }, 'all day'),
       days.map(({ items }) => el('div', { class: 'wk-cell' }, items.filter((s) => s.allDay).map((s) =>
-        el('button', { type: 'button', class: 'wk-chip', style: `--h:${sessions.hue(s)}`, onclick: () => sessions.open(s) },
+        el('button', { type: 'button', class: `wk-chip${s.outline ? ' outline' : ''}`, style: `--h:${sessions.hue(s)}`, onclick: () => sessions.open(s) },
           sessions.shortName(s))))));
 
     const hourLabels = el('div', { class: 'wk-hours' }, Array.from({ length: hours }, (_, i) =>
@@ -96,7 +96,7 @@ export default class WeekView extends Feature {
         const kind = sessions.kind(s);
         return el('button', {
           type: 'button',
-          class: `blk${s.cancelled ? ' cancelled' : ''}${s.end <= now ? ' past' : ''}`,
+          class: `blk${s.cancelled ? ' cancelled' : ''}${s.end <= now ? ' past' : ''}${s.outline ? ' outline' : ''}`,
           style: `--h:${sessions.hue(s)};--lane:${lane};--lanes:${lanes};top:${px(top)}px;height:${Math.max(18, px(bottom) - px(top) - 2)}px`,
           'aria-label': `${sessions.name(s)}, ${time.formatTime(s.start)}–${time.formatTime(s.end)}${s.location ? `, ${s.location}` : ''}`,
           onclick: () => sessions.open(s),

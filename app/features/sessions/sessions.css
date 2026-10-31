@@ -99,3 +99,11 @@ a.meta span { text-decoration: underline; text-decoration-color: var(--line); te
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* Sessions that aren't classes (your own events, outline: true) are drawn as an outline: the
+   card's colour as a line round the edge, with the page's own background inside. Views use
+   --ring for their own blocks. */
+:root { --ring-l: 58%; }
+@media (prefers-color-scheme: dark) { :root { --ring-l: 70%; } }
+.card.outline { background: var(--surface); box-shadow: inset 0 0 0 2px hsl(var(--h) 55% var(--ring-l)); }
+.session-dialog.outline { border-top-style: dashed; }

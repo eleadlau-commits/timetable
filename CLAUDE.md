@@ -32,7 +32,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `account` | The account page (from the account button and the menu); signing in through Firebase with Google (web: Google's window; phones: Google's own sign-in) or an email and password (Create account, Forgot password, confirm your email before backup and friends work); privacy notice; Delete my account removes all online data | | account, help.questions | service `account`; slots `account.sections`, `account.cleanup`; event `account:changed` |
 | `campus-card` | Scan and show the campus card barcode; tall or wide widget on Home | | home.widgets, more.items | |
 | `timetable` | Loads and saves the timetable, setup screen (its guide is in `guide.js`, also a page in Help), the Planner's refresh button | | status, planner.actions, settings, help.questions | service `timetable`; slots `timetable.fetch/explain/setup/settings`; events `timetable:changed/loaded/cleared` |
-| `sessions` | Session cards and the details window; calendar grid rules (`layout.js`) | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details`; event `sessions:changed` |
+| `sessions` | Session cards and the details window; calendar grid rules (`layout.js`); sessions with `outline: true` are drawn as outlines | timetable | | service `sessions`; slots `session.filter/name/colour/location/card/details/extra`; event `sessions:changed` |
 | `planner` | The Planner tab: one calendar you zoom in and out of (Year → Month → Week → Day; tap, the purple zoom-out label, pinch, or the Y M W D switch), Upcoming as a list button; opens on today's Day each time the app starts | (sessions) | views | service `planner` (`zoomIn/zoomOut/show`); slots `planner.views` (with `zoom`, `short`, `crumb`), `planner.actions`, `planner.buttons` |
 | `day-view` | Day view: a timeline of hours | sessions (planner) | planner.views | slot `day.cards` |
 | `durham-rooms` | Durham room codes → buildings and map positions | | | service `places` |
@@ -51,6 +51,7 @@ In start order. `python build.py list` shows the same, and `dist/report.html` ma
 | `modules` | Rename, recolour or hide modules; palette button next to the Planner's level switch | sessions (planner) | session.name/colour/filter/details, planner.buttons, settings | |
 | `month-view` | Month view: module dots on each day, the chosen day's classes underneath | sessions (planner) | planner.views | |
 | `more` | The More tab: cards with a dark bar along the bottom (just the campus card for now) | | views | slot `more.items` |
+| `own-events` | Your own events in the Planner: the + button next to the level switch, a form (name, day, times, place, repeat weekly), drawn as outlines in every view; Edit and Delete in the details window; saved on the phone only | sessions (planner) | session.extra/details, planner.buttons, help.questions | |
 | `notes` | Notes on sessions | sessions | session.card/details | |
 | `reminders` | Class and personal reminders | sessions | menu, session.details | |
 | `spots` | The Spots tab: Student deals, then Cafés, Pubs and Clubs cards (each opens its places, or says coming soon), the Explore page on Home, and a Student deals widget people can add to Home | | views, home.pages, home.widgets | slot `spots.places` |

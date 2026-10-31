@@ -114,7 +114,7 @@ export default class DayView extends Feature {
       const badge = sessions.badge(s);
       const place = sessions.placeLabel(s.location);
       return el('article', {
-        class: `tl-blk${past ? ' past' : ''}${s.cancelled ? ' cancelled' : ''}${bottom - top < 50 ? ' short' : ''}`,
+        class: `tl-blk${past ? ' past' : ''}${s.cancelled ? ' cancelled' : ''}${bottom - top < 50 ? ' short' : ''}${s.outline ? ' outline' : ''}`,
         style: `--h:${sessions.hue(s)};--lane:${lane};--lanes:${lanes};top:${px(top)}px;height:${Math.max(28, px(bottom) - px(top) - 3)}px`,
         onclick: () => sessions.open(s),
       },

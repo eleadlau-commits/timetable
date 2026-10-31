@@ -76,13 +76,14 @@ export default class Reminders extends Feature {
 
   // Minutes before a session that its reminder goes off (0 = none).
   leadFor(s) {
-    return this.perSession[s.key] ?? this.lead;
+    // Your own events (from the Planner) only remind you if you choose a time for them.
+    return this.perSession[s.key] ?? (s.own ? 0 : this.lead);
   }
 
   // Every reminder due after `from`, soonest first.
   upcoming(from) {
     const out = [];
-    for (const s of this.sessions.all) {
+    for (const s of [...this.sessions.all, ...(this.sessions.extra || [])]) {
       if (s.cancelled || s.allDay || !this.sessions.isShown(s)) continue;
       const lead = this.leadFor(s);
       const at = new Date(s.start.getTime() - lead * time.MINUTE);
@@ -180,17 +181,18 @@ export default class Reminders extends Feature {
 
   sessionChoice(s) {
     if (s.allDay || s.cancelled || s.start <= new Date()) return null;
-    const choice = ui.select([['default', 'Same as my other classes'], ...LEADS.map(([v, label]) => [v, v ? label : 'No reminder'])], {
+    const leads = LEADS.map(([v, label]) => [v, v ? label : 'No reminder']);
+    const choice = ui.select(s.own ? leads : [['default', 'Same as my other classes'], ...leads], {
       id: 'reminders-session',
-      value: this.perSession[s.key] ?? 'default',
+      value: this.perSession[s.key] ?? (s.own ? 0 : 'default'),
       onChange: async (value) => {
-        if (value === 'default') delete this.perSession[s.key];
+        if (value === 'default' || (s.own && !+value)) delete this.perSession[s.key];
         else this.perSession[s.key] = +value;
         this.save();
         if (+value) await this.allowNotifications();
       },
     });
-    return el('div', { class: 'group' }, el('label', { class: 'label', for: 'reminders-session' }, 'Reminder for this session'), choice);
+    return el('div', { class: 'group' }, el('label', { class: 'label', for: 'reminders-session' }, s.own ? 'Reminder' : 'Reminder for this session'), choice);
   }
 
   // ---- The Reminders window ----

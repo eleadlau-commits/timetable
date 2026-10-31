@@ -2,8 +2,9 @@
 // gives other features places to change them (rename, recolour, hide, add lines and sections).
 //
 // Service 'sessions' (this object):
-//   all                     every session
-//   onDay(date, { includeHidden })   the sessions on one day, in time order
+//   all                     every class from the timetable
+//   extra                   sessions other features add (your own events), from 'session.extra'
+//   onDay(date, { includeHidden })   the sessions on one day (classes and extra ones), in time order
 //   hiddenNote(date)        "2 hidden sessions · Manage modules", or null
 //   isShown(s), name(s), shortName(s), hue(s), kind(s), badge(s), moduleOf(s), defaultHue(module)
 //   placeLabel(location), placeLink(location)
@@ -14,6 +15,10 @@
 //   layout                  rules for calendar grids, from layout.js: layoutLanes, minutesInto,
 //                           hourRange, monthGrid, academicYear, addMonths
 //   changed()               call after changing how sessions look (names, colours, hiding, places)
+//                           or which extra sessions there are
+//
+// A session can carry `hue` (its colour, before any from 'session.colour') and `outline: true`
+// (drawn as an outline rather than filled, for things that aren't classes).
 //
 // Events it sends: 'sessions:changed' after changed().
 
@@ -39,6 +44,9 @@ export default class Sessions extends Feature {
     this.defineSlot('session.location',
       'Explains locations. Item: { label?(location) → text, link?(location) → URL, linkLabel?(location) → button text }.');
     this.defineSlot('session.card', 'Extra lines on session cards. Item: { order, render(session) → element or null }.');
+    this.defineSlot('session.extra',
+      'Adds sessions that aren\'t from the timetable, such as your own events. Item: { sessions() → array of sessions '
+      + 'shaped like the timetable\'s, plus own: true }. Call changed() when they change. They show in the views but not in all.');
     this.defineSlot('session.details',
       'Sections in the session details window. Item: { order, render(session, window) → element or null, close?(session) }. '
       + 'window.refresh() redraws the heading and location; window.close() closes it.');
@@ -59,6 +67,15 @@ export default class Sessions extends Feature {
     return this.timetable.events;
   }
 
+  // Sessions from 'session.extra', worked out once and kept until changed().
+  get extra() {
+    if (!this.extraCache) {
+      this.extraCache = [];
+      this.slot('session.extra').each((item) => { this.extraCache.push(...(item.sessions() || [])); });
+    }
+    return this.extraCache;
+  }
+
   moduleOf(s) {
     return (s.module ??= moduleKey(s.title));
   }
@@ -70,10 +87,13 @@ export default class Sessions extends Feature {
   onDay(date, { includeHidden = false } = {}) {
     const from = time.startOfDay(date);
     const to = time.addDays(from, 1);
-    return this.all.filter((s) =>
+    const extra = this.extra;
+    const list = extra.length ? [...this.all, ...extra] : this.all;
+    const found = list.filter((s) =>
       s.start < to
       && (s.end > from || (s.end.getTime() === s.start.getTime() && s.start >= from))
       && (includeHidden || this.isShown(s)));
+    return extra.length ? found.sort((a, b) => a.start - b.start) : found;
   }
 
   hiddenNote(date) {
@@ -97,7 +117,7 @@ export default class Sessions extends Feature {
   }
 
   shortName(s) {
-    return this.slot('session.name').first((r) => r.short?.(s)) || this.moduleOf(s);
+    return this.slot('session.name').first((r) => r.short?.(s)) || (s.own ? s.title : this.moduleOf(s));
   }
 
   defaultHue(module) {
@@ -105,7 +125,7 @@ export default class Sessions extends Feature {
   }
 
   hue(s) {
-    return this.slot('session.colour').first((c) => c.hue(s)) ?? hueFor(this.moduleOf(s));
+    return s.hue ?? this.slot('session.colour').first((c) => c.hue(s)) ?? hueFor(this.moduleOf(s));
   }
 
   // One colour for each module on the day (not cancelled ones), at most `max`.
@@ -155,6 +175,7 @@ export default class Sessions extends Feature {
 
   // Call after changing how sessions look, so cards, the details window and others update.
   changed() {
+    this.extraCache = null;
     this.emit('sessions:changed');
     this.refreshWindow();
     this.refresh();
@@ -172,7 +193,7 @@ export default class Sessions extends Feature {
     // the button, because a card that is itself a button can't hold the place link and features'
     // buttons inside it.
     return el('article', {
-      class: `card${past ? ' past' : ''}${live ? ' now' : ''}${s.cancelled ? ' cancelled' : ''}`,
+      class: `card${past ? ' past' : ''}${live ? ' now' : ''}${s.cancelled ? ' cancelled' : ''}${s.outline ? ' outline' : ''}`,
       style: `--h:${this.hue(s)}`,
       onclick: () => this.open(s),
     },
@@ -214,6 +235,7 @@ export default class Sessions extends Feature {
     const s = this.current;
     if (!s) return;
     this.window.element.style.setProperty('--h', this.hue(s));
+    this.window.element.classList.toggle('outline', !!s.outline);
     this.window.setTitle(this.name(s));
     this.original.textContent = s.title;
     this.original.hidden = this.name(s) === s.title;
