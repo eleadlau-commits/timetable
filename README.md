@@ -22,7 +22,7 @@ The app has five tabs along the bottom: **Study · Planner · Home · Spots · M
 | **Modules** | Rename a module ("ECON1011" → "Microeconomics"), pick its colour, or hide it. |
 | **Maps** | Durham room codes show as buildings (`CLC013 · Calman Learning Centre`), with a map and directions. |
 | **Reminders** | A notification before each class, plus your own reminders. |
-| **Library** | How busy Bill Bryson Library is: a thin bar on Home and a small one on the **Study** tab. Tap it for free seats on each floor. |
+| **Library** | How busy Bill Bryson Library is: a thin bar on Home and a small one on the **Study** tab. It checks again every time you open the app or switch back to it, and every 5 minutes while it's open, and says how long ago it checked (greyed out if over 15 minutes). Tap it for free seats on each floor. |
 | **Study timer** | A card on the **Study** tab: how long you've studied today, your weekly goal and a **Start** button. Build a pattern of study and rest blocks (drag a block's end to change its length, or use *Simple hour*, *Pomodoro* or *Long focus*), repeat it, pick a module and start. A big countdown with **Pause**, **Skip** and **Stop**; it keeps time with the phone locked, and the phone app sends a notification when each block ends. **This week** shows hours per day by module, against your goal and last week. Saved on your phone only. |
 | **Campus card** | Scan your card's barcode (camera or photo), or type the number, and show it on your phone if you lose the card. Reads Durham's Telepen barcode as well as the common types. |
 | **Link sharing** | A QR code to send your timetable link from a computer to your phone (web version). |

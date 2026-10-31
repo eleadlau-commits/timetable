@@ -8,7 +8,8 @@ How busy Bill Bryson Library is right now, with free seats on each floor. It rea
 - **A small folded bar on the Study tab** (`study.cards`): *Bill Bryson Library*, how busy it is (*Plenty of seats*, *Fairly busy*, *Busy*, *Full*, the same bands as the library's page; green, orange, then red for busy and full), the free seats, and a bar that fills up as the library fills up, with a dotted line for the free part. Tap it to open the pop-up below. When there are no numbers yet it shows **Missing content** with the reason (for example, that the web version needs the relay).
 - **The same folded bar on the Study tab** (`study.cards`), called *Bill Bryson Library*.
 - **A full-screen pop-up** when either bar is tapped: how busy it is, free seats on each floor with a small bar, the areas of floors that have more than one (e.g. `North 52 · East 1`), when it was last checked, a refresh button and a link to the library's page.
-- **Updates:** every 5 minutes while the bar or pop-up is on screen, or with the refresh button. The last reading is kept, so the bars show something straight away and while offline.
+- **Updates:** a fresh check every time the app opens or comes back to the front (not twice within 30 seconds), every 5 minutes while the app is on screen, when the connection comes back, and with the refresh button. Nothing runs while the app is in the background or the bars are switched off. The rules are in `freshness.js`, tested in `tests/freshness.test.js`. The last reading is kept, so the bars show something straight away and while offline.
+- **How fresh:** each bar and widget says *Updated 3 min ago* (or *Checking…*). Numbers older than 15 minutes are greyed out, with the age in bold, so nobody trusts an old number.
 - **Settings → Library:** a switch to hide the bars.
 
 ## What it needs
@@ -24,6 +25,8 @@ How busy Bill Bryson Library is right now, with free seats on each floor. It rea
 - `open`: no longer used. It remembered whether the old Day view card was unfolded; the key is left alone.
 
 ## How it reads the page
+
+The **total of free seats is the library's own headline** (*707 free spaces*), even when the floors add up to something else: the page itself is sometimes out, and the team decided to show the library's number. Without a headline, the floors are added up. The total number of seats (for the bar) is the floors' seats added up, never fewer than the free ones.
 
 `occupancy.js` looks for `Level N` headings and `free/total` numbers (also `free of total`), each named by the word before it. It goes by the page's words rather than its layout, so a redesign is less likely to break it. If the page stops having numbers, the card says it couldn't read them. The rules are tested in `tests/occupancy.test.js`.
 

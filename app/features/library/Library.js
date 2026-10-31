@@ -1,6 +1,7 @@
 // Library: how busy Bill Bryson Library is. A thin row on Home (name, free seats, a bar) and a
 // small folded bar on the Study tab (busy or not, free seats, a bar). Tap it for a full-screen pop-up with free seats on each floor.
-// Read from the library's public occupancy page every few minutes while it's on screen. No booking.
+// Read from the library's public occupancy page whenever the app comes to the front (opened or
+// switched back to), and every 5 minutes while it's open. No booking.
 //
 // In the Android app the page is read directly. In the web version the university's server may
 // block that (CORS), so it goes through the personal relay if one is set up.
@@ -11,9 +12,9 @@
 
 import { Feature, ui, time } from 'folio';
 import { SOURCE, textOf, readOccupancy, busyness } from './occupancy.js';
+import { shouldCheck, isOld } from './freshness.js';
 
 const { el } = ui;
-const FRESH = 5 * time.MINUTE;
 
 export default class Library extends Feature {
   start() {
@@ -30,6 +31,13 @@ export default class Library extends Feature {
     });
     this.add('study.cards', { order: 10, render: () => this.folded('Bill Bryson Library') });
     this.add('settings', { id: 'library', title: 'Library', order: 70, render: () => this.settingsSection() });
+
+    // Fresh numbers without anyone tapping refresh: a check when the app opens or comes back to
+    // the front, and every 5 minutes while it's on screen (Folio's tick only runs then).
+    this.on('app:ready', () => this.freshen('front'));
+    this.on('app:resume', () => this.freshen('front'));
+    this.on('app:online', () => this.freshen('front'));
+    this.on('app:tick', () => this.freshen('tick'));
   }
 
   async download() {
@@ -64,9 +72,28 @@ export default class Library extends Feature {
     }
   }
 
-  // Loads a new reading when the last one is more than a few minutes old.
-  freshen() {
-    if (!this.loading && Date.now() - this.tried > FRESH && navigator.onLine) this.load();
+  // Loads a new reading when it's due (see freshness.js). Nothing is checked while the bars are
+  // switched off.
+  freshen(why = 'tick') {
+    if (!this.show || this.loading || !navigator.onLine) return;
+    if (shouldCheck({ now: Date.now(), tried: this.tried, why })) this.load();
+  }
+
+  // "Updated 3 min ago", or "Checking…" while a check is running.
+  age() {
+    if (this.loading) return 'Checking…';
+    return this.last ? `Updated ${time.ago(this.last.at)}` : '';
+  }
+
+  // ' lib-old' when the numbers are too old to trust, so they're greyed out.
+  oldClass() {
+    return this.last && !this.loading && isOld(this.last.at, Date.now()) ? ' lib-old' : '';
+  }
+
+  // Read out after the numbers, so screen readers hear how fresh they are.
+  ageSpoken() {
+    if (!this.last) return '';
+    return isOld(this.last.at, Date.now()) ? `, old numbers, updated ${time.ago(this.last.at)}` : `, updated ${time.ago(this.last.at)}`;
   }
 
   // On the Study tab (and on Home before the first reading): a small folded bar with how busy
@@ -84,15 +111,16 @@ export default class Library extends Feature {
     const band = busyness(o.free, o.seats);
     return el('button', {
       type: 'button',
-      class: 'lib-home',
-      'aria-label': `Bill Bryson Library, ${band.label.toLowerCase()}, ${o.free} seats free. Show each floor`,
+      class: `lib-home${this.oldClass()}`,
+      'aria-label': `Bill Bryson Library, ${band.label.toLowerCase()}, ${o.free} seats free${this.ageSpoken()}. Show each floor`,
       onclick: open,
     },
       el('span', { class: 'lib-line' },
         el('b', {}, name),
         el('span', { class: `lib-tag ${band.id}` }, band.label),
         el('span', { class: 'lib-free' }, el('strong', {}, o.free), ' seats free')),
-      this.bar(o.free, o.seats));
+      this.bar(o.free, o.seats),
+      el('span', { class: 'lib-age' }, this.age()));
   }
 
   // On Home: one thin row with the name, the free seats and the bar. Tap it to open the floors.
@@ -102,13 +130,14 @@ export default class Library extends Feature {
     if (!o) return this.folded('Library');
     return el('button', {
       type: 'button',
-      class: 'lib-home lib-thin',
-      'aria-label': `Bill Bryson Library, ${busyness(o.free, o.seats).label.toLowerCase()}, ${o.free} seats free. Show each floor`,
+      class: `lib-home lib-thin${this.oldClass()}`,
+      'aria-label': `Bill Bryson Library, ${busyness(o.free, o.seats).label.toLowerCase()}, ${o.free} seats free${this.ageSpoken()}. Show each floor`,
       onclick: () => this.openWindow(),
     },
       el('b', {}, 'Library'),
       el('span', { class: 'lib-free' }, el('strong', {}, o.free), ' seats free'),
-      this.bar(o.free, o.seats));
+      this.bar(o.free, o.seats),
+      el('span', { class: 'lib-age' }, this.age().replace('Updated ', '')));
   }
 
   // On Home, as a tall widget: the free seats in big numbers, how busy it is, and the bar.
@@ -119,19 +148,20 @@ export default class Library extends Feature {
     const band = busyness(o.free, o.seats);
     return el('button', {
       type: 'button',
-      class: 'lib-home lib-tall',
-      'aria-label': `Bill Bryson Library, ${band.label.toLowerCase()}, ${o.free} seats free. Show each floor`,
+      class: `lib-home lib-tall${this.oldClass()}`,
+      'aria-label': `Bill Bryson Library, ${band.label.toLowerCase()}, ${o.free} seats free${this.ageSpoken()}. Show each floor`,
       onclick: () => this.openWindow(),
     },
       el('b', {}, 'Library'),
       el('span', { class: 'lib-big' }, el('strong', {}, o.free), el('span', {}, 'seats free')),
       el('span', { class: `lib-tag ${band.id}` }, band.label),
-      this.bar(o.free, o.seats));
+      this.bar(o.free, o.seats),
+      el('span', { class: 'lib-age' }, this.age()));
   }
 
   openWindow() {
     if (!this.window) this.window = ui.dialog({ title: 'Bill Bryson Library' });
-    this.freshen();
+    this.freshen('front');
     this.drawWindow();
     this.window.open();
   }
@@ -208,7 +238,7 @@ export default class Library extends Feature {
   addHelp() {
     for (const item of [
       { group: 'study', order: 10, question: 'Where do the library numbers come from?', answer: () => [
-        'From the library\'s own page of free seats at Bill Bryson Library. The app checks it every 5 minutes while the numbers are on screen, and you can tap the bar to see each floor.',
+        'From the library\'s own page of free seats at Bill Bryson Library, and the total is the library\'s own count. The app checks it every time you open the app or switch back to it, and every 5 minutes while it\'s open, so you don\'t need to refresh. Under the number it says how long ago it was checked, and if that\'s more than 15 minutes (say, you\'re offline) the numbers are greyed out. Tap the bar to see each floor.',
       ] },
     ]) this.add('help.questions', item);
   }

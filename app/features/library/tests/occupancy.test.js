@@ -1,5 +1,5 @@
 import { test, assert } from 'folio/testing';
-import { textOf, readOccupancy, busyness } from '../occupancy.js';
+import { textOf, readOccupancy, busyness, headline } from '../occupancy.js';
 
 // Shaped like the library's page in October 2026.
 const PAGE = `<html><body><h1>Library Occupancy - Bill Bryson Library</h1>
@@ -20,8 +20,20 @@ test('free seats are added up per floor', () => {
   const o = readOccupancy(textOf(PAGE));
   assert.deepEqual(o.floors.map((f) => [f.name, f.free, f.seats]),
     [['Level 4', 53, 271], ['Level 3', 44, 278], ['Level 2', 26, 100]]);
-  assert.equal(o.free, 123);
-  assert.equal(o.seats, 649);
+  assert.equal(o.counted, 123);
+  assert.equal(o.seats, 707); // never fewer seats than the headline's free ones
+});
+
+test('the total of free seats is the library\'s own headline, even when the floors add up differently', () => {
+  assert.equal(readOccupancy(textOf(PAGE)).free, 707);
+  assert.equal(headline('1,204 free study spaces'), 1204);
+  assert.equal(headline('Level 4 North 52/139'), null);
+});
+
+test('without a headline, the floors are added up', () => {
+  const o = readOccupancy('Level 1 North 31/57 Level 2 East 41/170');
+  assert.equal(o.free, 72);
+  assert.equal(o.seats, 227);
 });
 
 test('areas keep their names, and labels like "High" are not mistaken for names', () => {
