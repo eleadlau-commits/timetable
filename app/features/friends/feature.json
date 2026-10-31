@@ -5,5 +5,5 @@
   "main": "Friends.js",
   "styles": ["friends.css"],
   "requires": ["account"],
-  "uses": ["sessions"]
+  "uses": ["sessions", "welcome"]
 }

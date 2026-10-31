@@ -44,7 +44,7 @@ export default class Planner extends Feature {
       label: 'Planner',
       icon: 'calendar',
       order: 10,
-      visible: () => this.views.length > 0,
+      visible: () => this.views.length > 0 && !this.use('audience')?.isBusiness(), // not in the business version
       mount: (container, { head, actions }) => this.mount(container, head, actions),
       render: () => this.render(),
       step: (direction) => this.step(direction),

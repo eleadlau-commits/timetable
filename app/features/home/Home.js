@@ -12,10 +12,13 @@
 //                  <section class="home-page-row"><div><h2 class="home-page-title">Explore</h2>
 //                  <p class="home-page-line">…</p></div><button class="home-button"><b>Open</b>›</button></section>
 //   'home.widgets' widgets for the grid. Item: { id, label, order, sizes: ['large', 'tall', …],
-//                  start?, render(size) → element or null }. sizes lists the sizes it can be drawn
+//                  start?, audience?, render(size) → element or null }. sizes lists the sizes it can be drawn
 //                  in ('wide', 'tall', 'large'; see grid.js), the first being how it starts out.
 //                  start: false leaves it off Home until someone adds it. render gets the size and
 //                  should fill the space it's given.
+//                  audience says which version of the app it's in (the welcome feature's
+//                  'audience' service): nothing for the student version, 'business' for the
+//                  business version, 'everyone' for both. Pages can say it too.
 //   'home.layout'  the person's choices (from Customise Home). Only the first item is used.
 //                  Item: { widgets() → [{ id, size }] in order, or undefined for the usual ones;
 //                  photo() → a picture's address, or undefined for Home's own }
@@ -39,8 +42,8 @@ const PHOTO = new URL('photos/durham.jpg', import.meta.url).href;
 
 export default class Home extends Feature {
   start() {
-    this.defineSlot('home.pages', 'More pages at the top of Home, swiped to after the clock. Item: { id, order, render() → element or null }. One short row: use home-page-row, home-page-title, home-page-line and home-button.');
-    this.defineSlot('home.widgets', "Widgets on Home's grid. Item: { id, label, order, sizes: ['wide' | 'tall' | 'large', …] (the first is how it starts), start?: false to leave it off until added, render(size) → element or null }.");
+    this.defineSlot('home.pages', 'More pages at the top of Home, swiped to after the clock. Item: { id, order, audience?: \'business\' or \'everyone\' (students only without it), render() → element or null }. One short row: use home-page-row, home-page-title, home-page-line and home-button.');
+    this.defineSlot('home.widgets', "Widgets on Home's grid. Item: { id, label, order, sizes: ['wide' | 'tall' | 'large', …] (the first is how it starts), start?: false to leave it off until added, audience?: 'business' or 'everyone' (students only without it), render(size) → element or null }.");
     this.defineSlot('home.layout', "The person's choice of widgets and photo. Only the first item is used. Item: { widgets() → [{ id, size }] or undefined; photo() → address or undefined for Home's own }.");
     this.defineSlot('home.tools', 'Small buttons on the dark area of Home, at the right of the dots. Item: { id, label, icon, order, onClick() }.');
     this.timer = 0;
@@ -50,7 +53,7 @@ export default class Home extends Feature {
     this.provide('home', {
       photo: PHOTO,
       sizes: SIZES,
-      widgets: () => this.slot('home.widgets').items.map((w) => ({ id: w.id, label: w.label || w.id, sizes: w.sizes || [] })),
+      widgets: () => this.widgetItems().map((w) => ({ id: w.id, label: w.label || w.id, sizes: w.sizes || [] })),
       usual: () => this.usual(),
       rows: () => this.rowCount,
       pack: (widgets) => pack(widgets, this.rowCount),
@@ -68,6 +71,7 @@ export default class Home extends Feature {
       mount: (container, { head }) => this.mount(container, head),
       render: () => this.render(),
     });
+    this.on('audience:changed', () => this.refresh());
     this.on('app:resume', () => {
       this.pages?.go(0); // back to the first page whenever the app comes back
       this.refresh();
@@ -96,9 +100,21 @@ export default class Home extends Feature {
     }).observe(this.grid);
   }
 
+  // Whether a widget or page belongs in this version of the app (student or business).
+  isFor(item) {
+    const audience = this.use('audience');
+    if (audience) return audience.isFor(item);
+    return item.audience !== 'business';
+  }
+
+  // The widgets for this version of the app.
+  widgetItems() {
+    return this.slot('home.widgets').items.filter((w) => this.isFor(w));
+  }
+
   // The widgets Home shows until someone chooses: each in its first size, unless it says not.
   usual() {
-    return this.slot('home.widgets').items.filter((w) => w.start !== false && w.sizes?.length).map((w) => ({ id: w.id, size: w.sizes[0] }));
+    return this.widgetItems().filter((w) => w.start !== false && w.sizes?.length).map((w) => ({ id: w.id, size: w.sizes[0] }));
   }
 
   // The widgets to show ([{ id, size }]): the person's choice, or the usual ones.
@@ -110,12 +126,13 @@ export default class Home extends Feature {
 
   drawWidgets() {
     const slot = this.slot('home.widgets');
-    if (!slot.size) {
+    const items = this.widgetItems();
+    if (!items.length) {
       this.grid.style.gridTemplateRows = '';
       this.grid.replaceChildren(ui.missing('Nothing to show here yet.', { class: 'missing home-nothing' }));
       return;
     }
-    const byId = new Map(slot.items.map((w) => [w.id, w]));
+    const byId = new Map(items.map((w) => [w.id, w]));
     const wanted = this.chosen().filter((w) => byId.get(w.id)?.sizes?.includes(w.size));
     const { placed } = pack(wanted, this.rowCount, { stretch: true });
     this.grid.style.gridTemplateRows = `repeat(${this.rowCount}, minmax(0, 1fr))`;
@@ -137,7 +154,7 @@ export default class Home extends Feature {
     const period = parts.find((p) => p.type === 'dayPeriod')?.value;
     const digits = parts.filter((p) => p.type !== 'dayPeriod').map((p) => p.value).join('').trim();
     this.clock.replaceChildren(...[digits, period && el('small', {}, period)].filter(Boolean));
-    this.pages.setPages([this.first, ...this.slot('home.pages').map((page) => page.render()).filter(Boolean)]);
+    this.pages.setPages([this.first, ...this.slot('home.pages').map((page) => (this.isFor(page) ? page.render() : null)).filter(Boolean)]);
     this.drawWidgets();
     this.drawTools();
     this.showPhoto();

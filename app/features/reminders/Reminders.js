@@ -34,7 +34,7 @@ export default class Reminders extends Feature {
     this.channelMade = false;
     this.shownOnWeb = new Set();
 
-    this.add('header.buttons', { id: 'reminders', label: 'Reminders', icon: 'bell', order: 20, onClick: () => this.openWindow() });
+    this.add('header.buttons', { id: 'reminders', label: 'Reminders', icon: 'bell', order: 20, visible: () => !this.use('audience')?.isBusiness(), onClick: () => this.openWindow() });
     this.add('session.details', { order: 40, render: (s) => this.sessionChoice(s) });
     this.on('timetable:changed', () => this.sync());
     this.on('sessions:changed', () => this.sync()); // e.g. a module was hidden

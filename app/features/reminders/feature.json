@@ -7,5 +7,6 @@
   "requires": ["sessions"],
   "native": {
     "packages": { "@capacitor/local-notifications": "^7.0.0" }
-  }
+  },
+  "uses": ["welcome"]
 }

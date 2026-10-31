@@ -16,7 +16,7 @@ export const FRESH_FOR = 6 * time.HOUR;
 // The most places asked for at once (the database's rules refuse a bigger ask).
 export const MOST = 100;
 
-const LIMITS = { name: 60, line: 120, deal: 120, address: 120 };
+const LIMITS = { name: 60, line: 120, deal: 120, address: 120, hours: 120 };
 
 export function kindOf(text) {
   const plain = String(text || '').trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -50,7 +50,7 @@ export function toMillis(value) {
 }
 
 // One document from the database, tidied: { id, kind, name, line, deal, dealEnds, address, link,
-// order }, or null if it can't be shown (not published, no name, or a kind Spots doesn't have).
+// hours, menu, order }, or null if it can't be shown (not published, no name, or a kind Spots doesn't have).
 export function toPlace(id, data) {
   if (!data || data.published !== true) return null;
   const kind = kindOf(data.kind);
@@ -65,6 +65,8 @@ export function toPlace(id, data) {
     dealEnds: toMillis(data.dealEnds),
     address: words(data.address, LIMITS.address),
     link: webLink(data.link),
+    hours: words(data.hours, LIMITS.hours),
+    menu: webLink(data.menu),
     order: Number.isFinite(data.order) ? data.order : 50,
   };
 }

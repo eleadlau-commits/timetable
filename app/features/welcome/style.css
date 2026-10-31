@@ -1,0 +1,41 @@
+/* The welcome screen: who the app is for. */
+.welcome { display: grid; gap: 18px; padding: 8px 0 24px; max-width: 520px; margin: 0 auto; }
+.welcome-top {
+  background: var(--top);
+  color: var(--on-top);
+  border-radius: var(--shape);
+  padding: 28px 22px 26px;
+}
+.welcome-kicker { margin: 0; color: var(--on-top-muted); font-size: 15px; }
+.welcome-top h1 { margin: 2px 0 10px; font-size: 32px; line-height: 1.1; }
+.welcome-line { margin: 0; color: var(--on-top-muted); font-size: 15px; }
+.welcome-choices { display: grid; gap: 12px; }
+.welcome-choice {
+  display: grid;
+  grid-template-columns: 44px 1fr 20px;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 18px 16px;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--shape);
+  cursor: pointer;
+}
+.welcome-choice:hover, .welcome-choice:focus-visible { border-color: var(--accent); }
+.welcome-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--shape-sm);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.welcome-text { display: grid; gap: 3px; }
+.welcome-text b { font-size: 17px; }
+.welcome-text span { color: var(--muted); font-size: 14px; line-height: 1.35; }
+.welcome-setting { display: grid; gap: 8px; }

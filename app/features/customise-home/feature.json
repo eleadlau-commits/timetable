@@ -4,5 +4,6 @@
   "version": "1.0.0",
   "main": "CustomiseHome.js",
   "styles": ["style.css"],
-  "requires": ["home"]
+  "requires": ["home"],
+  "uses": ["welcome"]
 }

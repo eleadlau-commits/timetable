@@ -20,6 +20,7 @@ export default class More extends Feature {
       label: 'More',
       icon: 'dots',
       order: 50,
+      visible: () => !this.use('audience')?.isBusiness(), // not in the business version
       subtitle: () => 'Everything else',
       mount: (container) => {
         this.box = el('div', { class: 'more-cards' });

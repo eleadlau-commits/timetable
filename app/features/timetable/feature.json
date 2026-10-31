@@ -4,5 +4,6 @@
   "version": "2.1.0",
   "main": "Timetable.js",
   "styles": ["timetable.css"],
-  "templates": "templates.html"
+  "templates": "templates.html",
+  "uses": ["welcome"]
 }

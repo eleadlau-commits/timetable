@@ -95,6 +95,7 @@ export default function seed(app) {
       place('p4', 'pubs', 'The Swan and Three Cygnets', 'Pints with a view', { address: 'Elvet Bridge' }),
     ],
   });
+  area('shop').set('no-count', true); // the tests never count views of places on Spots
   const view = new URLSearchParams(location.hash.slice(1)).get('view');
   if (view) area('folio').set('view', view);
 }

@@ -38,8 +38,14 @@ test('a published place is tidied for showing', () => {
   const place = toPlace('abc', cafe({ deal: '  10% off   with a student card ', link: 'https://flatwhite.example', order: 2 }));
   assert.deepEqual(place, {
     id: 'abc', kind: 'cafes', name: 'Flat White', line: 'Coffee on Elvet Bridge',
-    deal: '10% off with a student card', dealEnds: null, address: '', link: 'https://flatwhite.example/', order: 2,
+    deal: '10% off with a student card', dealEnds: null, address: '', link: 'https://flatwhite.example/',
+    hours: '', menu: null, order: 2,
   });
+  const more = toPlace('abc', cafe({ hours: ' Mon–Sat  8–5 ', menu: 'https://flatwhite.example/menu', link: 'http://plain.example' }));
+  assert.equal(more.hours, 'Mon–Sat 8–5');
+  assert.equal(more.menu, 'https://flatwhite.example/menu');
+  assert.equal(more.link, null);
+  assert.equal(toPlace('abc', cafe({ menu: 'javascript:alert(1)' })).menu, null);
   assert.equal(toPlace('abc', cafe()).deal, null);
   assert.equal(toPlace('abc', cafe()).order, 50);
 });
