@@ -176,16 +176,185 @@ service cloud.firestore {
 
     // ---- Places on Spots: cafés, pubs and clubs, with their student deals ----
     // Everyone can read the published ones, signed in or not (they're public, like a poster).
-    // Nobody can change them from the app: the team adds and edits them in the Firebase console,
-    // which only people added to the Firebase project can open (the console isn't bound by
-    // these rules). Unpublished places are drafts, which only the console shows.
+    // Unpublished places are drafts. The team adds places in the Firebase console (which isn't
+    // bound by these rules), and the people in 'admins' can change them from the app (Approve
+    // changes). A shop's owner can read their own place, even as a draft, but never change it
+    // directly: they send a change (spotChanges) that waits for approval.
     // The app asks for at most 100 at once; asking for more, or for all of them, is refused,
     // which keeps each look small on the free plan's daily reads.
 
     match /spots/{place} {
-      allow get: if resource.data.published == true;
-      allow list: if resource.data.published == true && request.query.limit <= 100;
-      allow write: if false;
+      allow get: if resource.data.published == true || isAdmin() || ownsPlace(place);
+      allow list: if (resource.data.published == true && request.query.limit <= 100)
+        || (isAdmin() && request.query.limit <= 200);
+      allow create: if isAdmin() && validPlace(request.resource.data);
+      // Approving a change: places typed in the console may spell things their own way, so
+      // only the card's parts are checked.
+      allow update: if isAdmin() && validCard(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    function validPlace(d) {
+      return d.keys().hasAll(['published', 'kind', 'name'])
+        && d.published is bool
+        && d.kind in ['cafe', 'pub', 'club']
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 60
+        && validCard(d);
+    }
+
+    // ---- The team: who may approve changes ----
+    // admins/{uid} is made by hand in the Firebase console. Each person can only check
+    // whether they themselves are one.
+
+    function isAdmin() {
+      return signedIn() && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    match /admins/{uid} {
+      allow get: if isMe(uid);
+    }
+
+    // ---- Shops: which account looks after which place ----
+
+    function ownerPath(uid) {
+      return /databases/$(database)/documents/shopOwners/$(uid);
+    }
+
+    function ownsPlace(place) {
+      return signedIn() && exists(ownerPath(request.auth.uid))
+        && get(ownerPath(request.auth.uid)).data.place == place;
+    }
+
+    // Shop codes: the team makes one for a place and hands it to the owner. Anyone signed in can
+    // look up one code they've been given (they can't be listed or guessed), and use it once:
+    // marking it used by their own account. The person who used it can delete it (Delete my
+    // account does).
+
+    function validShopCode(code) {
+      return code.matches('[A-HJ-NP-Z2-9]{8}');
+    }
+
+    match /shopCodes/{code} {
+      allow get: if signedIn();
+      allow list: if isAdmin() && request.query.limit <= 200;
+      allow create: if isAdmin() && validShopCode(code)
+        && request.resource.data.keys().hasOnly(['place', 'usedBy', 'made'])
+        && request.resource.data.place is string
+        && request.resource.data.usedBy == null
+        && request.resource.data.made == request.time;
+      allow update: if signedIn() && resource.data.usedBy == null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy'])
+        && request.resource.data.usedBy == request.auth.uid;
+      allow delete: if isAdmin() || (signedIn() && resource.data.usedBy == request.auth.uid);
+    }
+
+    // shopOwners/{uid}: the place an account looks after. You make your own with a code that
+    // you've used (in the same step), or the team makes it when they approve a request.
+
+    match /shopOwners/{uid} {
+      allow get: if isMe(uid) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if validOwner(request.resource.data)
+        && (isAdmin()
+          || (isMe(uid) && validShopCode(request.resource.data.code)
+            && getAfter(/databases/$(database)/documents/shopCodes/$(request.resource.data.code)).data.usedBy == uid
+            && getAfter(/databases/$(database)/documents/shopCodes/$(request.resource.data.code)).data.place == request.resource.data.place));
+      allow update: if isAdmin() && validOwner(request.resource.data);
+      allow delete: if isMe(uid) || isAdmin();
+    }
+
+    function validOwner(d) {
+      return d.keys().hasOnly(['place', 'code', 'at']) && d.keys().hasAll(['place', 'code'])
+        && d.place is string && d.code is string;
+    }
+
+    // The parts of a card an owner can change, all optional: short texts, https links, and
+    // the deal's last day.
+    function optionalText(d, key, most) {
+      return !(key in d) || (d[key] is string && d[key].size() <= most);
+    }
+
+    function optionalLink(d, key) {
+      return !(key in d) || d[key] == ''
+        || (d[key] is string && d[key].size() <= 500 && d[key].matches('https://[^\\s]+'));
+    }
+
+    function validCard(d) {
+      return optionalText(d, 'line', 120) && optionalText(d, 'deal', 120) && optionalText(d, 'hours', 120)
+        && optionalText(d, 'address', 120)
+        && optionalLink(d, 'link') && optionalLink(d, 'menu')
+        && (!('dealEnds' in d) || d.dealEnds == null || d.dealEnds is timestamp)
+        && (!('order' in d) || d.order is number);
+    }
+
+    // spotChanges/{place}: an owner's change to their card, waiting for approval. The owner can
+    // send, resend or withdraw it; only the team can approve or reject it (just the status).
+
+    match /spotChanges/{place} {
+      allow get: if isAdmin() || ownsPlace(place);
+      allow list: if isAdmin() && request.query.limit <= 50;
+      allow create, update: if ownsPlace(place) && validChange(place, request.resource.data);
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['approved', 'rejected'];
+      allow delete: if isAdmin() || ownsPlace(place);
+    }
+
+    function validChange(place, d) {
+      return d.keys().hasOnly(['place', 'by', 'line', 'deal', 'dealEnds', 'hours', 'link', 'menu', 'status', 'at'])
+        && d.keys().hasAll(['place', 'by', 'status', 'at'])
+        && d.place == place && d.by == request.auth.uid
+        && d.status == 'waiting' && d.at == request.time
+        && validCard(d);
+    }
+
+    // spotRequests/{uid}: a business without a code asking to be listed. Only they and the team
+    // can see it; the team approves or rejects it (just the status).
+
+    match /spotRequests/{uid} {
+      allow get: if isMe(uid) || isAdmin();
+      allow list: if isAdmin() && request.query.limit <= 50;
+      allow create, update: if isMe(uid) && validListingRequest(uid, request.resource.data);
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['approved', 'rejected'];
+      allow delete: if isMe(uid) || isAdmin();
+    }
+
+    function validListingRequest(uid, d) {
+      return d.keys().hasOnly(['by', 'kind', 'name', 'address', 'contact', 'line', 'deal', 'dealEnds', 'hours', 'link', 'menu', 'status', 'at'])
+        && d.keys().hasAll(['by', 'kind', 'name', 'contact', 'status', 'at'])
+        && d.by == uid
+        && d.kind in ['cafe', 'pub', 'club']
+        && d.name is string && d.name.size() >= 1 && d.name.size() <= 60
+        && d.contact is string && d.contact.size() >= 1 && d.contact.size() <= 120
+        && d.status == 'waiting' && d.at == request.time
+        && validCard(d);
+    }
+
+    // spotStats/{place}_{week}: how many phones saw a place's card that week (seen), and tapped
+    // its Website or Menu (taps). Anyone can add one, signed in or not, and nothing else: no
+    // names, no account numbers. Only the place's owner and the team can read them.
+
+    match /spotStats/{stat} {
+      allow get: if isAdmin() || ownsPlace(stat.split('_')[0]);
+      allow create: if validStat(stat, request.resource.data)
+        && request.resource.data.get('seen', 0) in [0, 1]
+        && request.resource.data.get('taps', 0) in [0, 1]
+        && exists(/databases/$(database)/documents/spots/$(request.resource.data.place));
+      allow update: if validStat(stat, request.resource.data)
+        && request.resource.data.place == resource.data.place
+        && request.resource.data.week == resource.data.week
+        && (request.resource.data.get('seen', 0) - resource.data.get('seen', 0)) in [0, 1]
+        && (request.resource.data.get('taps', 0) - resource.data.get('taps', 0)) in [0, 1];
+    }
+
+    function validStat(stat, d) {
+      return d.keys().hasOnly(['place', 'week', 'seen', 'taps'])
+        && d.keys().hasAll(['place', 'week'])
+        && d.place is string && d.week is string && d.week.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        && stat == d.place + '_' + d.week
+        && d.get('seen', 0) is int && d.get('taps', 0) is int;
     }
   }
 }

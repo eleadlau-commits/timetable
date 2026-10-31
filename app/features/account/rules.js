@@ -4,7 +4,11 @@
 // account" deletes these, after other features' 'account.cleanup' (friendships and the friend
 // code). Whatever is stored online must be covered by one or the other (and firebase/firestore.rules).
 export function onlineData(uid) {
-  return [`users/${uid}/private/main`, `users/${uid}/private/profile`, `shared/${uid}`];
+  return [
+    `users/${uid}/private/main`, `users/${uid}/private/profile`, `shared/${uid}`,
+    // A business's link to its place on Spots, and its request to be listed (the shop feature).
+    `shopOwners/${uid}`, `spotRequests/${uid}`,
+  ];
 }
 
 // Ways to sign in, by the names Firebase gives them.

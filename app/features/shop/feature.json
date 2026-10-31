@@ -1,0 +1,9 @@
+{
+  "name": "Shop",
+  "description": "For businesses on Spots: link your place with a shop code (or ask to be listed), edit your card and deal, see this week's views; changes wait for the team's approval.",
+  "version": "1.0.0",
+  "main": "Shop.js",
+  "styles": ["style.css"],
+  "requires": ["account"],
+  "uses": ["welcome", "home", "spots", "help"]
+}

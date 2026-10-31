@@ -4,5 +4,5 @@
   "version": "2.0.0",
   "main": "Planner.js",
   "styles": ["planner.css"],
-  "uses": ["sessions"]
+  "uses": ["sessions", "welcome"]
 }

@@ -3,5 +3,6 @@
   "description": "The Home tab: the time, small pages to swipe, and cards from other features.",
   "version": "1.0.0",
   "main": "Home.js",
-  "styles": ["home.css"]
+  "styles": ["home.css"],
+  "uses": ["welcome"]
 }

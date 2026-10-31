@@ -74,7 +74,10 @@
 .spot-place-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .spot-place-where { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); min-width: 0; }
 .spot-place-where svg { flex: none; width: 16px; height: 16px; }
-.spot-place-foot .btn { flex: none; margin-left: auto; }
+.spot-place-foot .btn { flex: none; }
+.spot-place-links { display: inline-flex; gap: 6px; margin-left: auto; flex: none; }
+.spot-place-hours { display: flex; align-items: center; gap: 4px; margin: 0; font-size: 13px; color: var(--muted); }
+.spot-place-hours svg { flex: none; width: 16px; height: 16px; }
 .spot-dialog .spot-places { padding-bottom: 16px; }
 .spot-dialog .spot-place { background: var(--surface-2); }
 

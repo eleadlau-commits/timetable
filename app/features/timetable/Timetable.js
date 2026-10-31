@@ -77,9 +77,12 @@ export default class Timetable extends Feature {
 
     this.add('header.status', { order: 10, text: () => this.statusText() });
     this.add('planner.actions', { order: 10, render: () => this.refreshButton() });
-    this.add('settings', { id: 'timetable', title: 'Timetable', order: 10, render: () => this.settingsSection() });
+    this.add('settings', { id: 'timetable', title: 'Timetable', order: 10, render: () => (this.use('audience')?.isBusiness() && !this.hasData ? null : this.settingsSection()) });
     this.addHelp();
 
+    // Someone with a timetable already uses the app as a student: no welcome screen for them.
+    if (this.hasData) this.use('audience')?.assume('student');
+    this.on('audience:changed', () => { this.showingSetup = false; this.updateScreen(); });
     this.on('app:ready', () => {
       this.updateScreen();
       if (this.hasData && !this.showingSetup && this.isStale()) this.reload({ silent: true });
@@ -386,9 +389,17 @@ export default class Timetable extends Feature {
     this.updateScreen();
   }
 
+  // The setup screen shows until there's a timetable, but only in the student version: a
+  // business (or someone who hasn't chosen yet on the welcome screen) doesn't need one.
+  get wantsSetup() {
+    const audience = this.use('audience');
+    if (this.showingSetup) return true;
+    return !this.hasData && (!audience || audience.kind === 'student');
+  }
+
   updateScreen() {
     const shell = this.app.shell;
-    if (!this.hasData || this.showingSetup) {
+    if (this.wantsSetup) {
       this.backButton.hidden = !this.hasData;
       this.extras.replaceChildren(...this.slot('timetable.setup').map((item) => item.render()));
       shell.setTitle(null);

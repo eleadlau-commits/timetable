@@ -1,0 +1,131 @@
+/* Shop: the business version's widgets on Home, setting up, editing the card, approving. */
+
+/* ---- Widgets ---- */
+.shop-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--shape);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  overflow: hidden;
+}
+button.shop-widget { cursor: pointer; }
+.shop-widget:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.shop-widget > b, .shop-widget-head b { font-size: 15px; font-weight: 600; }
+.shop-widget small { font-size: 12px; color: var(--muted); }
+.shop-widget .btn { align-self: flex-start; margin-top: auto; }
+.shop-widget-wide { justify-content: center; padding: 6px 16px; gap: 0; }
+.shop-widget-wide > b { font-size: 14px; }
+.shop-widget-wide .btn { margin-top: 0; }
+
+.shop-later span { font-size: 13px; color: var(--muted); }
+.shop-setup-widget { background: var(--accent-soft); }
+.shop-setup-widget > span:not(.btn) { font-size: 13px; color: var(--text-2); line-height: 1.35; }
+.shop-widget-wide.shop-setup-widget > span:not(.btn) { display: none; }
+
+.shop-widget-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.shop-tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--shape-sm);
+  background: var(--plenty-soft);
+  color: var(--plenty-ink);
+}
+.shop-tag.is-waiting { background: var(--busy-soft); color: var(--busy-ink); }
+.shop-widget > * { flex: none; }
+.shop-card-summary { flex: 1 1 auto; min-height: 0; overflow: hidden; display: flex; flex-direction: column; gap: 4px; }
+.shop-card-name { font-size: 17px; font-weight: 600; line-height: 1.2; }
+.shop-card-line, .shop-card-deal {
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.shop-card-deal { color: var(--accent); font-weight: 600; }
+.shop-card-widget.shop-widget-wide { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; align-items: center; column-gap: 12px; }
+.shop-card-widget.shop-widget-wide .shop-widget-head { display: none; }
+.shop-card-widget.shop-widget-wide .shop-card-summary { flex-direction: row; gap: 8px; align-items: baseline; }
+.shop-card-widget.shop-widget-wide .shop-card-summary > :nth-child(n+3) { display: none; }
+.shop-card-widget.shop-widget-wide .shop-card-line { -webkit-line-clamp: 1; }
+.shop-card-widget.shop-widget-wide .shop-card-name { font-size: 15px; white-space: nowrap; }
+
+.shop-deal-text { display: block; font-size: 15px; font-weight: 600; color: var(--accent); line-height: 1.3; max-height: 3.9em; overflow: hidden; }
+.shop-widget-wide .shop-deal-text { white-space: nowrap; text-overflow: ellipsis; }
+.shop-preview { display: grid; gap: 6px; }
+.shop-preview .spot-place { background: var(--surface-2); }
+.shop-preview a { pointer-events: none; }
+
+.shop-number { display: flex; flex-direction: column; }
+.shop-number b { font-size: 26px; line-height: 1.1; font-weight: 600; }
+.shop-number span { font-size: 12px; color: var(--muted); line-height: 1.25; }
+.shop-week-widget.shop-widget-wide { flex-direction: row; align-items: center; gap: 14px; }
+.shop-week-widget.shop-widget-wide .shop-number b { font-size: 20px; }
+
+/* ---- Setting up and editing ---- */
+.shop-setup, .shop-form { display: grid; gap: 12px; padding-bottom: 20px; }
+.shop-setup h3, .shop-form h3 { margin: 6px 0 0; }
+.shop-setup p { margin: 0; }
+.shop-steps { list-style: none; display: flex; gap: 6px; margin: 0; padding: 0; }
+.shop-steps li {
+  flex: 1;
+  padding: 6px 8px;
+  border-radius: var(--shape-sm);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+.shop-steps li.now { background: var(--accent); color: var(--accent-ink); }
+.shop-steps li.done { background: var(--accent-soft); color: var(--accent); }
+.shop-or { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+.shop-or::before, .shop-or::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+.shop-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--shape-sm);
+  background: var(--busy-soft);
+  color: var(--busy-ink);
+  font-size: 14px;
+}
+.shop-field { display: grid; gap: 4px; }
+.shop-field .label { margin: 0; }
+.shop-field input, .shop-field select { width: 100%; }
+#shop-code { text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 0.08em; }
+.shop-account { display: grid; gap: 8px; justify-items: start; }
+.shop-account h3, .shop-account p { margin: 0; }
+
+/* ---- Approve changes ---- */
+.shop-approve-part { display: grid; gap: 10px; margin-bottom: 22px; }
+.shop-approve-card { display: grid; gap: 10px; padding: 12px 14px; border-radius: var(--shape); background: var(--surface-2); }
+.shop-diff { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; font-size: 14px; }
+.shop-diff dt { color: var(--muted); }
+.shop-diff dd { margin: 0; display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.shop-was { color: var(--muted); text-decoration: line-through; }
+.shop-new { color: var(--text); font-weight: 600; }
+.shop-approve-buttons { display: flex; gap: 8px; }
+.shop-code-maker { display: grid; gap: 6px; }
+.shop-code-maker select { flex: 1; min-width: 0; }
+.shop-made-code {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: var(--shape);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.shop-made-code b { font-family: var(--font-mono); font-size: 26px; letter-spacing: 0.08em; }
+.shop-made-code small { color: var(--text-2); }
+.shop-codes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.shop-codes li { display: grid; grid-template-columns: auto 1fr auto auto; align-items: baseline; gap: 10px; font-size: 14px; }
+.shop-codes code { font-family: var(--font-mono); }
+.shop-codes small { color: var(--muted); }

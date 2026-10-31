@@ -17,6 +17,7 @@ export default class Study extends Feature {
       label: 'Study',
       icon: 'book',
       order: 5,
+      visible: () => !this.use('audience')?.isBusiness(), // not in the business version
       subtitle: () => 'Places to study',
       mount: (container) => {
         this.box = el('div', { class: 'study-cards' });

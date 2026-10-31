@@ -8,8 +8,12 @@
 // Home asks for the choices through its 'home.layout' slot, so without this feature Home shows
 // its usual widgets and photo. The list rules are in rules.js; the grid rules are Home's.
 //
+// The business version of the app (the welcome feature) has its own widgets, so its choice is
+// kept apart from the student one.
+//
 // Saved data (on this phone only):
 //   'widgets'   → [{ id, size }] in order, or nothing for Home's usual ones
+//   'business-widgets' → the same, for the business version
 //   'photo'     → 'durham' (Home's own, the default) or 'own'
 //   'own-photo' → the photo chosen from the phone, shrunk, as a data: address (a JPEG)
 
@@ -27,7 +31,8 @@ export default class CustomiseHome extends Feature {
   start() {
     this.addHelp();
     this.home = this.use('home');
-    this.widgets = cleanWidgets(this.storage.get('widgets', null));
+    this.widgets = cleanWidgets(this.storage.get(this.widgetsKey, null));
+    this.on('audience:changed', () => { this.widgets = cleanWidgets(this.storage.get(this.widgetsKey, null)); });
     this.photo = PHOTOS.includes(this.storage.get('photo')) ? this.storage.get('photo') : 'durham';
     this.ownPhoto = this.storage.get('own-photo', null);
     this.picker = ui.filePicker('image/*');
@@ -47,6 +52,11 @@ export default class CustomiseHome extends Feature {
     });
   }
 
+  // Where the choice of widgets is saved: one for students, one for the business version.
+  get widgetsKey() {
+    return this.use('audience')?.isBusiness() ? 'business-widgets' : 'widgets';
+  }
+
   // The widgets on Home now: the person's choice, or Home's usual ones.
   get current() {
     const known = new Set((this.home?.widgets() || []).map((w) => w.id));
@@ -54,8 +64,8 @@ export default class CustomiseHome extends Feature {
   }
 
   save(message = null) {
-    if (this.widgets) this.storage.set('widgets', this.widgets);
-    else this.storage.remove('widgets');
+    if (this.widgets) this.storage.set(this.widgetsKey, this.widgets);
+    else this.storage.remove(this.widgetsKey);
     this.storage.set('photo', this.photo);
     this.refresh();
     if (this.window?.isOpen) this.draw(message);

@@ -8,6 +8,7 @@ export const GROUPS = [
   { id: 'study', title: 'Studying' },
   { id: 'around', title: 'Around Durham' },
   { id: 'friends', title: 'Friends' },
+  { id: 'business', title: 'For businesses' },
   { id: 'account', title: 'Your account' },
   { id: 'privacy', title: 'Privacy and your data' },
   { id: 'app', title: 'About the app' },

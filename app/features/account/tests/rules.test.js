@@ -41,7 +41,9 @@ test('Google\'s Android sign-in: cancelling says nothing, other problems are exp
 });
 
 test('deleting your account deletes your private area and shared timetable', () => {
-  assert.deepEqual(onlineData('abc'), ['users/abc/private/main', 'users/abc/private/profile', 'shared/abc']);
+  assert.deepEqual(onlineData('abc'), [
+    'users/abc/private/main', 'users/abc/private/profile', 'shared/abc', 'shopOwners/abc', 'spotRequests/abc',
+  ]);
 });
 
 test('an email sign-in is confirmed only once Firebase says the email is', () => {

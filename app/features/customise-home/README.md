@@ -15,10 +15,12 @@ Lets people choose **Home's widgets and photo**. Home itself stays the same at t
 ## What it needs
 
 - **Requires:** home (it's left out without it)
+- **Uses if present:** welcome (to keep the business version's choice apart)
 
 ## What it saves on the phone
 
 - `widgets`: the widgets on Home, in order, `[{ id, size }]`. Nothing saved means Home's usual ones.
+- `business-widgets`: the same for the business version of the app (the welcome feature), kept apart so switching doesn't mix them up. Home only offers each version its own widgets.
 - `photo`: `durham` (the default) or `own`.
 - `own-photo`: the photo chosen from the phone, shrunk, as a `data:` address.
 

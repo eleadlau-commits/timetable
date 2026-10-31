@@ -31,7 +31,7 @@ export default class Friends extends Feature {
     this.tints = this.storage.get('tints', {});
     this.state = { profile: null, friendships: [], timetables: {}, loading: false, error: null };
 
-    this.add('header.actions', { id: 'friends', label: 'Friends', icon: 'people', order: 10, onClick: () => this.open() });
+    this.add('header.actions', { id: 'friends', label: 'Friends', icon: 'people', order: 10, visible: () => this.forStudents(), onClick: () => this.open() });
     this.add('account.sections', { order: 20, render: (user) => this.accountSection(user) });
     this.add('account.cleanup', { order: 10, remove: (db, uid) => FriendStore.removeAll(db, uid) });
     this.on('account:changed', (user) => { if (!user) this.forget(); });
@@ -363,5 +363,12 @@ export default class Friends extends Feature {
         'Open them in Friends and tap Remove. You both stop seeing each other\'s timetable straight away. For a request you sent, tap Cancel.',
       ] },
     ]) this.add('help.questions', item);
+  }
+
+  // Friends is for students: not in the business version, nor on the welcome screen before
+  // anyone has chosen.
+  forStudents() {
+    const audience = this.use('audience');
+    return !audience || audience.kind === 'student';
   }
 }

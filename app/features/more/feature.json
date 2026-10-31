@@ -3,5 +3,6 @@
   "description": "The More tab: cards for everything else, such as the campus card.",
   "version": "2.0.0",
   "main": "More.js",
-  "styles": ["more.css"]
+  "styles": ["more.css"],
+  "uses": ["welcome"]
 }

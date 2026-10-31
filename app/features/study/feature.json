@@ -3,5 +3,6 @@
   "description": "The Study tab: places to study, such as how busy the library is.",
   "version": "1.0.0",
   "main": "Study.js",
-  "styles": ["study.css"]
+  "styles": ["study.css"],
+  "uses": ["welcome"]
 }

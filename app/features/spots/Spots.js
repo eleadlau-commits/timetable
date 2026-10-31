@@ -10,8 +10,13 @@
 //
 // Slot 'spots.places': where the places come from. Only the first item is used.
 //   Item: { places(kind) → [place], deals() → [place], update?() }
-//   kind is 'cafes', 'pubs' or 'clubs'; place is { id, name, line?, deal?, until?, address?, link? }
-//   (deal: what the deal is, only while it's on; until: e.g. "Until 30 Nov"; link: https only).
+//   kind is 'cafes', 'pubs' or 'clubs'; place is { id, name, line?, deal?, until?, address?, link?,
+//   hours?, menu? } (deal: what the deal is, only while it's on; until: e.g. "Until 30 Nov";
+//   hours: opening hours as the place typed them; link and menu: https only).
+//
+// Events: 'spots:shown' with [place ids] whenever places are drawn on the tab or in a list, and
+// 'spots:tapped' with a place id when someone taps its Website or Menu button. The shop
+// feature counts these (without knowing who) for the places' owners.
 //   update() is called whenever the tab is drawn, so the places can be fetched again if old.
 //
 // Saved data: none.
@@ -29,8 +34,9 @@ const SPOTS = [
 export default class Spots extends Feature {
   start() {
     this.addHelp();
+    this.provide('spots', { place: (place) => this.place(place) });
     this.defineSlot('spots.places',
-      "Places on the Spots tab. Only the first item is used. Item: { places(kind) → [{ id, name, line?, deal?, until?, address?, link? }], deals() → places with a deal on now, update?() }, kind 'cafes', 'pubs' or 'clubs'.");
+      "Places on the Spots tab. Only the first item is used. Item: { places(kind) → [{ id, name, line?, deal?, until?, address?, link?, hours?, menu? }], deals() → places with a deal on now, update?() }, kind 'cafes', 'pubs' or 'clubs'.");
     this.add('views', {
       id: 'spots',
       label: 'Spots',
@@ -46,6 +52,7 @@ export default class Spots extends Feature {
     this.add('home.pages', {
       id: 'explore',
       order: 10,
+      audience: 'everyone',
       render: () => {
         const deals = this.deals().length;
         return el('section', { class: 'home-page-row', 'aria-label': 'Explore' },
@@ -58,7 +65,7 @@ export default class Spots extends Feature {
     });
     // On Home, if someone adds it there (Customise Home): off until then.
     this.add('home.widgets', {
-      id: 'student-deals', label: 'Student deals', order: 60, sizes: ['wide', 'tall'], start: false,
+      id: 'student-deals', label: 'Student deals', order: 60, sizes: ['wide', 'tall'], start: false, audience: 'everyone',
       render: (size) => this.dealsWidget(size),
     });
   }
@@ -100,6 +107,7 @@ export default class Spots extends Feature {
         el('h2', { class: 'sub-head' }, 'Student deals'),
         el('div', { class: 'spot-places' }, deals.map((place) => this.place(place)))) : null,
       el('div', { class: 'spot-cards' }, SPOTS.map((spot) => this.card(spot))));
+    if (deals.length && this.app.shell.currentView?.id === 'spots') this.emit('spots:shown', deals.map((p) => p.id));
     // A window that's open shows the places as they are now.
     if (this.window?.isOpen && this.showing) this.fill(this.showing);
   }
@@ -113,8 +121,11 @@ export default class Spots extends Feature {
         ui.icon('right')));
   }
 
-  // One place: its name and line, the deal if there is one, where it is, and its website.
+  // One place: its name and line, the deal if there is one, where it is, its opening hours,
+  // and its website and menu. Also used by the shop feature to show owners their card
+  // (service 'spots': place(place)).
   place(place) {
+    const tapped = () => this.emit('spots:tapped', place.id);
     return el('article', { class: 'spot-place' },
       el('div', { class: 'spot-place-head' },
         el('b', {}, place.name),
@@ -123,9 +134,12 @@ export default class Spots extends Feature {
         el('span', { class: 'spot-deal-tag' }, 'Deal'),
         el('span', {}, place.deal),
         place.until && el('small', {}, place.until)),
-      (place.address || place.link) && el('div', { class: 'spot-place-foot' },
+      place.hours && el('p', { class: 'spot-place-hours' }, ui.icon('clock'), place.hours),
+      (place.address || place.link || place.menu) && el('div', { class: 'spot-place-foot' },
         place.address && el('span', { class: 'spot-place-where' }, ui.icon('pin'), place.address),
-        place.link && el('a', { class: 'btn small', href: place.link, target: '_blank', rel: 'noopener' }, 'Website')));
+        (place.link || place.menu) && el('span', { class: 'spot-place-links' },
+          place.menu && el('a', { class: 'btn small', href: place.menu, target: '_blank', rel: 'noopener', onclick: tapped }, 'Menu'),
+          place.link && el('a', { class: 'btn small', href: place.link, target: '_blank', rel: 'noopener', onclick: tapped }, 'Website'))));
   }
 
   openKind(spot) {
@@ -145,6 +159,7 @@ export default class Spots extends Feature {
     this.window.setContent(places.length
       ? el('div', { class: 'spot-places' }, places.map((place) => this.place(place)))
       : ui.missing(`${spot.label} to show`));
+    if (places.length) this.emit('spots:shown', places.map((p) => p.id));
   }
 
   // Questions and answers for the Help page.

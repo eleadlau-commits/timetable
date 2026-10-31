@@ -7,7 +7,7 @@
 // database is asked again only when the saved copy is older than FRESH_FOR (rules.js), to stay
 // well inside the free plan's daily reads.
 //
-// Saved data: 'saved' → { at (ms), places: [{ id, kind, name, line, deal, dealEnds, address, link, order }] }
+// Saved data: 'saved' → { at (ms), places: [{ id, kind, name, line, deal, dealEnds, address, link, hours, menu, order }] }
 
 import { Feature } from 'folio';
 import { toPlace, placesOf, withDeals, liveDeal, dealUntil, isStale, MOST } from './rules.js';
@@ -32,6 +32,7 @@ export default class Listings extends Feature {
     const deal = liveDeal(place);
     return {
       id: place.id, name: place.name, line: place.line, address: place.address, link: place.link,
+      hours: place.hours || '', menu: place.menu || null,
       deal, until: deal ? dealUntil(place) : '',
     };
   }
