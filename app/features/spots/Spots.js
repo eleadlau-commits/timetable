@@ -11,8 +11,14 @@
 // Slot 'spots.places': where the places come from. Only the first item is used.
 //   Item: { places(kind) → [place], deals() → [place], update?() }
 //   kind is 'cafes', 'pubs' or 'clubs'; place is { id, name, line?, deal?, until?, address?, link?,
-//   hours?, menu? } (deal: what the deal is, only while it's on; until: e.g. "Until 30 Nov";
-//   hours: opening hours as the place typed them; link and menu: https only).
+//   hours?, open?, photo?, menu? } (deal: what the deal is, only while it's on; until: e.g. "Until
+//   30 Nov"; hours: opening hours as the place typed them; open: opening times as hours.js stores
+//   them, which win over hours and give "Open now · closes 5pm"; photo: a picture's address;
+//   link and menu: https only).
+//
+// Service 'spots': place(place) → the card as students see it (the shop feature shows owners
+// their own), and hours: the opening-times helpers from hours.js (readOpen, writeOpen, summary,
+// openState, clock, fromInput, toInput, DAYS, DAY_NAMES).
 //
 // Events: 'spots:shown' with [place ids] whenever places are drawn on the tab or in a list, and
 // 'spots:tapped' with a place id when someone taps its Website or Menu button. The shop
@@ -22,6 +28,7 @@
 // Saved data: none.
 
 import { Feature, ui } from 'folio';
+import * as hours from './hours.js';
 
 const { el } = ui;
 
@@ -34,7 +41,7 @@ const SPOTS = [
 export default class Spots extends Feature {
   start() {
     this.addHelp();
-    this.provide('spots', { place: (place) => this.place(place) });
+    this.provide('spots', { place: (place) => this.place(place), hours });
     this.defineSlot('spots.places',
       "Places on the Spots tab. Only the first item is used. Item: { places(kind) → [{ id, name, line?, deal?, until?, address?, link?, hours?, menu? }], deals() → places with a deal on now, update?() }, kind 'cafes', 'pubs' or 'clubs'.");
     this.add('views', {
@@ -121,12 +128,16 @@ export default class Spots extends Feature {
         ui.icon('right')));
   }
 
-  // One place: its name and line, the deal if there is one, where it is, its opening hours,
-  // and its website and menu. Also used by the shop feature to show owners their card
+  // One place: its photo, name and line, the deal if there is one, whether it's open now, where it
+  // is, and its website and menu. Also used by the shop feature to show owners their card
   // (service 'spots': place(place)).
   place(place) {
     const tapped = () => this.emit('spots:tapped', place.id);
-    return el('article', { class: 'spot-place' },
+    const times = hours.readOpen(place.open);
+    const state = times && hours.openState(times);
+    const typed = times ? hours.summary(times) : place.hours;
+    return el('article', { class: `spot-place${place.photo ? ' has-photo' : ''}` },
+      place.photo && el('div', { class: 'spot-place-photo', style: `--photo: url("${encodeURI(place.photo)}")`, role: 'img', 'aria-label': `Photo of ${place.name}` }),
       el('div', { class: 'spot-place-head' },
         el('b', {}, place.name),
         place.line && el('span', {}, place.line)),
@@ -134,7 +145,10 @@ export default class Spots extends Feature {
         el('span', { class: 'spot-deal-tag' }, 'Deal'),
         el('span', {}, place.deal),
         place.until && el('small', {}, place.until)),
-      place.hours && el('p', { class: 'spot-place-hours' }, ui.icon('clock'), place.hours),
+      (state || typed) && el('p', { class: 'spot-place-hours' }, ui.icon('clock'),
+        el('span', {},
+          state && el('b', { class: state.open ? 'is-open' : 'is-closed' }, state.text),
+          typed && el('span', {}, typed))),
       (place.address || place.link || place.menu) && el('div', { class: 'spot-place-foot' },
         place.address && el('span', { class: 'spot-place-where' }, ui.icon('pin'), place.address),
         (place.link || place.menu) && el('span', { class: 'spot-place-links' },

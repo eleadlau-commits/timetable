@@ -1,0 +1,9 @@
+{
+  "name": "Storefront",
+  "description": "The business version's Your shop tab: the whole shop as cards (from the shop feature and, later, others such as bookings), and a link to choose which are on Home.",
+  "version": "1.0.0",
+  "main": "Storefront.js",
+  "styles": ["style.css"],
+  "requires": [],
+  "uses": ["welcome", "home"]
+}

@@ -88,9 +88,11 @@ export default function seed(app) {
     at: Date.now(),
     places: [
       place('p1', 'cafes', 'Flat White Kitchen', 'Brunch and coffee by the river',
-        { deal: '10% off with your campus card', address: '21a Elvet Bridge', link: 'https://example.invalid/flat-white', order: 1 }),
+        { deal: '10% off with your campus card', address: '21a Elvet Bridge', link: 'https://example.invalid/flat-white', order: 1,
+          open: '0800-1700|0800-1700|0800-1700|0800-1700|0800-1700|0900-1700|' }),
       place('p2', 'cafes', 'Cafe on the Green', 'Cake, soup and a quiet corner',
-        { deal: 'Free refill on filter coffee', dealEnds: at(6, 12).getTime(), address: 'Palace Green' }),
+        { deal: 'Free refill on filter coffee', dealEnds: at(6, 12).getTime(), address: 'Palace Green',
+          photo: 'features/home/photos/durham.jpg' }), // a stand-in photo, to see how one looks
       place('p3', 'cafes', 'Old Deal Cafe', 'A deal that has ended', { deal: 'Ended', dealEnds: at(-3, 12).getTime() }),
       place('p4', 'pubs', 'The Swan and Three Cygnets', 'Pints with a view', { address: 'Elvet Bridge' }),
     ],

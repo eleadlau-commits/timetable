@@ -30,6 +30,8 @@ The places are kept on the phone, so they show straight away and offline. The ap
 | `address` | string | no | `21a Elvet Bridge` |
 | `link` | string | no | `https://…` (only `https://` links are shown) |
 | `hours` | string | no | `Mon–Fri 8–6, Sat 9–5` (up to 120) |
+| `open` | string | no | opening times day by day, Monday first, `0800-1700` or nothing for closed: `0800-1700\|0800-1700\|0800-1700\|0800-1700\|0800-1700\|0900-1700\|` (Sunday closed). Shows *Open now · closes 5pm*. Owners usually set this from the app |
+| `photo` | string | no | a picture across the top of the card: the name of a file in `app/features/listings/photos/` (e.g. `flat-white.jpg`, comes with the app, free; see the README there), or an `https://` address of a picture |
 | `menu` | string | no | `https://…`, a page or PDF with the menu |
 | `order` | number | no | `1` comes first; without it, 50; then by name |
 
@@ -46,7 +48,7 @@ Anything that doesn't make sense (no name, a kind that isn't cafe, pub or club, 
 
 ## What it saves on the phone
 
-- `saved` → `{ at, places }`: when the places were last fetched, and the places themselves (tidied by `toPlace()` in `rules.js`).
+- `saved` → `{ at, places }` (each place also has `open` and `photo` since version 3.6): when the places were last fetched, and the places themselves (tidied by `toPlace()` in `rules.js`).
 
 ## How to check it works
 
