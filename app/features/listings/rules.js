@@ -49,9 +49,26 @@ export function toMillis(value) {
   return Number.isFinite(ms) ? ms : null;
 }
 
+// Opening times as the database stores them (see the spots feature's hours.js): seven parts,
+// Monday first, '0800-1700' or nothing for closed. Spots checks the times themselves.
+const OPEN = /^((\d{4}-\d{4})?\|){6}(\d{4}-\d{4})?$/;
+
+export function openTimes(value) {
+  return typeof value === 'string' && OPEN.test(value) ? value : '';
+}
+
+// A photo: an https address, or the name of a picture in this feature's photos/ folder
+// ('flat-white.jpg'), which comes with the app. null for anything else.
+export function photoOf(value, folder) {
+  if (typeof value !== 'string' || !value.trim()) return null;
+  const name = value.trim();
+  if (/^[a-z0-9][a-z0-9_-]*\.(jpe?g|png|webp)$/i.test(name)) return folder ? new URL(`photos/${name}`, folder).href : null;
+  return webLink(name);
+}
+
 // One document from the database, tidied: { id, kind, name, line, deal, dealEnds, address, link,
-// hours, menu, order }, or null if it can't be shown (not published, no name, or a kind Spots doesn't have).
-export function toPlace(id, data) {
+// hours, open, photo, menu, order }, or null if it can't be shown (not published, no name, or a kind Spots doesn't have).
+export function toPlace(id, data, folder = null) {
   if (!data || data.published !== true) return null;
   const kind = kindOf(data.kind);
   const name = words(data.name, LIMITS.name);
@@ -66,6 +83,8 @@ export function toPlace(id, data) {
     address: words(data.address, LIMITS.address),
     link: webLink(data.link),
     hours: words(data.hours, LIMITS.hours),
+    open: openTimes(data.open),
+    photo: photoOf(data.photo, folder),
     menu: webLink(data.menu),
     order: Number.isFinite(data.order) ? data.order : 50,
   };

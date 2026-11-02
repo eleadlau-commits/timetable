@@ -1,0 +1,26 @@
+/* Storefront: the business version's Your shop tab. */
+
+.storefront { display: grid; gap: 12px; padding-bottom: 20px; }
+.storefront-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--shape);
+  background: var(--surface);
+  color: var(--text);
+}
+.storefront-card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.storefront-card-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.storefront-tag {
+  flex: none;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--shape-sm);
+  background: var(--plenty-soft);
+  color: var(--plenty-ink);
+}
+.storefront-tag.is-wait { background: var(--busy-soft); color: var(--busy-ink); }
+.storefront-tag.is-off { background: var(--surface-2); color: var(--muted); }
+.storefront-action { justify-self: stretch; font-size: 16px; padding-top: 12px; padding-bottom: 12px; }
+.storefront-home { justify-self: center; margin-top: 4px; }
