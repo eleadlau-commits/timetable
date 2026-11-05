@@ -97,6 +97,18 @@ export default function seed(app) {
       place('p4', 'pubs', 'The Swan and Three Cygnets', 'Pints with a view', { address: 'Elvet Bridge' }),
     ],
   });
+  // Societies on Explore, as if just fetched.
+  const society = (id, type, name, line, extra = {}) => ({ id, type, name, line, meets: '', fee: '', instagram: null, join: null, photo: null, order: 50, ...extra });
+  area('societies').set('saved', {
+    at: Date.now(),
+    list: [
+      society('s1', 'sport', 'Hiking Society', 'Day walks in the Dales and the Lakes, all levels welcome',
+        { meets: 'Saturdays 8:30am, Market Place', fee: '£5 a year', instagram: 'https://www.instagram.com/example/', join: 'https://example.invalid/join/hiking', order: 1 }),
+      society('s2', 'sport', 'Rowing Club', 'Learn to row on the Wear', { meets: 'Early mornings, Maiden Castle boathouse', fee: '£60 a term' }),
+      society('s3', 'arts', 'Choral Society', 'Big choir, big concerts', { meets: 'Wednesdays 7pm, Elvet Riverside', fee: 'Free', join: 'https://example.invalid/join/choral' }),
+      society('s4', 'academic', 'Economics Society', 'Talks, careers events and socials', { fee: '£3 a year' }),
+    ],
+  });
   area('shop').set('no-count', true); // the tests never count views of places on Spots
   const view = new URLSearchParams(location.hash.slice(1)).get('view');
   if (view) area('folio').set('view', view);

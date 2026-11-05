@@ -1,0 +1,33 @@
+/* Explore: big cards with a name and a short line at the top and a dark bar along the bottom
+   (the same style as the cards on More and Spots). */
+.explore-cards { display: grid; gap: 14px; padding-bottom: 16px; }
+.explore-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: var(--shape);
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.explore-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.explore-card-text { display: flex; flex-direction: column; gap: 4px; padding: 18px 18px 16px; }
+.explore-card-text b { font-size: 22px; font-weight: 600; }
+.explore-card-text span { font-size: 14px; color: var(--muted); }
+.explore-card-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  height: 64px;
+  padding: 0 16px 0 18px;
+  font-size: 14px;
+  color: var(--on-top-muted);
+  background: linear-gradient(to right, var(--top) 15%, transparent 85%), var(--photo, none) center / cover, var(--top-2);
+}
+.explore-card-bar svg { width: 22px; height: 22px; color: var(--on-top); }
