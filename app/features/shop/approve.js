@@ -5,6 +5,8 @@
 //   - Asking to be listed: businesses without a code. Approve adds their place to Spots,
 //     published, with them as its owner.
 //   - Shop codes: make a code for a place, to hand to its owner when they say yes.
+// Then the parts other features add (slot 'approve.parts', e.g. societies from the
+// society-committee feature), each loaded and drawn below these.
 
 import { ui } from 'folio';
 import { differences, makeCode, showCode, KINDS, showValue, FIELDS } from './rules.js';
@@ -33,7 +35,12 @@ export class Approver {
       const cards = new Map();
       for (const change of changes) cards.set(change.place, await store.placeDoc(db, change.place).catch(() => null));
       this.data = { changes, requests, places, codes, cards };
-      this.shop.waitingCount = changes.length + requests.length;
+      // Other features' parts: each loads what it shows, and says how many are waiting.
+      let others = 0;
+      for (const part of this.shop.slot('approve.parts').items) {
+        others += await Promise.resolve(this.shop.slot('approve.parts').run(part, (p) => p.load(db), 0)).catch(() => 0) || 0;
+      }
+      this.shop.waitingCount = changes.length + requests.length + others;
       this.shop.refresh();
       this.draw();
     } catch (err) {
@@ -54,7 +61,8 @@ export class Approver {
       el('section', { class: 'shop-approve-part' },
         el('h3', { class: 'sub-head' }, 'Shop codes'),
         this.codeMaker(places, madeCode),
-        this.codeList(codes, names)));
+        this.codeList(codes, names)),
+      ...this.shop.slot('approve.parts').map((part) => part.render({ reload: () => this.load(), done: () => this.shop.load() })).flat().filter(Boolean));
   }
 
   changeCard(change, card, name) {

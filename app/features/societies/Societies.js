@@ -8,10 +8,19 @@
 // the app can't change them. They're kept on the phone, so they show straight away and offline,
 // and the database is asked again only when the copy is older than FRESH_FOR (rules.js).
 //
+// Service 'societies': for the society-committee feature, which shows a committee its own card.
+//   card(society) → the card exactly as students see it (society as tidy() gives it)
+//   tidy(id, data) → a document from the database, tidied as the list has it, or null
+//   TYPES, typeName(id)
+//
+// Events: 'societies:shown' with [society ids] whenever societies are drawn in the list, and
+// 'societies:tapped' with a society id when someone taps its Instagram or Join button. The
+// society-committee feature counts them (once a day per phone), so committees see How it's going.
+//
 // Saved data: 'saved' → { at (ms), list: [{ id, type, name, line, meets, fee, instagram, join, photo, order }] }
 
 import { Feature, ui } from 'folio';
-import { toSociety, pick, typesIn, isStale, MOST } from './rules.js';
+import { toSociety, pick, typesIn, isStale, MOST, TYPES, typeName } from './rules.js';
 
 const { el } = ui;
 
@@ -25,6 +34,12 @@ export default class Societies extends Feature {
     this.type = 'all';
     this.search = '';
     this.addHelp();
+    this.provide('societies', {
+      card: (society) => this.card(society, { preview: true }),
+      tidy: (id, data) => toSociety(id, { ...data, published: true }, import.meta.url),
+      TYPES,
+      typeName,
+    });
     this.add('explore.cards', {
       id: 'societies', label: 'Societies', line: 'Clubs and societies to join, from sport to singing', order: 20,
       detail: () => {
@@ -90,6 +105,7 @@ export default class Societies extends Feature {
       results.replaceChildren(...(shown.length
         ? shown.map((s) => this.card(s))
         : [el('p', { class: 'hint' }, this.search ? `No societies match "${this.search}".` : 'No societies here yet.')]));
+      if (shown.length) this.emit('societies:shown', shown.map((s) => s.id));
     };
     searchBox.addEventListener('input', () => { this.search = searchBox.value; draw(); });
     const chip = (id, name) => el('button', {
@@ -103,8 +119,9 @@ export default class Societies extends Feature {
     draw();
   }
 
-  // One society.
-  card(s) {
+  // One society. `preview` is for a committee looking at its own card: the buttons don't count.
+  card(s, { preview = false } = {}) {
+    const tapped = () => { if (!preview) this.emit('societies:tapped', s.id); };
     return el('article', { class: 'society-card' },
       s.photo && el('div', { class: 'society-photo', style: `--photo: url("${encodeURI(s.photo)}")`, role: 'img', 'aria-label': `Photo of ${s.name}` }),
       el('div', { class: 'society-head' },
@@ -114,8 +131,8 @@ export default class Societies extends Feature {
         s.meets && el('p', {}, ui.icon('clock'), el('span', {}, s.meets)),
         s.fee && el('p', {}, ui.icon(FEE), el('span', {}, s.fee))),
       (s.instagram || s.join) && el('div', { class: 'society-links' },
-        s.instagram && el('a', { class: 'btn small', href: s.instagram, target: '_blank', rel: 'noopener' }, 'Instagram'),
-        s.join && el('a', { class: 'btn small primary', href: s.join, target: '_blank', rel: 'noopener' }, 'Join')));
+        s.instagram && el('a', { class: 'btn small', href: s.instagram, target: '_blank', rel: 'noopener', onclick: tapped }, 'Instagram'),
+        s.join && el('a', { class: 'btn small primary', href: s.join, target: '_blank', rel: 'noopener', onclick: tapped }, 'Join')));
   }
 
   // Questions and answers for the Help page.
@@ -125,7 +142,7 @@ export default class Societies extends Feature {
         'On the Explore tab, tap Societies. Search by name, or pick a type such as Sport or Academic. Join opens the society\'s own sign-up page.',
       ] },
       { group: 'around', order: 40, question: 'How do I get my society on the app?', answer: () => [
-        'Email mobiledurham.help@gmail.com with your society\'s name, a short line about it, when and where you meet, your joining fee, your Instagram and your sign-up link. Soon committees will be able to keep their own card up to date.',
+        'Email mobiledurham.help@gmail.com with your society\'s name, a short line about it, when and where you meet, your joining fee, your Instagram and your sign-up link. Once it\'s on, we give your committee a society code, so you can keep the card up to date yourself: sign in, open your account page and tap I run a society.',
       ] },
     ]) this.add('help.questions', item);
   }
