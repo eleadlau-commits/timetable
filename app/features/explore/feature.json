@@ -1,0 +1,9 @@
+{
+  "name": "Explore",
+  "description": "The Explore tab: big cards for things to discover around Durham, such as Spots and Societies, each added by its own feature.",
+  "version": "1.0.0",
+  "main": "Explore.js",
+  "styles": ["style.css"],
+  "requires": [],
+  "uses": ["home"]
+}

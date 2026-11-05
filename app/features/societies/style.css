@@ -1,0 +1,50 @@
+/* Societies: the window from Explore, with a search box, a row of type switches and the cards. */
+.society-window { display: grid; gap: 12px; padding-bottom: 20px; }
+#society-search {
+  width: 100%;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--shape-btn);
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+}
+.society-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -2px; padding: 2px; }
+.society-chips::-webkit-scrollbar { display: none; }
+.society-chip {
+  flex: none;
+  padding: 7px 12px;
+  border: 0;
+  border-radius: var(--shape-sm);
+  background: var(--surface-2);
+  color: var(--text-2);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.society-chip.is-on { background: var(--accent); color: var(--accent-ink); }
+.society-list { display: grid; gap: 10px; }
+.society-list > .hint { margin: 8px 0; }
+.society-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: var(--shape);
+  background: var(--surface-2);
+  color: var(--text);
+}
+.society-photo {
+  height: 120px;
+  margin: -4px -6px 0;
+  border-radius: var(--shape-sm);
+  background: var(--surface) var(--photo) center / cover no-repeat;
+}
+.society-head { display: flex; flex-direction: column; gap: 2px; }
+.society-head b { font-size: 16px; font-weight: 600; }
+.society-head span { font-size: 13px; color: var(--muted); }
+.society-facts { display: grid; gap: 4px; }
+.society-facts p { display: flex; align-items: flex-start; gap: 6px; margin: 0; font-size: 13px; color: var(--text-2); }
+.society-facts svg { flex: none; width: 16px; height: 16px; margin-top: 1px; color: var(--muted); }
+.society-links { display: flex; justify-content: flex-end; gap: 6px; }

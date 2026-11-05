@@ -1,8 +1,12 @@
-// Spots: the tab for places around Durham. A card for each kind of place (cafés, pubs and
-// clubs). Each card has a dark bar along the bottom; give a spot a `photo` (e.g.
+// Spots: places around Durham. A card on the Explore tab (the explore feature) opens a window
+// with a card for each kind of place (cafés, pubs and clubs). Without Explore, Spots has its own
+// tab instead, as it used to. Each card has a dark bar along the bottom; give a spot a `photo` (e.g.
 // new URL('photos/cafes.jpg', import.meta.url).href) to show it in the bar, fading into the
-// dark like the photo on Home. Also the Explore page at the top of Home (slot 'home.pages'),
-// with a button that opens the Spots tab.
+// dark like the photo on Home. Without Explore, also the Explore page at the top of Home (slot
+// 'home.pages'), with a button that opens the Spots tab (Explore has its own page).
+//
+// Item on 'explore.cards' also has homeLine() → '2 student deals on now' (or ''), which the
+// Explore page on Home shows.
 //
 // The places themselves come from the 'spots.places' slot (the listings feature, from the
 // online database). Without it, or while a kind has no places, its card says it's coming soon.
@@ -44,11 +48,20 @@ export default class Spots extends Feature {
     this.provide('spots', { place: (place) => this.place(place), hours });
     this.defineSlot('spots.places',
       "Places on the Spots tab. Only the first item is used. Item: { places(kind) → [{ id, name, line?, deal?, until?, address?, link?, hours?, menu? }], deals() → places with a deal on now, update?() }, kind 'cafes', 'pubs' or 'clubs'.");
+    // The Spots card on the Explore tab (the explore feature), which opens Spots in a window…
+    this.add('explore.cards', {
+      id: 'spots', label: 'Spots', line: 'Cafés, pubs and clubs, with student deals', order: 10,
+      detail: () => this.dealsLine() || this.placesLine(),
+      homeLine: () => this.dealsLine(),
+      onClick: () => this.openSpots(),
+    });
+    // …and, without Explore, its own tab and Home page as before.
     this.add('views', {
       id: 'spots',
       label: 'Spots',
       icon: 'pin',
       order: 40,
+      visible: () => !this.hasExplore,
       subtitle: () => 'Places around Durham',
       mount: (container) => {
         this.box = el('div', { class: 'spot-tab' });
@@ -61,12 +74,12 @@ export default class Spots extends Feature {
       order: 10,
       audience: 'everyone',
       render: () => {
-        const deals = this.deals().length;
+        if (this.hasExplore) return null;
         return el('section', { class: 'home-page-row', 'aria-label': 'Explore' },
           el('div', {},
             el('h2', { class: 'home-page-title' }, 'Explore'),
-            el('p', { class: 'home-page-line' }, deals ? `${deals} student ${deals === 1 ? 'deal' : 'deals'} on now` : 'Cafés, pubs and clubs')),
-          el('button', { type: 'button', class: 'home-button', onclick: () => this.app.shell.selectView('spots') },
+            el('p', { class: 'home-page-line' }, this.dealsLine() || 'Cafés, pubs and clubs')),
+          el('button', { type: 'button', class: 'home-button', onclick: () => this.show() },
             el('b', {}, 'Open Spots'), ui.icon('right')));
       },
     });
@@ -80,11 +93,52 @@ export default class Spots extends Feature {
   // The Home widget: the student deals on now (place and deal). Tap it to open Spots.
   dealsWidget(size) {
     const deals = this.deals().slice(0, 4);
-    return el('button', { type: 'button', class: `spot-widget spot-widget-${size}`, 'aria-label': 'Student deals. Open Spots', onclick: () => this.app.shell.selectView('spots') },
+    return el('button', { type: 'button', class: `spot-widget spot-widget-${size}`, 'aria-label': 'Student deals. Open Spots', onclick: () => this.show() },
       el('b', {}, 'Student deals'),
       deals.length
         ? el('ul', {}, deals.map((place) => el('li', {}, el('span', { class: 'spot-widget-name' }, place.name), el('span', { class: 'spot-widget-deal' }, place.deal))))
         : el('span', { class: 'spot-widget-empty' }, 'No deals on right now.'));
+  }
+
+  // ---- Explore, or Spots' own tab ----
+
+  // Whether the Explore tab is there (then Spots is a card on it, opening a window).
+  get hasExplore() {
+    return this.slot('views').items.some((v) => v.id === 'explore');
+  }
+
+  // Shows Spots: the window from Explore, or Spots' own tab.
+  show() {
+    if (this.hasExplore) {
+      this.app.shell.selectView('explore');
+      this.openSpots();
+    } else {
+      this.app.shell.selectView('spots');
+    }
+  }
+
+  dealsLine() {
+    const n = this.deals().length;
+    return n ? `${n} student ${n === 1 ? 'deal' : 'deals'} on now` : '';
+  }
+
+  placesLine() {
+    const n = SPOTS.reduce((sum, spot) => sum + this.places(spot.id).length, 0);
+    return n ? `${n} ${n === 1 ? 'place' : 'places'}` : 'Coming soon';
+  }
+
+  // The Spots window (from Explore): student deals, then the Cafés, Pubs and Clubs cards.
+  openSpots() {
+    if (!this.spotsWindow) this.spotsWindow = ui.dialog({ title: 'Spots', className: 'spot-dialog' });
+    this.fillSpots();
+    this.spotsWindow.open();
+    const deals = this.deals();
+    if (deals.length) this.emit('spots:shown', deals.map((p) => p.id));
+  }
+
+  fillSpots() {
+    if (this.source?.update) this.slot('spots.places').run(this.source, (item) => item.update());
+    this.spotsWindow.setContent(el('div', { class: 'spot-tab' }, ...this.contents()));
   }
 
   // ---- Where the places come from ----
@@ -105,18 +159,26 @@ export default class Spots extends Feature {
 
   // ---- The tab ----
 
-  render() {
-    if (!this.box) return;
-    if (this.source?.update) this.slot('spots.places').run(this.source, (item) => item.update());
+  // Student deals, then a card for each kind of place.
+  contents() {
     const deals = this.deals();
-    this.box.replaceChildren(
+    return [
       deals.length ? el('section', { class: 'spot-deals', 'aria-label': 'Student deals' },
         el('h2', { class: 'sub-head' }, 'Student deals'),
         el('div', { class: 'spot-places' }, deals.map((place) => this.place(place)))) : null,
-      el('div', { class: 'spot-cards' }, SPOTS.map((spot) => this.card(spot))));
-    if (deals.length && this.app.shell.currentView?.id === 'spots') this.emit('spots:shown', deals.map((p) => p.id));
-    // A window that's open shows the places as they are now.
+      el('div', { class: 'spot-cards' }, SPOTS.map((spot) => this.card(spot))),
+    ];
+  }
+
+  render() {
+    // Windows that are open show the places as they are now.
+    if (this.spotsWindow?.isOpen) this.fillSpots();
     if (this.window?.isOpen && this.showing) this.fill(this.showing);
+    if (!this.box || this.hasExplore) return;
+    if (this.source?.update) this.slot('spots.places').run(this.source, (item) => item.update());
+    const deals = this.deals();
+    this.box.replaceChildren(...this.contents());
+    if (deals.length && this.app.shell.currentView?.id === 'spots') this.emit('spots:shown', deals.map((p) => p.id));
   }
 
   card(spot) {
@@ -180,7 +242,7 @@ export default class Spots extends Feature {
   addHelp() {
     for (const item of [
       { group: 'around', order: 20, question: 'What\'s on Spots?', answer: () => [
-        'Cafés, pubs and clubs around Durham, with student deals on now at the top. We\'re adding places over time, and kinds with none yet say Coming soon.',
+        'Cafés, pubs and clubs around Durham, with student deals on now at the top. Open it from the Explore tab. We\'re adding places over time, and kinds with none yet say Coming soon.',
       ] },
     ]) this.add('help.questions', item);
   }

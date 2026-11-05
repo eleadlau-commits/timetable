@@ -202,6 +202,15 @@ service cloud.firestore {
         && validCard(d);
     }
 
+    // ---- Societies (the societies feature, on the Explore tab) ----
+    // Typed in by the team in the Firebase console. Everyone can read the published ones, signed
+    // in or not (at most 300 at a time); nobody can change them from the app.
+
+    match /societies/{society} {
+      allow get: if resource.data.published == true;
+      allow list: if resource.data.published == true && request.query.limit <= 300;
+    }
+
     // ---- The team: who may approve changes ----
     // admins/{uid} is made by hand in the Firebase console. Each person can only check
     // whether they themselves are one.

@@ -1,0 +1,9 @@
+{
+  "name": "Societies",
+  "description": "Student societies on the Explore tab, from the database's societies collection: search, pick a type, and see when they meet, the fee, Instagram and how to join.",
+  "version": "1.0.0",
+  "main": "Societies.js",
+  "styles": ["style.css"],
+  "requires": ["account"],
+  "uses": ["explore", "help"]
+}

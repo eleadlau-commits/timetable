@@ -4,11 +4,11 @@ The **Spots** tab, for places around Durham: a card for each kind of place, and 
 
 ## What it adds
 
-- **The Spots tab** (view id `spots`, pin icon), with the line *Places around Durham* next to its title.
+- **The Spots card on Explore** (slot `explore.cards`, the explore feature): *Cafés, pubs and clubs, with student deals*, with how many deals are on now. Tapping it opens Spots in a full-screen window with what's below. Without Explore, Spots has **its own tab** instead (view id `spots`, pin icon, *Places around Durham*), and its own Explore page on Home.
   - **Student deals** at the top: a card for each place with a deal on now (its photo if it has one, name, line, the deal with its end date, *Open now · closes 5pm* or *Closed · opens 9am* with the opening hours, where it is, and **Menu** and **Website** buttons). Hidden when there are none.
 - **A Student deals widget for Home** (`home.widgets`, off until someone adds it with Customise Home), in two sizes: **wide** (the first deal on now) or **tall** (up to four, each place with its deal). Tap it to open Spots.
   - Three cards: **Cafés**, **Pubs** and **Clubs**. Each has its name and a short line at the top, and a dark bar along the bottom saying how many places there are. Tapping one opens a full-screen list of its places. A kind with no places says *Coming soon*, and tapping it shows a short *coming soon* message. The cards look the same as the one on More.
-- **The Explore page on Home** (slot `home.pages`, order 10, in both the student and business versions): the title *Explore*, the line *Cafés, pubs and clubs* (or *2 student deals on now* when there are some), and an outlined **Open Spots** button on the right that opens the Spots tab.
+- **The Explore page on Home** only without the explore feature (which has its own): the title *Explore*, the line *Cafés, pubs and clubs* (or *2 student deals on now*), and **Open Spots**. With Explore, the Spots card gives Explore's page its line (`homeLine()`).
 - **Slot `spots.places`**: where the places come from. Only the first item is used. Item: `{ places(kind) → [place], deals() → [place], update?() }`, where kind is `cafes`, `pubs` or `clubs`, and a place is `{ id, name, line?, deal?, until?, address?, link?, menu?, hours?, open?, photo? }` (`open`: opening times day by day, as `hours.js` stores them, which win over the typed `hours`; `photo`: a picture's address). `update()` is called each time the tab is drawn, so the places can be fetched again when they're old. Spots draws the places itself.
 - **Service `spots`**: `place(place)` draws one place's card, as on the tab, and `hours`, the opening-times helpers from `hours.js`. The shop feature uses both: to show owners their card, and to ask for opening times day by day.
 - **Opening times** (`hours.js`, tested in `tests/hours.test.js`): seven parts, Monday first, such as `0800-1700|0800-1700|0800-1700|0800-1700|0800-1700|0900-1700|` (closed on Sunday). A closing time earlier than the opening time runs past midnight. From them, a place shows whether it's open now, when it closes or opens next, and a short line like *Mon–Fri 8am–5pm, Sat 9am–5pm*.
@@ -28,7 +28,7 @@ Nothing.
 
 ## How to check it works
 
-1. Run `python build.py serve --test` and tap **Spots**: Student deals, then Cafés (3 places), Pubs (1 place) and Clubs (coming soon), from the sample data. Tap Cafés: a list of three. Tap Clubs: a message says it's coming soon.
+1. Run `python build.py serve --test`, tap **Explore** and then **Spots**: Student deals, then Cafés (3 places), Pubs (1 place) and Clubs (coming soon), from the sample data. Tap Cafés: a list of three. Tap Clubs: a message says it's coming soon.
    Without `listings` (`python build.py serve --test --without listings`), all three say *Coming soon*, as before.
 2. On Home, swipe to Explore and tap **Open Spots**: the Spots tab opens.
 3. Run `python build.py test`.

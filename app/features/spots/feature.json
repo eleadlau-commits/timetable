@@ -1,7 +1,12 @@
 {
   "name": "Spots",
-  "description": "The Spots tab: student deals, and cards for cafés, pubs and clubs around Durham.",
-  "version": "1.2.0",
+  "description": "Spots: student deals, and cards for cafés, pubs and clubs around Durham. A card on the Explore tab (or its own tab without Explore).",
+  "version": "1.3.0",
   "main": "Spots.js",
-  "styles": ["spots.css"]
+  "styles": [
+    "spots.css"
+  ],
+  "uses": [
+    "explore"
+  ]
 }
