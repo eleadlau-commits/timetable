@@ -33,7 +33,12 @@ The database's `societies` collection, one document per society. Everyone can re
 
 People see changes the next time their app asks, within 12 hours.
 
-Committees keeping their own card up to date (a society code, "I run a society" on the account page, and changes the team approves) is the next step.
+Committees can keep their own card up to date: the team makes a society code in **Approve changes**, and the committee member types it under **I run a society** on their account page (the society-committee feature). Their changes wait for the team's approval.
+
+## For other features
+
+- Service `societies`: `card(society)` (the card as students see it, with buttons that don't count), `tidy(id, data)` (a database document, tidied like the list), `TYPES`, `typeName(id)`.
+- Events: `societies:shown` with the ids drawn in the list, `societies:tapped` with an id when Instagram or Join is tapped (the society-committee feature counts them).
 
 ## What it needs
 
