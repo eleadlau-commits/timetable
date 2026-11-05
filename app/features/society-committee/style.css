@@ -1,0 +1,114 @@
+/* Your society: for society committees. The cards use the storefront feature's frame; these are
+   the insides, the windows, the widget and the Societies part of Approve changes. Many of these
+   repeat the shop feature's styles (step 3 of the plan shares them). */
+
+/* ---- The account page ---- */
+.committee-account { display: grid; gap: 8px; justify-items: start; }
+.committee-account h3, .committee-account p { margin: 0; }
+.committee-account .row { align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* ---- Windows ---- */
+.committee-setup, .committee-form { display: grid; gap: 12px; padding-bottom: 20px; }
+.committee-setup h3 { margin: 6px 0 0; }
+.committee-setup p { margin: 0; }
+#society-code { text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 0.08em; }
+.committee-field { display: grid; gap: 4px; }
+.committee-field .label { margin: 0; }
+.committee-field input { width: 100%; }
+.committee-note {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--shape-sm);
+  background: var(--busy-soft);
+  color: var(--busy-ink);
+  font-size: 14px;
+}
+
+/* ---- Your society's cards ---- */
+.committee-cards { padding-bottom: 20px; }
+.committee-inside, .committee-trend { display: grid; gap: 10px; }
+.committee-inside p, .committee-trend p { margin: 0; }
+.committee-trend > p:not(.hint) { font-size: 15px; line-height: 1.4; }
+.committee-preview a { pointer-events: none; }
+.committee-plain-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--shape);
+  background: var(--surface);
+}
+.committee-plain-card h2 { margin: 0; font-size: 17px; font-weight: 600; }
+
+.committee-bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; height: 120px; }
+.committee-bar { display: grid; grid-template-rows: 1fr auto auto; text-align: center; min-height: 0; }
+.committee-bar-fill { align-self: end; display: block; border-radius: var(--shape-sm) var(--shape-sm) 0 0; background: var(--accent-soft); }
+.committee-bar.is-now .committee-bar-fill { background: var(--accent); }
+.committee-bar b { font-size: 14px; font-weight: 600; margin-top: 4px; }
+.committee-bar small { font-size: 11px; color: var(--muted); }
+
+.committee-tag {
+  flex: none;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--shape-sm);
+  background: var(--plenty-soft);
+  color: var(--plenty-ink);
+}
+.committee-tag.is-wait { background: var(--busy-soft); color: var(--busy-ink); }
+.committee-tag.is-off { background: var(--surface-2); color: var(--muted); }
+
+/* ---- The Home widget ---- */
+.committee-widget {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 0;
+  border-radius: var(--shape);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+}
+.committee-widget:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.committee-widget > * { flex: none; }
+.committee-widget-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.committee-widget-head b, .committee-widget > b { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.committee-widget-count { font-size: 34px; font-weight: 600; line-height: 1.1; color: var(--accent); margin-top: auto; }
+.committee-widget small { font-size: 12px; color: var(--muted); }
+.committee-widget.is-setup { background: var(--accent-soft); }
+.committee-widget.is-setup > span { font-size: 13px; color: var(--text-2); line-height: 1.35; }
+.committee-widget-wide { display: grid; grid-template-columns: 1fr auto; grid-template-rows: auto auto; align-items: center; column-gap: 12px; padding: 6px 16px; }
+.committee-widget-wide .committee-widget-head { grid-column: 1; }
+.committee-widget-wide .committee-widget-count { grid-column: 2; grid-row: 1 / 3; margin: 0; font-size: 28px; }
+.committee-widget-wide small { grid-column: 1; }
+.committee-widget-wide.is-setup { display: flex; justify-content: center; }
+
+/* ---- Approve changes: the Societies part ---- */
+.committee-approve { display: grid; gap: 10px; margin-bottom: 22px; }
+.committee-approve-card { display: grid; gap: 10px; padding: 12px 14px; border-radius: var(--shape); background: var(--surface-2); }
+.committee-diff { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; font-size: 14px; }
+.committee-diff dt { color: var(--muted); }
+.committee-diff dd { margin: 0; display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.committee-was { color: var(--muted); text-decoration: line-through; }
+.committee-new { color: var(--text); font-weight: 600; }
+.committee-approve-buttons { display: flex; gap: 8px; }
+.committee-code-maker { display: grid; gap: 6px; }
+.committee-code-maker select { flex: 1; min-width: 0; }
+.committee-made-code {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: var(--shape);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.committee-made-code b { font-family: var(--font-mono); font-size: 26px; letter-spacing: 0.08em; }
+.committee-made-code small { color: var(--text-2); }
+.committee-codes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.committee-codes li { display: grid; grid-template-columns: auto 1fr auto auto; align-items: baseline; gap: 10px; font-size: 14px; }
+.committee-codes code { font-family: var(--font-mono); }
+.committee-codes small { color: var(--muted); }

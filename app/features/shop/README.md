@@ -47,6 +47,10 @@ See `store.js` for the details and `firebase/firestore.rules` for who may do wha
 
 Delete my account removes `shopOwners` and `spotRequests` (in `account/rules.js`'s `onlineData()`), and this feature's `account.cleanup` removes the waiting change and the used code first. The place's public card and its counts stay, as they belong to the place.
 
+## For other features
+
+Slot `approve.parts`: more parts of the Approve changes window, drawn below the shop's own. Item: `{ id, order, waiting(db) → Promise<number>, load(db) → Promise<number waiting>, render({ reload, done }) → element or [elements] }`. `waiting` is asked when the app starts, for the count in the menu row; `load` when the window opens. The society-committee feature adds *Society changes* and *Society codes* this way.
+
 ## What it needs
 
 - **Requires:** account.

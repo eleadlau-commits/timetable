@@ -204,11 +204,115 @@ service cloud.firestore {
 
     // ---- Societies (the societies feature, on the Explore tab) ----
     // Typed in by the team in the Firebase console. Everyone can read the published ones, signed
-    // in or not (at most 300 at a time); nobody can change them from the app.
+    // in or not (at most 300 at a time). A society's committee can read its own, even as a draft,
+    // but never change it directly: they send a change (societyChanges) that waits for approval.
+    // Only the people in 'admins' can change a society from the app (Approve changes).
 
     match /societies/{society} {
-      allow get: if resource.data.published == true;
-      allow list: if resource.data.published == true && request.query.limit <= 300;
+      allow get: if resource.data.published == true || isAdmin() || runsSociety(society);
+      allow list: if (resource.data.published == true || isAdmin()) && request.query.limit <= 300;
+      // Approving a change: only the parts a committee can change are checked.
+      allow update: if isAdmin() && validSocietyCard(request.resource.data);
+    }
+
+    // The parts of a society's card a committee can change (the society-committee feature), all
+    // optional: short texts and https links (Instagram is stored as its https address).
+    function validSocietyCard(d) {
+      return optionalText(d, 'line', 140) && optionalText(d, 'meets', 120) && optionalText(d, 'fee', 60)
+        && optionalLink(d, 'instagram') && optionalLink(d, 'join');
+    }
+
+    // ---- Society committees: which account helps run which society ----
+    // The same steps as shops (below), in their own collections.
+
+    function committeePath(uid) {
+      return /databases/$(database)/documents/societyOwners/$(uid);
+    }
+
+    function runsSociety(society) {
+      return signedIn() && exists(committeePath(request.auth.uid))
+        && get(committeePath(request.auth.uid)).data.society == society;
+    }
+
+    // Society codes: the team makes one per committee member. Anyone signed in can look up one
+    // code they've been given (they can't be listed or guessed), and use it once. The person who
+    // used it, or the team, can delete it.
+
+    match /societyCodes/{code} {
+      allow get: if signedIn();
+      allow list: if isAdmin() && request.query.limit <= 200;
+      allow create: if isAdmin() && validShopCode(code)
+        && request.resource.data.keys().hasOnly(['society', 'usedBy', 'made'])
+        && request.resource.data.society is string
+        && request.resource.data.usedBy == null
+        && request.resource.data.made == request.time;
+      allow update: if signedIn() && resource.data.usedBy == null
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['usedBy'])
+        && request.resource.data.usedBy == request.auth.uid;
+      allow delete: if isAdmin() || (signedIn() && resource.data.usedBy == request.auth.uid);
+    }
+
+    // societyOwners/{uid}: the society an account helps run (one at a time). You make or replace
+    // your own with a code you've used (in the same step). You can stop (delete it), and the team
+    // can remove you (when they delete the code you used).
+
+    match /societyOwners/{uid} {
+      allow get: if isMe(uid) || isAdmin();
+      allow create, update: if isMe(uid) && validCommittee(request.resource.data)
+        && getAfter(/databases/$(database)/documents/societyCodes/$(request.resource.data.code)).data.usedBy == uid
+        && getAfter(/databases/$(database)/documents/societyCodes/$(request.resource.data.code)).data.society == request.resource.data.society;
+      allow delete: if isMe(uid) || isAdmin();
+    }
+
+    function validCommittee(d) {
+      return d.keys().hasOnly(['society', 'code', 'at']) && d.keys().hasAll(['society', 'code'])
+        && d.society is string && d.code is string && validShopCode(d.code);
+    }
+
+    // societyChanges/{society}: a committee's change to its card, waiting for approval. Anyone on
+    // the committee can send, resend or withdraw it; only the team can approve or reject it.
+
+    match /societyChanges/{society} {
+      allow get: if isAdmin() || runsSociety(society);
+      allow list: if isAdmin() && request.query.limit <= 50;
+      allow create, update: if runsSociety(society) && validSocietyChange(society, request.resource.data);
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+        && request.resource.data.status in ['approved', 'rejected'];
+      allow delete: if isAdmin() || runsSociety(society);
+    }
+
+    function validSocietyChange(society, d) {
+      return d.keys().hasOnly(['society', 'by', 'line', 'meets', 'fee', 'instagram', 'join', 'status', 'at'])
+        && d.keys().hasAll(['society', 'by', 'status', 'at'])
+        && d.society == society && d.by == request.auth.uid
+        && d.status == 'waiting' && d.at == request.time
+        && validSocietyCard(d);
+    }
+
+    // societyStats/{society}_{week}: how many phones showed a society in the list that week
+    // (seen), and tapped its Instagram or Join (taps). Anyone can add one, and nothing else. Only
+    // the society's committee and the team can read them.
+
+    match /societyStats/{stat} {
+      allow get: if isAdmin() || runsSociety(stat.split('_')[0]);
+      allow create: if validSocietyStat(stat, request.resource.data)
+        && request.resource.data.get('seen', 0) in [0, 1]
+        && request.resource.data.get('taps', 0) in [0, 1]
+        && exists(/databases/$(database)/documents/societies/$(request.resource.data.society));
+      allow update: if validSocietyStat(stat, request.resource.data)
+        && request.resource.data.society == resource.data.society
+        && request.resource.data.week == resource.data.week
+        && (request.resource.data.get('seen', 0) - resource.data.get('seen', 0)) in [0, 1]
+        && (request.resource.data.get('taps', 0) - resource.data.get('taps', 0)) in [0, 1];
+    }
+
+    function validSocietyStat(stat, d) {
+      return d.keys().hasOnly(['society', 'week', 'seen', 'taps'])
+        && d.keys().hasAll(['society', 'week'])
+        && d.society is string && d.week is string && d.week.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        && stat == d.society + '_' + d.week
+        && d.get('seen', 0) is int && d.get('taps', 0) is int;
     }
 
     // ---- The team: who may approve changes ----

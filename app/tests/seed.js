@@ -110,6 +110,7 @@ export default function seed(app) {
     ],
   });
   area('shop').set('no-count', true); // the tests never count views of places on Spots
+  area('society-committee').set('no-count', true); // …or of societies
   const view = new URLSearchParams(location.hash.slice(1)).get('view');
   if (view) area('folio').set('view', view);
 }

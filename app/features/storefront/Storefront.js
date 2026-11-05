@@ -11,6 +11,11 @@
 //   shop's name for the top of the page, tag?() → { text, tone?: 'live' | 'wait' | 'off' } or null,
 //   action?() → { label, onClick, primary? } or null (the card's button), visible?() → false to hide it }.
 //
+// Service 'storefront': the same frame for a page of cards somewhere else, such as the
+// society-committee feature's Your society window.
+//   cards(items) → [elements]: the items (shaped like 'storefront.cards' items) that are visible,
+//   in order, each in the shared frame. An item that fails to draw is left out.
+//
 // Saved data: none.
 
 import { Feature, ui } from 'folio';
@@ -25,6 +30,7 @@ export default class Storefront extends Feature {
   start() {
     this.defineSlot('storefront.cards',
       "Cards on the business version's Your shop tab. Item: { id, order, title, render() → element, heading?() → the shop's name, tag?() → { text, tone?: 'live' | 'wait' | 'off' } or null, action?() → { label, onClick, primary? } or null, visible?() → false to hide it }.");
+    this.provide('storefront', { cards: (items) => this.cards(items) });
     this.add('views', {
       id: 'storefront',
       label: 'Your shop',
@@ -42,8 +48,7 @@ export default class Storefront extends Feature {
 
   render() {
     if (!this.box) return;
-    const cards = cardsToShow(this.slot('storefront.cards').items);
-    const drawn = cards.map((card) => this.card(card)).filter(Boolean);
+    const drawn = this.cards(this.slot('storefront.cards').items, this.slot('storefront.cards'));
     const customise = this.slot('home.tools').items.find((tool) => tool.id === 'customise');
     this.box.replaceChildren(
       ...(drawn.length ? drawn : [ui.missing('Your shop\'s details')]),
@@ -53,16 +58,26 @@ export default class Storefront extends Feature {
       }, 'Choose which of these are on Home'));
   }
 
+  // The visible cards, in order, each in the shared frame. `slot` reports a card that fails
+  // against the feature that added it; without one (cards from the service), it's just left out.
+  cards(items, slot = null) {
+    return cardsToShow(items).map((card) => this.card(card, slot)).filter(Boolean);
+  }
+
   // One card in the shared frame. A card that fails to draw is left out.
-  card(card) {
+  card(card, slot = null) {
     let inside;
     let tag;
     let action;
-    this.slot('storefront.cards').run(card, (c) => {
+    const draw = (c) => {
       inside = c.render();
       tag = c.tag?.() || null;
       action = c.action?.() || null;
-    });
+    };
+    if (slot) slot.run(card, draw);
+    else {
+      try { draw(card); } catch (err) { console.error(err); inside = null; }
+    }
     if (!inside) return null;
     return el('section', { class: 'storefront-card', 'aria-label': card.title },
       el('div', { class: 'storefront-card-head' },

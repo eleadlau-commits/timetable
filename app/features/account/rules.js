@@ -8,6 +8,8 @@ export function onlineData(uid) {
     `users/${uid}/private/main`, `users/${uid}/private/profile`, `shared/${uid}`,
     // A business's link to its place on Spots, and its request to be listed (the shop feature).
     `shopOwners/${uid}`, `spotRequests/${uid}`,
+    // A committee member's link to their society (the society-committee feature).
+    `societyOwners/${uid}`,
   ];
 }
 

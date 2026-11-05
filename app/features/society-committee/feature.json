@@ -1,0 +1,9 @@
+{
+  "name": "Your society",
+  "description": "For society committees: link your society with a society code (Account → I run a society), see its card and how it's going, and send changes that the team approves.",
+  "version": "1.0.0",
+  "main": "SocietyCommittee.js",
+  "styles": ["style.css"],
+  "requires": ["account"],
+  "uses": ["societies", "storefront", "shop", "welcome", "home", "help"]
+}

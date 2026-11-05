@@ -16,6 +16,8 @@ Later features add their own cards here, such as bookings.
 
 Slot `storefront.cards`. Item: `{ id, order, title, render() → element, heading?() → the shop's name, tag?() → { text, tone?: 'live' | 'wait' | 'off' } or null, action?() → { label, onClick, primary? } or null, visible?() → false to hide it }`. The rules for which cards show and the name at the top are in `rules.js`, tested in `tests/`.
 
+Service `storefront`: `cards(items)` returns the visible items (shaped like `storefront.cards` items) in order, each in the same frame, for a page of cards somewhere else. The society-committee feature uses it for its Your society window.
+
 ## What it needs
 
 - **Requires:** nothing.

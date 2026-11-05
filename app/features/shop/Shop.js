@@ -19,6 +19,11 @@
 // On every phone in the student version, it counts (once a day per place) when Spots shows a
 // place and when someone taps its Website or Menu ('spots:shown' and 'spots:tapped').
 //
+// Slot 'approve.parts': more parts of the Approve changes window, from other features (such as
+// societies). Item: { id, order, waiting(db) → Promise<number waiting>, load(db) → Promise<number
+// waiting> (fetches what it shows), render({ reload, done }) → element or [elements] }. reload()
+// loads the window again; done() checks the menu row's count again.
+//
 // What's stored online, and the rules for it, are in store.js and firebase/firestore.rules.
 //
 // Saved data (on this phone):
@@ -50,6 +55,8 @@ export default class Shop extends Feature {
     this.loaded = false;
     this.waitingCount = 0;
     this.approver = new Approver(this);
+    this.defineSlot('approve.parts',
+      'More parts of the Approve changes window (for the team). Item: { id, order, waiting(db) → Promise<number>, load(db) → Promise<number waiting>, render({ reload, done }) → element or [elements] }.');
     this.addHelp();
 
     this.add('home.pages', { id: 'shop', order: 1, audience: 'business', render: () => this.page() });
@@ -169,7 +176,11 @@ export default class Shop extends Feature {
     }
     if (this.admin) {
       const { changes, requests } = await store.waiting(db).catch(() => ({ changes: [], requests: [] }));
-      this.waitingCount = changes.length + requests.length;
+      let others = 0;
+      for (const part of this.slot('approve.parts').items) {
+        others += await Promise.resolve(this.slot('approve.parts').run(part, (p) => p.waiting(db), 0)).catch(() => 0) || 0;
+      }
+      this.waitingCount = changes.length + requests.length + others;
     }
     this.loaded = true;
     this.loadedAt = Date.now();
