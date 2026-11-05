@@ -7,7 +7,7 @@
 // database is asked again only when the saved copy is older than FRESH_FOR (rules.js), to stay
 // well inside the free plan's daily reads.
 //
-// Saved data: 'saved' → { at (ms), places: [{ id, kind, name, line, deal, dealEnds, address, link, hours, menu, order }] }
+// Saved data: 'saved' → { at (ms), places: [{ id, kind, name, line, deal, dealEnds, address, link, hours, open, photo, menu, order }] }
 
 import { Feature } from 'folio';
 import { toPlace, placesOf, withDeals, liveDeal, dealUntil, isStale, MOST } from './rules.js';
@@ -32,7 +32,7 @@ export default class Listings extends Feature {
     const deal = liveDeal(place);
     return {
       id: place.id, name: place.name, line: place.line, address: place.address, link: place.link,
-      hours: place.hours || '', menu: place.menu || null,
+      hours: place.hours || '', open: place.open || '', photo: place.photo || null, menu: place.menu || null,
       deal, until: deal ? dealUntil(place) : '',
     };
   }
@@ -49,7 +49,7 @@ export default class Listings extends Feature {
   async load() {
     const db = await this.account.publicDatabase();
     const snap = await db.collection('spots').where('published', '==', true).limit(MOST).get();
-    const places = snap.docs.map((d) => toPlace(d.id, d.data())).filter(Boolean);
+    const places = snap.docs.map((d) => toPlace(d.id, d.data(), import.meta.url)).filter(Boolean);
     const changed = JSON.stringify(places) !== JSON.stringify(this.list);
     this.saved = { at: Date.now(), places };
     this.storage.set('saved', this.saved);

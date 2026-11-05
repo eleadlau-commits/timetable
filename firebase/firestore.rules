@@ -279,8 +279,16 @@ service cloud.firestore {
         || (d[key] is string && d[key].size() <= 500 && d[key].matches('https://[^\\s]+'));
     }
 
+    // Opening times, day by day (see app/features/spots/hours.js): seven parts, Monday first,
+    // '0800-1700' or nothing for closed, e.g. '0800-1700|0800-1700|0800-1700|0800-1700|0800-1700|0900-1700|'.
+    function optionalOpen(d) {
+      return !('open' in d) || d.open == ''
+        || (d.open is string && d.open.matches('(([0-9]{4}-[0-9]{4})?[|]){6}([0-9]{4}-[0-9]{4})?'));
+    }
+
     function validCard(d) {
       return optionalText(d, 'line', 120) && optionalText(d, 'deal', 120) && optionalText(d, 'hours', 120)
+        && optionalOpen(d) && optionalText(d, 'photo', 500)
         && optionalText(d, 'address', 120)
         && optionalLink(d, 'link') && optionalLink(d, 'menu')
         && (!('dealEnds' in d) || d.dealEnds == null || d.dealEnds is timestamp)
@@ -301,7 +309,7 @@ service cloud.firestore {
     }
 
     function validChange(place, d) {
-      return d.keys().hasOnly(['place', 'by', 'line', 'deal', 'dealEnds', 'hours', 'link', 'menu', 'status', 'at'])
+      return d.keys().hasOnly(['place', 'by', 'line', 'deal', 'dealEnds', 'hours', 'open', 'link', 'menu', 'status', 'at'])
         && d.keys().hasAll(['place', 'by', 'status', 'at'])
         && d.place == place && d.by == request.auth.uid
         && d.status == 'waiting' && d.at == request.time
@@ -322,7 +330,7 @@ service cloud.firestore {
     }
 
     function validListingRequest(uid, d) {
-      return d.keys().hasOnly(['by', 'kind', 'name', 'address', 'contact', 'line', 'deal', 'dealEnds', 'hours', 'link', 'menu', 'status', 'at'])
+      return d.keys().hasOnly(['by', 'kind', 'name', 'address', 'contact', 'line', 'deal', 'dealEnds', 'hours', 'open', 'link', 'menu', 'status', 'at'])
         && d.keys().hasAll(['by', 'kind', 'name', 'contact', 'status', 'at'])
         && d.by == uid
         && d.kind in ['cafe', 'pub', 'club']

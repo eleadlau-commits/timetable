@@ -29,19 +29,27 @@ export function showCode(code) {
 
 // ---- What owners can change ----
 
-// The parts of a card an owner can change, in the order the form shows them.
+// The parts of a card an owner can change, in the order the form shows them. 'open' is the
+// opening times, day by day (the spots feature's hours.js); 'hours' is the same as a short line
+// ("Mon–Fri 8am–5pm"), written from them, so older versions of the app still show something.
+// Without Spots' opening-times helpers, the form asks for 'hours' as typed text instead.
 export const FIELDS = [
-  { key: 'line', label: 'Short line', hint: 'What you are, in a few words, e.g. "Brunch and coffee by the river"', most: 120 },
-  { key: 'deal', label: 'Student deal', hint: 'e.g. "10% off with your campus card". Leave it empty for no deal.', most: 120 },
-  { key: 'dealEnds', label: 'Deal ends', hint: 'The last day of the deal. Leave it empty if it keeps going.', type: 'date' },
-  { key: 'hours', label: 'Opening hours', hint: 'e.g. "Mon–Fri 8–6, Sat 9–5"', most: 120 },
-  { key: 'link', label: 'Website', hint: 'https://…', type: 'link' },
-  { key: 'menu', label: 'Menu link', hint: 'A page or PDF with your menu', type: 'link' },
+  { key: 'line', label: 'Short line', hint: 'What you are, in a few words, e.g. "Brunch and coffee by the river"', most: 120, part: 'details' },
+  { key: 'deal', label: 'Student deal', hint: 'e.g. "10% off with your campus card". Leave it empty for no deal.', most: 120, part: 'deal' },
+  { key: 'dealEnds', label: 'Last day of the deal', hint: 'Leave it empty if it keeps going.', type: 'date', part: 'deal' },
+  { key: 'open', label: 'Opening times', type: 'week', part: 'details' },
+  { key: 'hours', label: 'Opening hours', hint: 'e.g. "Mon–Fri 8–6, Sat 9–5"', most: 120, part: 'details' },
+  { key: 'link', label: 'Website', hint: 'https://…', type: 'link', part: 'details' },
+  { key: 'menu', label: 'Menu link', hint: 'A page or PDF with your menu', type: 'link', part: 'details' },
 ];
 export const KEYS = FIELDS.map((f) => f.key);
 
 // The kinds of place, as the database has them, and their names.
 export const KINDS = [['cafe', 'Café'], ['pub', 'Pub'], ['club', 'Club']];
+
+// Opening times as stored: seven parts, Monday first, '0800-1700' or nothing (closed). The same
+// rule the database checks.
+export const OPEN = /^((\d{4}-\d{4})?\|){6}(\d{4}-\d{4})?$/;
 
 function text(value, most) {
   return String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, most);
@@ -87,6 +95,10 @@ export function checkEdit(form, now = Date.now()) {
       const link = cleanLink(value);
       if (link === null) return { error: `${field.label}: that doesn't look like a web address. It should start with https://` };
       change[field.key] = link;
+    } else if (field.type === 'week') {
+      const open = String(value ?? '');
+      if (open && !OPEN.test(open)) return { error: `${field.label}: give each open day a time it opens and a different time it closes.` };
+      change[field.key] = open;
     } else if (field.type === 'date') {
       if (value && dayToMillis(value) === null) return { error: `${field.label}: choose a day.` };
       change[field.key] = dayToMillis(value);
@@ -124,7 +136,9 @@ export function showValue(key, value) {
 
 // The parts of a card that a change changes: [{ key, label, now, next }], shown as text.
 export function differences(place, change) {
+  // The opening times show as their short line ('hours'), which changes with them.
   return FIELDS
+    .filter((f) => f.type !== 'week')
     .map((f) => ({ key: f.key, label: f.label, now: showValue(f.key, place?.[f.key] ?? null), next: showValue(f.key, change?.[f.key] ?? null) }))
     .filter((d) => d.now !== d.next);
 }
@@ -138,6 +152,40 @@ export function weekOf(date = new Date()) {
 
 export function lastWeek(date = new Date()) {
   return weekOf(time.addDays(time.startOfWeek(new Date(date)), -7));
+}
+
+// This week and the weeks before it, newest first: ['2026-11-02', '2026-10-26', …].
+export function weeksBack(n, date = new Date()) {
+  const monday = time.startOfWeek(new Date(date));
+  return Array.from({ length: n }, (_, i) => weekOf(time.addDays(monday, -7 * i)));
+}
+
+// The counts for the trend, oldest first, from what the database gave (newest first, as
+// weeksBack asks): [{ week, seen, taps, label }] with labels like '12 Oct'. Missing weeks are 0.
+export function trend(stats, weeks) {
+  return [...weeks].reverse().map((week) => {
+    const found = (stats || []).find((s) => s?.week === week);
+    const [y, m, d] = week.split('-').map(Number);
+    return {
+      week,
+      seen: found?.seen || 0,
+      taps: found?.taps || 0,
+      label: new Date(y, m - 1, d, 12).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }),
+    };
+  });
+}
+
+// One plain sentence about this week, e.g. '48 students saw your shop this week, up from 18.'
+export function trendSentence(points) {
+  const now = points?.[points.length - 1];
+  const before = points?.[points.length - 2];
+  if (!now) return '';
+  const people = (n) => `${n} ${n === 1 ? 'student' : 'students'}`;
+  let line = `${people(now.seen)} saw your shop on Spots this week`;
+  if (before && before.seen !== now.seen) line += `, ${now.seen > before.seen ? 'up' : 'down'} from ${before.seen} last week`;
+  line += '.';
+  if (now.taps) line += ` ${people(now.taps)} tapped your Menu or Website.`;
+  return line;
 }
 
 export function statId(place, week) {
@@ -158,7 +206,7 @@ export function toCount(record, kind, ids, now = new Date()) {
 // ---- The owner's own card ----
 
 // A place as stored (or with a change on top) → what Spots shows for it: { id, name, line, deal,
-// until, address, link, hours, menu }. The deal only while it's on, as on Spots.
+// until, address, link, hours, open, photo, menu }. The deal only while it's on, as on Spots.
 export function cardPreview(place, now = Date.now()) {
   if (!place) return null;
   const ends = Number.isFinite(place.dealEnds) ? place.dealEnds : null;
@@ -173,6 +221,8 @@ export function cardPreview(place, now = Date.now()) {
     address: place.address || '',
     link: cleanLink(place.link) || null,
     hours: place.hours || '',
+    open: typeof place.open === 'string' && OPEN.test(place.open) ? place.open : '',
+    photo: typeof place.photo === 'string' && /^https:\/\/\S+$/.test(place.photo) ? place.photo : null,
     menu: cleanLink(place.menu) || null,
   };
 }

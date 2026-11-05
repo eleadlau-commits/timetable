@@ -7,10 +7,12 @@ For businesses on Spots. The owner of a café, pub or club looks after their own
 **For owners (the business version):**
 
 - **Set up your business** (opens after choosing *I run a business*, or from Home): 1. sign in or create an account (the account page), 2. type the **shop code** the team gave them, which links the account to the place. No code? **Ask to be listed** sends the name, kind, address, a phone number or email, and the card's details to the team. 3. Done.
-- **Home** (business version): a *Your shop* page at the top (what's happening, and Edit card), and three widgets: **My card** (the card exactly as Spots shows it, with a *Live*, *Waiting* or *Not live* tag), **This week** (how many phones saw the card on Spots, and tapped its Website or Menu, plus last week's) and **My deal**. Before setting up, My card says *Set up your shop*.
-- **Edit your card**: short line, student deal and its last day, opening hours, website and menu link. *Send for approval* stores it as a change waiting for approval; students keep seeing the card as it was. While it waits, the owner can send a new version or withdraw it. A rejected change says so.
+- **The Your shop tab** (the storefront feature) holds the whole shop as cards: **Your shop on Spots** (the card exactly as students see it, with its photo, *Open now · closes 5pm*, a *Live*, *Being checked* or *Not on Spots* tag, and *Change details*), **Student deal** (the deal that's live, a new one being checked, and *Change the deal*) and **How it's going** (four weeks of how many phones saw the card, as bars, and a sentence such as "48 students saw your shop on Spots this week, up from 18 last week"). Before setting up, it shows *Set up your shop*.
+- **Home** (business version): a *Your shop* page at the top (what's happening, and a button to the Your shop tab), and the same cards as widgets: **How it's going** and **Student deal** are there to start with; **Your shop on Spots** can be added in Customise Home. The widget ids (`shop-card`, `shop-week`, `shop-deal`) are the ones from version 3.5, so saved Home layouts keep working.
+- **Change details**: short line, **opening times day by day** (a tick for open, and the times it opens and closes; a closing time earlier than the opening time runs past midnight; *Same as Monday for Tuesday to Friday*), website and menu link. The short "Mon–Fri 8am–5pm" line is written from the times, so older versions of the app still show it. **Change the deal**: the deal and its last day. Each sends only its own part; the rest stays as it is. *Send to be checked* stores it as a change waiting for approval; students keep seeing the card as it was. While it waits, the owner can send a new version or withdraw it. A rejected change says so.
+- **Photos**: owners can't add their own; the card says to email one, and the team adds it (see the listings feature).
 - **Account page**: a *Your business* section (which place, Edit card).
-- **Help**: three questions in *For businesses*.
+- **Help**: five questions in *For businesses*.
 
 **For the team (admins):**
 
@@ -39,7 +41,7 @@ See `store.js` for the details and `firebase/firestore.rules` for who may do wha
 | `admins/{uid}` | made by hand in the console | each person, only their own |
 | `shopCodes/{code}` | `place`, `usedBy`, `made` | anyone signed in who knows the code; admins list them |
 | `shopOwners/{uid}` | `place`, `code`, `at` | the owner and admins |
-| `spotChanges/{place}` | the card's parts, `by`, `status` (`waiting`, `approved`, `rejected`), `at` | the owner and admins |
+| `spotChanges/{place}` | the card's parts (including `open`, the opening times), `by`, `status` (`waiting`, `approved`, `rejected`), `at` | the owner and admins |
 | `spotRequests/{uid}` | the place's name, kind, address, `contact`, the card's parts, `status`, `at` | the business and admins |
 | `spotStats/{place}_{week}` | `seen`, `taps` (totals only) | the owner and admins; anyone can add one |
 
@@ -48,11 +50,11 @@ Delete my account removes `shopOwners` and `spotRequests` (in `account/rules.js`
 ## What it needs
 
 - **Requires:** account.
-- **Uses if present:** welcome (the business version), home (its widgets and page), spots (to draw the owner's card as students see it), help.
+- **Uses if present:** welcome (the business version), home (its widgets and page), storefront (the Your shop tab), spots (to draw the owner's card as students see it, and its opening-times helpers; without it, opening hours are typed as text), help.
 
 ## What it saves on the phone
 
-- `mine` → `{ place, card, change, stats, at }`: the owner's place, its card, a change sent for approval and the week's counts, so Home shows them straight away.
+- `mine` → `{ place, card, change, stats, at }`: the owner's place, its card, a change sent for approval and the last four weeks' counts (newest first), so the tab and Home show them straight away.
 - `admin` → `true` if this account approves changes.
 - `counted` → `{ day, seen: [ids], taps: [ids] }`: what this phone counted today.
 - `no-count` → `true` in test builds (set by `app/tests/seed.js`), so the tests never count.

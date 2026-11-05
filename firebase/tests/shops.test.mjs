@@ -152,6 +152,21 @@ test('a change can\'t approve itself or carry anything else', async () => {
   await assertFails(updateDoc(doc(olly, 'spotChanges', 'pub1'), { status: 'approved' }));
 });
 
+test('a change can carry opening times, day by day, in the stored shape only', async () => {
+  const olly = as('olly');
+  const week = '0800-1700|0800-1700|0800-1700|0800-1700|0800-1700|0900-1700|';
+  await assertSucceeds(setDoc(doc(olly, 'spotChanges', 'pub1'), change('olly', 'pub1', { open: week })));
+  await assertSucceeds(setDoc(doc(olly, 'spotChanges', 'pub1'), change('olly', 'pub1', { open: '' })));
+  await assertFails(setDoc(doc(olly, 'spotChanges', 'pub1'), change('olly', 'pub1', { open: 'Mon–Fri 8–5' })));
+  await assertFails(setDoc(doc(olly, 'spotChanges', 'pub1'), change('olly', 'pub1', { open: `${week}|0800-1700` })));
+  // Owners can't set their own photo: the team adds it.
+  await assertFails(setDoc(doc(olly, 'spotChanges', 'pub1'), change('olly', 'pub1', { photo: 'https://photos.example/a.jpg' })));
+  // Approving puts the times on the card.
+  const eve = as('eve');
+  await assertSucceeds(updateDoc(doc(eve, 'spots', 'pub1'), { open: week, hours: 'Mon–Fri 8am–5pm, Sat 9am–5pm' }));
+  await assertFails(updateDoc(doc(eve, 'spots', 'pub1'), { open: 'always' }));
+});
+
 test('admins see waiting changes and approve them onto the card', async () => {
   await setDoc(doc(as('olly'), 'spotChanges', 'pub1'), change('olly', 'pub1'));
   const eve = as('eve');

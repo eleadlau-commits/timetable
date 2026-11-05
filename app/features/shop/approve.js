@@ -81,7 +81,7 @@ export class Approver {
           line('Kind', KIND_NAMES[request.kind] || request.kind),
           line('Address', request.address),
           line('Contact', request.contact),
-          ...FIELDS.map((f) => line(f.label, showValue(f.key, request[f.key]))),
+          ...FIELDS.filter((f) => f.type !== 'week').map((f) => line(f.label, showValue(f.key, request[f.key]))),
         ].filter(Boolean).flat()),
       this.buttons(
         () => store.approveRequest(this.db, request),

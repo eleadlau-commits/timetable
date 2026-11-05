@@ -1,6 +1,6 @@
 import { test, assert } from 'folio/testing';
 import {
-  kindOf, webLink, toMillis, toPlace, liveDeal, placesOf, withDeals, dealUntil, isStale, FRESH_FOR,
+  kindOf, webLink, toMillis, toPlace, openTimes, photoOf, liveDeal, placesOf, withDeals, dealUntil, isStale, FRESH_FOR,
 } from '../rules.js';
 
 const cafe = (extra = {}) => ({ published: true, kind: 'cafe', name: 'Flat White', line: 'Coffee on Elvet Bridge', ...extra });
@@ -39,7 +39,7 @@ test('a published place is tidied for showing', () => {
   assert.deepEqual(place, {
     id: 'abc', kind: 'cafes', name: 'Flat White', line: 'Coffee on Elvet Bridge',
     deal: '10% off with a student card', dealEnds: null, address: '', link: 'https://flatwhite.example/',
-    hours: '', menu: null, order: 2,
+    hours: '', open: '', photo: null, menu: null, order: 2,
   });
   const more = toPlace('abc', cafe({ hours: ' Mon–Sat  8–5 ', menu: 'https://flatwhite.example/menu', link: 'http://plain.example' }));
   assert.equal(more.hours, 'Mon–Sat 8–5');
@@ -98,4 +98,21 @@ test('the saved copy is used for a while, then fetched again', () => {
   assert.equal(isStale({ at: now - FRESH_FOR, places: [] }, now), true);
   assert.equal(isStale({ at: now + 3600000, places: [] }, now), true);   // the phone's clock went back
   assert.equal(isStale({ places: [] }, now), true);
+});
+
+test('opening times are kept only in the stored shape', () => {
+  const week = '0800-1700|0800-1700|0800-1700|0800-1700|0800-1700|0900-1700|';
+  assert.equal(openTimes(week), week);
+  assert.equal(openTimes('Mon–Fri 8–5'), '');
+  assert.equal(openTimes(null), '');
+  assert.equal(toPlace('a', cafe({ open: week })).open, week);
+});
+
+test('photos: an https address, or a picture that comes with the app', () => {
+  assert.equal(photoOf('https://photos.example/cafe.jpg'), 'https://photos.example/cafe.jpg');
+  assert.equal(photoOf('http://photos.example/cafe.jpg'), null);
+  assert.equal(photoOf('flat-white.jpg', 'https://app.example/features/listings/Listings.js'), 'https://app.example/features/listings/photos/flat-white.jpg');
+  assert.equal(photoOf('../secret.jpg', 'https://app.example/features/listings/Listings.js'), null);
+  assert.equal(photoOf('javascript:alert(1)'), null);
+  assert.equal(photoOf(''), null);
 });
