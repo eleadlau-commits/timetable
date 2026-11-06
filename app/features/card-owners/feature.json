@@ -1,0 +1,8 @@
+{
+  "name": "Looking after a card",
+  "description": "What shops and societies share for looking after their own card: codes from the team, changes that wait for approval, the weekly counts, and the Approve changes parts for them.",
+  "version": "1.0.0",
+  "main": "CardOwners.js",
+  "styles": ["style.css"],
+  "requires": ["account"]
+}

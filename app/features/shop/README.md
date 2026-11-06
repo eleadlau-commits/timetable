@@ -34,7 +34,7 @@ To add a teammate as a second approver, do the same with their User UID. To remo
 
 ## What's stored online
 
-See `store.js` for the details and `firebase/firestore.rules` for who may do what (tested in `firebase/tests/shops.test.mjs`):
+The steps shops and societies share (codes, owners, changes, counts) are written once, in the `card-owners` feature; `store.js` says which names a shop's things are kept under and holds asking to be listed. `firebase/firestore.rules` says for who may do what (tested in `firebase/tests/shops.test.mjs`):
 
 | Where | What | Who can see it |
 |---|---|---|
@@ -45,7 +45,7 @@ See `store.js` for the details and `firebase/firestore.rules` for who may do wha
 | `spotRequests/{uid}` | the place's name, kind, address, `contact`, the card's parts, `status`, `at` | the business and admins |
 | `spotStats/{place}_{week}` | `seen`, `taps` (totals only) | the owner and admins; anyone can add one |
 
-Delete my account removes `shopOwners` and `spotRequests` (in `account/rules.js`'s `onlineData()`), and this feature's `account.cleanup` removes the waiting change and the used code first. The place's public card and its counts stay, as they belong to the place.
+Delete my account removes `shopOwners` and `spotRequests` (in `account/rules.js`'s `onlineData()`), and this feature's `account.cleanup` removes the waiting change (if this person sent it) and the used code first. The place's public card and its counts stay, as they belong to the place.
 
 ## For other features
 
@@ -53,7 +53,7 @@ Slot `approve.parts`: more parts of the Approve changes window, drawn below the 
 
 ## What it needs
 
-- **Requires:** account.
+- **Requires:** account, card-owners (codes, changes, counts and Approve changes, shared with societies).
 - **Uses if present:** welcome (the business version), home (its widgets and page), storefront (the Your shop tab), spots (to draw the owner's card as students see it, and its opening-times helpers; without it, opening hours are typed as text), help.
 
 ## What it saves on the phone

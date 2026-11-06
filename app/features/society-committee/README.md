@@ -23,7 +23,7 @@ Without the shop feature there's no Approve changes window, so changes can only 
 
 ## What's stored online
 
-All in `store.js`; rules in `firebase/firestore.rules`, tested in `firebase/tests/committees.test.mjs`.
+The steps are the `card-owners` feature's, the same as for shops; `store.js` says which names a society's things are kept under. Rules in `firebase/firestore.rules`, tested in `firebase/tests/committees.test.mjs`.
 
 | Collection | What | Who can read it |
 |---|---|---|
@@ -32,17 +32,17 @@ All in `store.js`; rules in `firebase/firestore.rules`, tested in `firebase/test
 | `societyChanges/{society}` | `{ society, by, line, meets, fee, instagram, join, status, at }` | the society's committee and admins |
 | `societyStats/{society}_{week}` | `{ society, week, seen, taps }`: totals only, nobody's name | the society's committee and admins |
 
-A committee can also read its own society even while it's a draft (`published: false`), but never change it directly. **Delete my account** removes the person's `societyOwners` link (in `account/rules.js`), the code they used and a change they sent that's still waiting (`removeAll` in `store.js`, through `account.cleanup`). The privacy notice describes all of it.
+A committee can also read its own society even while it's a draft (`published: false`), but never change it directly. **Delete my account** removes the person's `societyOwners` link (in `account/rules.js`), the code they used and a change they sent that's still waiting (`removeAll` in the card-owners feature's `store.js`, through `account.cleanup`). The privacy notice describes all of it.
 
-**Counting:** on students' phones, when the Societies list shows societies (`societies:shown`) and when someone taps Instagram or Join (`societies:tapped`), each society is counted once a day per phone (`toCount` in `rules.js`). Not in the business version, and never in test builds (`no-count`, set by `app/tests/seed.js`).
+**Counting:** on students' phones, when the Societies list shows societies (`societies:shown`) and when someone taps Instagram or Join (`societies:tapped`), each society is counted once a day per phone (the card-owners feature's `counter`). Not in the business version, and never in test builds (`no-count`, set by `app/tests/seed.js`).
 
-## What repeats the shop feature (for step 3)
+## What it shares with shops
 
-These are nearly the same as in `shop`, and are what step 3 of the plan pulls out into one shared piece: the codes (`makeCode`, `cleanCode`, `showCode`), `cleanLink`, the weeks and counts (`weekOf`, `weeksBack`, `trend`, `toCount`), `setupStep`, the store functions (use a code, send/withdraw a change, approve/reject, counts, codes), the Approve changes parts (`approve.js`), the four-week bars, the code window and the change form, the "being checked" notes, `explain()` for errors, the styles for all of these, and the database rules (codes, owners, changes and stats are the same rules with other names). Only the fields, their checks, the words and the student-facing card are the society's own.
+Codes, changes waiting for approval, the weekly counts, the four bars, the code box and its Approve changes parts are the `card-owners` feature's, shared with `shop`. What's the society's own: its fields and their checks (`rules.js`), its words, the card as students see it, and the Your society window.
 
 ## What it needs
 
-- **Requires:** account.
+- **Requires:** account, card-owners.
 - **Uses if present:** societies (the card as students see it, and the events it counts; without it the window shows just the name), storefront (the card frame; without it, plain cards), shop (the Approve changes window), welcome (nothing in the business version), home (the widget), help.
 
 ## What it saves on the phone

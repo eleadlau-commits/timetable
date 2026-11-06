@@ -1,6 +1,6 @@
 /* Your society: for society committees. The cards use the storefront feature's frame; these are
-   the insides, the windows, the widget and the Societies part of Approve changes. Many of these
-   repeat the shop feature's styles (step 3 of the plan shares them). */
+   the insides, the windows and the widget. The bars, the code box and Approve changes are the
+   card-owners feature's. */
 
 /* ---- The account page ---- */
 .committee-account { display: grid; gap: 8px; justify-items: start; }
@@ -11,7 +11,6 @@
 .committee-setup, .committee-form { display: grid; gap: 12px; padding-bottom: 20px; }
 .committee-setup h3 { margin: 6px 0 0; }
 .committee-setup p { margin: 0; }
-#society-code { text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 0.08em; }
 .committee-field { display: grid; gap: 4px; }
 .committee-field .label { margin: 0; }
 .committee-field input { width: 100%; }
@@ -38,13 +37,6 @@
   background: var(--surface);
 }
 .committee-plain-card h2 { margin: 0; font-size: 17px; font-weight: 600; }
-
-.committee-bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; height: 120px; }
-.committee-bar { display: grid; grid-template-rows: 1fr auto auto; text-align: center; min-height: 0; }
-.committee-bar-fill { align-self: end; display: block; border-radius: var(--shape-sm) var(--shape-sm) 0 0; background: var(--accent-soft); }
-.committee-bar.is-now .committee-bar-fill { background: var(--accent); }
-.committee-bar b { font-size: 14px; font-weight: 600; margin-top: 4px; }
-.committee-bar small { font-size: 11px; color: var(--muted); }
 
 .committee-tag {
   flex: none;
@@ -86,29 +78,3 @@
 .committee-widget-wide .committee-widget-count { grid-column: 2; grid-row: 1 / 3; margin: 0; font-size: 28px; }
 .committee-widget-wide small { grid-column: 1; }
 .committee-widget-wide.is-setup { display: flex; justify-content: center; }
-
-/* ---- Approve changes: the Societies part ---- */
-.committee-approve { display: grid; gap: 10px; margin-bottom: 22px; }
-.committee-approve-card { display: grid; gap: 10px; padding: 12px 14px; border-radius: var(--shape); background: var(--surface-2); }
-.committee-diff { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; font-size: 14px; }
-.committee-diff dt { color: var(--muted); }
-.committee-diff dd { margin: 0; display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
-.committee-was { color: var(--muted); text-decoration: line-through; }
-.committee-new { color: var(--text); font-weight: 600; }
-.committee-approve-buttons { display: flex; gap: 8px; }
-.committee-code-maker { display: grid; gap: 6px; }
-.committee-code-maker select { flex: 1; min-width: 0; }
-.committee-made-code {
-  display: grid;
-  gap: 2px;
-  padding: 12px 14px;
-  border-radius: var(--shape);
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.committee-made-code b { font-family: var(--font-mono); font-size: 26px; letter-spacing: 0.08em; }
-.committee-made-code small { color: var(--text-2); }
-.committee-codes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.committee-codes li { display: grid; grid-template-columns: auto 1fr auto auto; align-items: baseline; gap: 10px; font-size: 14px; }
-.committee-codes code { font-family: var(--font-mono); }
-.committee-codes small { color: var(--muted); }

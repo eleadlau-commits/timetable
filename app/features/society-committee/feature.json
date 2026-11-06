@@ -4,6 +4,6 @@
   "version": "1.0.0",
   "main": "SocietyCommittee.js",
   "styles": ["style.css"],
-  "requires": ["account"],
+  "requires": ["account", "card-owners"],
   "uses": ["societies", "storefront", "shop", "welcome", "home", "help"]
 }

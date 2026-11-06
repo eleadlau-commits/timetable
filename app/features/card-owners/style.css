@@ -1,0 +1,38 @@
+/* Looking after a card: the pieces shops and societies share (bars, the code box, Approve changes). */
+
+/* Four weeks as bars, this week dark. */
+.owners-bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; height: 120px; }
+.owners-bar { display: grid; grid-template-rows: 1fr auto auto; justify-items: stretch; text-align: center; min-height: 0; }
+.owners-bar-fill { align-self: end; display: block; border-radius: var(--shape-sm) var(--shape-sm) 0 0; background: var(--accent-soft); }
+.owners-bar.is-now .owners-bar-fill { background: var(--accent); }
+.owners-bar b { font-size: 14px; font-weight: 600; margin-top: 4px; }
+.owners-bar small { font-size: 11px; color: var(--muted); }
+
+/* The box for typing a code. */
+input.owners-code { text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 0.08em; }
+
+/* Approve changes. */
+.owners-approve-part { display: grid; gap: 10px; margin-bottom: 22px; }
+.owners-approve-card { display: grid; gap: 10px; padding: 12px 14px; border-radius: var(--shape); background: var(--surface-2); }
+.owners-diff { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; font-size: 14px; }
+.owners-diff dt { color: var(--muted); }
+.owners-diff dd { margin: 0; display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.owners-was { color: var(--muted); text-decoration: line-through; }
+.owners-new { color: var(--text); font-weight: 600; }
+.owners-approve-buttons { display: flex; gap: 8px; }
+.owners-code-maker { display: grid; gap: 6px; }
+.owners-code-maker select { flex: 1; min-width: 0; }
+.owners-made-code {
+  display: grid;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: var(--shape);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.owners-made-code b { font-family: var(--font-mono); font-size: 26px; letter-spacing: 0.08em; }
+.owners-made-code small { color: var(--text-2); }
+.owners-codes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.owners-codes li { display: grid; grid-template-columns: auto 1fr auto auto; align-items: baseline; gap: 10px; font-size: 14px; }
+.owners-codes code { font-family: var(--font-mono); }
+.owners-codes small { color: var(--muted); }
