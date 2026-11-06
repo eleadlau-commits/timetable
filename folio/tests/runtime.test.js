@@ -5,6 +5,7 @@ import { Slot } from 'folio/Slot.js';
 import { Area, Storage } from 'folio/Storage.js';
 import { Events } from 'folio/Events.js';
 import * as time from 'folio/time.js';
+import * as check from 'folio/check.js';
 import { el, missing, dialog } from 'folio/ui.js';
 import { Tabs } from 'folio/Tabs.js';
 import { mediaFor } from 'folio/appearance.js';
@@ -95,6 +96,39 @@ test('date helpers', () => {
   assert.equal(time.inTime(25 * 60000), 'in 25 min');
   assert.equal(time.inTime(125 * 60000), 'in 2 h 5 min');
   assert.equal(time.toLocalInput(new Date(2026, 0, 2, 3, 4)), '2026-01-02T03:04');
+  assert.equal(time.dayKey(new Date(2026, 0, 2, 23, 59)), '2026-01-02');
+  assert.equal(time.dayKey(new Date(2026, 10, 9, 12).getTime()), '2026-11-09');
+  assert.equal(time.fromDayKey('2026-11-09'), new Date(2026, 10, 9, 12).getTime());
+  assert.equal(time.fromDayKey('2026-02-31'), null);
+  assert.equal(time.fromDayKey(''), null);
+  assert.equal(time.fromDayKey('9 Nov'), null);
+});
+
+test('check tidies typed text and web addresses', () => {
+  assert.equal(check.tidy('  Brunch \n  by the river ', 120), 'Brunch by the river');
+  assert.equal(check.tidy('abcdef', 3), 'abc');
+  assert.equal(check.tidy(null), '');
+  assert.equal(check.link('flatwhite.co.uk'), 'https://flatwhite.co.uk/');
+  assert.equal(check.link('durhamsu.com/join'), 'https://durhamsu.com/join');
+  assert.equal(check.link(''), '');
+  assert.equal(check.link('http://flatwhite.co.uk'), null);
+  assert.equal(check.link('javascript:alert(1)'), null);
+  assert.equal(check.link('localhost'), null);
+});
+
+test('check.form checks each field its own way', () => {
+  const fields = [
+    { key: 'line', label: 'Short line', most: 5 },
+    { key: 'site', label: 'Website', type: 'link' },
+    { key: 'ends', label: 'Last day', type: 'date' },
+    { key: 'shout', label: 'Shout', clean: (v) => (v === 'no' ? null : String(v || '').toUpperCase()), wrong: 'Shout: not that.' },
+  ];
+  assert.deepEqual(check.form(fields, { line: ' Hello  there ', site: 'a.co.uk', ends: '2026-11-09', shout: 'hi' }).values,
+    { line: 'Hello', site: 'https://a.co.uk/', ends: new Date(2026, 10, 9, 12).getTime(), shout: 'HI' });
+  assert.deepEqual(check.form(fields, {}).values, { line: '', site: '', ends: null, shout: '' });
+  assert.match(check.form(fields, { site: 'http://a.co.uk' }).error, /^Website: /);
+  assert.equal(check.form(fields, { ends: '31 Feb' }).error, 'Last day: choose a day.');
+  assert.equal(check.form(fields, { shout: 'no' }).error, 'Shout: not that.');
 });
 
 test('el() treats outside text as text, never as code', () => {

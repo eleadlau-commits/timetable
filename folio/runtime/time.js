@@ -73,3 +73,19 @@ export function toLocalInput(d) {
   const p = (n) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 }
+
+// A day as 'YYYY-MM-DD' (the value of <input type="date">, and a handy key for saving by day).
+export function dayKey(d) {
+  const date = new Date(d);
+  const p = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${p(date.getMonth() + 1)}-${p(date.getDate())}`;
+}
+
+// 'YYYY-MM-DD' → that day at midday, in ms (midday, so clock changes never move it to another
+// day); null for anything else.
+export function fromDayKey(text) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(text || ''));
+  if (!m) return null;
+  const date = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12);
+  return Number.isNaN(date.getTime()) || date.getDate() !== Number(m[3]) ? null : date.getTime();
+}
