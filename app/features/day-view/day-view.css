@@ -91,3 +91,6 @@
 
 /* Your own events (outline: true): a line round the edge instead of a filled block. */
 .tl-blk.outline { background: var(--surface); box-shadow: inset 0 0 0 2px hsl(var(--h) 55% var(--ring-l, 58%)); }
+/* Friends' classes (others: true): faint and dashed, so your own stand out. */
+.tl-blk.others { background: var(--surface); box-shadow: none; border: 1.5px dashed hsl(var(--h) 45% var(--ring-l, 58%)); opacity: .7; }
+.tl-blk.others .title-text { font-weight: 500; }

@@ -1,11 +1,11 @@
 {
   "name": "Friends",
-  "description": "Swap timetables with friends using invite links, QR codes or friend codes, and see who's free on Home. Only people you've asked or accepted can see yours.",
-  "version": "3.0.0",
+  "description": "Swap timetables with friends using invite links, QR codes or friend codes, see who's free on Home, make groups and show friends' classes in the Planner. Only people you've asked or accepted can see yours.",
+  "version": "3.1.0",
   "main": "Friends.js",
   "styles": ["friends.css"],
   "requires": ["account"],
-  "uses": ["sessions", "welcome"],
+  "uses": ["sessions", "planner", "welcome"],
   "native": {
     "android": {
       "permissions": ["CAMERA"],

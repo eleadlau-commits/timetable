@@ -11,3 +11,5 @@ Tap a day's heading to zoom in to that day.
 - **Adds:** **Week** inside the Planner tab (view id `week`, zoom level 30, letter W), or a Week tab of its own without the Planner. Its zoom-out label is **This week** or **Week**.
 - **Requires:** sessions (it uses the sessions service's `layout` rules for the grid). **Uses if present:** day-view, so tapping a day can open it; planner.
 - **Saves:** nothing.
+
+- **Friends' classes** (Sessions' `onDay(day, { others: true })`, from the Friends button in the Planner) are drawn faintly with a dashed edge in their colour, next to yours.

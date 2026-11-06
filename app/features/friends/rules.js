@@ -6,6 +6,10 @@ export const CODE_PATTERN = /^MD-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/;
 export const SHARE_DAYS = 28; // friends see your classes for the next 4 weeks
 export const MAX_PEOPLE = 50; // friends and requests, together (the database rules enforce it too)
 export const MAX_CLASSES = 400;
+export const MAX_SHOWN = 4; // friends shown in the Planner at once
+export const MAX_GROUPS = 20;
+// Colours for friends in the Planner who don't have a tint of their own, in turn.
+export const PLANNER_HUES = [200, 30, 140, 320, 260, 0];
 // Where the web version lives: invite links and QR codes point here, so they work on any phone
 // (inside the phone apps the page's own address is "localhost", which means nothing elsewhere).
 export const WEB_ADDRESS = 'https://eleadlau-commits.github.io/timetable/';
@@ -173,4 +177,72 @@ export function explainProblem(err, online = true) {
   }
   if (code === 'unavailable' || code === 'deadline-exceeded') return `Couldn't reach the online database. Check you're online and try again. (${code})`;
   return `Something went wrong. Try again in a moment. (${code})`;
+}
+
+// ---- Groups and the Planner ----
+
+// Times when you and everyone in a group are free (09:00–18:00, at least 30 minutes), for
+// `days` days from `from`. busy: [{ s, e }] for everyone together (yours and theirs). Days in the
+// past are left out, and today only from now. Returns [{ day: Date, free: [{ s, e }] }].
+export function groupFree(busy, from = new Date(), { days = 7, now = Date.now() } = {}) {
+  const out = [];
+  const first = new Date(from); first.setHours(0, 0, 0, 0);
+  for (let i = 0; i < days; i++) {
+    const day = new Date(first); day.setDate(first.getDate() + i);
+    const free = freeTogether(busy, [], day)
+      .map((f) => ({ s: Math.max(f.s, now), e: f.e }))
+      .filter((f) => f.e - f.s >= 30 * 60000);
+    out.push({ day, free });
+  }
+  return out;
+}
+
+// Turns someone on or off in the Planner. Returns { shown, full } (full: they couldn't be added).
+export function toggleShown(shown, uid, max = MAX_SHOWN) {
+  if (shown.includes(uid)) return { shown: shown.filter((u) => u !== uid), full: false };
+  if (shown.length >= max) return { shown, full: true };
+  return { shown: [...shown, uid], full: false };
+}
+
+// The friends in the Planner's list: pinned first, then by name; with `query`, only names that
+// contain it. people: [{ uid, name }].
+export function plannerList(people, pinned = [], query = '') {
+  const q = String(query || '').trim().toLowerCase();
+  return people
+    .filter((p) => !q || p.name.toLowerCase().includes(q))
+    .sort((a, b) => (pinned.includes(b.uid) - pinned.includes(a.uid)) || a.name.localeCompare(b.name));
+}
+
+// A friend's colour in the Planner: the tint you chose, or the next of PLANNER_HUES.
+export function plannerHue(tint, index) {
+  return tint ?? PLANNER_HUES[index % PLANNER_HUES.length];
+}
+
+// A friend's shared classes as sessions for the Planner (faint, next to yours).
+export function friendSessions({ uid, name, classes }, hue) {
+  return (classes || []).map((c) => ({
+    key: `friend:${uid}@${c.s}`,
+    title: `${name} · ${c.t || 'Busy'}`,
+    short: name,
+    location: c.l || '',
+    description: '',
+    start: new Date(c.s),
+    end: new Date(c.e),
+    allDay: false,
+    cancelled: false,
+    module: `friend:${uid}`,
+    hue,
+    outline: true,
+    others: true,
+    who: name,
+  }));
+}
+
+// A group as saved: a name (up to 30 letters) and its members, friends only. Null if it has no
+// name or nobody in it.
+export function cleanGroup({ id, name, members }, friends) {
+  const tidy = cleanName(name);
+  const kept = [...new Set(members || [])].filter((uid) => friends.includes(uid));
+  if (!tidy || !kept.length) return null;
+  return { id, name: tidy, members: kept };
 }
