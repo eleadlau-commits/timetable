@@ -147,3 +147,33 @@ span.fr-open { cursor: default; }
 .fr-widget-list small { font-size: 12px; color: var(--muted); }
 .fr-widget-list li.free small { color: var(--plenty-ink); }
 .fr-widget-list li.busy small { color: var(--busy-ink); }
+
+/* Groups */
+.fr-group-icon { background: var(--accent-soft); color: var(--accent); }
+.fr-group-icon svg { width: 18px; height: 18px; }
+.fr-group > .btn.block { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 8px; }
+.fr-group > .btn.block svg { width: 18px; height: 18px; }
+.fr-free-week { display: grid; gap: 8px; }
+.fr-free-week h3 { margin: 0; font-size: 16px; }
+.fr-free-week .hint { margin: 0; }
+.fr-free-day { display: grid; gap: 4px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.fr-free-day b { font-size: 13px; font-weight: 600; }
+.fr-free-day small { font-size: 12px; color: var(--muted); }
+.fr-free-times { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* Choosing friends (for a group, or the Planner) */
+.fr-pick { list-style: none; margin: 0; padding: 0; }
+.fr-pick li { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--line); }
+.fr-pick-row { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; padding: 8px 0; cursor: pointer; }
+.fr-pick-row input { width: 20px; height: 20px; accent-color: var(--accent); flex: none; }
+.fr-pick-row span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fr-pin { font-size: 13px; color: var(--muted); }
+.fr-pin.on { color: var(--accent); font-weight: 600; }
+.fr-shown { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: var(--shape); background: var(--accent-soft); font-size: 14px; }
+.fr-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.friends-picker .field[type="search"] { margin-bottom: 6px; }
+
+/* The Planner's Friends button, with how many are shown */
+.fr-planner-btn { position: relative; }
+.fr-planner-btn.on { color: var(--accent); }
+.fr-count { position: absolute; top: -4px; right: -4px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font-size: 10px; font-weight: 700; line-height: 16px; text-align: center; }

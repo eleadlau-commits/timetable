@@ -72,7 +72,7 @@ export default class DayView extends Feature {
     this.todayButton.hidden = time.sameDay(selected, today);
     this.cards.replaceChildren(...this.slot('day.cards').map((card) => card.render(selected)));
 
-    const items = sessions.onDay(selected);
+    const items = sessions.onDay(selected, { others: true });
     const hidden = sessions.hiddenNote(selected);
     if (!items.length) {
       const weekend = selected.getDay() === 0 || selected.getDay() === 6;
@@ -85,7 +85,7 @@ export default class DayView extends Feature {
       return;
     }
     const isToday = time.sameDay(selected, today);
-    const next = isToday ? items.find((s) => s.start > now && !s.cancelled) : null;
+    const next = isToday ? items.find((s) => s.start > now && !s.cancelled && !s.others) : null;
     const allDay = items.filter((s) => s.allDay);
     this.list.replaceChildren(...[
       allDay.length && el('div', { class: 'tl-allday' }, allDay.map((s) => sessions.card(s, { now }))),
@@ -110,11 +110,11 @@ export default class DayView extends Feature {
       el('span', { class: 'tl-hour', style: `top:${i * HOUR_PX}px` }, new Date(2000, 0, 1, startH + i).toLocaleTimeString([], { hour: 'numeric' })));
     const area = el('div', { class: 'tl-area' }, blocks.map(({ s, top, bottom, lane, lanes }) => {
       const past = s.end <= now;
-      const live = s.start <= now && now < s.end && !s.cancelled;
+      const live = s.start <= now && now < s.end && !s.cancelled && !s.others;
       const badge = sessions.badge(s);
       const place = sessions.placeLabel(s.location);
       return el('article', {
-        class: `tl-blk${past ? ' past' : ''}${s.cancelled ? ' cancelled' : ''}${bottom - top < 50 ? ' short' : ''}${s.outline ? ' outline' : ''}`,
+        class: `tl-blk${past ? ' past' : ''}${s.cancelled ? ' cancelled' : ''}${bottom - top < 50 ? ' short' : ''}${s.outline ? ' outline' : ''}${s.others ? ' others' : ''}`,
         style: `--h:${sessions.hue(s)};--lane:${lane};--lanes:${lanes};top:${px(top)}px;height:${Math.max(28, px(bottom) - px(top) - 3)}px`,
         onclick: () => sessions.open(s),
       },

@@ -55,7 +55,7 @@ export default class WeekView extends Feature {
     const days = [];
     for (let i = 0; i < 7; i++) {
       const day = time.addDays(week, i);
-      const items = sessions.onDay(day);
+      const items = sessions.onDay(day, { others: true });
       if (i < 5 || items.length) days.push({ day, items });
     }
 
@@ -96,7 +96,7 @@ export default class WeekView extends Feature {
         const kind = sessions.kind(s);
         return el('button', {
           type: 'button',
-          class: `blk${s.cancelled ? ' cancelled' : ''}${s.end <= now ? ' past' : ''}${s.outline ? ' outline' : ''}`,
+          class: `blk${s.cancelled ? ' cancelled' : ''}${s.end <= now ? ' past' : ''}${s.outline ? ' outline' : ''}${s.others ? ' others' : ''}`,
           style: `--h:${sessions.hue(s)};--lane:${lane};--lanes:${lanes};top:${px(top)}px;height:${Math.max(18, px(bottom) - px(top) - 2)}px`,
           'aria-label': `${sessions.name(s)}, ${time.formatTime(s.start)}–${time.formatTime(s.end)}${s.location ? `, ${s.location}` : ''}`,
           onclick: () => sessions.open(s),
