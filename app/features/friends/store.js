@@ -1,10 +1,13 @@
 // Friends in the database. Every write here matches what firebase/firestore.rules allows:
-//   users/<me>/private/profile   { name, code, people, updatedAt }  only me
+//   users/<me>/private/profile   { name, code, people, paused?, updatedAt }  only me
 //   codes/<code>                 { uid, name }                       anyone signed in can look one up
-//   friendships/<a>_<b>          { users, from, to, status, names, code, createdAt, acceptedAt? }
-//   shared/<me>                  { classes, updatedAt }               me, and people I've asked or accepted
+//   friendships/<a>_<b>          { users, from, to, status, names, code, createdAt, acceptedAt?,
+//                                  busyOnly? }  busyOnly lists who shares only free or busy with the other
+//   shared/<me>                  { classes, paused?, updatedAt }     me, and people I've asked or accepted,
+//                                                                    unless I share only free or busy with them
+//   busy/<me>                    { times, paused?, updatedAt }       me, and people I've asked or accepted
 
-import { makeCode, pairId, MAX_PEOPLE } from './rules.js';
+import { makeCode, pairId, busyTimes, MAX_PEOPLE } from './rules.js';
 
 export class FriendStore {
   constructor(account) {
@@ -61,7 +64,8 @@ export class FriendStore {
   }
 
   // Asks someone, with the code they gave you. Your timetable must be shared first.
-  async ask(profile, { uid, name }, code) {
+  // busyOnly: they'll see only when you're free or busy, not what or where.
+  async ask(profile, { uid, name }, code, busyOnly = false) {
     if (profile.people.length >= MAX_PEOPLE) throw new Error('full');
     const db = await this.db();
     const { fields } = this.account;
@@ -70,6 +74,7 @@ export class FriendStore {
     batch.set(db.doc(`friendships/${pairId(this.uid, uid)}`), {
       users: [this.uid, uid].sort(), from: this.uid, to: uid, status: 'pending', code,
       names: { [this.uid]: profile.name, [uid]: name }, createdAt: this.account.serverTime(),
+      ...(busyOnly ? { busyOnly: [this.uid] } : {}),
     });
     await batch.commit();
   }
@@ -113,23 +118,51 @@ export class FriendStore {
     await batch.commit();
   }
 
-  async share(classes) {
+  // What you share with one person: everything, or only when you're free or busy.
+  async setBusyOnly(friendship, on) {
     const db = await this.db();
-    await db.doc(`shared/${this.uid}`).set({ classes, updatedAt: this.account.serverTime() });
+    const { fields } = this.account;
+    await db.doc(`friendships/${friendship.id}`).update({ busyOnly: on ? fields.arrayUnion(this.uid) : fields.arrayRemove(this.uid) });
+  }
+
+  // Pausing: friends see "Sharing paused" until you switch it back on.
+  async setPaused(paused) {
+    const db = await this.db();
+    await this.profileRef(db).update({ paused, updatedAt: this.account.serverTime() });
+  }
+
+  // Your classes (shared), and only the times you're busy (busy), for friends who see just that.
+  async share(classes, { paused = false } = {}) {
+    const db = await this.db();
+    const at = this.account.serverTime();
+    const list = paused ? [] : classes;
+    const extra = paused ? { paused: true } : {};
+    const batch = db.batch();
+    batch.set(db.doc(`shared/${this.uid}`), { classes: list, updatedAt: at, ...extra });
+    batch.set(db.doc(`busy/${this.uid}`), { times: busyTimes(list), updatedAt: at, ...extra });
+    await batch.commit();
   }
 
   async unshare() {
     const db = await this.db();
-    await db.doc(`shared/${this.uid}`).delete();
+    const batch = db.batch();
+    batch.delete(db.doc(`shared/${this.uid}`));
+    batch.delete(db.doc(`busy/${this.uid}`));
+    await batch.commit();
   }
 
-  // A friend's shared timetable: { classes, updatedAt (ms) }, or null.
-  async timetable(uid) {
+  // A friend's shared timetable: { classes, updatedAt (ms), paused, busyOnly }, or null. With
+  // busyOnly (they share only free or busy with you), the classes are just times: { s, e }.
+  async timetable(uid, busyOnly = false) {
     const db = await this.db();
-    const snap = await db.doc(`shared/${uid}`).get();
+    const snap = await db.doc(`${busyOnly ? 'busy' : 'shared'}/${uid}`).get();
     if (!snap.exists) return null;
     const data = snap.data();
-    return { classes: Array.isArray(data.classes) ? data.classes : [], updatedAt: data.updatedAt?.toMillis?.() || null };
+    const list = busyOnly ? data.times : data.classes;
+    return {
+      classes: Array.isArray(list) ? list : [], updatedAt: data.updatedAt?.toMillis?.() || null,
+      paused: data.paused === true, busyOnly,
+    };
   }
 
   // For Delete my account: every friendship, and your code. (Your profile and shared timetable

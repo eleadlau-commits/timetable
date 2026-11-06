@@ -24,8 +24,9 @@ service cloud.firestore {
 
     // ---- Your private area: only you can read or change it ----
     //   main     your timetable link (if you back it up)
-    //   profile  your name for friends, your friend code, and the people you've asked or
-    //            accepted (at most 50), which limits how many requests and friends you can have
+    //   profile  your name for friends, your friend code, the people you've asked or accepted
+    //            (at most 50), which limits how many requests and friends you can have, and
+    //            whether you've paused sharing
 
     match /users/{uid}/private/{doc} {
       allow read, delete: if isMe(uid) && doc in ['main', 'profile'];
@@ -46,11 +47,12 @@ service cloud.firestore {
     }
 
     function validProfile(uid, d) {
-      return d.keys().hasOnly(['name', 'code', 'people', 'updatedAt'])
+      return d.keys().hasOnly(['name', 'code', 'people', 'paused', 'updatedAt'])
         && d.keys().hasAll(['name', 'code', 'people', 'updatedAt'])
         && validName(d.name)
         && validCode(d.code)
         && d.people is list && d.people.size() <= 50 && !(uid in d.people)
+        && (!('paused' in d) || d.paused is bool)
         && d.updatedAt == request.time;
     }
 
@@ -92,8 +94,10 @@ service cloud.firestore {
     // ---- Friendships: one document per pair of people, named "<uid>_<uid>" (smaller first) ----
     //   pending   "from" asked "to". "to" can already see from's timetable.
     //   accepted  both can see each other's.
+    //   busyOnly  (optional) who shares only when they're free or busy with the other, not what
+    //             or where: each person can put only themselves on it or take themselves off.
     // Only "from" can create it, only "to" can accept it, either can rename themselves in it,
-    // and either can delete it (cancel, decline or remove).
+    // either can choose what they share, and either can delete it (cancel, decline or remove).
 
     function pairId(a, b) {
       return a < b ? a + '_' + b : b + '_' + a;
@@ -125,12 +129,17 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['names'])
         && onlyMyName(request.resource.data, resource.data);
 
+      // Choosing what you share with them: only you, on or off the busyOnly list.
+      allow update: if signedIn() && request.auth.uid in resource.data.users
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['busyOnly'])
+        && onlyMyChoice(request.resource.data.busyOnly, resource.data.get('busyOnly', []));
+
       allow delete: if signedIn() && request.auth.uid in resource.data.users;
     }
 
     function validRequest(pair, d) {
       let me = request.auth.uid;
-      return d.keys().hasOnly(['users', 'from', 'to', 'status', 'names', 'code', 'createdAt'])
+      return d.keys().hasOnly(['users', 'from', 'to', 'status', 'names', 'code', 'createdAt', 'busyOnly'])
         && d.from == me
         && d.to is string && d.to != me
         && pair == pairId(me, d.to)
@@ -143,8 +152,17 @@ service cloud.firestore {
         // Names: yours and theirs, as shown to each of you.
         && d.names.keys().hasOnly([me, d.to]) && d.names.keys().hasAll([me, d.to])
         && validName(d.names[me]) && validName(d.names[d.to])
+        // You can choose to share only free or busy from the start.
+        && (!('busyOnly' in d) || d.busyOnly == [me])
         // Counts against your limit of 50 people.
         && d.to in profileAfter(me).people;
+    }
+
+    function onlyMyChoice(after, before) {
+      let me = request.auth.uid;
+      return after is list && after.size() <= 2
+        && after.toSet().difference(before.toSet()).hasOnly([me])
+        && before.toSet().difference(after.toSet()).hasOnly([me]);
     }
 
     function onlyMyName(after, before) {
@@ -154,11 +172,19 @@ service cloud.firestore {
 
     // ---- Shared timetables: your classes for the next 4 weeks ----
     // You can write your own. Someone else can read it only if you've asked them (pending, from
-    // you) or you're friends (accepted).
+    // you) or you're friends (accepted). "shared" has the classes, names and rooms; "busy" only
+    // the times you're busy, for people you share only free or busy with ("shared" is then
+    // refused to them). Either can say you've paused sharing.
 
     match /shared/{uid} {
-      allow read: if isMe(uid) || (signedIn() && canSee(request.auth.uid, uid));
+      allow read: if isMe(uid) || (signedIn() && canSee(request.auth.uid, uid) && !busyOnlyFor(request.auth.uid, uid));
       allow create, update: if isMe(uid) && validShared(request.resource.data);
+      allow delete: if isMe(uid);
+    }
+
+    match /busy/{uid} {
+      allow read: if isMe(uid) || (signedIn() && canSee(request.auth.uid, uid));
+      allow create, update: if isMe(uid) && validBusy(request.resource.data);
       allow delete: if isMe(uid);
     }
 
@@ -168,9 +194,21 @@ service cloud.firestore {
         && (get(path).data.status == 'accepted' || get(path).data.from == owner);
     }
 
+    function busyOnlyFor(viewer, owner) {
+      return owner in get(friendship(viewer, owner)).data.get('busyOnly', []);
+    }
+
     function validShared(d) {
-      return d.keys().hasOnly(['classes', 'updatedAt'])
+      return d.keys().hasOnly(['classes', 'paused', 'updatedAt'])
         && d.classes is list && d.classes.size() <= 400
+        && (!('paused' in d) || d.paused is bool)
+        && d.updatedAt == request.time;
+    }
+
+    function validBusy(d) {
+      return d.keys().hasOnly(['times', 'paused', 'updatedAt'])
+        && d.times is list && d.times.size() <= 400
+        && (!('paused' in d) || d.paused is bool)
         && d.updatedAt == request.time;
     }
 

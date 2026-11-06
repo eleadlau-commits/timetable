@@ -6,6 +6,9 @@ export const CODE_PATTERN = /^MD-[A-HJ-NP-Z2-9]{4}-[A-HJ-NP-Z2-9]{4}$/;
 export const SHARE_DAYS = 28; // friends see your classes for the next 4 weeks
 export const MAX_PEOPLE = 50; // friends and requests, together (the database rules enforce it too)
 export const MAX_CLASSES = 400;
+// Where the web version lives: invite links and QR codes point here, so they work on any phone
+// (inside the phone apps the page's own address is "localhost", which means nothing elsewhere).
+export const WEB_ADDRESS = 'https://eleadlau-commits.github.io/timetable/';
 
 // A new random code. `random(n)` gives a whole number from 0 to n-1 (crypto by default).
 export function makeCode(random = (n) => crypto.getRandomValues(new Uint32Array(1))[0] % n) {
@@ -19,6 +22,22 @@ export function readCode(text) {
   if (plain.length !== 8) return null;
   const code = `MD-${plain.slice(0, 4)}-${plain.slice(4)}`;
   return CODE_PATTERN.test(code) ? code : null;
+}
+
+// The invite link for a code: opens Add a friend with the code filled in.
+export function inviteLink(code) {
+  return `${WEB_ADDRESS}#friend=${code}`;
+}
+
+// A code from anything someone pasted or scanned: an invite link, a message with a code in it,
+// or just the code. Null if there isn't one.
+export function codeFrom(text) {
+  const value = String(text || '');
+  const link = value.match(/[#&?]friend=([A-Za-z0-9-]+)/);
+  if (link) return readCode(link[1]);
+  const inside = value.match(/\bMD[\s-]*([A-Za-z0-9]{4})[\s-]*([A-Za-z0-9]{4})\b/i);
+  if (inside) return readCode(inside[1] + inside[2]);
+  return readCode(value);
 }
 
 // The id of the friendship document for two people: both account numbers, smaller first.
@@ -53,6 +72,23 @@ export function sharedClasses(sessions, isShown, now = new Date()) {
     .map((s) => ({ t: String(s.title || '').slice(0, 120), s: +s.start, e: +s.end, l: String(s.location || '').slice(0, 120) }));
 }
 
+// Only when you're busy, for friends who see free or busy but not what or where:
+// overlapping classes joined into one. [{ s, e }]
+export function busyTimes(classes) {
+  const times = [];
+  for (const c of [...classes].sort((a, b) => a.s - b.s)) {
+    const last = times[times.length - 1];
+    if (last && c.s <= last.e) last.e = Math.max(last.e, c.e);
+    else times.push({ s: c.s, e: c.e });
+  }
+  return times;
+}
+
+// Whether `owner` shares only free or busy with the other person in a friendship.
+export function onlyBusy(friendship, owner) {
+  return Array.isArray(friendship?.busyOnly) && friendship.busyOnly.includes(owner);
+}
+
 // A short fingerprint of what's shared, to tell whether it changed since it was last sent.
 export function fingerprint(classes) {
   let h = 0;
@@ -70,6 +106,17 @@ export function nowStatus(classes, now = Date.now()) {
 
 function sameDay(a, b) {
   return new Date(a).toDateString() === new Date(b).toDateString();
+}
+
+// Friends for the Home widget, free ones first, then those busy, then those who haven't shared
+// (or paused). people: [{ uid, name, hue, classes, paused }]. Returns the same with `now`
+// (nowStatus, or null) and how many are free.
+export function whoIsFree(people, now = Date.now()) {
+  const rank = (p) => (!p.now ? 2 : p.now.busy ? 1 : 0);
+  const list = people
+    .map((p) => ({ ...p, now: p.classes && !p.paused ? nowStatus(p.classes, now) : null }))
+    .sort((a, b) => rank(a) - rank(b) || (a.now?.busy ? a.now.until - b.now.until : 0) || a.name.localeCompare(b.name));
+  return { list, free: list.filter((p) => p.now && !p.now.busy).length };
 }
 
 // Classes grouped by day, from today: [{ day: Date (midnight), classes: [...] }].
