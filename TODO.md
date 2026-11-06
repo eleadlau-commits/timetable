@@ -106,3 +106,17 @@ _Statuses checked against the code on 16 October 2026, after the sliding menu an
 - [ ] College menu card (designed earlier, removed from Home for now — could return elsewhere)
 - [ ] Line drawing behind the clock on Home (talked about; not now)
 - [ ] iPhone app (after web + Android are stable; a friend has an Apple developer account) — *Folio already accepts iPhone settings in `feature.json`, but there's no iPhone build*
+
+## 11. E's handwritten list (6 November 2026)
+
+_Not started. Nothing here is being built yet; each waits for E's go-ahead._
+
+- [ ] **Planner: pull down to refresh** the timetable, instead of the round refresh button by the title
+- [ ] **Planner: back to today when you come back to the app** — *it already opens on today's Day when the app starts fresh, but not when the phone brings it back from the background (e.g. the next morning); it should go back to today then too*
+- [ ] **Planner: the Next button goes to Monday** — *moving forward from a week should land on the next Monday*
+- [ ] **Planner: swipe** left and right to move between days and weeks — *today only pinch, taps and the Y M W D switch*
+- [ ] **Fix the module layout: allow names on more than one line** so long module names don't run off the screen
+- [ ] **Fix the Google Map for Mill Hill Lane** — *room code `MHL` in `app/features/durham-rooms/places.js`*
+- [ ] **Week view: show the module's name instead of its code**, and **stop text being cut off** in the blocks — *`week-view` uses `sessions.shortName()` today*
+- [ ] **Rework the to-do list** — *details to agree with E*
+- [ ] **Better instructions** — *the timetable setup guide rework E asked for on 29 October (`timetable/guide.js`, also a page in Help)*
