@@ -111,11 +111,11 @@ _Statuses checked against the code on 16 October 2026, after the sliding menu an
 
 _Not started. Nothing here is being built yet; each waits for E's go-ahead._
 
-- [ ] **Planner: refresh button** — *the Planner already has a round refresh button by the title (from `timetable`); check with E whether it's broken, hard to find, or something else is meant*
-- [ ] **Planner: back to today when the app opens** — *the Planner is meant to open on today's Day each time the app starts; check with E whether it isn't doing that*
+- [ ] **Planner: pull down to refresh** the timetable, instead of the round refresh button by the title
+- [ ] **Planner: back to today when you come back to the app** — *it already opens on today's Day when the app starts fresh, but not when the phone brings it back from the background (e.g. the next morning); it should go back to today then too*
 - [ ] **Planner: the Next button goes to Monday** — *moving forward from a week should land on the next Monday*
 - [ ] **Planner: swipe** left and right to move between days and weeks — *today only pinch, taps and the Y M W D switch*
-- [ ] **Fix the module layout** — *the note ends "allow…"; what to allow still to be agreed with E*
+- [ ] **Fix the module layout: allow names on more than one line** so long module names don't run off the screen
 - [ ] **Fix the Google Map for Mill Hill Lane** — *room code `MHL` in `app/features/durham-rooms/places.js`*
 - [ ] **Week view: show the module's name instead of its code**, and **stop text being cut off** in the blocks — *`week-view` uses `sessions.shortName()` today*
 - [ ] **Rework the to-do list** — *details to agree with E*
