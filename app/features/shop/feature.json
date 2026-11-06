@@ -4,6 +4,6 @@
   "version": "1.0.0",
   "main": "Shop.js",
   "styles": ["style.css"],
-  "requires": ["account"],
+  "requires": ["account", "card-owners"],
   "uses": ["welcome", "home", "spots", "help"]
 }

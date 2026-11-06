@@ -24,7 +24,10 @@
 // waiting> (fetches what it shows), render({ reload, done }) → element or [elements] }. reload()
 // loads the window again; done() checks the menu row's count again.
 //
-// What's stored online, and the rules for it, are in store.js and firebase/firestore.rules.
+// The parts shops share with society committees (codes, changes waiting for approval, the
+// weekly counts, the bars and Approve changes' changes and codes) are the card-owners feature's
+// ('cardOwners' service). What's stored online, and the rules for it, are in store.js, the
+// card-owners feature's store.js and firebase/firestore.rules.
 //
 // Saved data (on this phone):
 //   'mine'     → { place, card, change, stats, at }: the owner's place, its card as stored, a
@@ -35,8 +38,7 @@
 
 import { Feature, ui, time } from 'folio';
 import {
-  FIELDS, KINDS, checkEdit, checkRequest, cleanCode, cardPreview, withChange, setupStep,
-  millisToDay, weekOf, weeksBack, trend, trendSentence, toCount,
+  FIELDS, KINDS, TREND_WORDS, checkEdit, checkRequest, cardPreview, withChange, setupStep, millisToDay,
 } from './rules.js';
 import * as store from './store.js';
 import { Approver } from './approve.js';
@@ -44,11 +46,14 @@ import { Approver } from './approve.js';
 const { el } = ui;
 const AGAIN_AFTER = 5 * time.MINUTE;
 const TREND_WEEKS = 4; // weeks of counts on How it's going
-const WEEK_NAMES = ['This week', 'Last week', '2 weeks ago', '3 weeks ago'];
 
 export default class Shop extends Feature {
   start() {
     this.account = this.use('account');
+    // Codes, changes waiting for approval and the weekly counts, shared with societies.
+    this.owners = this.use('cardOwners');
+    this.store = this.owners.store(store.PLACES);
+    this.count = this.owners.counter(this, this.store, { skip: () => this.business });
     this.mine = this.storage.get('mine', null);
     this.admin = this.storage.get('admin', false) === true;
     this.request = null;
@@ -101,7 +106,7 @@ export default class Shop extends Feature {
       onClick: () => this.approver.open(),
     });
     this.add('account.sections', { order: 15, render: () => this.accountSection() });
-    this.add('account.cleanup', { order: 20, remove: (db, uid) => store.removeAll(db, uid) });
+    this.add('account.cleanup', { order: 20, remove: (db, uid) => this.store.removeAll(db, uid) });
 
     this.on('app:ready', () => this.load());
     this.on('account:changed', (user) => {
@@ -155,15 +160,15 @@ export default class Shop extends Feature {
     if (!user?.verified) { this.loaded = true; return; }
     const db = await this.account.database();
     this.db = db;
-    this.admin = await store.isAdmin(db, user.uid).catch(() => false);
+    this.admin = await this.owners.isAdmin(db, user.uid).catch(() => false);
     this.storage.set('admin', this.admin);
     if (this.business) {
-      const owner = await store.ownerOf(db, user.uid);
+      const owner = await this.store.ownerOf(db, user.uid);
       if (owner) {
         const [card, change, stats] = await Promise.all([
-          store.placeDoc(db, owner.place).catch(() => null),
-          store.changeOf(db, owner.place).catch(() => null),
-          store.stats(db, owner.place, weeksBack(TREND_WEEKS)),
+          this.store.cardDoc(db, owner.place).catch(() => null),
+          this.store.changeOf(db, owner.place).catch(() => null),
+          this.store.stats(db, owner.place, this.owners.weeksBack(TREND_WEEKS)),
         ]);
         this.mine = { place: owner.place, card, change, stats, at: Date.now() };
         this.storage.set('mine', this.mine);
@@ -175,7 +180,10 @@ export default class Shop extends Feature {
       }
     }
     if (this.admin) {
-      const { changes, requests } = await store.waiting(db).catch(() => ({ changes: [], requests: [] }));
+      const [changes, requests] = await Promise.all([
+        this.store.waiting(db).catch(() => []),
+        store.waitingRequests(db).catch(() => []),
+      ]);
       let others = 0;
       for (const part of this.slot('approve.parts').items) {
         others += await Promise.resolve(this.slot('approve.parts').run(part, (p) => p.waiting(db), 0)).catch(() => 0) || 0;
@@ -202,27 +210,13 @@ export default class Shop extends Feature {
       await step(await this.account.database());
       return true;
     } catch (err) {
-      const message = explain(err);
+      const message = this.owners.explain(err);
       if (errorBox) errorBox.show(message);
       else this.toast(message);
       return false;
     } finally {
       this.busy = false;
     }
-  }
-
-  // ---- Counting, on students' phones ----
-
-  async count(kind, ids) {
-    if (this.business || this.storage.get('no-count', false) || !this.account || !navigator.onLine) return;
-    const { fresh, record } = toCount(this.storage.get('counted', null), kind, ids || []);
-    if (!fresh.length) return;
-    this.storage.set('counted', record);
-    try {
-      const db = await this.account.publicDatabase();
-      const week = weekOf();
-      for (const id of fresh) await store.count(db, this.account.fields, id, week, kind).catch(() => {});
-    } catch { /* offline, or Firebase couldn't load: it's only a count */ }
   }
 
   // ---- Home: the "Your shop" page and the widgets ----
@@ -323,24 +317,15 @@ export default class Shop extends Feature {
   }
 
   get points() {
-    return trend(this.mine?.stats, weeksBack(TREND_WEEKS));
-  }
-
-  bars(points) {
-    const most = Math.max(1, ...points.map((p) => p.seen));
-    return el('div', { class: 'shop-bars', role: 'img', 'aria-label': points.map((p) => `Week of ${p.label}: ${p.seen}`).join(', ') },
-      points.map((p, i) => el('div', { class: `shop-bar${i === points.length - 1 ? ' is-now' : ''}` },
-        el('span', { class: 'shop-bar-fill', style: `height: ${Math.max(4, Math.round((p.seen / most) * 100))}%` }),
-        el('b', {}, String(p.seen)),
-        el('small', {}, WEEK_NAMES[points.length - 1 - i] || p.label))));
+    return this.owners.trend(this.mine?.stats, this.owners.weeksBack(TREND_WEEKS));
   }
 
   // How it's going: four weeks of how many students saw the shop, and a sentence about it.
   trendCard() {
     const points = this.points;
     return el('div', { class: 'shop-trend' },
-      this.bars(points),
-      el('p', {}, trendSentence(points)),
+      this.owners.bars(points),
+      el('p', {}, this.owners.trendSentence(points, TREND_WORDS)),
       el('p', { class: 'hint small' }, 'Each phone counts once a day. We never know who they are.'));
   }
 
@@ -392,7 +377,7 @@ export default class Shop extends Feature {
     return el('button', { type: 'button', class: `shop-widget shop-widget-${size} shop-week-widget`, onclick: () => this.openShop('details') },
       el('div', { class: 'shop-widget-head' }, el('b', {}, 'How it\'s going')),
       el('small', {}, `${now.seen} saw you this week${before ? `, ${before.seen} last week` : ''}`),
-      this.bars(points));
+      this.owners.bars(points));
   }
 
   // ---- Setting up ----
@@ -448,29 +433,17 @@ export default class Shop extends Feature {
   }
 
   codeForm(refused) {
-    const input = el('input', {
-      id: 'shop-code', type: 'text', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false',
-      placeholder: 'e.g. K7QM-2XPA', maxlength: '12',
-    });
-    const error = ui.errorBox();
-    const go = async () => {
-      const code = cleanCode(input.value);
-      if (!code) return error.show('A shop code has 8 letters and numbers, like K7QM-2XPA.');
-      const done = await this.attempt((db) => store.useCode(db, this.account.user.uid, code), error);
-      if (done) {
-        this.toast('Your place is linked to your account.');
-        await this.load();
-      }
+    const use = async (code) => {
+      await this.store.useCode(await this.account.database(), this.account.user.uid, code);
+      this.toast('Your place is linked to your account.');
+      await this.load();
     };
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
     return el('div', { class: 'shop-setup' },
       this.steps(2),
       refused && el('p', { class: 'shop-note' }, 'We couldn\'t list your place from your last request. Email mobiledurham.help@gmail.com if you\'d like to talk about it.'),
       el('h3', {}, 'Have a shop code?'),
       el('p', {}, 'When your place joins Spots, we give you a code. Type it here to link your place to this account.'),
-      el('label', { class: 'label', for: 'shop-code' }, 'Shop code'),
-      el('div', { class: 'field' }, input, el('button', { type: 'button', class: 'btn primary', onclick: go }, 'Link')),
-      error,
+      ...this.owners.codeField({ id: 'shop-code', label: 'Shop code', noun: 'shop', use }),
       el('div', { class: 'shop-or' }, el('span', {}, 'or')),
       el('h3', {}, 'No code yet?'),
       el('p', {}, 'Tell us about your place and we\'ll be in touch. Listing on Spots is free.'),
@@ -644,7 +617,7 @@ export default class Shop extends Feature {
       const typed = Object.fromEntries(Object.entries(form).map(([k, input]) => [k, input.value]));
       const { change, error: wrong } = checkEdit(typed);
       if (wrong) return error.show(wrong);
-      const done = await this.attempt((db) => store.sendChange(db, this.account.fields, this.account.user.uid, this.mine.place, change), error);
+      const done = await this.attempt((db) => this.store.sendChange(db, this.account.fields, this.account.user.uid, this.mine.place, change), error);
       if (done) {
         this.toast('Sent. We\'ll check it, usually within a day.');
         w.close();
@@ -653,7 +626,7 @@ export default class Shop extends Feature {
     };
     const withdraw = async () => {
       if (!confirm('Withdraw the change? Your shop stays as it is now.')) return;
-      if (await this.attempt((db) => store.withdrawChange(db, this.mine.place), error)) await this.load();
+      if (await this.attempt((db) => this.store.withdrawChange(db, this.mine.place), error)) await this.load();
     };
     const fields = this.cardFields(form, waiting || card, part);
     const node = el('div', { class: 'shop-form' },
@@ -704,20 +677,5 @@ export default class Shop extends Feature {
         'Email a photo of your shop to mobiledurham.help@gmail.com and we\'ll add it to your card. Only send a photo you took or are allowed to use.',
       ] },
     ]) this.add('help.questions', item);
-  }
-}
-
-// What went wrong, in plain words.
-function explain(err) {
-  switch (err?.message) {
-    case 'bad-code': return 'We couldn\'t find that code. Check it, or ask us for a new one.';
-    case 'used-code': return 'That code has already been used by another account. Ask us for a new one.';
-    case 'signed-out': return 'Sign in first.';
-    case 'unverified': return 'Confirm your email address first: tap the link in the email we sent you.';
-    case 'load': return 'Couldn\'t connect. Check you\'re online and try again.';
-    default:
-      if (err?.code === 'permission-denied') return 'That isn\'t allowed. If you think it should be, email mobiledurham.help@gmail.com.';
-      if (err?.code === 'unavailable') return 'Couldn\'t connect. Check you\'re online and try again.';
-      return 'Something went wrong. Please try again.';
   }
 }

@@ -11,7 +11,7 @@ Folio is for small personal and group apps: schedules, trackers, lists, notes, f
 3. [feature.json reference](#3-featurejson-reference)
 4. [Writing a feature](#4-writing-a-feature)
 5. [The framework's slots and events](#5-the-frameworks-slots-and-events)
-6. [Helpers: ui and time](#6-helpers-ui-and-time)
+6. [Helpers: ui, time and check](#6-helpers-ui-time-and-check)
 7. [Saving data](#7-saving-data)
 8. [The compiler](#8-the-compiler)
 9. [Tests](#9-tests)
@@ -195,13 +195,15 @@ Settings opens with the framework's **Appearance** choice (Automatic, Light or D
 
 **Order:** `order` numbers sort items from low to high, and the default is 50. Leave gaps (10, 20, 30) so new features can slot in between.
 
-## 6. Helpers: ui and time
+## 6. Helpers: ui, time and check
 
 `ui`: `el(tag, attrs, ...children)`, `icon(name)`, `ICONS`, `toast(text)`, `dialog({ title, className, size, onClose })` → `{ open, close, setContent, setTitle, isOpen, element, content }` (a pop-up that fills the screen, with its title bar staying at the top; pulling it down from the top closes it; `size: 'box'` makes it a small box in the middle instead, for something quick), `errorBox()` → element with `.show(text)`, `hint(text, { small })`, `missing(reason, attrs)` → a "Missing content" box saying what's missing, `select(options, { value, id, onChange })`, `toggle({ checked, label, onChange })`, `filePicker(accept)` → `{ pick() }`, `onSwipe(element, fn)` (fn(±1, startElement)), `ownsSwipe(node, stop)`, `loadScript(url)`.
 
 Icons in `ui.ICONS`: close, refresh, gear, bell, card, pin, clock, note, trash, left, right, plus, check, menu, account, people, calendar, home, book, dots, link, palette, help, info, chat, qr.
 
-`time`: `MINUTE`, `HOUR`, `DAY`, `startOfDay`, `addDays`, `startOfWeek`, `sameDay`, `formatTime`, `formatDate`, `formatLongDate`, `formatDateTime`, `dayLabel`, `ago`, `inTime`, `toLocalInput`.
+`time`: `MINUTE`, `HOUR`, `DAY`, `startOfDay`, `addDays`, `startOfWeek`, `sameDay`, `formatTime`, `formatDate`, `formatLongDate`, `formatDateTime`, `dayLabel`, `ago`, `inTime`, `toLocalInput`, `dayKey(date)` → `'YYYY-MM-DD'` (a date box's value, or a key for saving by day), `fromDayKey(text)` → that day at midday in ms, or null.
+
+`check`, for what people type into forms: `tidy(value, most)` → text on one line, spaces squashed, at most `most` characters; `link(value)` → a web address as typed made into a full `https://` address (`'flatwhite.co.uk'` → `'https://flatwhite.co.uk/'`), `''` for nothing, or `null` if it isn't a proper https address (so `javascript:` and plain `http://` are refused); `form(fields, typed)` → `{ values }` or `{ error: 'what to fix' }`, checking each of a list of fields `{ key, label, most?, type?, clean?, wrong? }` (`type: 'link'` must be an https address, `type: 'date'` turns a date box's value into ms, a field's own `clean(value)` returns the value or null for a mistake with the message `wrong`, and anything else is tidied text of at most `most` characters).
 
 Shared CSS classes from `runtime/base.css`: `btn` (`primary`, `danger`, `block`, `small`), `icon-btn` (`ghost`), `link-btn`, `panel`, `hint` (`small`), `label`, `field`, `row`, `stack`, `group`, `error`, `empty`, `missing`, `seg` (a switch between a few choices), `list`, `advanced` (for `<details>`), `check`, `switch`, `sub-head`. Colours are CSS variables: `--bg`, `--surface`, `--surface-2`, `--text`, `--text-2`, `--muted`, `--line`, `--accent`, `--accent-ink`, `--accent-soft`, `--danger`, `--radius`, `--shadow`, the corner shapes `--shape` (cards and pop-ups), `--shape-btn` (buttons, text boxes, switches, the selected tab) and `--shape-sm` (small tags and icon tiles), and for the frame `--top`, `--top-2` (the dark area), `--on-top`, `--on-top-muted`, `--tab-ink`, `--glow`, `--gutter`, `--font`, `--font-mono`. Light and dark mode follow the phone, or the Appearance choice in Settings. An app sets its own values in `app/theme.css`, and may add names of its own there for its features.
 
@@ -329,3 +331,5 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.10.1:** `python build.py ios-project` now deletes the iPhone project's `Podfile.lock` when it adds features' Podfile lines. `npx cap add ios` has already run `pod install`, so the lock listed the Podfile as it was before, and CocoaPods quietly ignored the new lines: a plugin's optional part (`CapacitorFirebaseAuthentication/Google`, which Google sign-in needs) was left out of the app altogether. Features written for 1.10 keep working.
 
 **1.10.0:** the iPhone app. Features' `native.ios` can now also list `files` to add to the iPhone app and `pods` (Podfile lines), alongside `plist`; app.json's `native.ios` can set the iPhone app's own `appId`, app-wide `plist` entries and `devices`. The new `python build.py ios-project` prepares the iPhone project Capacitor makes, like `android-project` does for Android, and `@capacitor/ios` is always in `dist/package.json`. Features written for 1.9 keep working.
+
+**1.12.0:** two helpers for forms that several features had their own copies of: the new `check` (`import { check } from 'folio'`) with `check.tidy()`, `check.link()` and `check.form()`, and `time.dayKey()` and `time.fromDayKey()` for date boxes and saving by day. Features written for 1.11 keep working.

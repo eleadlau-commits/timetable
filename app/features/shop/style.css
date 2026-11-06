@@ -66,13 +66,13 @@ button.shop-widget { cursor: pointer; }
 .storefront .shop-preview .spot-place { padding: 12px 14px; }
 .shop-preview a { pointer-events: none; }
 
-.shop-week-widget .shop-bars { flex: 1 1 auto; height: auto; min-height: 60px; gap: 6px; }
-.shop-week-widget .shop-bar b { font-size: 12px; }
-.shop-week-widget .shop-bar small { display: none; }
+.shop-week-widget .owners-bars { flex: 1 1 auto; height: auto; min-height: 60px; gap: 6px; }
+.shop-week-widget .owners-bar b { font-size: 12px; }
+.shop-week-widget .owners-bar small { display: none; }
 .shop-week-widget.shop-widget-wide { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 14px; align-items: center; }
 .shop-week-widget.shop-widget-wide .shop-widget-head { flex-direction: column; align-items: flex-start; gap: 0; }
-.shop-week-widget.shop-widget-wide .shop-bars { grid-row: 1 / 3; grid-column: 2; height: 100%; min-height: 0; }
-.shop-week-widget.shop-widget-wide .shop-bar b { display: none; }
+.shop-week-widget.shop-widget-wide .owners-bars { grid-row: 1 / 3; grid-column: 2; height: 100%; min-height: 0; }
+.shop-week-widget.shop-widget-wide .owners-bar b { display: none; }
 
 /* ---- The Your shop tab (the storefront feature's cards) ---- */
 .shop-inside, .shop-intro, .shop-trend { display: grid; gap: 10px; }
@@ -87,13 +87,6 @@ button.shop-widget { cursor: pointer; }
 .shop-deal-row small { font-size: 13px; color: var(--muted); }
 .shop-deal-row .shop-tag { flex: none; }
 
-/* Four weeks as bars, this week dark. */
-.shop-bars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; height: 120px; }
-.shop-bar { display: grid; grid-template-rows: 1fr auto auto; justify-items: stretch; text-align: center; min-height: 0; }
-.shop-bar-fill { align-self: end; display: block; border-radius: var(--shape-sm) var(--shape-sm) 0 0; background: var(--accent-soft); }
-.shop-bar.is-now .shop-bar-fill { background: var(--accent); }
-.shop-bar b { font-size: 14px; font-weight: 600; margin-top: 4px; }
-.shop-bar small { font-size: 11px; color: var(--muted); }
 
 /* ---- Setting up and editing ---- */
 .shop-setup, .shop-form { display: grid; gap: 12px; padding-bottom: 20px; }
@@ -147,32 +140,5 @@ button.shop-widget { cursor: pointer; }
 }
 .shop-day-closed { color: var(--muted); font-size: 14px; }
 .shop-week .link-btn { justify-self: start; }
-#shop-code { text-transform: uppercase; font-family: var(--font-mono); letter-spacing: 0.08em; }
 .shop-account { display: grid; gap: 8px; justify-items: start; }
 .shop-account h3, .shop-account p { margin: 0; }
-
-/* ---- Approve changes ---- */
-.shop-approve-part { display: grid; gap: 10px; margin-bottom: 22px; }
-.shop-approve-card { display: grid; gap: 10px; padding: 12px 14px; border-radius: var(--shape); background: var(--surface-2); }
-.shop-diff { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; font-size: 14px; }
-.shop-diff dt { color: var(--muted); }
-.shop-diff dd { margin: 0; display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
-.shop-was { color: var(--muted); text-decoration: line-through; }
-.shop-new { color: var(--text); font-weight: 600; }
-.shop-approve-buttons { display: flex; gap: 8px; }
-.shop-code-maker { display: grid; gap: 6px; }
-.shop-code-maker select { flex: 1; min-width: 0; }
-.shop-made-code {
-  display: grid;
-  gap: 2px;
-  padding: 12px 14px;
-  border-radius: var(--shape);
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-.shop-made-code b { font-family: var(--font-mono); font-size: 26px; letter-spacing: 0.08em; }
-.shop-made-code small { color: var(--text-2); }
-.shop-codes { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
-.shop-codes li { display: grid; grid-template-columns: auto 1fr auto auto; align-items: baseline; gap: 10px; font-size: 14px; }
-.shop-codes code { font-family: var(--font-mono); }
-.shop-codes small { color: var(--muted); }

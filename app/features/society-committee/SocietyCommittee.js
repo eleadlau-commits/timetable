@@ -13,13 +13,15 @@
 //   - A Your society widget people can add to Home (off until added).
 //
 // For the team: a Societies part in the shop feature's Approve changes window ('approve.parts'):
-// approve or reject changes, and make society codes (approve.js).
+// approve or reject changes, and make and remove society codes (approve.js).
 //
 // On every phone in the student version, it counts (once a day per society) when the Societies
 // list shows a society and when someone taps its Instagram or Join ('societies:shown' and
 // 'societies:tapped', from the societies feature).
 //
-// What's stored online, and the rules for it, are in store.js and firebase/firestore.rules.
+// The parts it shares with shops (codes, changes waiting for approval, the weekly counts, the
+// bars and Approve changes' parts) are the card-owners feature's ('cardOwners' service). Where
+// things are stored online is in store.js; the rules for them are in firebase/firestore.rules.
 //
 // Saved data (on this phone):
 //   'mine'     → { society, code, card, change, stats, at }: the society this account helps run,
@@ -29,28 +31,28 @@
 //   'no-count' → true in test builds (app/tests/seed.js), so tests never count
 
 import { Feature, ui, time } from 'folio';
-import {
-  FIELDS, checkEdit, cleanCode, showInstagram, withChange, setupStep, weekOf, weeksBack, trend, trendSentence, toCount,
-} from './rules.js';
-import * as store from './store.js';
-import { SocietyApprovals } from './approve.js';
+import { FIELDS, TREND_WORDS, checkEdit, showInstagram, withChange, setupStep } from './rules.js';
+import { SOCIETIES } from './store.js';
+import { societyApprovals } from './approve.js';
 
 const { el } = ui;
 const AGAIN_AFTER = 5 * time.MINUTE;
 const TREND_WEEKS = 4;
-const WEEK_NAMES = ['This week', 'Last week', '2 weeks ago', '3 weeks ago'];
 
 export default class SocietyCommittee extends Feature {
   start() {
     this.account = this.use('account');
+    // Codes, changes waiting for approval and the weekly counts, shared with shops.
+    this.owners = this.use('cardOwners');
+    this.store = this.owners.store(SOCIETIES);
+    this.count = this.owners.counter(this, this.store, { skip: () => this.business });
     this.mine = this.storage.get('mine', null);
     this.loaded = false;
-    this.approvals = new SocietyApprovals(this);
     this.addHelp();
 
     this.add('account.sections', { order: 16, render: () => this.accountSection() });
-    this.add('account.cleanup', { order: 25, remove: (db, uid) => store.removeAll(db, uid) });
-    this.add('approve.parts', this.approvals.part());
+    this.add('account.cleanup', { order: 25, remove: (db, uid) => this.store.removeAll(db, uid) });
+    this.add('approve.parts', societyApprovals(this));
     this.add('home.widgets', {
       id: 'society', label: 'Your society', order: 40, sizes: ['wide', 'tall'], start: false,
       render: (size) => this.widget(size),
@@ -102,12 +104,12 @@ export default class SocietyCommittee extends Feature {
     const user = this.account?.user;
     if (!user?.verified || this.business) { this.loaded = true; return; }
     const db = await this.account.database();
-    const owner = await store.ownerOf(db, user.uid);
+    const owner = await this.store.ownerOf(db, user.uid);
     if (owner) {
       const [card, change, stats] = await Promise.all([
-        store.societyDoc(db, owner.society).catch(() => null),
-        store.changeOf(db, owner.society).catch(() => null),
-        store.stats(db, owner.society, weeksBack(TREND_WEEKS)),
+        this.store.cardDoc(db, owner.society).catch(() => null),
+        this.store.changeOf(db, owner.society).catch(() => null),
+        this.store.stats(db, owner.society, this.owners.weeksBack(TREND_WEEKS)),
       ]);
       this.mine = { society: owner.society, code: owner.code, card, change, stats, at: Date.now() };
       this.storage.set('mine', this.mine);
@@ -135,27 +137,13 @@ export default class SocietyCommittee extends Feature {
       await step(await this.account.database());
       return true;
     } catch (err) {
-      const message = explain(err);
+      const message = this.owners.explain(err);
       if (errorBox) errorBox.show(message);
       else this.toast(message);
       return false;
     } finally {
       this.busy = false;
     }
-  }
-
-  // ---- Counting, on students' phones ----
-
-  async count(kind, ids) {
-    if (this.business || this.storage.get('no-count', false) || !this.account || !navigator.onLine) return;
-    const { fresh, record } = toCount(this.storage.get('counted', null), kind, ids || []);
-    if (!fresh.length) return;
-    this.storage.set('counted', record);
-    try {
-      const db = await this.account.publicDatabase();
-      const week = weekOf();
-      for (const id of fresh) await store.count(db, this.account.fields, id, week, kind).catch(() => {});
-    } catch { /* offline, or Firebase couldn't load: it's only a count */ }
   }
 
   // ---- The society, as students see it ----
@@ -188,7 +176,7 @@ export default class SocietyCommittee extends Feature {
   }
 
   get points() {
-    return trend(this.mine?.stats, weeksBack(TREND_WEEKS));
+    return this.owners.trend(this.mine?.stats, this.owners.weeksBack(TREND_WEEKS));
   }
 
   // ---- The account page ----
@@ -212,7 +200,7 @@ export default class SocietyCommittee extends Feature {
   async leave() {
     if (!confirm(`Stop looking after ${this.name}? You'll need a new society code to look after it again.`)) return;
     const owner = { code: this.mine?.code };
-    if (await this.attempt((db) => store.leave(db, this.account.user.uid, owner))) {
+    if (await this.attempt((db) => this.store.leave(db, this.account.user.uid, owner))) {
       this.forget();
       this.toast('Done. You no longer look after the society.');
       this.pageWindow?.close();
@@ -251,28 +239,16 @@ export default class SocietyCommittee extends Feature {
         el('button', { type: 'button', class: 'btn block', onclick: () => this.account.open() }, 'Open your account')));
     }
     if (step === 'loading') return w.setContent(el('p', { class: 'hint' }, 'Checking…'));
-    const input = el('input', {
-      id: 'society-code', type: 'text', autocomplete: 'off', autocapitalize: 'characters', spellcheck: 'false',
-      placeholder: 'e.g. K7QM-2XPA', maxlength: '12',
-    });
-    const error = ui.errorBox();
-    const go = async () => {
-      const code = cleanCode(input.value);
-      if (!code) return error.show('A society code has 8 letters and numbers, like K7QM-2XPA.');
-      const done = await this.attempt((db) => store.useCode(db, this.account.user.uid, code), error);
-      if (done) {
-        this.toast('Your society is linked to your account.');
-        await this.load();
-        if (this.linked) { w.close(); this.openPage(); }
-      }
+    const use = async (code) => {
+      await this.store.useCode(await this.account.database(), this.account.user.uid, code);
+      this.toast('Your society is linked to your account.');
+      await this.load();
+      if (this.linked) { w.close(); this.openPage(); }
     };
-    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
     w.setContent(el('div', { class: 'committee-setup' },
       el('h3', {}, 'Have a society code?'),
       el('p', {}, 'The Mobile Durham team gives each committee member a code for their society. Type yours to link the society to this account. Then you can change its card and see how it\'s going.'),
-      el('label', { class: 'label', for: 'society-code' }, 'Society code'),
-      el('div', { class: 'field' }, input, el('button', { type: 'button', class: 'btn primary', onclick: go }, 'Link')),
-      error,
+      ...this.owners.codeField({ id: 'society-code', label: 'Society code', noun: 'society', use }),
       el('h3', {}, 'No code yet?'),
       el('p', {}, 'Email mobiledurham.help@gmail.com from your society\'s email, or ask your president to. If your society isn\'t on Explore yet, tell us about it and we\'ll add it.')));
   }
@@ -346,20 +322,11 @@ export default class SocietyCommittee extends Feature {
       !preview?.photo && el('p', { class: 'hint small' }, 'Want a photo or logo on your card? Email one to mobiledurham.help@gmail.com and we\'ll add it.'));
   }
 
-  bars(points) {
-    const most = Math.max(1, ...points.map((p) => p.seen));
-    return el('div', { class: 'committee-bars', role: 'img', 'aria-label': points.map((p) => `Week of ${p.label}: ${p.seen}`).join(', ') },
-      points.map((p, i) => el('div', { class: `committee-bar${i === points.length - 1 ? ' is-now' : ''}` },
-        el('span', { class: 'committee-bar-fill', style: `height: ${Math.max(4, Math.round((p.seen / most) * 100))}%` }),
-        el('b', {}, String(p.seen)),
-        el('small', {}, WEEK_NAMES[points.length - 1 - i] || p.label))));
-  }
-
   trendCard() {
     const points = this.points;
     return el('div', { class: 'committee-trend' },
-      this.bars(points),
-      el('p', {}, trendSentence(points)),
+      this.owners.bars(points),
+      el('p', {}, this.owners.trendSentence(points, TREND_WORDS)),
       el('p', { class: 'hint small' }, 'Each phone counts once a day. We never know who they are.'));
   }
 
@@ -399,7 +366,7 @@ export default class SocietyCommittee extends Feature {
       const typed = Object.fromEntries(Object.entries(form).map(([k, input]) => [k, input.value]));
       const { change, error: wrong } = checkEdit(typed);
       if (wrong) return error.show(wrong);
-      const done = await this.attempt((db) => store.sendChange(db, this.account.fields, this.account.user.uid, this.mine.society, change), error);
+      const done = await this.attempt((db) => this.store.sendChange(db, this.account.fields, this.account.user.uid, this.mine.society, change), error);
       if (done) {
         this.toast('Sent. We\'ll check it, usually within a day.');
         w.close();
@@ -408,7 +375,7 @@ export default class SocietyCommittee extends Feature {
     };
     const withdraw = async () => {
       if (!confirm('Withdraw the change? Your society\'s card stays as it is now.')) return;
-      if (await this.attempt((db) => store.withdrawChange(db, this.mine.society), error)) await this.load();
+      if (await this.attempt((db) => this.store.withdrawChange(db, this.mine.society), error)) await this.load();
     };
     const node = el('div', { class: 'committee-form' },
       this.waiting && el('p', { class: 'committee-note' }, 'A change is being checked. Students see your society as it was until then. You can change it again here.'),
@@ -446,20 +413,5 @@ export default class SocietyCommittee extends Feature {
         'Each committee member needs their own code. When you hand over to next year\'s committee, tap Stop looking after it on your account page.',
       ] },
     ]) this.add('help.questions', item);
-  }
-}
-
-// What went wrong, in plain words.
-function explain(err) {
-  switch (err?.message) {
-    case 'bad-code': return 'We couldn\'t find that code. Check it, or ask us for a new one.';
-    case 'used-code': return 'That code has already been used by another account. Ask us for a new one.';
-    case 'signed-out': return 'Sign in first.';
-    case 'unverified': return 'Confirm your email address first: tap the link in the email we sent you.';
-    case 'load': return 'Couldn\'t connect. Check you\'re online and try again.';
-    default:
-      if (err?.code === 'permission-denied') return 'That isn\'t allowed. If you think it should be, email mobiledurham.help@gmail.com.';
-      if (err?.code === 'unavailable') return 'Couldn\'t connect. Check you\'re online and try again.';
-      return 'Something went wrong. Please try again.';
   }
 }
