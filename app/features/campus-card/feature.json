@@ -11,7 +11,7 @@
       "features": [{ "name": "android.hardware.camera", "required": false }]
     },
     "ios": {
-      "plist": { "NSCameraUsageDescription": "The camera is used to scan the barcode on your campus card." }
+      "plist": { "NSCameraUsageDescription": "The camera is used to scan your campus card's barcode and your friends' QR codes." }
     }
   }
 }

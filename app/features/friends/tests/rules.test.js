@@ -2,6 +2,7 @@ import { test, assert } from 'folio/testing';
 import {
   makeCode, readCode, pairId, firstName, cleanName, initials, sharedClasses, fingerprint,
   nowStatus, byDay, freeTogether, stalePeople, explainProblem, CODE_PATTERN,
+  inviteLink, codeFrom, busyTimes, onlyBusy, whoIsFree, WEB_ADDRESS,
 } from '../rules.js';
 
 const at = (day, hour, minute = 0) => new Date(2026, 9, day, hour, minute);
@@ -98,4 +99,58 @@ test('problems are explained, with the database\'s code', () => {
   assert.match(explainProblem(new Error('full')), /50 friends/);
   assert.match(explainProblem({ code: 'weird' }), /\(weird\)/);
   assert.match(explainProblem({ code: 'unavailable' }, false), /offline/);
+});
+
+test('invite links point at the web version, whatever phone made them', () => {
+  assert.equal(inviteLink('MD-7K3Q-9P2X'), `${WEB_ADDRESS}#friend=MD-7K3Q-9P2X`);
+  assert.match(WEB_ADDRESS, /^https:\/\//);
+});
+
+test('a code is found in a link, a message or on its own', () => {
+  assert.equal(codeFrom(inviteLink('MD-7K3Q-9P2X')), 'MD-7K3Q-9P2X');
+  assert.equal(codeFrom('https://localhost/#friend=MD-7K3Q-9P2X'), 'MD-7K3Q-9P2X');   // old QR codes
+  assert.equal(codeFrom('#friend=md-7k3q-9p2x'), 'MD-7K3Q-9P2X');
+  assert.equal(codeFrom('Add me on Mobile Durham: my friend code is MD-7K3Q-9P2X'), 'MD-7K3Q-9P2X');
+  assert.equal(codeFrom('md 7k3q 9p2x'), 'MD-7K3Q-9P2X');
+  assert.equal(codeFrom('7K3Q9P2X'), 'MD-7K3Q-9P2X');
+  assert.equal(codeFrom('https://example.com/'), null);
+  assert.equal(codeFrom('#friend=nonsense'), null);
+  assert.equal(codeFrom(''), null);
+});
+
+test('busy times join overlapping classes and leave out names and rooms', () => {
+  const classes = [
+    { t: 'B', s: at(5, 10), e: at(5, 12), l: 'X' },
+    { t: 'A', s: at(5, 9), e: at(5, 11), l: 'Y' },
+    { t: 'C', s: at(5, 12), e: at(5, 13), l: 'Z' },
+    { t: 'D', s: at(5, 15), e: at(5, 16), l: 'Z' },
+  ].map((c) => ({ ...c, s: +c.s, e: +c.e }));
+  assert.deepEqual(busyTimes(classes), [{ s: +at(5, 9), e: +at(5, 13) }, { s: +at(5, 15), e: +at(5, 16) }]);
+  assert.deepEqual(busyTimes([]), []);
+  assert.equal(classes[0].t, 'B');                                   // the list isn't changed
+});
+
+test('who shares only free or busy', () => {
+  assert.equal(onlyBusy({ busyOnly: ['sam'] }, 'sam'), true);
+  assert.equal(onlyBusy({ busyOnly: ['sam'] }, 'alex'), false);
+  assert.equal(onlyBusy({}, 'sam'), false);
+  assert.equal(onlyBusy(null, 'sam'), false);
+});
+
+test('the Home widget lists free friends first, then busy, then the rest', () => {
+  const now = +at(5, 10);
+  const people = [
+    { uid: 'a', name: 'Zed', classes: [{ s: +at(5, 9), e: +at(5, 11) }] },
+    { uid: 'b', name: 'Amy', classes: null },
+    { uid: 'c', name: 'Bo', classes: [{ s: +at(5, 14), e: +at(5, 15) }] },
+    { uid: 'd', name: 'Cy', classes: [{ s: +at(5, 9), e: +at(5, 10, 30), t: 'X' }] },
+    { uid: 'e', name: 'Di', classes: [], paused: true },
+    { uid: 'f', name: 'Al', classes: [] },
+  ];
+  const { list, free } = whoIsFree(people, now);
+  assert.deepEqual(list.map((p) => p.name), ['Al', 'Bo', 'Cy', 'Zed', 'Amy', 'Di']);
+  assert.equal(free, 2);
+  assert.equal(list[2].now.until, +at(5, 10, 30));
+  assert.equal(list[4].now, null);
+  assert.equal(list[5].now, null);                                   // paused counts as not shared
 });

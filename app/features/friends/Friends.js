@@ -1,26 +1,38 @@
 // Friends: swap timetables with friends. The Friends button in the top bar opens it.
 //
-// - You get a friend code (and QR code) to give out. There's no searching for people.
+// - You get a friend code, an invite link and a QR code to give out, and can scan a friend's QR
+//   code. There's no searching for people.
 // - Asking someone (with their code) lets them see your timetable straight away; you see theirs
 //   once they accept. Cancelling, declining or removing stops it both ways.
 // - What's shared: your classes for the next 4 weeks (the university's names, times and rooms),
 //   without modules you've hidden. It's kept up to date while you have friends or requests,
 //   and deleted when you have none.
+// - For each person you choose what they see: everything, or only when you're free or busy.
+//   You can also pause sharing altogether.
 // - A friend's timetable is shown in grey, or a tint you choose for them.
+// - A Home widget shows which friends are free right now, from what was last loaded.
 // The database rules (firebase/firestore.rules) enforce all of this; store.js does the writes.
 //
-// Saved data: 'profile' → { uid, name, code, people } a copy of your online profile, for showing
+// Saved data: 'profile' → { uid, name, code, people, paused } a copy of your online profile
 //             'shared'  → { uid, print, at } what was last shared, so it isn't sent again
 //             'tints'   → { [friend's uid]: hue } colours you chose (none means grey)
+//             'circle'  → { uid, at, people: [{ uid, name, classes, paused }] } friends' next
+//                         two days, for the Home widget
+//             'invite'  → a friend code from an invite link, kept while you sign in
 
 import { Feature, ui, time } from 'folio';
 import { FriendStore } from './store.js';
-import { readCode, firstName, cleanName, sharedClasses, fingerprint, stalePeople, explainProblem, SHARE_DAYS } from './rules.js';
-import { personRow, statusLine, statusTag, tintChoice, timetableView } from './screens.js';
+import {
+  codeFrom, inviteLink, firstName, cleanName, sharedClasses, fingerprint, stalePeople, explainProblem,
+  onlyBusy, whoIsFree, SHARE_DAYS,
+} from './rules.js';
+import { personRow, statusLine, statusTag, tintChoice, shareChoice, timetableView, friendsWidget } from './screens.js';
+import { startScanner } from './scanner.js';
 
 const { el } = ui;
 const QR_LIB = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
 const RESHARE = 12 * time.HOUR;
+const RECHECK = 20 * time.MINUTE; // how old the Home widget's friends can get before they're loaded again
 
 export default class Friends extends Feature {
   start() {
@@ -34,10 +46,22 @@ export default class Friends extends Feature {
     this.add('header.actions', { id: 'friends', label: 'Friends', icon: 'people', order: 10, visible: () => this.forStudents(), onClick: () => this.open() });
     this.add('account.sections', { order: 20, render: (user) => this.accountSection(user) });
     this.add('account.cleanup', { order: 10, remove: (db, uid) => FriendStore.removeAll(db, uid) });
-    this.on('account:changed', (user) => { if (!user) this.forget(); });
+    this.add('home.widgets', {
+      id: 'friends', label: 'Friends', order: 35, sizes: ['wide', 'tall'],
+      render: (size) => this.widget(size),
+    });
+    this.on('account:changed', (user) => {
+      if (!user) return this.forget();
+      this.recheck();
+      const invite = this.storage.get('invite', null);
+      if (invite) { this.storage.remove('invite'); this.openAdd(invite); }
+    });
     this.on('sessions:changed', () => this.share());
     this.on('timetable:changed', () => this.share());
-    this.on('app:ready', () => { this.share(); this.openFromLink(); });
+    this.on('app:ready', () => { this.share(); this.openFromLink(); this.recheck(); });
+    this.on('app:resume', () => this.recheck());
+    // An invite link opened while the web version is already open in that tab.
+    window.addEventListener('hashchange', () => this.openFromLink());
   }
 
   get me() {
@@ -52,10 +76,20 @@ export default class Friends extends Feature {
   forget() {
     this.storage.remove('profile');
     this.storage.remove('shared');
+    this.storage.remove('circle');
     this.state = { profile: null, friendships: [], timetables: {}, loading: false, error: null };
   }
 
   // ---- Loading and saving ----
+
+  // Loads friends again in the background for the Home widget, if it's been a while. Only for
+  // people who have opened Friends before (so it never makes a friend code by itself).
+  recheck() {
+    if (!this.me || !this.cached || !navigator.onLine || this.state.loading || this.window?.isOpen) return;
+    const circle = this.storage.get('circle', null);
+    if (circle?.uid === this.me.uid && Date.now() - circle.at < RECHECK) return;
+    this.load();
+  }
 
   async load() {
     this.state.loading = true;
@@ -69,22 +103,40 @@ export default class Friends extends Feature {
       profile.people = profile.people.filter((p) => !stale.includes(p));
       this.state.profile = profile;
       this.state.friendships = friendships;
-      this.storage.set('profile', { uid: this.me.uid, name: profile.name, code: profile.code, people: profile.people });
+      this.storage.set('profile', { uid: this.me.uid, name: profile.name, code: profile.code, people: profile.people, paused: profile.paused === true });
       await this.share();
-      // Timetables you can see: friends, and people who asked you.
+      // Timetables you can see: friends, and people who asked you (only when they're busy, if
+      // that's all they share with you).
       const visible = friendships.filter((f) => f.status === 'accepted' || f.from !== this.me.uid);
       const timetables = {};
       await Promise.all(visible.map(async (f) => {
         const other = this.other(f);
-        timetables[other] = await this.store.timetable(other).catch(() => null);
+        timetables[other] = await this.store.timetable(other, onlyBusy(f, other)).catch(() => null);
       }));
       this.state.timetables = timetables;
+      this.keepCircle();
     } catch (err) {
       this.state.error = this.explain(err);
     } finally {
       this.state.loading = false;
       this.draw();
     }
+  }
+
+  // Friends' next two days, kept on the phone for the Home widget.
+  keepCircle() {
+    const now = Date.now();
+    const soon = now + 2 * time.DAY;
+    const people = this.state.friendships.filter((f) => f.status === 'accepted').map((f) => {
+      const other = this.other(f);
+      const shared = this.state.timetables[other];
+      return {
+        uid: other, name: this.nameOf(f), paused: shared?.paused === true,
+        classes: shared ? shared.classes.filter((c) => c.e > now && c.s < soon).map(({ s, e, t }) => (t ? { s, e, t } : { s, e })) : null,
+      };
+    });
+    this.storage.set('circle', { uid: this.me.uid, at: now, people });
+    this.refresh();
   }
 
   // Keeps your shared timetable up to date while you have friends or requests; deletes it when not.
@@ -100,10 +152,11 @@ export default class Friends extends Feature {
         }
         return;
       }
+      const paused = profile.paused === true;
       const classes = sharedClasses(this.sessions.all, (s) => this.sessions.isShown(s));
-      const print = fingerprint(classes);
+      const print = paused ? 'paused' : fingerprint(classes);
       if (!force && last?.uid === this.me.uid && last.print === print && Date.now() - last.at < RESHARE) return;
-      await this.store.share(classes);
+      await this.store.share(classes, { paused });
       this.storage.set('shared', { uid: this.me.uid, print, at: Date.now() });
     } catch {
       // Tries again next time something changes, or when Friends is opened.
@@ -173,11 +226,11 @@ export default class Friends extends Feature {
       this.state.error && el('div', { class: 'error' }, this.state.error),
       el('div', { class: 'fr-code' },
         el('span', {}, el('small', {}, 'Your friend code'), el('b', {}, profile.code)),
-        el('button', { type: 'button', class: 'btn small', onclick: () => this.shareCode(profile.code) }, 'Share')),
+        el('button', { type: 'button', class: 'btn small', onclick: () => this.shareInvite(profile.code) }, 'Send invite')),
       this.qrBox = el('div', { class: 'fr-qr', hidden: true }),
       el('div', { class: 'fr-buttons' },
         el('button', { type: 'button', class: 'btn primary', onclick: () => this.openAdd() }, 'Add a friend'),
-        el('button', { type: 'button', class: 'btn', onclick: () => this.showQR(profile.code) }, 'Show QR code')),
+        el('button', { type: 'button', class: 'btn', onclick: () => this.showQR(profile.code) }, 'Show my QR code')),
       el('p', { class: 'fr-me' }, 'Friends see you as ', el('b', {}, profile.name), '. ',
         el('button', { type: 'button', class: 'link-btn', onclick: () => this.rename() }, 'Change')),
       list('Asking you', groups.asking, (f) => personRow({
@@ -189,7 +242,7 @@ export default class Friends extends Feature {
           el('button', { type: 'button', class: 'btn small', onclick: () => this.end(f, 'Declined.') }, 'Decline')),
       })),
       list('Friends', groups.friends, (f) => {
-        const status = statusLine(this.state.timetables[this.other(f)]?.classes);
+        const status = statusLine(this.state.timetables[this.other(f)]);
         return personRow({ name: this.nameOf(f), hue: this.tints[this.other(f)], line: status.text, right: statusTag(status), onOpen: () => this.openFriend(f) });
       }),
       list('Waiting for them', groups.waiting, (f) => personRow({
@@ -197,16 +250,31 @@ export default class Friends extends Feature {
         line: 'They can see your timetable. You\'ll see theirs once they accept.',
         right: el('button', { type: 'button', class: 'btn small', onclick: () => this.end(f, 'Request cancelled.') }, 'Cancel'),
       })),
-      !this.state.friendships.length && ui.hint('No friends yet. Give someone your code, or add theirs.'),
-      ui.hint(`Friends see your classes for the next ${SHARE_DAYS / 7} weeks: the university's names, times and rooms. Modules you've hidden, notes, reminders and to-dos are never shared.`, { small: true }));
+      !this.state.friendships.length && ui.hint('No friends yet. Send someone your invite, show them your QR code, or add their code.'),
+      el('div', { class: 'fr-pause' },
+        el('span', {}, el('b', {}, 'Share my timetable'),
+          el('small', {}, profile.paused ? 'Paused: friends see "Has paused sharing".' : 'Friends see what you chose for each of them.')),
+        ui.toggle({ checked: !profile.paused, label: 'Share my timetable', onChange: (on) => this.setPaused(!on) })),
+      ui.hint(`Friends see your classes for the next ${SHARE_DAYS / 7} weeks: the university's names, times and rooms, or only when you're busy if you choose that for them (tap a friend). Modules you've hidden, notes, reminders and to-dos are never shared.`, { small: true }));
   }
 
-  async shareCode(code) {
-    const text = `Add me on Mobile Durham: my friend code is ${code}`;
+  // The invite: a link that opens Add a friend with your code filled in, sent through the phone's
+  // share menu (WhatsApp, Messages…), or copied.
+  async shareInvite(code) {
+    const link = inviteLink(code);
+    const text = `Add me on Mobile Durham: ${link} (or type my friend code ${code} under Friends → Add a friend)`;
     try {
       if (navigator.share) await navigator.share({ text });
-      else { await navigator.clipboard.writeText(code); this.toast('Code copied.'); }
+      else { await navigator.clipboard.writeText(link); this.toast('Invite link copied.'); }
     } catch { /* closed the share sheet */ }
+  }
+
+  async setPaused(paused) {
+    await this.act(async () => {
+      await this.store.setPaused(paused);
+      this.storage.set('profile', { ...this.cached, paused });
+      await this.share({ force: true });
+    }, paused ? 'Sharing paused.' : 'Sharing again.');
   }
 
   async showQR(code) {
@@ -214,11 +282,10 @@ export default class Friends extends Feature {
     if (!box) return;
     box.hidden = !box.hidden;
     if (box.hidden || box.childElementCount) return;
-    const link = new URL(location.pathname, location.origin);
-    link.hash = `friend=${code}`;
     try {
       await ui.loadScript(QR_LIB);
-      new window.QRCode(box, { text: link.href, width: 200, height: 200, correctLevel: window.QRCode.CorrectLevel.M });
+      new window.QRCode(box, { text: inviteLink(code), width: 220, height: 220, colorDark: '#000000', colorLight: '#ffffff', correctLevel: window.QRCode.CorrectLevel.M });
+      box.append(el('small', {}, 'Your friend opens Friends → Add a friend → Scan, or points their camera at it.'));
     } catch {
       box.textContent = 'Couldn\'t make the QR code (are you offline?). Share the code instead.';
     }
@@ -244,21 +311,30 @@ export default class Friends extends Feature {
 
   // ---- Adding a friend ----
 
+  // An invite link (…#friend=MD-…) opened the app: Add a friend, with the code filled in. If
+  // you're not signed in, the code is kept until you are.
   openFromLink() {
-    const code = new URLSearchParams(location.hash.slice(1)).get('friend');
+    const code = codeFrom(location.hash);
     if (!code) return;
     history.replaceState(null, '', location.pathname + location.search);
+    if (!this.me) {
+      this.storage.set('invite', code);
+      this.toast('Sign in to add your friend.');
+    }
     this.openAdd(code);
   }
 
   openAdd(prefill = '') {
     if (!this.me) return this.open();
-    if (!this.addWindow) this.addWindow = ui.dialog({ title: 'Add a friend', className: 'friends-add' });
+    if (!this.addWindow) this.addWindow = ui.dialog({ title: 'Add a friend', className: 'friends-add', onClose: () => this.scanner?.stop() });
+    this.scanner?.stop();
     const input = el('input', { class: 'field fr-input', placeholder: 'MD-XXXX-XXXX', autocapitalize: 'characters', autocomplete: 'off', spellcheck: 'false', value: prefill });
     const result = el('div', { class: 'fr-result' });
+    const camera = el('div', { class: 'fr-camera' });
     const find = async () => {
-      const code = readCode(input.value);
-      if (!code) return result.replaceChildren(el('div', { class: 'error' }, 'That doesn\'t look like a friend code. They look like MD-7K3Q-9P2X.'));
+      const code = codeFrom(input.value);
+      if (code) input.value = code;
+      if (!code) return result.replaceChildren(el('div', { class: 'error' }, 'That doesn\'t look like a friend code or invite link. Codes look like MD-7K3Q-9P2X.'));
       result.replaceChildren(ui.hint('Looking…'));
       try {
         if (!this.state.profile) await this.load();
@@ -270,12 +346,26 @@ export default class Friends extends Feature {
         result.replaceChildren(el('div', { class: 'error' }, this.explain(err)));
       }
     };
+    const scan = () => {
+      result.replaceChildren();
+      this.scanner = startScanner(camera, {
+        onText: (text) => {
+          this.scanner = null;
+          input.value = text;
+          find();
+        },
+        onProblem: (text) => { this.scanner = null; result.replaceChildren(el('div', { class: 'error' }, text)); },
+      });
+    };
     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') find(); });
+    input.addEventListener('paste', () => setTimeout(() => codeFrom(input.value) && find()));
     this.addWindow.setContent(
-      el('label', { class: 'label' }, 'Their friend code'), input,
+      el('button', { type: 'button', class: 'btn primary block fr-scan-btn', onclick: scan }, ui.icon('qr'), 'Scan their QR code'),
+      camera,
+      el('label', { class: 'label' }, 'Or type their friend code, or paste their invite link'), input,
       el('button', { type: 'button', class: 'btn block', onclick: find }, 'Find'),
       result,
-      ui.hint('There\'s no searching for people by name or email. Ask your friend for their code.', { small: true }));
+      ui.hint('There\'s no searching for people by name or email. Ask your friend for their code, invite or QR code.', { small: true }));
     this.addWindow.open();
     if (prefill) find();
   }
@@ -289,15 +379,20 @@ export default class Friends extends Feature {
       return card(ui.hint(`${person.name} has already asked you.`),
         el('button', { type: 'button', class: 'btn primary block', onclick: () => { this.addWindow.close(); this.accept(existing); } }, 'Accept'));
     }
+    let busyOnly = false;
+    const choice = el('div');
+    const drawChoice = () => choice.replaceChildren(shareChoice(person.name, busyOnly, (value) => { busyOnly = value; drawChoice(); }));
+    drawChoice();
     return card(
       el('p', { class: 'fr-warn' }, el('b', {}, `Sending a request lets ${person.name} see your timetable straight away`),
-        ` (your classes for the next ${SHARE_DAYS / 7} weeks). You'll see theirs once they accept. You can cancel at any time.`),
+        ` (the next ${SHARE_DAYS / 7} weeks). You'll see theirs once they accept. You can cancel at any time.`),
+      choice,
       el('button', {
         type: 'button', class: 'btn primary block', onclick: () => {
           this.addWindow.close();
           this.act(async () => {
             await this.share({ force: true });
-            await this.store.ask(this.state.profile, person, code);
+            await this.store.ask(this.state.profile, person, code, busyOnly);
           }, `Request sent to ${person.name}.`);
         },
       }, 'Send request'));
@@ -322,10 +417,31 @@ export default class Friends extends Feature {
     this.friendWindow.setTitle(`${name}'s timetable`);
     this.friendWindow.setContent(
       el('div', { class: 'fr-tint-row' }, el('span', {}, 'Colour'), tintChoice(hue, (h) => this.setTint(other, h))),
+      shareChoice(name, onlyBusy(f, this.me.uid), (on) => this.setBusyOnly(f, on)),
       timetableView({ name, shared: this.state.timetables[other], hue, mine }),
       f.status === 'accepted'
         ? el('button', { type: 'button', class: 'link-btn fr-remove', onclick: () => confirm(`Remove ${name}? You'll both stop seeing each other's timetable.`) && this.end(f, `Removed ${name}.`) }, `Remove ${name} as a friend`)
         : el('button', { type: 'button', class: 'btn primary block', onclick: () => { this.friendWindow.close(); this.accept(f); } }, `Accept and share mine with ${name}`));
+  }
+
+  async setBusyOnly(f, on) {
+    const name = this.nameOf(f);
+    await this.act(() => this.store.setBusyOnly(f, on), on ? `${name} now sees only when you're busy.` : `${name} now sees your classes.`);
+    const fresh = this.state.friendships.find((x) => x.id === f.id);
+    if (fresh && this.friendWindow?.isOpen) { this.current = fresh; this.drawFriend(); }
+  }
+
+  // ---- The Home widget: which friends are free right now ----
+
+  widget(size) {
+    const open = () => this.open();
+    if (!this.me) return friendsWidget({ size, message: 'Sign in to see which friends are free.', onOpen: open });
+    const circle = this.storage.get('circle', null);
+    if (circle?.uid !== this.me.uid) return friendsWidget({ size, message: 'Add friends to see who\'s free right now.', onOpen: open });
+    if (!circle.people.length) return friendsWidget({ size, message: 'No friends yet. Tap to send an invite.', onOpen: open });
+    const people = circle.people.map((p) => ({ ...p, hue: this.tints[p.uid] ?? null }));
+    const { list, free } = whoIsFree(people);
+    return friendsWidget({ size, list, free, onOpen: open });
   }
 
   setTint(uid, hue) {
@@ -334,6 +450,7 @@ export default class Friends extends Feature {
     this.storage.set('tints', this.tints);
     this.drawFriend();
     this.draw();
+    this.refresh();
   }
 
   // ---- On the account page ----
@@ -353,10 +470,14 @@ export default class Friends extends Feature {
   addHelp() {
     for (const item of [
       { group: 'friends', order: 10, question: 'How do I add a friend?', answer: () => [
-        'Sign in first. Then tap the Friends button (two people) at the top. Give a friend your friend code or show them your QR code, or type their code under Add a friend and send a request. There\'s no searching by name or email.',
+        'Sign in first. Then tap the Friends button (two people) at the top. Either send your invite (Send invite, then pick WhatsApp or Messages), show your QR code, or tap Add a friend and scan their QR code or type their code. There\'s no searching by name or email.',
+      ] },
+      { group: 'friends', order: 15, question: 'Can I see which friends are free on Home?', answer: () => [
+        'Yes: the Friends widget on Home shows who\'s free right now. If it isn\'t there, add it with the pencil on Home (Customise Home). It updates when you open the app, at most every 20 minutes.',
       ] },
       { group: 'friends', order: 20, question: 'What can my friends see?', answer: () => [
         'Your name for friends and your classes for the next 4 weeks, with their times and rooms. Never hidden modules, your own module names, notes, reminders, to-dos, your timetable link, your email or your picture.',
+        'You can choose, for each person, to share only when you\'re busy (not what or where): tap them in Friends and choose Only free or busy. To stop sharing with everyone for a while, switch off Share my timetable at the bottom of Friends.',
         'When you send a request, they can see yours straight away. You see theirs once they accept.',
       ] },
       { group: 'friends', order: 30, question: 'How do I stop sharing with someone?', answer: () => [

@@ -5,7 +5,7 @@
 // code). Whatever is stored online must be covered by one or the other (and firebase/firestore.rules).
 export function onlineData(uid) {
   return [
-    `users/${uid}/private/main`, `users/${uid}/private/profile`, `shared/${uid}`,
+    `users/${uid}/private/main`, `users/${uid}/private/profile`, `shared/${uid}`, `busy/${uid}`,
     // A business's link to its place on Spots, and its request to be listed (the shop feature).
     `shopOwners/${uid}`, `spotRequests/${uid}`,
     // A committee member's link to their society (the society-committee feature).

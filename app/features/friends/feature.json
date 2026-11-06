@@ -1,9 +1,18 @@
 {
   "name": "Friends",
-  "description": "Swap timetables with friends using friend codes. Only people you've asked or accepted can see yours.",
-  "version": "2.0.0",
+  "description": "Swap timetables with friends using invite links, QR codes or friend codes, and see who's free on Home. Only people you've asked or accepted can see yours.",
+  "version": "3.0.0",
   "main": "Friends.js",
   "styles": ["friends.css"],
   "requires": ["account"],
-  "uses": ["sessions", "welcome"]
+  "uses": ["sessions", "welcome"],
+  "native": {
+    "android": {
+      "permissions": ["CAMERA"],
+      "features": [{ "name": "android.hardware.camera", "required": false }]
+    },
+    "ios": {
+      "plist": { "NSCameraUsageDescription": "The camera is used to scan your campus card's barcode and your friends' QR codes." }
+    }
+  }
 }

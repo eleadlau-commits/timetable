@@ -33,6 +33,7 @@ beforeEach(async () => {
       await setDoc(doc(db, 'users', uid, 'private', 'profile'), { name: uid, code, people: [], updatedAt: new Date() });
       await setDoc(doc(db, 'codes', code), { uid, name: uid });
       await setDoc(doc(db, 'shared', uid), { classes: CLASSES, updatedAt: new Date() });
+      await setDoc(doc(db, 'busy', uid), { times: [{ s: 1, e: 2 }], updatedAt: new Date() });
     }
   });
 });
@@ -60,6 +61,8 @@ function accept(by, other, { addToList = true } = {}) {
 }
 
 const sees = (viewer, owner) => getDoc(doc(as(viewer), 'shared', owner));
+const seesBusy = (viewer, owner) => getDoc(doc(as(viewer), 'busy', owner));
+const choose = (by, other, list) => updateDoc(doc(as(by), 'friendships', pair(by, other)), { busyOnly: list });
 
 // ---- Profiles and codes ----
 
@@ -75,6 +78,8 @@ test('your profile is yours alone, and must have the right shape', async () => {
   await assertFails(save({ people: Array.from({ length: 51 }, (_, i) => `p${i}`) }));
   await assertFails(save({ people: ['sam'] }));                           // not yourself
   await assertFails(save({ email: 'sam@example.com' }));
+  await assertSucceeds(save({ paused: true }));
+  await assertFails(save({ paused: 'yes' }));
 });
 
 test('a code can be looked up one at a time, never listed', async () => {
@@ -117,6 +122,14 @@ test('a request must be honest', async () => {
   await assertFails(ask('sam', 'alex', { createdAt: new Date(2000, 0, 1) }));
   await assertFails(ask('sam', 'alex', {}, { addToList: false }));          // must count against your 50
   await assertFails(ask('sam', 'sam'));
+  await assertFails(ask('sam', 'alex', { busyOnly: ['alex'] }));          // can't choose for them
+  await assertFails(ask('sam', 'alex', { busyOnly: ['sam', 'alex'] }));
+});
+
+test('you can ask someone and share only free or busy from the start', async () => {
+  await assertSucceeds(ask('sam', 'alex', { busyOnly: ['sam'] }));
+  await assertFails(sees('alex', 'sam'));
+  await assertSucceeds(seesBusy('alex', 'sam'));
 });
 
 test('you can\'t ask twice, or ask someone who already asked you', async () => {
@@ -202,4 +215,50 @@ test('only you can change your shared timetable, and only in the right shape', a
   await assertFails(setDoc(mine('sam'), { classes: Array(401).fill(CLASSES[0]), updatedAt: serverTimestamp() }));
   await assertFails(deleteDoc(mine('alex')));
   await assertSucceeds(deleteDoc(mine('sam')));
+});
+
+test('only you can change your free or busy times, and only in the right shape', async () => {
+  const mine = (uid) => doc(as(uid), 'busy', 'sam');
+  await assertSucceeds(setDoc(mine('sam'), { times: [{ s: 1, e: 2 }], updatedAt: serverTimestamp() }));
+  await assertSucceeds(setDoc(mine('sam'), { times: [], paused: true, updatedAt: serverTimestamp() }));
+  await assertFails(setDoc(mine('alex'), { times: [], updatedAt: serverTimestamp() }));
+  await assertFails(setDoc(mine('sam'), { times: [], classes: CLASSES, updatedAt: serverTimestamp() }));
+  await assertFails(setDoc(mine('sam'), { times: Array(401).fill({ s: 1, e: 2 }), updatedAt: serverTimestamp() }));
+  await assertFails(deleteDoc(mine('alex')));
+  await assertSucceeds(deleteDoc(mine('sam')));
+  await assertSucceeds(setDoc(doc(as('sam'), 'shared', 'sam'), { classes: [], paused: true, updatedAt: serverTimestamp() }));
+  await assertFails(setDoc(doc(as('sam'), 'shared', 'sam'), { classes: [], paused: 1, updatedAt: serverTimestamp() }));
+});
+
+test('free or busy times follow the same rules as the timetable', async () => {
+  await assertFails(seesBusy('alex', 'sam'));
+  await ask('sam', 'alex');
+  await assertSucceeds(seesBusy('alex', 'sam'));
+  await assertFails(seesBusy('sam', 'alex'));
+  await accept('alex', 'sam');
+  await assertSucceeds(seesBusy('sam', 'alex'));
+  await assertFails(seesBusy('zoe', 'sam'));
+});
+
+test('sharing only free or busy with someone hides your classes from them', async () => {
+  await ask('sam', 'alex');
+  await accept('alex', 'sam');
+  await assertSucceeds(choose('sam', 'alex', ['sam']));
+  await assertFails(sees('alex', 'sam'));
+  await assertSucceeds(seesBusy('alex', 'sam'));
+  await assertSucceeds(sees('sam', 'alex'));                                // Alex still shares everything
+  await assertSucceeds(choose('alex', 'sam', ['sam', 'alex']));             // Alex too, now
+  await assertFails(sees('sam', 'alex'));
+  await assertSucceeds(choose('sam', 'alex', ['alex']));                    // Sam shares everything again
+  await assertSucceeds(sees('alex', 'sam'));
+});
+
+test('you can only choose for yourself', async () => {
+  await ask('sam', 'alex');
+  await assertFails(choose('sam', 'alex', ['alex']));                       // putting Alex on it
+  await assertFails(choose('sam', 'alex', ['sam', 'sam', 'sam']));
+  await assertFails(updateDoc(doc(as('zoe'), 'friendships', pair('sam', 'alex')), { busyOnly: ['zoe'] }));
+  await assertSucceeds(choose('alex', 'sam', ['alex']));                    // before accepting, too
+  await assertFails(choose('sam', 'alex', []));                             // taking Alex off
+  await assertFails(updateDoc(doc(as('sam'), 'friendships', pair('sam', 'alex')), { busyOnly: ['alex', 'sam'], status: 'accepted' }));
 });
