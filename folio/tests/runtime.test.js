@@ -6,7 +6,7 @@ import { Area, Storage } from 'folio/Storage.js';
 import { Events } from 'folio/Events.js';
 import * as time from 'folio/time.js';
 import * as check from 'folio/check.js';
-import { el, missing, dialog } from 'folio/ui.js';
+import { el, missing, dialog, swipeDirection } from 'folio/ui.js';
 import { Tabs } from 'folio/Tabs.js';
 import { mediaFor } from 'folio/appearance.js';
 import { getText } from 'folio/net.js';
@@ -195,4 +195,12 @@ test('getText: in the phone apps the phone downloads it, with HTTP errors kept',
   let error = null;
   try { await getText('https://example.ac.uk/gone.ics', phone(404, '')); } catch (err) { error = err; }
   assert.equal(error?.status, 404);
+});
+
+test('a long enough swipe counts, a short one springs back, a quick flick counts sooner', () => {
+  assert.equal(swipeDirection(-80), 1); // to the left: next
+  assert.equal(swipeDirection(80), -1); // to the right: previous
+  assert.equal(swipeDirection(-40), 0);
+  assert.equal(swipeDirection(-40, { fast: true }), 1);
+  assert.equal(swipeDirection(20, { fast: true }), 0);
 });

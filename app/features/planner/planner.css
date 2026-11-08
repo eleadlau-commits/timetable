@@ -47,3 +47,12 @@
 @media (prefers-reduced-motion: reduce) {
   .planner-view.zoom-in, .planner-view.zoom-out { animation: none; }
 }
+
+/* Swiping Day, Week or Month: the calendar follows the finger, slides off, and the next day,
+   week or month slides in from the other side. */
+.planner-view.dragging { transition: none; }
+.planner-view.settle { transition: transform .13s ease-in, opacity .13s ease-in; }
+.planner-view.slide-in { transition: transform .28s cubic-bezier(.2, .8, .2, 1), opacity .28s; }
+@media (prefers-reduced-motion: reduce) {
+  .planner-view.settle, .planner-view.slide-in { transition: none; }
+}

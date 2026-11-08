@@ -11,4 +11,4 @@ export { Feature } from './Feature.js';
 export * as ui from './ui.js';
 export * as time from './time.js';
 export * as check from './check.js';
-export const VERSION = '1.12.0';
+export const VERSION = '1.13.0';

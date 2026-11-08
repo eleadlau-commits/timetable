@@ -172,6 +172,66 @@ export function onSwipe(target, fn) {
   }, { passive: true });
 }
 
+// How far a sideways swipe has to go to count, as a rule with no screen code (so it's testable).
+// Returns +1 (to the left: next), -1 (to the right: previous) or 0 (too short: spring back).
+// A quick flick counts sooner than a slow drag.
+export const SWIPE = { decide: 8, distance: 60, flick: 30, flickMs: 250 };
+export function swipeDirection(dx, { fast = false } = {}) {
+  const needed = fast ? SWIPE.flick : SWIPE.distance;
+  if (Math.abs(dx) < needed) return 0;
+  return dx < 0 ? 1 : -1;
+}
+
+// A sideways drag that follows the finger. Once a single finger has moved far enough sideways,
+// accept(startElement) decides whether this drag is ours; if it is, move(dx) is called as the
+// finger moves and end(direction) when it lifts (direction as swipeDirection gives it; 0 means
+// spring back). A second finger, or the drag being cancelled, ends it with 0. A tap that a drag
+// ends on doesn't count as a tap.
+export function followSwipe(target, { accept = () => true, move = () => {}, end = () => {} }) {
+  let drag = null; // { x, y, dx, at, start, sideways, ours }
+  let swallowClick = false;
+  const finish = (direction) => {
+    const d = drag;
+    drag = null;
+    if (!d?.ours) return;
+    swallowClick = true;
+    setTimeout(() => { swallowClick = false; }, 400);
+    end(direction);
+  };
+  target.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 1) return finish(0);
+    const t = e.changedTouches[0];
+    drag = { x: t.clientX, y: t.clientY, dx: 0, at: Date.now(), start: e.target, sideways: null, ours: false };
+  }, { passive: true });
+  target.addEventListener('touchmove', (e) => {
+    const d = drag;
+    if (!d || e.touches.length > 1) return;
+    const t = e.changedTouches[0];
+    d.dx = t.clientX - d.x;
+    const dy = t.clientY - d.y;
+    if (d.sideways === null && Math.hypot(d.dx, dy) > SWIPE.decide) {
+      d.sideways = Math.abs(d.dx) > Math.abs(dy) * 1.2;
+      d.ours = d.sideways && !!accept(d.start);
+    }
+    if (d.ours) move(d.dx);
+  }, { passive: true });
+  target.addEventListener('touchend', () => {
+    if (drag) finish(swipeDirection(drag.dx, { fast: Date.now() - drag.at < SWIPE.flickMs }));
+  }, { passive: true });
+  target.addEventListener('touchcancel', () => finish(0), { passive: true });
+  target.addEventListener('click', (e) => {
+    if (!swallowClick) return;
+    swallowClick = false;
+    e.stopPropagation();
+    e.preventDefault();
+  }, true);
+}
+
+// Whether the phone asks for less movement on screen.
+export function reduceMotion() {
+  return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+}
+
 // Whether a sideways swipe starting on `node` belongs to something there, rather than to the
 // page: an element marked data-own-swipe (e.g. Home's pages), or something that scrolls sideways.
 export function ownsSwipe(node, stop) {
