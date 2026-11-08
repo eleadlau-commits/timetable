@@ -31,7 +31,8 @@ const BUILDINGS = {
   IM: ['Al-Qasimi Building', 'Elvet Hill Road, Durham', 54.76566, -1.58165],
   L: ['Psychology Building', 'Upper Mountjoy, Stockton Road, Durham', 54.7654, -1.57162],
   MCS: ['Mathematical Sciences and Computer Science Building', 'Stockton Road, Durham', 54.76337, -1.57197],
-  MHL: ['Mill Hill Lane', 'Mill Hill Lane, Durham', 54.76307, -1.58111],
+  // The old Business School building on Mill Hill Lane (DH1 3LB), not the lane's east end by Elvet Hill.
+  MHL: ['Old Business School, Mill Hill Lane', 'Mill Hill Lane, Durham DH1 3LB', 54.7642, -1.5861],
   MU: ['Divinity House', 'Palace Green, Durham', 54.77398, -1.57548],
   NB48: ['48–49 North Bailey', 'North Bailey, Durham', 54.77493, -1.57474],
   OC: ['Ogden Centre for Fundamental Physics', 'South Road, Durham', 54.76669, -1.57402],

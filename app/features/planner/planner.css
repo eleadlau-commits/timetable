@@ -56,3 +56,32 @@
 @media (prefers-reduced-motion: reduce) {
   .planner-view.settle, .planner-view.slide-in { transition: none; }
 }
+
+/* Pull down to refresh: the spinner above the calendar comes down with the finger (--pull),
+   turning as it goes (--turn), and spins while the timetable downloads. */
+.planner-pull {
+  height: var(--pull, 0px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  color: var(--muted);
+  transition: height .2s cubic-bezier(.2, .8, .2, 1);
+}
+.planner-pull.pulling { transition: none; }
+.planner-pull.ready, .planner-pull.refreshing { color: var(--accent); }
+.planner-pull-spinner {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 4px rgb(0 0 0 / .15);
+  transform: rotate(var(--turn, 0deg));
+}
+.planner-pull-spinner svg { width: 18px; height: 18px; }
+.planner-pull.refreshing .planner-pull-spinner svg { animation: spin 0.9s linear infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .planner-pull { transition: none; }
+  .planner-pull.refreshing .planner-pull-spinner svg { animation: none; }
+}

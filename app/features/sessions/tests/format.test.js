@@ -1,5 +1,5 @@
 import { test, assert } from 'folio/testing';
-import { moduleKey, hueFor, kindOf, webLink } from '../format.js';
+import { moduleKey, moduleTitle, hueFor, kindOf, webLink } from '../format.js';
 
 test('module codes group sessions of the same module', () => {
   assert.equal(moduleKey('ECON1011 Principles of Economics Lecture'), 'ECON1011');
@@ -21,4 +21,14 @@ test('the session type comes from the title, then the description', () => {
 test('a web link in a location is found', () => {
   assert.equal(webLink('Online: https://teams.example.com/meet/1'), 'https://teams.example.com/meet/1');
   assert.equal(webLink('CLC013'), null);
+});
+
+test('the module\'s name comes from the title, without code or type', () => {
+  assert.equal(moduleTitle('ECON1011 Principles of Economics Lecture'), 'Principles of Economics');
+  assert.equal(moduleTitle('MATH2811 - Mathematical Methods II'), 'Mathematical Methods II');
+  assert.equal(moduleTitle('MATH2781 - Algebra II - Tutorial'), 'Algebra II');
+  assert.equal(moduleTitle('Algebra II (MATH2781) Lectures'), 'Algebra II');
+  assert.equal(moduleTitle('ECON 1011 Seminar Group 4'), '');
+  assert.equal(moduleTitle('GEOG1041'), '');
+  assert.equal(moduleTitle('Careers talk'), 'Careers talk');
 });

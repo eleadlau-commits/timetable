@@ -2,6 +2,7 @@
 // to pick the day. Tap a day in the strip, or use the arrows or arrow keys, to move.
 
 import { Feature, ui, time } from 'folio';
+import { mondayOf } from './weeks.js';
 
 const { el } = ui;
 const HOUR_PX = 76; // keep in sync with the hour lines in day-view.css
@@ -29,6 +30,11 @@ export default class DayView extends Feature {
     this.sessions.select(time.addDays(this.sessions.selected, days));
   }
 
+  // The arrows by the week strip jump to the Monday of the next or previous week.
+  moveWeek(direction) {
+    this.sessions.select(mondayOf(this.sessions.selected, direction));
+  }
+
   mount(container) {
     this.strip = el('div', { class: 'week-days' });
     this.title = el('h2');
@@ -37,9 +43,9 @@ export default class DayView extends Feature {
     this.list = el('div', { class: 'day-list' });
     container.append(
       el('div', { class: 'weekbar' },
-        el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Previous week', onclick: () => this.move(-7) }, ui.icon('left')),
+        el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Previous week', onclick: () => this.moveWeek(-1) }, ui.icon('left')),
         this.strip,
-        el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Next week', onclick: () => this.move(7) }, ui.icon('right'))),
+        el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Next week', onclick: () => this.moveWeek(1) }, ui.icon('right'))),
       el('div', { class: 'dayhead' }, this.title, this.todayButton),
       this.cards,
       this.list);
