@@ -3,6 +3,7 @@ import {
   makeCode, readCode, pairId, firstName, cleanName, initials, sharedClasses, fingerprint,
   nowStatus, byDay, freeTogether, stalePeople, explainProblem, CODE_PATTERN,
   inviteLink, codeFrom, busyTimes, onlyBusy, whoIsFree, WEB_ADDRESS,
+  groupFree, toggleShown, plannerList, plannerHue, friendSessions, cleanGroup, PLANNER_HUES,
 } from '../rules.js';
 
 const at = (day, hour, minute = 0) => new Date(2026, 9, day, hour, minute);
@@ -153,4 +154,69 @@ test('the Home widget lists free friends first, then busy, then the rest', () =>
   assert.equal(list[2].now.until, +at(5, 10, 30));
   assert.equal(list[4].now, null);
   assert.equal(list[5].now, null);                                   // paused counts as not shared
+});
+
+test('a group\'s free times: everyone\'s classes together, from now on', () => {
+  const busy = [
+    { s: +at(5, 9), e: +at(5, 11) },          // yours
+    { s: +at(5, 10), e: +at(5, 12) },         // Sam's
+    { s: +at(5, 14), e: +at(5, 15) },         // Alex's
+    { s: +at(6, 9), e: +at(6, 18) },          // the next day, all day
+  ];
+  const days = groupFree(busy, at(5, 0), { days: 3, now: +at(5, 8) });
+  assert.equal(days.length, 3);
+  assert.deepEqual(days[0].free, [{ s: +at(5, 12), e: +at(5, 14) }, { s: +at(5, 15), e: +at(5, 18) }]);
+  assert.deepEqual(days[1].free, []);
+  assert.deepEqual(days[2].free, [{ s: +at(7, 9), e: +at(7, 18) }]);
+  // Later in the day, only what's left.
+  const later = groupFree(busy, at(5, 0), { days: 1, now: +at(5, 16, 50) });
+  assert.deepEqual(later[0].free, [{ s: +at(5, 16, 50), e: +at(5, 18) }]);
+  assert.deepEqual(groupFree(busy, at(5, 0), { days: 1, now: +at(5, 17, 45) })[0].free, []);   // under 30 minutes left
+});
+
+test('up to 4 friends are shown in the Planner', () => {
+  assert.deepEqual(toggleShown([], 'a'), { shown: ['a'], full: false });
+  assert.deepEqual(toggleShown(['a', 'b'], 'a'), { shown: ['b'], full: false });
+  assert.deepEqual(toggleShown(['a', 'b', 'c', 'd'], 'e'), { shown: ['a', 'b', 'c', 'd'], full: true });
+  assert.deepEqual(toggleShown(['a', 'b', 'c', 'd'], 'd'), { shown: ['a', 'b', 'c'], full: false });
+});
+
+test('the Planner\'s list: pinned first, then by name, and search', () => {
+  const people = [{ uid: '1', name: 'Zoe' }, { uid: '2', name: 'Amy' }, { uid: '3', name: 'Sam' }, { uid: '4', name: 'Samir' }];
+  assert.deepEqual(plannerList(people).map((p) => p.name), ['Amy', 'Sam', 'Samir', 'Zoe']);
+  assert.deepEqual(plannerList(people, ['1']).map((p) => p.name), ['Zoe', 'Amy', 'Sam', 'Samir']);
+  assert.deepEqual(plannerList(people, [], ' sam ').map((p) => p.name), ['Sam', 'Samir']);
+  assert.equal(people[0].name, 'Zoe');                               // the list isn't changed
+});
+
+test('friends get their own colour in the Planner, or one in turn', () => {
+  assert.equal(plannerHue(140, 0), 140);
+  assert.equal(plannerHue(0, 3), 0);                                 // red is a real choice
+  assert.equal(plannerHue(null, 0), PLANNER_HUES[0]);
+  assert.equal(plannerHue(undefined, PLANNER_HUES.length + 1), PLANNER_HUES[1]);
+});
+
+test('a friend\'s classes become faint sessions with their name', () => {
+  const [a, b] = friendSessions({ uid: 'u1', name: 'Sam', classes: [
+    { t: 'MATH1001 Lecture', s: +at(5, 9), e: +at(5, 10), l: 'CLC013' },
+    { s: +at(5, 11), e: +at(5, 12) },
+  ] }, 200);
+  assert.equal(a.title, 'Sam · MATH1001 Lecture');
+  assert.equal(a.short, 'Sam');
+  assert.equal(a.location, 'CLC013');
+  assert.equal(+a.start, +at(5, 9));
+  assert.ok(a.others && a.outline && a.hue === 200 && a.who === 'Sam');
+  assert.equal(a.module, 'friend:u1');
+  assert.equal(b.title, 'Sam · Busy');
+  assert.equal(b.location, '');
+  assert.ok(a.key !== b.key);
+  assert.deepEqual(friendSessions({ uid: 'u', name: 'X', classes: null }, 0), []);
+});
+
+test('groups need a name and friends in them', () => {
+  const friends = ['a', 'b', 'c'];
+  assert.deepEqual(cleanGroup({ id: 'g', name: '  Flat  mates ', members: ['a', 'b', 'a', 'z'] }, friends), { id: 'g', name: 'Flat mates', members: ['a', 'b'] });
+  assert.equal(cleanGroup({ id: 'g', name: ' ', members: ['a'] }, friends), null);
+  assert.equal(cleanGroup({ id: 'g', name: 'Flat', members: ['z'] }, friends), null);
+  assert.equal(cleanGroup({ id: 'g', name: 'x'.repeat(40), members: ['a'] }, friends).name.length, 30);
 });

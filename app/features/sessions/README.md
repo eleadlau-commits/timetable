@@ -5,7 +5,7 @@ How a session (a class) looks. It draws the session cards the views use, and the
 ## What it offers other features
 
 **Service `sessions`:**
-- **Finding sessions:** `all` (the timetable's classes), `extra` (sessions from `session.extra`, such as your own events), `onDay(date)` (both), `hiddenNote(date)`, `isShown(s)`
+- **Finding sessions:** `all` (the timetable's classes), `extra` (sessions from `session.extra`, such as your own events), `others` (other people's sessions from `session.others`, such as friends' classes), `onDay(date, { others })` (classes and extra ones; with `others: true` other people's too, which only the Day and Week views ask for), `hiddenNote(date)`, `isShown(s)`
 - **How they look:** `name(s)`, `shortName(s)`, `moduleName(s)` (the chosen name, else the title without code and type, e.g. "Mathematical Methods II", else the code; `format.js` `moduleTitle`), `hue(s)`, `defaultHue(module)`, `kind(s)`, `badge(s)`, `moduleOf(s)`, `placeLabel(location)`, `placeLink(location)`
 - **Drawing:** `card(s, { now, extra })`, `open(s)`
 - **The day the views show:** `selected`, `select(date)`
@@ -23,6 +23,7 @@ How a session (a class) looks. It draws the session cards the views use, and the
 | `session.card` | extra lines on cards | Notes |
 | `session.details` | sections in the details window | Maps, Notes, Reminders, Modules, Own events |
 | `session.extra` | adds sessions that aren't classes (`{ sessions() }`; call `changed()` when they change). They show in the views through `onDay`, but not in `all`, so they're never shared with friends or listed as modules | Own events |
+| `session.others` | other people's sessions to show faintly next to yours (`{ sessions() }`, each with `others: true`, `who`, `hue` and an optional `short` name for the week grid; call `changed()` when they change). Only `onDay(date, { others: true })` includes them (the Day and Week views), so they never count as yours in Up next, reminders or calendar dots; hiding a module doesn't hide them, and Notes, Reminders and Modules leave them out of the details window | Friends |
 
 A session can carry `hue` (its colour, before any from `session.colour`) and `outline: true` (drawn as an outline instead of filled: cards here, and the Day and Week views' blocks). Own events use both, plus `own: true`.
 

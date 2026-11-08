@@ -15,6 +15,14 @@ Swap timetables with friends. The **Friends** button (two people) in the top bar
 - **What each person sees:** tap someone, then **Everything** (your classes, times and rooms) or **Only free or busy** (just the times you're busy, joined together, without what or where). It works for requests too, before you accept.
 - **Share my timetable** (at the bottom): switch it off to pause sharing with everyone. Friends see *Has paused sharing* until you switch it back on.
 
+## Groups
+
+**Groups** (on the Friends page, under your friends): **New group**, a name (up to 30 letters) and who's in it (friends only). Open one to see **When you're all free** for the next 7 days (09:00–18:00, at least 30 minutes, from everyone's shared classes and your own classes and events; anyone not sharing, or paused, is left out and named), **Show in the Planner** (its first 4 people), **Change** and **Delete**. Groups are saved on this phone only (`groups`), and nobody is told they're in one. Up to 20.
+
+## Friends in the Planner
+
+The two-people button next to the Planner's level switch (`planner.buttons`, with how many are shown) opens **Friends in the Planner**: tick up to 4 friends (`MAX_SHOWN`), or tap a group; **Pin** keeps a friend at the top; a search box appears with more than 6 friends; **Clear** hides them all. Their classes are added through Sessions' `session.others` slot, so they show **only in the Day and Week views**, faint with a dashed edge, named "Sam · MATH1001 Lecture" (or "Sam · Busy" for friends who share only free or busy), in the friend's tint or, without one, the next of `PLANNER_HUES`. They never count as yours: not in Up next, reminders, calendar dots or Free together, hiding a module doesn't hide them, and the details window leaves out notes, reminders and the module button. The shown friends' classes are kept on the phone (`overlay`), refreshed whenever friends are loaded.
+
 ## The Home widget
 
 **Friends**, on Home as the app comes (wide; tall too), for students. It shows how many friends are free right now and their faces with a green (free) or orange (busy) dot; tall, a list with *Free till 14:00* or *Busy till 11:00*. Tap it to open Friends. It works from what was last loaded (`circle`: your friends' next two days), and loads friends again in the background when the app opens or comes back, at most every 20 minutes, only for people who have opened Friends before (so it never makes a friend code by itself). Signed out, or with no friends yet, it says so.
@@ -51,7 +59,7 @@ Their classes for the **next 4 weeks**, day by day, with times and rooms, and **
 
 - **Phone permissions:** the camera (Android `CAMERA`, iPhone `NSCameraUsageDescription`, shared with the campus card), for scanning QR codes.
 
-- **Requires:** `account`. **Uses if present:** `sessions` (your classes, and which modules are hidden). Without sessions you can still see friends' timetables, but don't share your own.
+- **Requires:** `account`. **Uses if present:** `sessions` (your classes, which modules are hidden, and `session.others` for the Planner), `planner` (its button). Without sessions you can still see friends' timetables, but don't share your own.
 
 ## What it saves on the phone
 
@@ -60,6 +68,9 @@ Their classes for the **next 4 weeks**, day by day, with times and rooms, and **
 - `tints`: `{ [friend]: hue }`, colours you chose for friends' timetables (none means grey).
 - `circle`: `{ uid, at, people: [{ uid, name, classes, paused }] }`, friends' next two days, for the Home widget.
 - `invite`: a friend code from an invite link, kept while you sign in.
+- `groups`: `[{ id, name, members }]`, your groups.
+- `planner`: `{ shown, pinned }`, friends shown in the Planner, and pinned to the top of its list.
+- `overlay`: `{ uid, at, people: { [uid]: { name, classes } } }`, the shown friends' classes.
 - `profile` also has `paused`.
 
 ## How to check it works

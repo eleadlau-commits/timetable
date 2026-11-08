@@ -11,6 +11,9 @@
 //   You can also pause sharing altogether.
 // - A friend's timetable is shown in grey, or a tint you choose for them.
 // - A Home widget shows which friends are free right now, from what was last loaded.
+// - Groups (on this phone only): a few friends together, with the times you're all free this week.
+// - Friends in the Planner: the button next to the level switch picks up to 4 friends (or a
+//   group) whose classes are drawn faintly in the Day and Week views (Sessions' 'session.others').
 // The database rules (firebase/firestore.rules) enforce all of this; store.js does the writes.
 //
 // Saved data: 'profile' → { uid, name, code, people, paused } a copy of your online profile
@@ -19,14 +22,19 @@
 //             'circle'  → { uid, at, people: [{ uid, name, classes, paused }] } friends' next
 //                         two days, for the Home widget
 //             'invite'  → a friend code from an invite link, kept while you sign in
+//             'groups'  → [{ id, name, members: [uid] }] your groups (never sent anywhere)
+//             'planner' → { shown: [uid], pinned: [uid] } friends shown in the Planner, and pinned
+//             'overlay' → { uid, at, people: { [uid]: { name, classes } } } the shown friends'
+//                         classes (their next 4 weeks), for the Planner
 
 import { Feature, ui, time } from 'folio';
 import { FriendStore } from './store.js';
 import {
   codeFrom, inviteLink, firstName, cleanName, sharedClasses, fingerprint, stalePeople, explainProblem,
-  onlyBusy, whoIsFree, SHARE_DAYS,
+  onlyBusy, whoIsFree, groupFree, toggleShown, plannerList, plannerHue, friendSessions, cleanGroup,
+  SHARE_DAYS, MAX_SHOWN, MAX_GROUPS,
 } from './rules.js';
-import { personRow, statusLine, statusTag, tintChoice, shareChoice, timetableView, friendsWidget } from './screens.js';
+import { personRow, statusLine, statusTag, tintChoice, shareChoice, timetableView, friendsWidget, avatar as avatarFor } from './screens.js';
 import { startScanner } from './scanner.js';
 
 const { el } = ui;
@@ -41,11 +49,24 @@ export default class Friends extends Feature {
     this.sessions = this.use('sessions');
     this.store = new FriendStore(this.account);
     this.tints = this.storage.get('tints', {});
+    this.groups = this.storage.get('groups', []);
+    this.planner = { shown: [], pinned: [], ...this.storage.get('planner', {}) };
     this.state = { profile: null, friendships: [], timetables: {}, loading: false, error: null };
 
     this.add('header.actions', { id: 'friends', label: 'Friends', icon: 'people', order: 10, visible: () => this.forStudents(), onClick: () => this.open() });
     this.add('account.sections', { order: 20, render: (user) => this.accountSection(user) });
     this.add('account.cleanup', { order: 10, remove: (db, uid) => FriendStore.removeAll(db, uid) });
+    this.add('session.others', { sessions: () => this.plannerSessions() });
+    this.add('planner.buttons', {
+      order: 6,
+      render: () => (!this.forStudents() ? null : el('button', {
+        type: 'button',
+        class: `icon-btn fr-planner-btn${this.planner.shown.length ? ' on' : ''}`,
+        title: 'Friends in the Planner',
+        'aria-label': this.planner.shown.length ? `Friends in the Planner, ${this.planner.shown.length} shown` : 'Friends in the Planner',
+        onclick: () => this.openPicker(),
+      }, ui.icon('people'), this.planner.shown.length > 0 && el('span', { class: 'fr-count' }, this.planner.shown.length))),
+    });
     this.add('home.widgets', {
       id: 'friends', label: 'Friends', order: 35, sizes: ['wide', 'tall'],
       render: (size) => this.widget(size),
@@ -77,6 +98,8 @@ export default class Friends extends Feature {
     this.storage.remove('profile');
     this.storage.remove('shared');
     this.storage.remove('circle');
+    this.storage.remove('overlay');
+    this.sessions?.changed();
     this.state = { profile: null, friendships: [], timetables: {}, loading: false, error: null };
   }
 
@@ -136,7 +159,23 @@ export default class Friends extends Feature {
       };
     });
     this.storage.set('circle', { uid: this.me.uid, at: now, people });
+    this.keepOverlay();
     this.refresh();
+  }
+
+  // The classes of friends shown in the Planner, kept on the phone so the Planner can draw them
+  // without loading anything. Friends who are no longer friends drop out.
+  keepOverlay() {
+    const friends = new Map(this.state.friendships.filter((f) => f.status === 'accepted').map((f) => [this.other(f), this.nameOf(f)]));
+    const shown = this.planner.shown.filter((uid) => friends.has(uid));
+    if (shown.length !== this.planner.shown.length) this.savePlanner({ shown });
+    const people = {};
+    for (const uid of shown) {
+      const shared = this.state.timetables[uid];
+      people[uid] = { name: friends.get(uid), classes: shared && !shared.paused ? shared.classes : [] };
+    }
+    this.storage.set('overlay', { uid: this.me.uid, at: Date.now(), people });
+    this.sessions?.changed();
   }
 
   // Keeps your shared timetable up to date while you have friends or requests; deletes it when not.
@@ -251,6 +290,7 @@ export default class Friends extends Feature {
         right: el('button', { type: 'button', class: 'btn small', onclick: () => this.end(f, 'Request cancelled.') }, 'Cancel'),
       })),
       !this.state.friendships.length && ui.hint('No friends yet. Send someone your invite, show them your QR code, or add their code.'),
+      groups.friends.length > 0 && this.groupsSection(),
       el('div', { class: 'fr-pause' },
         el('span', {}, el('b', {}, 'Share my timetable'),
           el('small', {}, profile.paused ? 'Paused: friends see "Has paused sharing".' : 'Friends see what you chose for each of them.')),
@@ -431,6 +471,213 @@ export default class Friends extends Feature {
     if (fresh && this.friendWindow?.isOpen) { this.current = fresh; this.drawFriend(); }
   }
 
+  // ---- Groups: a few friends together (on this phone only) ----
+
+  // Accepted friends: [{ uid, name }], from what's loaded, or what was last loaded.
+  friendList() {
+    if (this.state.profile) {
+      return this.state.friendships.filter((f) => f.status === 'accepted').map((f) => ({ uid: this.other(f), name: this.nameOf(f) }));
+    }
+    const circle = this.storage.get('circle', null);
+    return circle?.uid === this.me?.uid ? circle.people.map(({ uid, name }) => ({ uid, name })) : [];
+  }
+
+  saveGroups() {
+    this.storage.set('groups', this.groups);
+  }
+
+  groupsSection() {
+    const names = new Map(this.friendList().map((p) => [p.uid, p.name]));
+    return el('section', { class: 'fr-group' },
+      el('h3', {}, `Groups${this.groups.length ? ` (${this.groups.length})` : ''}`),
+      this.groups.length > 0 && el('ul', {}, this.groups.map((g) => {
+        const members = g.members.filter((uid) => names.has(uid));
+        return el('li', { class: 'fr-row' },
+          el('button', { type: 'button', class: 'fr-open', onclick: () => this.openGroup(g) },
+            el('span', { class: 'fr-avatar fr-group-icon' }, ui.icon('people')),
+            el('span', { class: 'fr-who' }, el('b', {}, g.name), el('small', {}, members.map((uid) => names.get(uid)).join(', ') || 'Nobody left in it'))));
+      })),
+      el('button', { type: 'button', class: 'btn block', onclick: () => this.openGroup(null), disabled: this.groups.length >= MAX_GROUPS }, ui.icon('plus'), ' New group'),
+      ui.hint('Groups stay on this phone. Nobody is told they\'re in one.', { small: true }));
+  }
+
+  // A group: its free times this week, and changing it. g null makes a new one.
+  openGroup(g) {
+    if (!this.groupWindow) this.groupWindow = ui.dialog({ title: 'Group', className: 'friends-group' });
+    const friends = this.friendList();
+    if (!g || this.editingGroup === g.id) return this.editGroup(g, friends);
+    this.groupWindow.setTitle(g.name);
+    const names = new Map(friends.map((p) => [p.uid, p.name]));
+    const members = g.members.filter((uid) => names.has(uid));
+    const left = [];
+    const busy = [];
+    for (const uid of members) {
+      const shared = this.state.timetables[uid];
+      if (!shared || shared.paused) left.push(names.get(uid));
+      else busy.push(...shared.classes);
+    }
+    if (this.sessions) {
+      for (let i = 0; i < 7; i++) {
+        busy.push(...this.sessions.onDay(time.addDays(new Date(), i)).filter((x) => !x.cancelled && !x.allDay).map((x) => ({ s: +x.start, e: +x.end })));
+      }
+    }
+    const days = groupFree(busy);
+    const clock = (ms) => time.formatTime(new Date(ms));
+    this.groupWindow.setContent(el('div', { class: 'fr-page' },
+      el('p', { class: 'fr-me' }, members.map((uid) => names.get(uid)).join(', ') || 'Nobody left in this group.'),
+      el('section', { class: 'fr-free-week' },
+        el('h3', {}, 'When you\'re all free'),
+        ui.hint('Between 9:00 and 18:00, at least 30 minutes, from everyone\'s classes and your own events.', { small: true }),
+        left.length > 0 && ui.hint(`${left.join(', ')} ${left.length > 1 ? 'aren\'t' : 'isn\'t'} sharing a timetable right now, so ${left.length > 1 ? 'they\'re' : 'they\'re'} left out.`, { small: true }),
+        days.map(({ day, free }) => el('div', { class: 'fr-free-day' },
+          el('b', {}, `${time.dayLabel(day)} · ${day.toLocaleDateString([], { day: 'numeric', month: 'short' })}`),
+          free.length
+            ? el('span', { class: 'fr-free-times' }, free.map((f) => el('span', { class: 'fr-tag free' }, `${clock(f.s)}–${clock(f.e)}`)))
+            : el('small', {}, 'No time when you\'re all free')))),
+      el('button', { type: 'button', class: 'btn primary block', onclick: () => this.showGroup(g) }, 'Show in the Planner'),
+      el('div', { class: 'fr-buttons' },
+        el('button', { type: 'button', class: 'btn', onclick: () => { this.editingGroup = g.id; this.openGroup(g); } }, 'Change'),
+        el('button', { type: 'button', class: 'btn danger', onclick: () => this.deleteGroup(g) }, 'Delete'))));
+    this.groupWindow.open();
+  }
+
+  editGroup(g, friends) {
+    this.groupWindow.setTitle(g ? `Change ${g.name}` : 'New group');
+    const name = el('input', { class: 'field', type: 'text', maxlength: 30, value: g?.name || '', placeholder: 'e.g. Flatmates, Maths study group', 'aria-label': 'Group name' });
+    const chosen = new Set(g?.members || []);
+    const error = ui.errorBox();
+    const done = () => {
+      this.editingGroup = null;
+      const group = cleanGroup({ id: g?.id || `${Date.now().toString(36)}`, name: name.value, members: [...chosen] }, friends.map((p) => p.uid));
+      if (!group) return error.show(!name.value.trim() ? 'Give the group a name.' : 'Tick at least one friend.');
+      this.groups = g ? this.groups.map((x) => (x.id === g.id ? group : x)) : [...this.groups, group];
+      this.saveGroups();
+      this.draw();
+      this.openGroup(group);
+    };
+    this.groupWindow.setContent(el('div', { class: 'fr-page' },
+      el('label', { class: 'label' }, 'Name'), name,
+      el('span', { class: 'label' }, 'Who\'s in it'),
+      friends.length ? el('ul', { class: 'fr-pick' }, plannerList(friends).map((p) => el('li', {},
+        el('label', { class: 'fr-pick-row' },
+          el('input', { type: 'checkbox', checked: chosen.has(p.uid), onchange: (e) => (e.target.checked ? chosen.add(p.uid) : chosen.delete(p.uid)) }),
+          avatarFor(p.name, this.tints[p.uid]), el('span', {}, p.name))))) : ui.hint('Add some friends first.'),
+      error,
+      el('button', { type: 'button', class: 'btn primary block', onclick: done }, 'Save'),
+      g && el('button', { type: 'button', class: 'btn block', onclick: () => { this.editingGroup = null; this.openGroup(g); } }, 'Cancel')));
+    this.groupWindow.open();
+    if (!g) name.focus();
+  }
+
+  deleteGroup(g) {
+    if (!confirm(`Delete the group "${g.name}"? Your friends stay your friends.`)) return;
+    this.groups = this.groups.filter((x) => x.id !== g.id);
+    this.saveGroups();
+    this.groupWindow.close();
+    this.draw();
+  }
+
+  // Shows a group's members in the Planner (up to 4), instead of whoever was shown.
+  showGroup(g) {
+    const friends = new Set(this.friendList().map((p) => p.uid));
+    const members = g.members.filter((uid) => friends.has(uid));
+    this.savePlanner({ shown: members.slice(0, MAX_SHOWN) });
+    this.fillOverlay();
+    this.groupWindow?.close();
+    this.window?.close();
+    this.toast(members.length > MAX_SHOWN ? `Showing the first ${MAX_SHOWN} of ${g.name} in the Planner.` : `Showing ${g.name} in the Planner.`);
+    this.app.shell.selectView('week');
+  }
+
+  // ---- Friends in the Planner ----
+
+  savePlanner(change) {
+    this.planner = { ...this.planner, ...change };
+    this.storage.set('planner', this.planner);
+  }
+
+  // Shown friends' classes as sessions, drawn faintly in the Day and Week views.
+  plannerSessions() {
+    if (!this.me || !this.planner.shown.length) return [];
+    const overlay = this.storage.get('overlay', null);
+    if (overlay?.uid !== this.me.uid) return [];
+    return this.planner.shown.flatMap((uid, i) => {
+      const person = overlay.people[uid];
+      return person ? friendSessions({ uid, ...person }, plannerHue(this.tints[uid], i)) : [];
+    });
+  }
+
+  // After choosing who's shown: their classes, from what's loaded, or by loading.
+  fillOverlay() {
+    const loaded = this.state.profile && this.planner.shown.every((uid) => uid in this.state.timetables);
+    if (loaded) this.keepOverlay();
+    else if (this.me && navigator.onLine) this.load();
+    else this.sessions?.changed();
+    this.refresh();
+  }
+
+  openPicker() {
+    if (!this.picker) this.picker = ui.dialog({ title: 'Friends in the Planner', className: 'friends-picker', onClose: () => this.refresh() });
+    this.query = '';
+    this.drawPicker();
+    this.picker.open();
+    if (this.me && !this.state.profile && this.cached && navigator.onLine) this.load().then(() => this.picker?.isOpen && this.drawPicker());
+  }
+
+  drawPicker() {
+    if (!this.picker) return;
+    if (!this.me) {
+      return this.picker.setContent(el('section', { class: 'fr-out' },
+        el('h3', {}, 'Sign in to see friends here'),
+        el('p', {}, 'Show friends\' classes faintly next to yours, to find a time to meet.'),
+        el('button', { type: 'button', class: 'btn primary block', onclick: () => { this.picker.close(); this.account.open(); } }, 'Sign in')));
+    }
+    const friends = this.friendList();
+    if (!friends.length) {
+      return this.picker.setContent(el('div', { class: 'fr-page' },
+        ui.missing('No friends yet'),
+        el('button', { type: 'button', class: 'btn primary block', onclick: () => { this.picker.close(); this.open(); } }, 'Open Friends')));
+    }
+    const { shown, pinned } = this.planner;
+    const listBox = el('ul', { class: 'fr-pick' });
+    const drawList = () => listBox.replaceChildren(...plannerList(friends, pinned, this.query).map((p) => {
+      const on = shown.includes(p.uid);
+      const hue = on ? plannerHue(this.tints[p.uid], shown.indexOf(p.uid)) : this.tints[p.uid];
+      const isPinned = pinned.includes(p.uid);
+      return el('li', { class: 'fr-pick-item' },
+        el('label', { class: 'fr-pick-row' },
+          el('input', { type: 'checkbox', checked: on, onchange: () => this.toggleFriend(p.uid) }),
+          avatarFor(p.name, hue ?? null), el('span', {}, p.name)),
+        el('button', {
+          type: 'button', class: `link-btn fr-pin${isPinned ? ' on' : ''}`, 'aria-pressed': String(isPinned),
+          'aria-label': isPinned ? `Unpin ${p.name}` : `Pin ${p.name} to the top`,
+          onclick: () => { this.savePlanner({ pinned: isPinned ? pinned.filter((u) => u !== p.uid) : [...pinned, p.uid] }); this.drawPicker(); },
+        }, isPinned ? 'Pinned' : 'Pin'));
+    }));
+    drawList();
+    const search = friends.length > 6 && el('input', {
+      class: 'field', type: 'search', placeholder: 'Search friends', value: this.query, 'aria-label': 'Search friends',
+      oninput: (e) => { this.query = e.target.value; drawList(); },
+    });
+    const names = new Map(friends.map((p) => [p.uid, p.name]));
+    this.picker.setContent(el('div', { class: 'fr-page' },
+      ui.hint(`Their classes are drawn faintly in the Day and Week views, in their colour. Up to ${MAX_SHOWN} at once.`, { small: true }),
+      shown.length > 0 && el('div', { class: 'fr-shown' },
+        el('span', {}, `Showing ${shown.map((uid) => names.get(uid)).filter(Boolean).join(', ')}`),
+        el('button', { type: 'button', class: 'btn small', onclick: () => { this.savePlanner({ shown: [] }); this.fillOverlay(); this.drawPicker(); } }, 'Clear')),
+      this.groups.length > 0 && el('section', { class: 'fr-group' },
+        el('h3', {}, 'Groups'),
+        el('div', { class: 'fr-chips' }, this.groups.map((g) => el('button', { type: 'button', class: 'btn small', onclick: () => { this.showGroup(g); this.picker.close(); } }, g.name)))),
+      el('section', { class: 'fr-group' }, el('h3', {}, 'Friends'), search, listBox)));
+  }
+
+  toggleFriend(uid) {
+    const { shown, full } = toggleShown(this.planner.shown, uid);
+    if (full) this.toast(`Up to ${MAX_SHOWN} friends at once. Untick someone first.`);
+    else { this.savePlanner({ shown }); this.fillOverlay(); }
+    this.drawPicker();
+  }
+
   // ---- The Home widget: which friends are free right now ----
 
   widget(size) {
@@ -450,6 +697,7 @@ export default class Friends extends Feature {
     this.storage.set('tints', this.tints);
     this.drawFriend();
     this.draw();
+    this.sessions?.changed();
     this.refresh();
   }
 
@@ -474,6 +722,12 @@ export default class Friends extends Feature {
       ] },
       { group: 'friends', order: 15, question: 'Can I see which friends are free on Home?', answer: () => [
         'Yes: the Friends widget on Home shows who\'s free right now. If it isn\'t there, add it with the pencil on Home (Customise Home). It updates when you open the app, at most every 20 minutes.',
+      ] },
+      { group: 'friends', order: 16, question: 'Can I see friends\' classes in the Planner?', answer: () => [
+        'Yes. In the Planner, tap the two-people button next to the level switch and tick up to 4 friends (or tap a group). Their classes are drawn faintly, with a dashed edge, in the Day and Week views, in their colour. Pin the friends you pick most so they stay at the top. Untick them, or tap Clear, to hide them again.',
+      ] },
+      { group: 'friends', order: 17, question: 'How do groups work?', answer: () => [
+        'In Friends, tap New group, give it a name (like Flatmates) and tick who\'s in it. Open the group to see when you\'re all free this week (between 9:00 and 18:00), or show everyone in the Planner. Groups stay on your phone: nobody is told they\'re in one.',
       ] },
       { group: 'friends', order: 20, question: 'What can my friends see?', answer: () => [
         'Your name for friends and your classes for the next 4 weeks, with their times and rooms. Never hidden modules, your own module names, notes, reminders, to-dos, your timetable link, your email or your picture.',

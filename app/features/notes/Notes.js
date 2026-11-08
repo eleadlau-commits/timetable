@@ -20,7 +20,7 @@ export default class Notes extends Feature {
         return note ? el('div', { class: 'meta note' }, ui.icon('note'), el('span', {}, note.split('\n')[0])) : null;
       },
     });
-    this.add('session.details', { order: 30, render: (s) => this.editor(s), close: () => this.saveNow() });
+    this.add('session.details', { order: 30, render: (s) => (s.others ? null : this.editor(s)), close: () => this.saveNow() });
     this.on('timetable:cleared', () => {
       this.notes = {};
       this.storage.remove('notes');

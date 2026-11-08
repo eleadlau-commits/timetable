@@ -6,3 +6,5 @@ One day at a time, as a timeline of hours, so the gaps between classes show. A s
 - **Offers:** the slot `day.cards`, for cards above the day's sessions. Item: `{ order, render(day) → element, or null }`. Nothing uses it at the moment (the library card moved to Home and the Study tab).
 - **Requires:** sessions. **Uses if present:** planner.
 - **Saves:** nothing. The selected day belongs to the sessions service, so the Week view stays in step.
+
+- **Friends' classes** (Sessions' `onDay(day, { others: true })`, from the Friends button in the Planner) are drawn faintly with a dashed edge in their colour, next to yours.

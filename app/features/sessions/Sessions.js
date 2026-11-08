@@ -4,7 +4,9 @@
 // Service 'sessions' (this object):
 //   all                     every class from the timetable
 //   extra                   sessions other features add (your own events), from 'session.extra'
-//   onDay(date, { includeHidden })   the sessions on one day (classes and extra ones), in time order
+//   others                  other people's sessions (friends' classes), from 'session.others'
+//   onDay(date, { includeHidden, others })   the sessions on one day (classes and extra ones,
+//                           and with others: true other people's too), in time order
 //   hiddenNote(date)        "2 hidden sessions · Manage modules", or null
 //   isShown(s), name(s), shortName(s), moduleName(s), hue(s), kind(s), badge(s), moduleOf(s), defaultHue(module)
 //   placeLabel(location), placeLink(location)
@@ -18,7 +20,10 @@
 //                           or which extra sessions there are
 //
 // A session can carry `hue` (its colour, before any from 'session.colour') and `outline: true`
-// (drawn as an outline rather than filled, for things that aren't classes).
+// (drawn as an outline rather than filled, for things that aren't classes). Other people's
+// sessions carry `others: true` and `who` (their name): only the Day and Week views ask for them,
+// so they never count as yours (Up next, reminders, calendar dots), and hiding a module doesn't
+// hide them.
 //
 // Events it sends: 'sessions:changed' after changed().
 
@@ -47,6 +52,10 @@ export default class Sessions extends Feature {
     this.defineSlot('session.extra',
       'Adds sessions that aren\'t from the timetable, such as your own events. Item: { sessions() → array of sessions '
       + 'shaped like the timetable\'s, plus own: true }. Call changed() when they change. They show in the views but not in all.');
+    this.defineSlot('session.others',
+      'Other people\'s sessions to show faintly next to yours in the Day and Week views, such as friends\' classes. '
+      + 'Item: { sessions() → array of sessions shaped like the timetable\'s, plus others: true, who: name, hue }. '
+      + 'Call changed() when they change. Never counted as yours.');
     this.defineSlot('session.details',
       'Sections in the session details window. Item: { order, render(session, window) → element or null, close?(session) }. '
       + 'window.refresh() redraws the heading and location; window.close() closes it.');
@@ -76,6 +85,15 @@ export default class Sessions extends Feature {
     return this.extraCache;
   }
 
+  // Sessions from 'session.others', worked out once and kept until changed().
+  get others() {
+    if (!this.othersCache) {
+      this.othersCache = [];
+      this.slot('session.others').each((item) => { this.othersCache.push(...(item.sessions() || [])); });
+    }
+    return this.othersCache;
+  }
+
   moduleOf(s) {
     return (s.module ??= moduleKey(s.title));
   }
@@ -84,15 +102,15 @@ export default class Sessions extends Feature {
     return !this.slot('session.filter').some((f) => f.hides(s));
   }
 
-  onDay(date, { includeHidden = false } = {}) {
+  onDay(date, { includeHidden = false, others = false } = {}) {
     const from = time.startOfDay(date);
     const to = time.addDays(from, 1);
-    const extra = this.extra;
+    const extra = others ? [...this.extra, ...this.others] : this.extra;
     const list = extra.length ? [...this.all, ...extra] : this.all;
     const found = list.filter((s) =>
       s.start < to
       && (s.end > from || (s.end.getTime() === s.start.getTime() && s.start >= from))
-      && (includeHidden || this.isShown(s)));
+      && (includeHidden || s.others || this.isShown(s)));
     return extra.length ? found.sort((a, b) => a.start - b.start) : found;
   }
 
@@ -117,13 +135,13 @@ export default class Sessions extends Feature {
   }
 
   shortName(s) {
-    return this.slot('session.name').first((r) => r.short?.(s)) || (s.own ? s.title : this.moduleOf(s));
+    return this.slot('session.name').first((r) => r.short?.(s)) || (s.others ? (s.short || s.title) : s.own ? s.title : this.moduleOf(s));
   }
 
   // The module's name for small spaces such as the week grid: the name chosen in Modules, else
   // the title without its code and type ("Mathematical Methods II"), else the code.
   moduleName(s) {
-    return this.slot('session.name').first((r) => r.short?.(s)) || (s.own ? s.title : moduleTitle(s.title) || this.moduleOf(s));
+    return this.slot('session.name').first((r) => r.short?.(s)) || (s.others ? (s.short || s.title) : s.own ? s.title : moduleTitle(s.title) || this.moduleOf(s));
   }
 
   defaultHue(module) {
@@ -182,6 +200,7 @@ export default class Sessions extends Feature {
   // Call after changing how sessions look, so cards, the details window and others update.
   changed() {
     this.extraCache = null;
+    this.othersCache = null;
     this.emit('sessions:changed');
     this.refreshWindow();
     this.refresh();
@@ -199,7 +218,7 @@ export default class Sessions extends Feature {
     // the button, because a card that is itself a button can't hold the place link and features'
     // buttons inside it.
     return el('article', {
-      class: `card${past ? ' past' : ''}${live ? ' now' : ''}${s.cancelled ? ' cancelled' : ''}${s.outline ? ' outline' : ''}`,
+      class: `card${past ? ' past' : ''}${live ? ' now' : ''}${s.cancelled ? ' cancelled' : ''}${s.outline ? ' outline' : ''}${s.others ? ' others' : ''}`,
       style: `--h:${this.hue(s)}`,
       onclick: () => this.open(s),
     },
