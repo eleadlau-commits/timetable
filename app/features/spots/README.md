@@ -12,7 +12,7 @@ The **Spots** tab, for places around Durham: a card for each kind of place, and 
 - **Slot `spots.places`**: where the places come from. Only the first item is used. Item: `{ places(kind) → [place], deals() → [place], update?() }`, where kind is `cafes`, `pubs` or `clubs`, and a place is `{ id, name, line?, deal?, until?, address?, link?, menu?, hours?, open?, photo? }` (`open`: opening times day by day, as `hours.js` stores them, which win over the typed `hours`; `photo`: a picture's address). `update()` is called each time the tab is drawn, so the places can be fetched again when they're old. Spots draws the places itself.
 - **Service `spots`**: `place(place)` draws one place's card, as on the tab, and `hours`, the opening-times helpers from `hours.js`. The shop feature uses both: to show owners their card, and to ask for opening times day by day.
 - **Opening times** (`hours.js`, tested in `tests/hours.test.js`): seven parts, Monday first, such as `0800-1700|0800-1700|0800-1700|0800-1700|0800-1700|0900-1700|` (closed on Sunday). A closing time earlier than the opening time runs past midnight. From them, a place shows whether it's open now, when it closes or opens next, and a short line like *Mon–Fri 8am–5pm, Sat 9am–5pm*.
-- **Events** `spots:shown` (place ids, whenever places are drawn on the tab or in a list) and `spots:tapped` (a place id, when its Website or Menu is tapped). The shop feature counts them, without knowing who, for the places' owners.
+- **Events** `spots:shown` (place ids, when places actually come on screen on the tab or in a list, not everything drawn) and `spots:tapped` (a place id, when its Website or Menu is tapped). The shop feature counts them, without knowing who, for the places' owners.
 
 ## Adding a photo to a card
 

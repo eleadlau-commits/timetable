@@ -161,3 +161,48 @@ test('who approves changes is in admins', async () => {
   assert.equal(await isAdmin(db, 'boss'), true);
   assert.equal(await isAdmin(db, 'u1'), false);
 });
+
+test('the list students read: every published card in one document, written only when it changes', async () => {
+  const db = fakeDb({
+    'spots/cafe1': { name: 'Flat White', published: true, kind: 'cafe' },
+    'spots/draft': { name: 'Not yet', published: false },
+  });
+  const store = makeStore({ cards: 'spots', codes: 'shopCodes', owners: 'shopOwners', changes: 'spotChanges', stats: 'spotStats', link: 'place', toStore: (c) => c, list: 'spots' });
+  await store.allCards(db);
+  assert.ok(await store.saveList(db, fields));
+  assert.deepEqual(db.docs.get('lists/spots'), { items: { cafe1: { name: 'Flat White', published: true, kind: 'cafe' } }, at: 'NOW' });
+  // The same again: nothing written.
+  const before = db.writes.length;
+  await store.allCards(db);
+  assert.equal(await store.saveList(db, fields), false);
+  assert.equal(db.writes.length, before);
+  // Published: it joins the list.
+  db.docs.set('spots/draft', { name: 'Now open', published: true });
+  await store.allCards(db);
+  await store.saveList(db, fields);
+  assert.deepEqual(Object.keys(db.docs.get('lists/spots').items).sort(), ['cafe1', 'draft']);
+});
+
+test('the list is deleted when the cards don\'t all fit, and kinds without a list never write one', async () => {
+  const db = fakeDb({ 'societies/a': { name: 'A', published: true }, 'societies/b': { name: 'B', published: true }, 'lists/societies': { items: {} } });
+  const store = makeStore({ cards: 'societies', codes: 'c', owners: 'o', changes: 'ch', stats: 's', link: 'society', toStore: (c) => c, list: 'societies', most: 2 });
+  await store.allCards(db); // 2 found, as many as it asks for: maybe there are more
+  assert.ok(await store.saveList(db, fields));
+  assert.ok(!db.docs.has('lists/societies'));
+  const plain = societies();
+  await plain.allCards(db);
+  assert.equal(await plain.saveList(db, fields), false);
+  assert.ok(!db.docs.has('lists/societies'));
+});
+
+test('the team\'s phones make the list again only now and then', async () => {
+  const db = fakeDb({ 'spots/cafe1': { name: 'Flat White', published: true } });
+  const store = makeStore({ cards: 'spots', codes: 'c', owners: 'o', changes: 'ch', stats: 's', link: 'place', toStore: (c) => c, list: 'spots' });
+  const saved = new Map();
+  const storage = { get: (k, d) => (saved.has(k) ? saved.get(k) : d), set: (k, v) => saved.set(k, v) };
+  assert.ok(await store.freshenList(db, fields, storage));
+  assert.ok(db.docs.has('lists/spots'));
+  assert.equal(await store.freshenList(db, fields, storage), false); // just made
+  saved.set('listed', { spots: Date.now() - 4 * 60 * 60 * 1000 });
+  assert.ok(await store.freshenList(db, fields, storage));
+});

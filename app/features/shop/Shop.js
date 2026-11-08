@@ -180,6 +180,8 @@ export default class Shop extends Feature {
       }
     }
     if (this.admin) {
+      // Keeps the list of places students read up to date, now and then (card-owners' store).
+      this.store.freshenList(db, this.account.fields, this.storage).catch(() => {});
       const [changes, requests] = await Promise.all([
         this.store.waiting(db).catch(() => []),
         store.waitingRequests(db).catch(() => []),

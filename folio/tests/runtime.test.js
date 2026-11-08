@@ -6,7 +6,7 @@ import { Area, Storage } from 'folio/Storage.js';
 import { Events } from 'folio/Events.js';
 import * as time from 'folio/time.js';
 import * as check from 'folio/check.js';
-import { el, missing, dialog, swipeDirection } from 'folio/ui.js';
+import { el, missing, dialog, swipeDirection, onSeen } from 'folio/ui.js';
 import { Tabs } from 'folio/Tabs.js';
 import { mediaFor } from 'folio/appearance.js';
 import { getText } from 'folio/net.js';
@@ -203,4 +203,21 @@ test('a long enough swipe counts, a short one springs back, a quick flick counts
   assert.equal(swipeDirection(-40), 0);
   assert.equal(swipeDirection(-40, { fast: true }), 1);
   assert.equal(swipeDirection(20, { fast: true }), 0);
+});
+
+test('onSeen: runs once for something on screen, not for something hidden', async () => {
+  const shown = el('div', { style: 'position:fixed;top:0;left:0;width:50px;height:50px' });
+  const hidden = el('div', { style: 'display:none;width:50px;height:50px' });
+  let seenShown = 0;
+  let seenHidden = 0;
+  onSeen(shown, () => { seenShown += 1; });
+  onSeen(hidden, () => { seenHidden += 1; });
+  document.body.append(shown, hidden);
+  for (let i = 0; i < 20 && !seenShown; i += 1) await new Promise((r) => setTimeout(r, 25));
+  shown.style.top = '1px'; // moving it again doesn't count twice
+  await new Promise((r) => setTimeout(r, 100));
+  shown.remove();
+  hidden.remove();
+  assert.equal(seenShown, 1);
+  assert.equal(seenHidden, 0);
 });
