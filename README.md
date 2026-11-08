@@ -113,7 +113,7 @@ Every upload to `main` also builds a Google Play version of the Android app and 
 
 **Switching from the APK:** the Google Play version is signed by Google, so Android won't install it over the APK version. Uninstall the APK version first. That deletes what was saved on the phone (notes, to-dos, colours, the card), so note down anything you need first.
 
-**Going public later:** Google makes new personal accounts run a **closed test** with at least 12 people who stay opted in for 14 days in a row before the app can go public. It also needs a store listing (description, screenshots, a 512×512 icon, a banner), a privacy policy web page, the Data safety form and a web link for deleting an account. Claude can help with all of those.
+**Going public later:** Google makes new personal accounts run a **closed test** with at least 12 people who stay opted in for 14 days in a row before the app can go public. It also needs a store listing (description, screenshots, a 512×512 icon, a banner), a privacy policy web page (it's https://eleadlau-commits.github.io/timetable/privacy.html, the same notice as in the app), the Data safety form and a web link for deleting an account. Claude can help with all of those.
 
 ## Connect your timetable
 

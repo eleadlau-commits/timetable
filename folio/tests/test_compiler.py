@@ -150,8 +150,11 @@ class CompilerTests(unittest.TestCase):
                 'android': {'permissions': ['CAMERA']},
                 'capacitor': {'server': {'allowNavigation': ['a.example']}},
             }),
-            'web-only': feature(platforms=['web'], native={'android': {'permissions': ['INTERNET']}},
-                                web={'manifest': {'share_target': {'action': './'}}}),
+            'web-only': (feature(platforms=['web'], native={'android': {'permissions': ['INTERNET']}},
+                                 web={'manifest': {'share_target': {'action': './'}},
+                                      'pages': {'privacy': {'title': 'Privacy & you', 'module': 'words/privacy.js',
+                                                            'render': 'notice'}}}),
+                         {'words/privacy.js': "export function notice() { return document.createElement('p'); }\n"}),
         })
         out = self.tmp / 'dist'
         code, details = Project(ROOT, app).build(out, Log(quiet=True), build_number='7')
@@ -169,6 +172,10 @@ class CompilerTests(unittest.TestCase):
         self.assertTrue((web / 'folio' / 'App.js').exists())
         self.assertFalse((web / 'folio' / 'testing.js').exists())
         self.assertIn("'test-app-", (web / 'sw.js').read_text('utf-8').replace('"', "'"))
+        page = (web / 'privacy.html').read_text('utf-8')
+        self.assertIn('<title>Privacy &amp; you · Test app</title>', page)
+        self.assertIn('import { notice as render } from "./features/web-only/words/privacy.js"', page)
+        self.assertTrue((web / 'features' / 'web-only' / 'words' / 'privacy.js').exists())
         manifest = json.loads((web / 'manifest.webmanifest').read_text('utf-8'))
         self.assertEqual(manifest['share_target'], {'action': './'})
         package = json.loads((out / 'package.json').read_text('utf-8'))
@@ -204,6 +211,28 @@ class CompilerTests(unittest.TestCase):
         self.assertIn('minSdkVersion = 23', gradle)
         self.assertIn('includeGoogle = true', gradle)
         self.assertIn("someVersion = '1.2.0'", gradle)
+
+    def test_mistakes_in_web_pages(self):
+        page = {'title': 'Privacy', 'module': 'privacy.js', 'render': 'notice'}
+        files = {'privacy.js': 'export function notice() {}\n'}
+        _, found = self.resolve({
+            'good': (feature(web={'pages': {'privacy': page}}), dict(files)),
+            'badname': (feature(web={'pages': {'Privacy Policy': page}}), dict(files)),
+            'index': (feature(web={'pages': {'index': page}}), dict(files)),
+            'missing': feature(web={'pages': {'privacy': page}}),
+            'outside': (feature(web={'pages': {'privacy': {**page, 'module': '../privacy.js'}}}), dict(files)),
+            'badrender': (feature(web={'pages': {'privacy': {**page, 'render': 'not a name'}}}), dict(files)),
+            'shape': (feature(web={'pages': {'privacy': {'title': 'Privacy'}}}), dict(files)),
+            'other': feature(web={'icons': []}),
+        })
+        self.assertEqual(found['good'].reason, '')
+        self.assertIn("can't use the name", found['badname'].reason)
+        self.assertIn("can't use the name", found['index'].reason)
+        self.assertIn('is missing', found['missing'].reason)
+        self.assertIn("inside the feature's folder", found['outside'].reason)
+        self.assertIn('render', found['badrender'].reason)
+        self.assertIn('must look like', found['shape'].reason)
+        self.assertIn('"manifest" and "pages"', found['other'].reason)
 
     def test_mistakes_in_android_files_and_settings(self):
         _, found = self.resolve({
