@@ -18,7 +18,7 @@ The app has five tabs along the bottom: **Study · Planner · Home · Explore ·
 | **Customise Home** | Tap the pencil under the clock on Home (or **Settings → Home → Customise**). Choose the photo behind the clock (Durham, or one of your own, which stays on your phone). Add, remove and move widgets, including ones from other tabs (the **study timer**, the **to-do list** and **student deals**), and pick each one's size: **wide** (a strip across), **tall** (a narrow column) or **large** (two thirds across). If a widget won't fit, it says there's no room. **Back to the original** puts it all back. |
 | **To-do list** | Things to do, with tags (Academic and Society to start with; add, rename or delete your own) and due dates. What's due today is at the top. Sorted by due date, overdue ones in red. Tap the circle to tick one off. Opens from the **Plan Today** page on Home. |
 | **Friends** | The two-people button at the top. Send friends an invite link (WhatsApp, Messages…), show them your QR code, scan theirs with **Add a friend → Scan their QR code**, or type their friend code, to swap timetables: when you ask someone they can see yours, and you see theirs once they accept. For each friend, choose whether they see **everything** or **only when you're free or busy**, and switch off **Share my timetable** to pause sharing with everyone. See who's free right now (also in the **Friends widget on Home**), when you're both free today, and each friend's next 4 weeks of classes (in grey, or a colour you pick). Remove a friend at any time. Needs signing in. |
-| **Planner: Year, Month, Week and Day** | One calendar you zoom in and out of. It opens on today. Tap a month, week or day to go in; tap the purple label at the top left (or pinch) to go back out, or jump with the **Y M W D** switch. Swipe left or right on Day, Week or Month to go to the next or previous day, week or month (on Year, a swipe changes tab). Month shows a coloured dot for each module on each day. The list button shows everything in the next four weeks (Upcoming). The round button by the title downloads your timetable again, and the palette button lets you rename, recolour or hide modules. |
+| **Planner: Year, Month, Week and Day** | One calendar you zoom in and out of. It opens on today. Tap a month, week or day to go in; tap the purple label at the top left (or pinch) to go back out, or jump with the **Y M W D** switch. Swipe left or right on Day, Week or Month to go to the next or previous day, week or month (on Year, a swipe changes tab). Month shows a coloured dot for each module on each day. The list button shows everything in the next four weeks (Upcoming). Pull the calendar down from the top to download your timetable again. The arrows by the week go to the next or previous **Monday**. When you come back to the app after half an hour or more, the Planner is back on today. Week shows each module's name (or the name you chose), wrapping inside the block. The palette button lets you rename, recolour or hide modules. |
 | **Session details** | Tap any session for its time, room, description and more. |
 | **Your own events** | Tap **+** in the Planner to add things of your own, such as a society meeting or the gym: a name, day, time, optional place, and whether it repeats every week. They're drawn as outlines next to your classes. Tap one to edit or delete it. They stay on your phone, and friends don't see them. |
 | **Notes** | Your own notes on a session, e.g. "bring laptop". The first line shows on the card. |
@@ -118,11 +118,12 @@ Every upload to `main` also builds a Google Play version of the Android app and 
 ## Connect your timetable
 
 The app walks you through it the first time:
-1. Open your timetable on the university website.
-2. Find **Export** or **Subscribe**, and confirm it.
-3. Copy the link and paste it into the app.
+1. Open **My Timetable** at mytimetable.durham.ac.uk and sign in.
+2. Open the menu (three lines, top left) and choose **Settings / Export**.
+3. Set **Publish Calendar** to **Yes**.
+4. Copy the **Calendar Link** and paste it into the app.
 
-Keep the link private, because anyone with it can see your timetable.
+Keep the link private, because anyone with it can see your timetable. Setting Publish Calendar back to No stops the link working.
 
 If the web version says the university's server blocked it, either import the `.ics` file, or set up the free relay described in `app/features/web-relay/extras/README.md`.
 

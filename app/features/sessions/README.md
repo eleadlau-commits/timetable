@@ -6,7 +6,7 @@ How a session (a class) looks. It draws the session cards the views use, and the
 
 **Service `sessions`:**
 - **Finding sessions:** `all` (the timetable's classes), `extra` (sessions from `session.extra`, such as your own events), `onDay(date)` (both), `hiddenNote(date)`, `isShown(s)`
-- **How they look:** `name(s)`, `shortName(s)`, `hue(s)`, `defaultHue(module)`, `kind(s)`, `badge(s)`, `moduleOf(s)`, `placeLabel(location)`, `placeLink(location)`
+- **How they look:** `name(s)`, `shortName(s)`, `moduleName(s)` (the chosen name, else the title without code and type, e.g. "Mathematical Methods II", else the code; `format.js` `moduleTitle`), `hue(s)`, `defaultHue(module)`, `kind(s)`, `badge(s)`, `moduleOf(s)`, `placeLabel(location)`, `placeLink(location)`
 - **Drawing:** `card(s, { now, extra })`, `open(s)`
 - **The day the views show:** `selected`, `select(date)`
 - **Calendars:** `hues(date, max)` (a colour per module on a day, for dots), and `layout`, the rules from `layout.js`: `layoutLanes`, `minutesInto`, `hourRange`, `monthGrid`, `academicYear`, `addMonths`

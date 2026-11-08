@@ -12,11 +12,13 @@
 // Service 'planner': present while Planner is running, so views know to add themselves here and
 // can zoom in: zoomIn(), zoomOut(), show(id).
 //
-// The app opens the Planner on its closest level (Day) on today; while the app stays open it
+// The app opens the Planner on its closest level (Day) on today, and goes back there when the app
+// comes back after 30 minutes or more in the background (or on a new day; rules.js); otherwise it
 // remembers the level when you switch tabs and come back. Nothing is saved any more: the 'view'
 // key from earlier versions is left alone.
 
 import { Feature, ui } from 'folio';
+import { backToToday, pullDistance, pullRefreshes, isPullDown } from './rules.js';
 
 const { el } = ui;
 const LIST_ICON = '<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>';
@@ -30,6 +32,8 @@ export default class Planner extends Feature {
       + 'crumb?(date) (the text of the zoom-out label when a closer level is open), swipe? (false: swiping a level changes tab instead of moving it on; Year), buttonIcon? (an icon name or drawing for the button of a view without zoom; a list by default).');
     this.defineSlot('planner.actions',
       'Small round buttons on the right of the Planner\'s title, for every view in it. Item: { order, render() → element or null }.');
+    this.defineSlot('planner.refresh',
+      'What pulling the calendar down does (the first item that is ready). Item: { order, ready() → true when there is something to refresh, busy() → true while refreshing, refresh() → a promise }.');
     this.defineSlot('planner.buttons',
       'Small buttons next to the Planner\'s level switch, for every view in it. Item: { order, render() → element or null }.');
     this.provide('planner', this);
@@ -40,6 +44,9 @@ export default class Planner extends Feature {
     this.motion = null; // 'in' or 'out' while a zoom is drawn
     this.tap = null; // { x, y, at } of the last tap, so a zoom grows from where you tapped
     this.pinching = false; // two fingers are down
+    this.seenAt = Date.now(); // when the app was last on screen (updated every minute)
+    this.on('app:tick', () => { this.seenAt = Date.now(); });
+    this.on('app:resume', () => this.resume());
 
     this.add('views', {
       id: 'planner',
@@ -54,6 +61,18 @@ export default class Planner extends Feature {
       open: (id) => this.show(id),
       subviews: () => this.views.map((v) => v.id),
     });
+  }
+
+  // Back from the background after half an hour or more (or on a new day): today's Day, as on a fresh start.
+  resume() {
+    const now = Date.now();
+    if (backToToday(this.seenAt, now)) {
+      this.current = null;
+      this.lastLevel = null;
+      this.sessions?.select(new Date());
+      this.refresh();
+    }
+    this.seenAt = now;
   }
 
   get views() {
@@ -120,10 +139,80 @@ export default class Planner extends Feature {
     this.buttons = el('div', { class: 'planner-buttons' });
     head.append(el('div', { class: 'zoombar' }, this.crumb, this.switcher, this.extras, this.buttons));
     this.host = el('div', { class: 'planner-host' });
-    container.append(this.host);
+    this.pull = el('div', { class: 'planner-pull', 'aria-hidden': 'true' }, el('span', { class: 'planner-pull-spinner' }, ui.icon('refresh')));
+    container.append(this.pull, this.host);
+    this.watchPull();
     this.watchTaps();
     this.watchPinch();
     this.watchSwipes();
+  }
+
+  // Pulling the calendar down from the top refreshes it (the timetable's 'planner.refresh' item).
+  // The spinner comes down with the finger, turning; let go far enough down and it spins until done.
+  watchPull() {
+    let start = null; // { x, y } where the finger went down, while a pull could start
+    let pulling = false;
+    let dy = 0;
+    const item = () => this.slot('planner.refresh').items.find((r) => this.slot('planner.refresh').run(r, (x) => x.ready(), false));
+    const scroller = () => {
+      for (let n = this.host.parentElement; n; n = n.parentElement) {
+        if (n.scrollHeight > n.clientHeight && /(auto|scroll)/.test(getComputedStyle(n).overflowY)) return n;
+      }
+      return document.scrollingElement;
+    };
+    const show = (distance, state = '') => {
+      this.pull.style.setProperty('--pull', `${distance}px`);
+      this.pull.style.setProperty('--turn', `${distance * 4}deg`);
+      this.pull.className = `planner-pull${state ? ` ${state}` : ''}`;
+    };
+    this.host.addEventListener('touchstart', (e) => {
+      start = null;
+      if (e.touches.length !== 1 || this.pinching || this.refreshing || !item()) return;
+      if ((scroller()?.scrollTop || 0) > 0) return;
+      start = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      pulling = false;
+      dy = 0;
+    }, { passive: true });
+    this.host.addEventListener('touchmove', (e) => {
+      if (!start || e.touches.length !== 1) return;
+      const dx = e.touches[0].clientX - start.x;
+      dy = e.touches[0].clientY - start.y;
+      if (!pulling) {
+        if (Math.abs(dx) > 12 && !isPullDown(dx, dy)) { start = null; return; } // a sideways swipe
+        if (dy < -6) { start = null; return; } // scrolling up
+        if (!isPullDown(dx, dy)) return;
+        pulling = true;
+      }
+      e.preventDefault(); // the spinner moves, not the page
+      show(pullDistance(dy), pullRefreshes(dy) ? 'pulling ready' : 'pulling');
+    }, { passive: false });
+    const end = () => {
+      if (!start) return;
+      start = null;
+      if (!pulling) return;
+      pulling = false;
+      if (pullRefreshes(dy)) this.pullRefresh(item(), show);
+      else show(0);
+    };
+    this.host.addEventListener('touchend', end, { passive: true });
+    this.host.addEventListener('touchcancel', () => { start = null; pulling = false; show(0); }, { passive: true });
+  }
+
+  // Refreshes, keeping the spinner going until it's done (and at least a moment, so it's seen).
+  async pullRefresh(item, show) {
+    if (!item) { show(0); return; }
+    this.refreshing = true;
+    show(48, 'refreshing');
+    const slot = this.slot('planner.refresh');
+    const shown = new Promise((resolve) => setTimeout(resolve, 600));
+    try {
+      await Promise.all([slot.run(item, (x) => x.refresh()), shown]);
+    } catch (err) {
+      // The refresh explains its own problems.
+    } finally {
+      this.refreshing = false;
+      show(0);
+    }
   }
 
   // Swiping Day, Week or Month left or right moves to the next or previous day, week or month.

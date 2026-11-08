@@ -26,6 +26,19 @@ export function kindOf(session) {
   return '';
 }
 
+// The module's name from a title, without its code or session type:
+// "MATH2811 - Mathematical Methods II Lecture" → "Mathematical Methods II". '' if nothing is left.
+export function moduleTitle(title) {
+  let t = (title || '').replace(new RegExp(CODE_RE.source, 'g'), ' ');
+  for (const [, re] of KINDS) t = t.replace(new RegExp(`${re.source}s?\\b`, 'gi'), ' ');
+  t = t.replace(/\b(group|grp)\s*\w{1,3}\b/gi, ' ') // "Group 3", "Grp A"
+    .replace(/\(\s*\)|\[\s*\]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .replace(/^[\s\-–—:/|,.·]+|[\s\-–—:/|,.·]+$/g, '')
+    .trim();
+  return /[A-Za-z]{2}/.test(t) ? t : '';
+}
+
 // The text and URL of a location that is itself a web link (e.g. a Teams meeting), or null.
 export function webLink(location) {
   return (location || '').match(/https?:\/\/\S+/)?.[0] || null;

@@ -40,6 +40,12 @@ test('named rooms and map positions', () => {
   assert.ok(place.lat > 54.7 && place.lat < 54.8 && place.lng < -1.5 && place.lng > -1.6, 'should be in Durham');
 });
 
+test('Mill Hill Lane rooms point at the old Business School', () => {
+  const place = lookupPlace('MHL123');
+  assert.equal(place.building, 'Old Business School, Mill Hill Lane');
+  assert.ok(Math.abs(place.lat - 54.7642) < 0.0005 && Math.abs(place.lng + 1.5861) < 0.0005, 'should be on the Business School building');
+});
+
 test('locations without a known code are left alone', () => {
   assert.equal(lookupPlace('Online'), null);
   assert.equal(lookupPlace('Gala Theatre'), null);

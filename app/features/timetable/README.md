@@ -5,7 +5,8 @@ Loads the timetable from the university's calendar export link (`.ics`), saves i
 ## What it adds
 
 - The **setup screen**: instructions, the link box with a Paste button, and "Other ways to get the link in".
-- **A refresh button on the Planner tab** (slot `planner.actions`), on the right of the title: the round refresh icon, spinning while it loads, next to "Updated 5 min ago". It's there for Day, Week and Upcoming, and only when there's a link to download again (not for an imported file).
+- **Pull down to refresh in the Planner** (slot `planner.refresh`): pulling the calendar down downloads the timetable again. Only when there's a link to download again (not for an imported file). Until version 3.10 this was a round refresh button by the Planner's title.
+- **The guide** (`guide.js`): Durham's steps (My Timetable → Settings / Export → Publish Calendar: Yes → copy the Calendar Link), with two pictures in `guide/` taken from My Timetable with personal details left out and the link hidden. Used on the setup screen and in Help.
 - **"Updated 5 min ago"** at the top of the menu, under *Not signed in*, and next to view titles (`header.status`).
 - A **Timetable section in Settings**: change the link, import an `.ics` file, or remove the timetable.
 - **Questions in Help** (`help.questions`): *How do I connect my timetable?* (a page of its own: the same steps as the setup screen, the tips for a computer or a file, and a **Set up my timetable** / **Change my timetable link** button that opens the setup screen), *How often does my timetable update?*, *My timetable looks wrong or out of date* and *Who can see my timetable link?*

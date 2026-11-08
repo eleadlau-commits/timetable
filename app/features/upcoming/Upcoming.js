@@ -35,7 +35,7 @@ export default class Upcoming extends Feature {
     if (!out.length) {
       out.push(el('div', { class: 'empty' },
         el('b', {}, 'Nothing in the next four weeks'),
-        el('div', {}, 'If that looks wrong, tap refresh or check your timetable link in Settings.')));
+        el('div', {}, 'If that looks wrong, pull the Planner down to refresh, or check your timetable link in Settings.')));
     }
     this.box.replaceChildren(...out);
   }
