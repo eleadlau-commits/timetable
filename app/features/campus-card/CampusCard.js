@@ -9,6 +9,15 @@ import { BarcodeReader } from './reader.js';
 
 const { el } = ui;
 
+// The camera picture asked for: the back camera, as sharp as it goes up to full HD. Without
+// asking, phones often give a small picture (640 × 480) in which a card's thin bars blur
+// together, which is why scanning was much harder than reading a photo.
+const CAMERA = {
+  facingMode: { ideal: 'environment' },
+  width: { ideal: 1920 },
+  height: { ideal: 1080 },
+};
+
 export default class CampusCard extends Feature {
   start() {
     this.addHelp();
@@ -19,6 +28,7 @@ export default class CampusCard extends Feature {
     this.wakeLock = null;
     this.reader = new BarcodeReader();
     this.photos = ui.filePicker('image/*');
+    this.camera = ui.filePicker('image/*', { capture: 'environment' }); // opens the camera straight away
     this.add('home.widgets', {
       id: 'campus-card', label: 'Campus card', order: 30, sizes: ['tall', 'wide'],
       render: (size) => this.homeCard(size === 'wide'),
@@ -84,27 +94,33 @@ export default class CampusCard extends Feature {
     const page = this.template('window');
     const part = (name) => page.querySelector(`[data-part="${name}"]`);
     this.parts = {};
-    for (const name of ['show', 'code', 'number', 'type', 'add', 'scan', 'video', 'manual', 'format', 'back']) this.parts[name] = part(name);
+    for (const name of ['show', 'code', 'number', 'type', 'add', 'scan', 'video', 'camera', 'torch', 'manual', 'format', 'back']) this.parts[name] = part(name);
     const errorBox = part('error');
     this.showError = (message) => { errorBox.textContent = message || ''; errorBox.hidden = !message; };
 
     for (const [value, label] of Object.entries(FORMATS)) this.parts.format.append(el('option', { value }, label));
-    part('camera').addEventListener('click', () => this.startScan());
+    this.parts.camera.addEventListener('click', () => this.startScan());
     part('stop').addEventListener('click', () => this.stopScan());
-    const photo = part('photo');
-    photo.addEventListener('click', async () => {
-      const file = await this.photos.pick();
-      if (!file) return;
-      const label = photo.textContent;
-      photo.disabled = true;
-      photo.textContent = 'Reading the photo…';
-      try {
-        await this.readPhoto(file);
-      } finally {
-        photo.disabled = false;
-        photo.textContent = label;
-      }
-    });
+    this.parts.torch.addEventListener('click', () => this.toggleTorch());
+    // Take a photo with the camera, or choose one already taken. A photo is sharper than the
+    // live camera picture, so it's the surest way.
+    for (const [name, picker] of [['snap', this.camera], ['photo', this.photos]]) {
+      const button = part(name);
+      button.addEventListener('click', async () => {
+        this.stopScan();
+        const file = await picker.pick();
+        if (!file) return;
+        const label = button.textContent;
+        button.disabled = true;
+        button.textContent = 'Reading the photo…';
+        try {
+          await this.readPhoto(file);
+        } finally {
+          button.disabled = false;
+          button.textContent = label;
+        }
+      });
+    }
     part('save').addEventListener('click', () => this.saveTyped());
     this.parts.manual.addEventListener('keydown', (e) => { if (e.key === 'Enter') this.saveTyped(); });
     part('replace').addEventListener('click', () => {
@@ -209,15 +225,21 @@ export default class CampusCard extends Feature {
     }
     let stream;
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+      stream = await navigator.mediaDevices.getUserMedia({ video: CAMERA, audio: false });
     } catch {
-      this.showError("Couldn't open the camera. Allow camera access for this app, or choose a photo of the card instead.");
-      return;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } }, audio: false });
+      } catch {
+        this.showError("Couldn't open the camera. Allow camera access for this app, or take a photo of the card instead.");
+        return;
+      }
     }
+    await this.setUpCamera(stream.getVideoTracks()[0]);
     const video = this.parts.video;
     video.srcObject = stream;
     await video.play().catch(() => {});
     this.parts.scan.hidden = false;
+    this.parts.camera.hidden = true;
     const scan = { stream, timer: 0 };
     this.scan = scan;
     const tick = async () => {
@@ -238,7 +260,35 @@ export default class CampusCard extends Feature {
     tick();
   }
 
+  // Keeps the camera focusing, zooms in a little where it can (most phones can't focus on
+  // something very close, so the card can be held further away and still fill the picture), and
+  // offers the light where there is one.
+  async setUpCamera(track) {
+    this.track = track;
+    const can = track?.getCapabilities?.() || {};
+    const wanted = {};
+    if (can.focusMode?.includes('continuous')) wanted.focusMode = 'continuous';
+    if (can.zoom && can.zoom.max >= 1.5) wanted.zoom = Math.min(2, can.zoom.max);
+    if (Object.keys(wanted).length) await track.applyConstraints({ advanced: [wanted] }).catch(() => {});
+    this.torchOn = false;
+    this.parts.torch.hidden = !can.torch;
+    this.parts.torch.textContent = 'Light on';
+  }
+
+  async toggleTorch() {
+    if (!this.track) return;
+    const on = !this.torchOn;
+    try {
+      await this.track.applyConstraints({ advanced: [{ torch: on }] });
+      this.torchOn = on;
+      this.parts.torch.textContent = on ? 'Light off' : 'Light on';
+    } catch {
+      this.parts.torch.hidden = true;
+    }
+  }
+
   stopScan() {
+    this.track = null;
     if (this.scan) {
       clearTimeout(this.scan.timer);
       for (const track of this.scan.stream.getTracks()) track.stop();
@@ -247,6 +297,7 @@ export default class CampusCard extends Feature {
     if (this.parts) {
       this.parts.video.srcObject = null;
       this.parts.scan.hidden = true;
+      this.parts.camera.hidden = false;
     }
   }
 
@@ -262,7 +313,7 @@ export default class CampusCard extends Feature {
     try {
       const codes = await this.reader.read(bitmap, { photo: true });
       if (!this.accept(codes) && !codes.length) {
-        this.showError("Couldn't find a barcode in that photo. Take it closer, in good light, with the barcode filling most of the picture. Or type the number instead.");
+        this.showError("Couldn't find a barcode in that photo. Take it again in good light, with the card filling most of the picture and in focus. Or type the number instead.");
       }
     } catch {
       this.showError("Couldn't read barcodes on this device. Check your internet connection and try again, or type the number instead.");
@@ -289,7 +340,8 @@ export default class CampusCard extends Feature {
   addHelp() {
     for (const item of [
       { group: 'home', order: 40, question: 'How do I add my campus card?', answer: () => [
-        'Tap the campus card on Home or on the More tab. Scan the barcode with the camera, choose a photo of it, or type the long number under the barcode. It\'s saved on this phone only.',
+        'Tap the campus card on Home or on the More tab. Scan the barcode with the camera, take or choose a photo of it, or type the long number under the barcode. It\'s saved on this phone only.',
+        'If the camera struggles, hold the card about a hand\'s width away with the barcode along the red line, or use Take a photo of the card: a photo is sharper, so it almost always works.',
       ] },
     ]) this.add('help.questions', item);
   }

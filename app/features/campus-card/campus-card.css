@@ -12,7 +12,10 @@
 }
 .dialog-body .card-type { margin: -10px 0 0; text-align: center; }
 .card-scan { display: grid; gap: 10px; }
-.card-scan video { width: 100%; max-height: 50vh; border-radius: 12px; background: #000; object-fit: cover; }
+.card-video { position: relative; }
+.card-video video { display: block; width: 100%; max-height: 50vh; border-radius: 12px; background: #000; object-fit: cover; }
+/* A line across the middle of the picture, to put the barcode on. */
+.card-aim { position: absolute; left: 8%; right: 8%; top: 50%; height: 2px; margin-top: -1px; background: #ff4d4d; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.6); border-radius: 1px; pointer-events: none; }
 
 /* On Home: a narrow card with the barcode drawn down it, the number and a Tap button. It ends
    just under the button, rather than reaching the bottom of the screen. */
