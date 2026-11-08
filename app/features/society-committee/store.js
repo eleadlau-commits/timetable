@@ -33,4 +33,5 @@ export const SOCIETIES = {
   toStore: cardFields,
   most: 300,
   removeUsed: true,
+  list: 'societies',
 };

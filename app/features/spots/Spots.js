@@ -24,7 +24,7 @@
 // their own), and hours: the opening-times helpers from hours.js (readOpen, writeOpen, summary,
 // openState, clock, fromInput, toInput, DAYS, DAY_NAMES).
 //
-// Events: 'spots:shown' with [place ids] whenever places are drawn on the tab or in a list, and
+// Events: 'spots:shown' with [place ids] when places come on screen (on the tab or in a list), and
 // 'spots:tapped' with a place id when someone taps its Website or Menu button. The shop
 // feature counts these (without knowing who) for the places' owners.
 //   update() is called whenever the tab is drawn, so the places can be fetched again if old.
@@ -132,8 +132,6 @@ export default class Spots extends Feature {
     if (!this.spotsWindow) this.spotsWindow = ui.dialog({ title: 'Spots', className: 'spot-dialog' });
     this.fillSpots();
     this.spotsWindow.open();
-    const deals = this.deals();
-    if (deals.length) this.emit('spots:shown', deals.map((p) => p.id));
   }
 
   fillSpots() {
@@ -165,7 +163,7 @@ export default class Spots extends Feature {
     return [
       deals.length ? el('section', { class: 'spot-deals', 'aria-label': 'Student deals' },
         el('h2', { class: 'sub-head' }, 'Student deals'),
-        el('div', { class: 'spot-places' }, deals.map((place) => this.place(place)))) : null,
+        el('div', { class: 'spot-places' }, deals.map((place) => this.place(place, { count: true })))) : null,
       el('div', { class: 'spot-cards' }, SPOTS.map((spot) => this.card(spot))),
     ];
   }
@@ -176,9 +174,7 @@ export default class Spots extends Feature {
     if (this.window?.isOpen && this.showing) this.fill(this.showing);
     if (!this.box || this.hasExplore) return;
     if (this.source?.update) this.slot('spots.places').run(this.source, (item) => item.update());
-    const deals = this.deals();
     this.box.replaceChildren(...this.contents());
-    if (deals.length && this.app.shell.currentView?.id === 'spots') this.emit('spots:shown', deals.map((p) => p.id));
   }
 
   card(spot) {
@@ -193,12 +189,12 @@ export default class Spots extends Feature {
   // One place: its photo, name and line, the deal if there is one, whether it's open now, where it
   // is, and its website and menu. Also used by the shop feature to show owners their card
   // (service 'spots': place(place)).
-  place(place) {
+  place(place, { count = false } = {}) {
     const tapped = () => this.emit('spots:tapped', place.id);
     const times = hours.readOpen(place.open);
     const state = times && hours.openState(times);
     const typed = times ? hours.summary(times) : place.hours;
-    return el('article', { class: `spot-place${place.photo ? ' has-photo' : ''}` },
+    const card = el('article', { class: `spot-place${place.photo ? ' has-photo' : ''}` },
       place.photo && el('div', { class: 'spot-place-photo', style: `--photo: url("${encodeURI(place.photo)}")`, role: 'img', 'aria-label': `Photo of ${place.name}` }),
       el('div', { class: 'spot-place-head' },
         el('b', {}, place.name),
@@ -216,6 +212,20 @@ export default class Spots extends Feature {
         (place.link || place.menu) && el('span', { class: 'spot-place-links' },
           place.menu && el('a', { class: 'btn small', href: place.menu, target: '_blank', rel: 'noopener', onclick: tapped }, 'Menu'),
           place.link && el('a', { class: 'btn small', href: place.link, target: '_blank', rel: 'noopener', onclick: tapped }, 'Website'))));
+    if (count) ui.onSeen(card, () => this.seen(place.id));
+    return card;
+  }
+
+  // Places that came on screen, sent together as one 'spots:shown' a moment later.
+  seen(id) {
+    if (!this.seenIds) this.seenIds = new Set();
+    this.seenIds.add(id);
+    clearTimeout(this.seenTimer);
+    this.seenTimer = setTimeout(() => {
+      const ids = [...this.seenIds];
+      this.seenIds.clear();
+      this.emit('spots:shown', ids);
+    }, 400);
   }
 
   openKind(spot) {
@@ -233,9 +243,8 @@ export default class Spots extends Feature {
     const places = this.places(spot.id);
     this.window.setTitle(spot.label);
     this.window.setContent(places.length
-      ? el('div', { class: 'spot-places' }, places.map((place) => this.place(place)))
+      ? el('div', { class: 'spot-places' }, places.map((place) => this.place(place, { count: true })))
       : ui.missing(`${spot.label} to show`));
-    if (places.length) this.emit('spots:shown', places.map((p) => p.id));
   }
 
   // Questions and answers for the Help page.

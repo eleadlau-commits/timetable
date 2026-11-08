@@ -44,6 +44,7 @@ export const PLACES = {
   fromStore,
   most: 200,
   removeUsed: false,
+  list: 'spots',
 };
 
 // ---- Asking to be listed ----

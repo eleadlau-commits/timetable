@@ -9,6 +9,7 @@ They allow:
 - **Friendships** (`friendships/<a>_<b>`): only the two people can read one. Only the asker can create it, with a real code belonging to the other person; only the person asked can accept it; each can only change their own name; either can delete it.
 - **Shared timetables** (`shared/<you>`): only you can write yours. You, people you've asked, and friends can read it.
 - **Places on Spots** (`spots/<place>`): everyone can read the published ones (`published` is `true`), signed in or not, at most 100 at a time. Nobody can change them from the app. The team edits them in the Firebase console, which these rules don't apply to; see `app/features/listings/README.md` for how.
+- **Lists** (`lists/spots`, `lists/societies`): every published place or society copied into one document, so a phone reads 1 document instead of one per card (which keeps the app inside the free plan's daily reads). Everyone can read them; only the team (accounts in `admins`) can write them, and the app makes them itself (see `app/features/card-owners/README.md`). Tested by `lists.test.mjs`.
 
 Only Google sign-ins and email sign-ins whose address has been confirmed count, and everything must have exactly the right shape (names of 1–30 characters, links of at most 2,048 starting with `https://` or `webcal://`, times set by Firebase itself). The tests in `tests/` (`rules.test.mjs` for your private area, `friends.test.mjs` for friends, `spots.test.mjs` for the places on Spots) check each of these, including what must be refused.
 

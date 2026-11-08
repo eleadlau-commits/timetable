@@ -1,5 +1,5 @@
 import { test, assert } from 'folio/testing';
-import { toSociety, typeOf, typeName, instagramLink, photoOf, pick, typesIn, isStale, FRESH_FOR } from '../rules.js';
+import { toSociety, typeOf, typeName, instagramLink, photoOf, pick, typesIn, isStale, fromList, FRESH_FOR } from '../rules.js';
 
 const soc = (extra = {}) => ({ published: true, type: 'sport', name: 'Hiking Society', line: 'Walks in the Dales', ...extra });
 
@@ -63,4 +63,13 @@ test('the saved copy is used for 12 hours', () => {
   assert.equal(isStale({ at: now - 1000 }, now), false);
   assert.equal(isStale({ at: now - FRESH_FOR }, now), true);
   assert.equal(isStale({ at: now + 60000 }, now), true);
+});
+
+test('the list of every society in one document: published ones only, or null without a list', () => {
+  const items = fromList({ items: { hiking: soc(), chess: soc({ published: false }) } });
+  assert.deepEqual(items.map(([id]) => id), ['hiking']);
+  assert.equal(toSociety(...items[0]).name, 'Hiking Society');
+  assert.deepEqual(fromList({ items: {} }), []);
+  assert.equal(fromList(undefined), null);
+  assert.equal(fromList({ items: 'nope' }), null);
 });
