@@ -227,6 +227,48 @@ export function followSwipe(target, { accept = () => true, move = () => {}, end 
   }, true);
 }
 
+// Calls fn() once, the first time at least `share` of the element is on screen (scrolled into
+// view, in an open pop-up or tab). For counting what people actually saw, rather than everything
+// drawn. Works on an element that isn't on the page yet. Returns a function that stops watching.
+// Without IntersectionObserver (very old browsers) fn runs straight away.
+const seen = { observer: null, watching: new Map() }; // element → fn
+function seenSweep() {
+  for (const node of seen.watching.keys()) {
+    if (!node.isConnected) { seen.watching.delete(node); seen.observer.unobserve(node); }
+  }
+}
+export function onSeen(element, fn, { share = 0.5 } = {}) {
+  if (typeof IntersectionObserver !== 'function') {
+    queueMicrotask(fn);
+    return () => {};
+  }
+  if (!seen.observer) {
+    seen.observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const node = entry.target;
+        const run = seen.watching.get(node);
+        if (!run) continue;
+        if (entry.isIntersecting && entry.intersectionRatio >= run.share - 0.01) {
+          seen.watching.delete(node);
+          seen.observer.unobserve(node);
+          try { run.fn(); } catch (err) { console.error(err); }
+        } else if (!node.isConnected) {
+          seen.watching.delete(node);
+          seen.observer.unobserve(node);
+        }
+      }
+    }, { threshold: [0.01, 0.25, 0.5, 0.75, 1] });
+  }
+  // Elements redrawn away before anyone saw them are let go of now and then.
+  if (seen.watching.size > 200) seenSweep();
+  seen.watching.set(element, { fn, share });
+  seen.observer.observe(element);
+  return () => {
+    seen.watching.delete(element);
+    seen.observer.unobserve(element);
+  };
+}
+
 // Whether the phone asks for less movement on screen.
 export function reduceMotion() {
   return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;

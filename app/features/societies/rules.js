@@ -116,3 +116,13 @@ export function typesIn(list) {
 export function isStale(saved, now = Date.now()) {
   return !saved || !Number.isFinite(saved.at) || now - saved.at >= FRESH_FOR || saved.at > now;
 }
+
+// The list of every published society in one document (lists/societies, made by the team's phones,
+// see the card-owners feature): its items as [[id, data]], or null if there's no usable list
+// (then the app reads the societys one by one). Reading the list costs 1 read instead of one per
+// society.
+export function fromList(data) {
+  const items = data?.items;
+  if (!items || typeof items !== 'object' || Array.isArray(items)) return null;
+  return Object.entries(items).filter(([, d]) => d && typeof d === 'object' && d.published === true);
+}

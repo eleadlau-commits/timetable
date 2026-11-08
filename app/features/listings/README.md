@@ -11,7 +11,7 @@ The places on the **Spots** tab: cafés, pubs and clubs around Durham, with thei
 
 The database's `spots` collection, one document per place. Everyone can read the published ones, signed in or not. The team adds places in the Firebase console, which only people added to the Firebase project can open. **Owners can't change their place directly**: with a shop code they send changes from the app, and the team approves them in the app's *Approve changes* (the shop feature). Only the team's accounts (the `admins` collection) can change places from the app.
 
-The places are kept on the phone, so they show straight away and offline. The app asks the database again only when its copy is more than 6 hours old (`FRESH_FOR` in `rules.js`). Each ask costs one read per place, so 200 people with 20 places use about 16,000 of the free plan's 50,000 reads a day, at most.
+The places are kept on the phone, so they show straight away and offline. The app asks the database again only when its copy is more than 6 hours old (`FRESH_FOR` in `rules.js`). Each ask reads `lists/spots`, every published place in one document, so it costs **1 read** however many places there are. The team's phones keep that list up to date (see the card-owners feature's README). Only if the list isn't there does the app read the places one by one (one read each, as before).
 
 ### Adding a place (in the Firebase console)
 
@@ -35,7 +35,7 @@ The places are kept on the phone, so they show straight away and offline. The ap
 | `menu` | string | no | `https://…`, a page or PDF with the menu |
 | `order` | number | no | `1` comes first; without it, 50; then by name |
 
-To change a deal, click the place and edit the field (or, once the owner has a shop code, they can send the change themselves and you approve it in the app). To take a place down, set `published` to `false` (or delete the document). People see changes the next time their app asks, within 6 hours.
+To change a deal, click the place and edit the field (or, once the owner has a shop code, they can send the change themselves and you approve it in the app). To take a place down, set `published` to `false` (or delete the document). People see changes the next time their app asks, within 6 hours, once the list students read has been made again: that happens when someone in `admins` opens the app (at most every 3 hours) or opens **Approve changes**. So after editing in the console, open Approve changes once to send it out straight away.
 
 Anything that doesn't make sense (no name, a kind that isn't cafe, pub or club, `published` not ticked) is quietly left out, so a half-typed place never shows.
 

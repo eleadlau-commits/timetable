@@ -10,7 +10,9 @@ With no societies yet, the card says *Coming soon*. Help has two questions in *A
 
 ## Where the societies come from
 
-The database's `societies` collection, one document per society. Everyone can read the published ones, signed in or not; nobody can change them from the app (see `firebase/firestore.rules`, tested in `firebase/tests/societies.test.mjs`). They're kept on the phone and fetched again after 12 hours (`FRESH_FOR` in `rules.js`), at most 300 (one read each).
+The database's `societies` collection, one document per society. Everyone can read the published ones, signed in or not; nobody can change them from the app (see `firebase/firestore.rules`, tested in `firebase/tests/societies.test.mjs`). They're kept on the phone and fetched again after 12 hours (`FRESH_FOR` in `rules.js`), at most 300.
+
+Phones read `lists/societies`, every published society in one document (**1 read**, however many societies there are), kept up to date by the team's phones (see the card-owners feature's README). Only if that list isn't there do they read the societies one by one.
 
 ### Adding a society (in the Firebase console)
 
@@ -31,14 +33,14 @@ The database's `societies` collection, one document per society. Everyone can re
 | `photo` | string | no | a file in `app/features/societies/photos/` (e.g. `hiking.jpg`, comes with the app) or an `https://` address |
 | `order` | number | no | `1` comes first; without it, 50; then by name |
 
-People see changes the next time their app asks, within 12 hours.
+People see changes the next time their app asks, within 12 hours, once the list students read has been made again: when someone in `admins` opens the app (at most every 3 hours) or opens **Approve changes**. After editing in the console, open Approve changes once to send it out straight away.
 
 Committees can keep their own card up to date: the team makes a society code in **Approve changes**, and the committee member types it under **I run a society** on their account page (the society-committee feature). Their changes wait for the team's approval.
 
 ## For other features
 
 - Service `societies`: `card(society)` (the card as students see it, with buttons that don't count), `tidy(id, data)` (a database document, tidied like the list), `TYPES`, `typeName(id)`.
-- Events: `societies:shown` with the ids drawn in the list, `societies:tapped` with an id when Instagram or Join is tapped (the society-committee feature counts them).
+- Events: `societies:shown` with the ids of societies that actually came on screen in the list (not every one drawn), `societies:tapped` with an id when Instagram or Join is tapped (the society-committee feature counts them).
 
 ## What it needs
 

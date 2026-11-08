@@ -1,6 +1,6 @@
 import { test, assert } from 'folio/testing';
 import {
-  kindOf, webLink, toMillis, toPlace, openTimes, photoOf, liveDeal, placesOf, withDeals, dealUntil, isStale, FRESH_FOR,
+  kindOf, webLink, toMillis, toPlace, openTimes, photoOf, liveDeal, placesOf, withDeals, dealUntil, isStale, fromList, FRESH_FOR,
 } from '../rules.js';
 
 const cafe = (extra = {}) => ({ published: true, kind: 'cafe', name: 'Flat White', line: 'Coffee on Elvet Bridge', ...extra });
@@ -115,4 +115,14 @@ test('photos: an https address, or a picture that comes with the app', () => {
   assert.equal(photoOf('../secret.jpg', 'https://app.example/features/listings/Listings.js'), null);
   assert.equal(photoOf('javascript:alert(1)'), null);
   assert.equal(photoOf(''), null);
+});
+
+test('the list of every place in one document: published places only, or null without a list', () => {
+  const items = fromList({ items: { a: { name: 'Flat White', kind: 'cafe', published: true }, b: { name: 'Draft', published: false } }, at: 1 });
+  assert.deepEqual(items.map(([id]) => id), ['a']);
+  assert.equal(toPlace(...items[0]).name, 'Flat White');
+  assert.deepEqual(fromList({ items: {} }), []);
+  assert.equal(fromList(null), null);
+  assert.equal(fromList({ items: [] }), null);
+  assert.equal(fromList({}), null);
 });

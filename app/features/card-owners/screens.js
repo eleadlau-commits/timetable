@@ -91,15 +91,34 @@ export class Approvals {
   }
 
   // How many changes are waiting.
+  // Also makes the list students read again, now and then (store.freshenList).
   async waiting(db) {
+    this.freshen(db);
     return (await this.store.waiting(db)).length;
   }
 
-  // Fetches what it shows. Returns how many changes are waiting.
+  // Fetches what it shows. Returns how many changes are waiting. Every card has just been read,
+  // so the list students read is brought up to date too, for free (store.saveList); approving
+  // loads again, so an approved change reaches the list straight away.
   async load(db) {
     const [changes, cards, codes] = await Promise.all([this.store.waiting(db), this.store.allCards(db), this.store.codes(db)]);
     this.data = { changes, cards, codes };
+    this.saveList(db);
     return changes.length;
+  }
+
+  saveList(db) {
+    const fields = this.account?.fields;
+    if (!fields) return;
+    this.store.saveList(db, fields).then(() => {
+      const storage = this.feature.storage;
+      storage.set('listed', { ...(storage.get('listed', {}) || {}), [this.store.config.list]: Date.now() });
+    }).catch(() => {});
+  }
+
+  freshen(db) {
+    const fields = this.account?.fields;
+    if (fields) this.store.freshenList(db, fields, this.feature.storage).catch(() => {});
   }
 
   render(window) {

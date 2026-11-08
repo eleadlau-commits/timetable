@@ -6,21 +6,23 @@
 // The societies come from the online database's 'societies' collection, which the team fills in
 // the Firebase console (see README.md). Everyone can read the published ones, signed in or not;
 // the app can't change them. They're kept on the phone, so they show straight away and offline,
-// and the database is asked again only when the copy is older than FRESH_FOR (rules.js).
+// and the database is asked again only when the copy is older than FRESH_FOR (rules.js). It reads
+// lists/societies, every published society in one document (1 read, kept up to date by the team's
+// phones: see the card-owners feature), and only reads them one by one if that list isn't there.
 //
 // Service 'societies': for the society-committee feature, which shows a committee its own card.
 //   card(society) → the card exactly as students see it (society as tidy() gives it)
 //   tidy(id, data) → a document from the database, tidied as the list has it, or null
 //   TYPES, typeName(id)
 //
-// Events: 'societies:shown' with [society ids] whenever societies are drawn in the list, and
+// Events: 'societies:shown' with [society ids] when societies come on screen in the list, and
 // 'societies:tapped' with a society id when someone taps its Instagram or Join button. The
 // society-committee feature counts them (once a day per phone), so committees see How it's going.
 //
 // Saved data: 'saved' → { at (ms), list: [{ id, type, name, line, meets, fee, instagram, join, photo, order }] }
 
 import { Feature, ui } from 'folio';
-import { toSociety, pick, typesIn, isStale, MOST, TYPES, typeName } from './rules.js';
+import { toSociety, pick, typesIn, isStale, fromList, MOST, TYPES, typeName } from './rules.js';
 
 const { el } = ui;
 
@@ -68,8 +70,8 @@ export default class Societies extends Feature {
 
   async load() {
     const db = await this.account.publicDatabase();
-    const snap = await db.collection('societies').where('published', '==', true).limit(MOST).get();
-    const list = snap.docs.map((d) => toSociety(d.id, d.data(), import.meta.url)).filter(Boolean);
+    const list = (await this.fromList(db) || await this.oneByOne(db))
+      .map(([id, data]) => toSociety(id, data, import.meta.url)).filter(Boolean);
     const changed = JSON.stringify(list) !== JSON.stringify(this.list);
     this.saved = { at: Date.now(), list };
     this.storage.set('saved', this.saved);
@@ -77,6 +79,18 @@ export default class Societies extends Feature {
       this.refresh();
       if (this.window?.isOpen) this.fill();
     }
+  }
+
+  // Every published society in one document (1 read), or null if there's no list yet.
+  async fromList(db) {
+    const snap = await db.doc('lists/societies').get().catch(() => null);
+    return snap?.exists ? fromList(snap.data()) : null;
+  }
+
+  // The societies one by one (a read each): before the team's phone has made the list.
+  async oneByOne(db) {
+    const snap = await db.collection('societies').where('published', '==', true).limit(MOST).get();
+    return snap.docs.map((d) => [d.id, d.data()]);
   }
 
   // ---- The window ----
@@ -105,7 +119,6 @@ export default class Societies extends Feature {
       results.replaceChildren(...(shown.length
         ? shown.map((s) => this.card(s))
         : [el('p', { class: 'hint' }, this.search ? `No societies match "${this.search}".` : 'No societies here yet.')]));
-      if (shown.length) this.emit('societies:shown', shown.map((s) => s.id));
     };
     searchBox.addEventListener('input', () => { this.search = searchBox.value; draw(); });
     const chip = (id, name) => el('button', {
@@ -122,7 +135,7 @@ export default class Societies extends Feature {
   // One society. `preview` is for a committee looking at its own card: the buttons don't count.
   card(s, { preview = false } = {}) {
     const tapped = () => { if (!preview) this.emit('societies:tapped', s.id); };
-    return el('article', { class: 'society-card' },
+    const card = el('article', { class: 'society-card' },
       s.photo && el('div', { class: 'society-photo', style: `--photo: url("${encodeURI(s.photo)}")`, role: 'img', 'aria-label': `Photo of ${s.name}` }),
       el('div', { class: 'society-head' },
         el('b', {}, s.name),
@@ -133,6 +146,20 @@ export default class Societies extends Feature {
       (s.instagram || s.join) && el('div', { class: 'society-links' },
         s.instagram && el('a', { class: 'btn small', href: s.instagram, target: '_blank', rel: 'noopener', onclick: tapped }, 'Instagram'),
         s.join && el('a', { class: 'btn small primary', href: s.join, target: '_blank', rel: 'noopener', onclick: tapped }, 'Join')));
+    if (!preview) ui.onSeen(card, () => this.seen(s.id));
+    return card;
+  }
+
+  // Societies that came on screen, sent together as one 'societies:shown' a moment later.
+  seen(id) {
+    if (!this.seenIds) this.seenIds = new Set();
+    this.seenIds.add(id);
+    clearTimeout(this.seenTimer);
+    this.seenTimer = setTimeout(() => {
+      const ids = [...this.seenIds];
+      this.seenIds.clear();
+      this.emit('societies:shown', ids);
+    }, 400);
   }
 
   // Questions and answers for the Help page.

@@ -14,7 +14,7 @@ The `cardOwners` service:
 
 | Part | What |
 |---|---|
-| `store(config)` | The database steps for one kind of card (use a code, leave, send or withdraw a change, the counts, Delete my account, and for the team: changes waiting, approve, reject, every card, make and remove codes). `config` gives the names that kind keeps its things under, so nothing stored ever moves. See the top of `store.js`. |
+| `store(config)` | The database steps for one kind of card (use a code, leave, send or withdraw a change, the counts, Delete my account, and for the team: changes waiting, approve, reject, every card, make and remove codes, and the list students read: `saveList`, `freshenList`). `config` gives the names that kind keeps its things under, so nothing stored ever moves. See the top of `store.js`. |
 | `isAdmin(db, uid)` | Whether this account approves changes (`admins/{uid}`, made by hand in the Firebase console). |
 | `makeCode()`, `cleanCode(text)`, `showCode(code)` | Codes like `K7QM-2XPA`: 8 letters and numbers, without I, O, 0 or 1. |
 | `weekOf()`, `weeksBack(n)`, `trend(stats, weeks)`, `trendSentence(points, words)`, `toCount(record, kind, ids)` | The weeks (starting on Monday), the bars' numbers, the sentence under them, and once-a-day counting. |
@@ -24,6 +24,15 @@ The `cardOwners` service:
 | `new Approvals(feature, store, { differences, words })` | One kind of card's parts of Approve changes: the changes waiting (what's on the card now, and what it would become) and making codes. The shop's own window uses it, and so does the Societies part. |
 
 Checking what people type uses Folio's `check.form()` (each kind keeps its own fields and their checks).
+
+## The list students read
+
+Reading each card separately costs one database read per card, so 300 societies would be 300 reads every time a phone refreshes them, and the free plan's 50,000 reads a day would run out at about 150 students. So the published cards are also copied into **one document**, `lists/spots` or `lists/societies` (`{ items: { id: card as stored }, at }`), and phones read just that (1 read). If it's missing, phones read the cards one by one as before.
+
+The team's phones make it, so it needs no server:
+- **Opening Approve changes** reads every card anyway, so the list is written then (only if it changed), and again after each approve.
+- **Opening the app** as someone in `admins` makes it again at most every 3 hours (`freshenList`), so changes typed straight into the Firebase console reach students too.
+- If there are more cards than Approve changes asks for, or they're too big for one document (about 1 MB), the list is deleted and phones go back to reading cards one by one.
 
 ## Which names each kind uses
 
@@ -36,6 +45,7 @@ Checking what people type uses Folio's `check.form()` (each kind keeps its own f
 | Counts | `spotStats` | `societyStats` |
 | The card's id is called | `place` | `society` |
 | A used code can be removed | no | yes (it also unlinks the person) |
+| The list students read | `lists/spots` | `lists/societies` |
 
 These are the names the database has always used; its rules (`firebase/firestore.rules`) are unchanged.
 
@@ -46,7 +56,7 @@ These are the names the database has always used; its rules (`firebase/firestore
 
 ## What it saves on the phone
 
-- Nothing of its own.
+- Nothing of its own. In the feature that uses it (shop, society-committee), `listed` → `{ <list>: ms }`: when this phone last made the list students read (team's phones only).
 
 ## How to check it works
 

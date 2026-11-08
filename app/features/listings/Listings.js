@@ -5,12 +5,14 @@
 //
 // The places are kept on the phone, so Spots shows them straight away and offline, and the
 // database is asked again only when the saved copy is older than FRESH_FOR (rules.js), to stay
-// well inside the free plan's daily reads.
+// well inside the free plan's daily reads. It reads lists/spots, every published place in one
+// document (1 read, kept up to date by the team's phones: see the card-owners feature), and only
+// reads the places one by one if that list isn't there.
 //
 // Saved data: 'saved' → { at (ms), places: [{ id, kind, name, line, deal, dealEnds, address, link, hours, open, photo, menu, order }] }
 
 import { Feature } from 'folio';
-import { toPlace, placesOf, withDeals, liveDeal, dealUntil, isStale, MOST } from './rules.js';
+import { toPlace, placesOf, withDeals, liveDeal, dealUntil, isStale, fromList, MOST } from './rules.js';
 
 export default class Listings extends Feature {
   start() {
@@ -48,11 +50,23 @@ export default class Listings extends Feature {
 
   async load() {
     const db = await this.account.publicDatabase();
-    const snap = await db.collection('spots').where('published', '==', true).limit(MOST).get();
-    const places = snap.docs.map((d) => toPlace(d.id, d.data(), import.meta.url)).filter(Boolean);
+    const places = (await this.fromList(db) || await this.oneByOne(db))
+      .map(([id, data]) => toPlace(id, data, import.meta.url)).filter(Boolean);
     const changed = JSON.stringify(places) !== JSON.stringify(this.list);
     this.saved = { at: Date.now(), places };
     this.storage.set('saved', this.saved);
     if (changed) this.refresh();
+  }
+
+  // Every published place in one document (1 read), or null if there's no list yet.
+  async fromList(db) {
+    const snap = await db.doc('lists/spots').get().catch(() => null);
+    return snap?.exists ? fromList(snap.data()) : null;
+  }
+
+  // The places one by one (a read each): before the team's phone has made the list.
+  async oneByOne(db) {
+    const snap = await db.collection('spots').where('published', '==', true).limit(MOST).get();
+    return snap.docs.map((d) => [d.id, d.data()]);
   }
 }

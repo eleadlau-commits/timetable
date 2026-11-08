@@ -34,7 +34,7 @@ The steps are the `card-owners` feature's, the same as for shops; `store.js` say
 
 A committee can also read its own society even while it's a draft (`published: false`), but never change it directly. **Delete my account** removes the person's `societyOwners` link (in `account/rules.js`), the code they used and a change they sent that's still waiting (`removeAll` in the card-owners feature's `store.js`, through `account.cleanup`). The privacy notice describes all of it.
 
-**Counting:** on students' phones, when the Societies list shows societies (`societies:shown`) and when someone taps Instagram or Join (`societies:tapped`), each society is counted once a day per phone (the card-owners feature's `counter`). Not in the business version, and never in test builds (`no-count`, set by `app/tests/seed.js`).
+**Counting:** on students' phones, when a society comes on screen in the Societies list (`societies:shown`) and when someone taps Instagram or Join (`societies:tapped`), each society is counted once a day per phone (the card-owners feature's `counter`). Not in the business version, and never in test builds (`no-count`, set by `app/tests/seed.js`).
 
 ## What it shares with shops
 

@@ -12,6 +12,8 @@
 //     toStore(change),         the card's fields, ready to store
 //     fromStore(data),         a card or change as stored → as the app uses it (optional)
 //     most: 200,               how many cards Approve changes asks for at once
+//     list: 'spots',           lists/{list}: every published card in one document, which
+//                              students' phones read instead of each card (see saveList)
 //     removeUsed: false,       whether the team can delete a used code (which also unlinks the
 //                              person who used it)
 //   })
@@ -24,6 +26,11 @@ const toMs = (value) => (value && typeof value.toMillis === 'function' ? value.t
 
 export { toMs };
 
+// The most the list of published cards may hold, in characters (a database document holds about
+// 1 MB), and how often the team's phones make it again.
+export const LIST_MOST = 900000;
+export const LIST_EVERY = 3 * 60 * 60 * 1000;
+
 // Whether this account approves changes: made by hand in the Firebase console (admins/{uid}).
 export async function isAdmin(db, uid) {
   const snap = await db.doc(`admins/${uid}`).get();
@@ -34,6 +41,10 @@ export function makeStore(config) {
   const { cards, codes, owners, changes, stats, link, toStore } = config;
   const fromStore = config.fromStore || ((data) => data);
   const most = config.most || 200;
+  // The published cards as stored, from the last allCards(), for saveList: { id: data }, or null
+  // if there were more than allCards asks for (then the list can't be complete).
+  let published = null;
+  let savedList = null; // what saveList last wrote, so the same list isn't written twice
 
   // A change as stored → the same with `at` in ms.
   const read = (snap) => {
@@ -146,6 +157,8 @@ export function makeStore(config) {
     // …the card }], by name.
     async allCards(db) {
       const snap = await db.collection(cards).limit(most).get();
+      published = snap.docs.length >= most ? null
+        : Object.fromEntries(snap.docs.filter((d) => d.data().published === true).map((d) => [d.id, d.data()]));
       return snap.docs.map((d) => ({ ...fromStore(d.data()), id: d.id, name: String(d.data().name || d.id), published: d.data().published === true }))
         .sort((a, b) => a.name.localeCompare(b.name));
     },
@@ -155,6 +168,41 @@ export function makeStore(config) {
       const snap = await db.collection(codes).limit(200).get();
       return snap.docs.map((d) => ({ code: d.id, card: d.data()[link], used: !!d.data().usedBy, usedBy: d.data().usedBy || null, made: toMs(d.data().made) }))
         .sort((a, b) => (b.made || 0) - (a.made || 0));
+    },
+
+    // The list students' phones read (lists/{list}): every published card, as stored, in one
+    // document, so a phone reads 1 document instead of one per card. Made from what the last
+    // allCards() found, so it costs no extra reads. If the cards don't all fit (more than allCards
+    // asks for, or too big for one document), the list is deleted and phones read the cards one
+    // by one as before. Returns true if it wrote or deleted something.
+    async saveList(db, fields) {
+      if (!config.list) return false;
+      const ref = db.doc(`lists/${config.list}`);
+      const size = published ? JSON.stringify(published).length : Infinity;
+      if (!published || size > LIST_MOST) {
+        if (savedList === 'none') return false;
+        await ref.delete();
+        savedList = 'none';
+        return true;
+      }
+      const print = JSON.stringify(published);
+      if (print === savedList) return false;
+      await ref.set({ items: published, at: fields.serverTimestamp() });
+      savedList = print;
+      return true;
+    },
+
+    // For the team's phones: makes the list again if it hasn't been made for `every` ms on this
+    // phone (when it's last made is kept in `storage` under 'listed'), so changes typed in the
+    // Firebase console reach students too. Costs one look at every card.
+    async freshenList(db, fields, storage, every = LIST_EVERY) {
+      if (!config.list || !storage) return false;
+      const listed = storage.get('listed', {}) || {};
+      if (Date.now() - (listed[config.list] || 0) < every) return false;
+      await store.allCards(db);
+      await store.saveList(db, fields);
+      storage.set('listed', { ...listed, [config.list]: Date.now() });
+      return true;
     },
 
     async addCode(db, fields, code, id) {

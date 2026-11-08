@@ -508,6 +508,22 @@ service cloud.firestore {
         && (request.resource.data.get('taps', 0) - resource.data.get('taps', 0)) in [0, 1];
     }
 
+    // ---- Lists: every published place or society in one document ----
+    // lists/spots and lists/societies hold copies of the published cards ({ items: { id: card },
+    // at }), so a phone reads 1 document instead of one per card, which keeps the app inside the
+    // free plan's daily reads. Everyone can read them, signed in or not (the cards in them are
+    // public anyway). Only the team's phones make them, when someone in 'admins' opens the app or
+    // Approve changes (the card-owners feature); nobody else can write them.
+
+    match /lists/{name} {
+      allow get: if name in ['spots', 'societies'];
+      allow create, update: if isAdmin() && name in ['spots', 'societies']
+        && request.resource.data.keys().hasOnly(['items', 'at'])
+        && request.resource.data.items is map
+        && request.resource.data.at == request.time;
+      allow delete: if isAdmin();
+    }
+
     function validStat(stat, d) {
       return d.keys().hasOnly(['place', 'week', 'seen', 'taps'])
         && d.keys().hasAll(['place', 'week'])
