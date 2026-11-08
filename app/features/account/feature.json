@@ -1,9 +1,14 @@
 {
   "name": "Account",
   "description": "Your account page: sign in with Google, or with an email and password.",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "main": "Account.js",
   "styles": ["account.css"],
+  "web": {
+    "pages": {
+      "privacy": { "title": "Privacy notice", "module": "privacy.js", "render": "privacyNotice" }
+    }
+  },
   "native": {
     "packages": { "@capacitor-firebase/authentication": "^7.5.0" },
     "capacitor": {

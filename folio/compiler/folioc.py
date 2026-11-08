@@ -395,9 +395,34 @@ class Project:
         if problem:
             return f.leave_out('mistake', problem)
         web = m.get('web', {})
-        if not isinstance(web, dict) or any(k != 'manifest' for k in web):
-            return f.leave_out('mistake', '"web" can only contain "manifest"')
+        if not isinstance(web, dict) or any(k not in ('manifest', 'pages') for k in web):
+            return f.leave_out('mistake', '"web" can only contain "manifest" and "pages"')
+        problem = self.check_web_pages(f, web.get('pages', {}))
+        if problem:
+            return f.leave_out('mistake', problem)
         self.scan_code(f)
+
+    @staticmethod
+    def check_web_pages(f: FeatureInfo, pages) -> str:
+        """Checks "web.pages": pages of their own on the website, such as a privacy policy, each
+        { "title", "module", "render" }. Returns a problem, or ''."""
+        shape = '"web.pages" must look like { "privacy": { "title": "…", "module": "privacy.js", "render": "privacyNotice" } }'
+        if not isinstance(pages, dict):
+            return shape
+        for name, page in pages.items():
+            if not re.fullmatch(r'[a-z0-9][a-z0-9-]*', name) or name in ('index', 'tests', 'report'):
+                return f'"web.pages" can\'t use the name "{name}" (small letters, numbers and dashes; not index or tests)'
+            if not (isinstance(page, dict) and set(page) == {'title', 'module', 'render'}
+                    and all(isinstance(v, str) and v for v in page.values())):
+                return shape
+            if not re.fullmatch(r'[A-Za-z_$][\w$]*', page['render']):
+                return f'"web.pages.{name}.render" must be the name of a function the module exports'
+            module = absolute(f.path / page['module'])
+            if not module.is_relative_to(f.path) or module.suffix != '.js':
+                return f'"web.pages.{name}.module" must be a .js file inside the feature\'s folder'
+            if not module.is_file():
+                return f'"web.pages.{name}.module" ({page["module"]}) is missing'
+        return ''
 
     @staticmethod
     def check_android_extras(f: FeatureInfo, android) -> str:
@@ -614,6 +639,9 @@ class Project:
         (web / 'index.html').write_text(self._index_html(app, templates, test), 'utf-8')
         manifest = self._web_manifest(app, included)
         (web / 'manifest.webmanifest').write_text(json.dumps(manifest, indent=2), 'utf-8')
+        for f in included:
+            for name, page in f.manifest.get('web', {}).get('pages', {}).items():
+                (web / f'{name}.html').write_text(self._web_page(app, f, page), 'utf-8')
         if (self.app_dir / 'icons').is_dir():
             shutil.copytree(self.app_dir / 'icons', web / 'icons',
                             ignore=shutil.ignore_patterns('icon-only.png'))
@@ -735,6 +763,41 @@ class Project:
         for key, value in values.items():
             page = page.replace('{{' + key + '}}', value)
         return page
+
+    def _web_page(self, app: dict, f: FeatureInfo, page: dict) -> str:
+        """A page of its own on the website (feature.json "web.pages"), drawn by a function in the
+        feature's code with the app's own styles, so it says exactly what the app says."""
+        title = html.escape(f'{page["title"]} · {app["name"]}')
+        module = f'./features/{f.id}/' + absolute(f.path / page['module']).relative_to(absolute(f.path)).as_posix()
+        return f'''<!doctype html>
+<html lang="{html.escape(app['lang'])}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{title}</title>
+<link rel="icon" type="image/png" href="icons/icon-192.png">
+<link rel="stylesheet" href="app.css">
+<style>
+.folio-web-page {{ max-width: 720px; margin: 0 auto; padding: 24px 16px 48px; }}
+.folio-web-page > h1 {{ margin: 0 0 4px; font-size: 26px; }}
+.folio-web-page > .folio-web-page-app {{ margin: 0; color: var(--text-2); }}
+</style>
+<script type="importmap">{self._import_map(False)}</script>
+</head>
+<body>
+<main class="folio-web-page">
+<h1>{html.escape(page['title'])}</h1>
+<p class="folio-web-page-app">{html.escape(app['name'])}</p>
+<div id="folio-page"></div>
+<noscript>This page needs JavaScript.</noscript>
+</main>
+<script type="module">
+import {{ {page['render']} as render }} from {json.dumps(module)};
+document.getElementById('folio-page').append(render());
+</script>
+</body>
+</html>
+'''
 
     def _web_manifest(self, app: dict, included: list[FeatureInfo]) -> dict:
         manifest = {

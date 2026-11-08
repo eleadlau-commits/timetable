@@ -84,7 +84,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
   "uses": ["durham-rooms"],
   "platforms": ["web", "android", "ios"],
   "enabled": true,
-  "web": { "manifest": { } },
+  "web": { "manifest": { }, "pages": { } },
   "native": {
     "packages": { "@capacitor/local-notifications": "^7.0.0" },
     "capacitor": { "plugins": { } },
@@ -114,6 +114,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
 | `platforms` | no | Where it runs: `web`, `android`, `ios`. Default: everywhere. |
 | `enabled` | no | `false` switches the feature off without deleting it. |
 | `web.manifest` | no | Merged into the web app manifest, e.g. a `share_target`. |
+| `web.pages` | no | Pages of their own on the website, outside the app, e.g. a privacy policy a store needs a link to: `{ "privacy": { "title": "Privacy notice", "module": "privacy.js", "render": "privacyNotice" } }` makes `privacy.html` next to `index.html`. It loads the app's styles and shows what the module's `render` function returns (an element), so the page and the app say the same thing. Keep that module free of anything that needs the app running. Names are small letters, numbers and dashes (not `index` or `tests`). |
 | `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). For iPhone also `files` (added to the app: its name in the app → the file in `native/`, e.g. Firebase's `GoogleService-Info.plist`) and `pods` (lines added to the Podfile's app target, e.g. a plugin's optional part). iPhone `plist` entries are merged: lists are added to, dictionaries combined. |
 
 The folder name is the feature's id: lowercase words joined by dashes.
@@ -331,6 +332,8 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.10.1:** `python build.py ios-project` now deletes the iPhone project's `Podfile.lock` when it adds features' Podfile lines. `npx cap add ios` has already run `pod install`, so the lock listed the Podfile as it was before, and CocoaPods quietly ignored the new lines: a plugin's optional part (`CapacitorFirebaseAuthentication/Google`, which Google sign-in needs) was left out of the app altogether. Features written for 1.10 keep working.
 
 **1.10.0:** the iPhone app. Features' `native.ios` can now also list `files` to add to the iPhone app and `pods` (Podfile lines), alongside `plist`; app.json's `native.ios` can set the iPhone app's own `appId`, app-wide `plist` entries and `devices`. The new `python build.py ios-project` prepares the iPhone project Capacitor makes, like `android-project` does for Android, and `@capacitor/ios` is always in `dist/package.json`. Features written for 1.9 keep working.
+
+**1.14.0:** `web.pages` in feature.json: a feature can put a page of its own on the website (such as `privacy.html`), drawn by a function in its code with the app's styles. Features written for 1.13 keep working.
 
 **1.13.0:** changing tab is smoother: swiping the page leans it with the finger and moves the tab bar's highlight, and every change of tab slides the new one in from its side. New `ui.followSwipe()`, `ui.swipeDirection()` and `ui.reduceMotion()` for features that follow a sideways drag themselves. Features written for 1.12 keep working.
 
