@@ -8,7 +8,7 @@
 //   onDay(date, { includeHidden, others })   the sessions on one day (classes and extra ones,
 //                           and with others: true other people's too), in time order
 //   hiddenNote(date)        "2 hidden sessions · Manage modules", or null
-//   isShown(s), name(s), shortName(s), hue(s), kind(s), badge(s), moduleOf(s), defaultHue(module)
+//   isShown(s), name(s), shortName(s), moduleName(s), hue(s), kind(s), badge(s), moduleOf(s), defaultHue(module)
 //   placeLabel(location), placeLink(location)
 //   card(s, { now, extra }) a session card element
 //   open(s)                 opens the session details window
@@ -28,7 +28,7 @@
 // Events it sends: 'sessions:changed' after changed().
 
 import { Feature, ui, time } from 'folio';
-import { moduleKey, hueFor, kindOf, webLink } from './format.js';
+import { moduleKey, moduleTitle, hueFor, kindOf, webLink } from './format.js';
 import * as layout from './layout.js';
 
 const { el } = ui;
@@ -136,6 +136,12 @@ export default class Sessions extends Feature {
 
   shortName(s) {
     return this.slot('session.name').first((r) => r.short?.(s)) || (s.others ? (s.short || s.title) : s.own ? s.title : this.moduleOf(s));
+  }
+
+  // The module's name for small spaces such as the week grid: the name chosen in Modules, else
+  // the title without its code and type ("Mathematical Methods II"), else the code.
+  moduleName(s) {
+    return this.slot('session.name').first((r) => r.short?.(s)) || (s.others ? (s.short || s.title) : s.own ? s.title : moduleTitle(s.title) || this.moduleOf(s));
   }
 
   defaultHue(module) {

@@ -84,7 +84,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
   "uses": ["durham-rooms"],
   "platforms": ["web", "android", "ios"],
   "enabled": true,
-  "web": { "manifest": { } },
+  "web": { "manifest": { }, "pages": { } },
   "native": {
     "packages": { "@capacitor/local-notifications": "^7.0.0" },
     "capacitor": { "plugins": { } },
@@ -114,6 +114,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
 | `platforms` | no | Where it runs: `web`, `android`, `ios`. Default: everywhere. |
 | `enabled` | no | `false` switches the feature off without deleting it. |
 | `web.manifest` | no | Merged into the web app manifest, e.g. a `share_target`. |
+| `web.pages` | no | Pages of their own on the website, outside the app, e.g. a privacy policy a store needs a link to: `{ "privacy": { "title": "Privacy notice", "module": "privacy.js", "render": "privacyNotice" } }` makes `privacy.html` next to `index.html`. It loads the app's styles and shows what the module's `render` function returns (an element), so the page and the app say the same thing. Keep that module free of anything that needs the app running. Names are small letters, numbers and dashes (not `index` or `tests`). |
 | `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). For iPhone also `files` (added to the app: its name in the app → the file in `native/`, e.g. Firebase's `GoogleService-Info.plist`) and `pods` (lines added to the Podfile's app target, e.g. a plugin's optional part). iPhone `plist` entries are merged: lists are added to, dictionaries combined. |
 
 The folder name is the feature's id: lowercase words joined by dashes.
@@ -165,7 +166,7 @@ export default class Notes extends Feature {
 
 **The frame:** one top bar on a dark background, with the menu button on the left and the account button on the right. Features can put icon buttons just left of the account button (`header.actions`). Under it, the open view's title, on the page (or on the dark area too, for a view marked `darkHead`), with room on its right for small buttons (`mount`'s `actions`). Along the bottom, a tab bar with one tab per view; the open tab is filled in the accent colour, and a line above the bar glows over it. The app always opens on the view marked `start`.
 
-**The tab bar:** tap a tab, or swipe left or right on the bar itself to go to the next or previous tab (it stops at the ends). While the finger is down the bar shifts with it a little, and the highlight and glow move part of the way; they settle on the new tab when it lets go. Swiping sideways anywhere on the page does the same, except where something there has its own sideways swipe: an element marked `data-own-swipe` (such as Home's pages) or anything that scrolls sideways. The arrow keys go to the view's `step()`.
+**The tab bar:** tap a tab, or swipe left or right on the bar itself to go to the next or previous tab (it stops at the ends). While the finger is down the bar shifts with it a little, and the highlight and glow move part of the way; they settle on the new tab when it lets go. Swiping sideways anywhere on the page does the same (the page leans with the finger and the tab bar's highlight follows), except where something there has its own sideways swipe: an element marked `data-own-swipe` (such as Home's pages) or anything that scrolls sideways. The arrow keys go to the view's `step()`. Whenever the tab changes, the new one slides in from its side (from the right for a tab further along), unless the phone asks for reduced motion.
 
 **The menu:** the menu button slides a panel in from the left, over most of the screen, with the rest dimmed. It closes when you tap the dimmed part, swipe the panel to the left, press Escape, or press back (Android, or the browser's back button). It respects "reduce motion". At the top: who is signed in (*Not signed in* until a feature fills the `account` slot) with the `header.status` line under it. Then the rows: the framework's own **Account** (order 10), **Settings** (60) and **About** (80), mixed by `order` with the features' `header.buttons`.
 
@@ -197,7 +198,7 @@ Settings opens with the framework's **Appearance** choice (Automatic, Light or D
 
 ## 6. Helpers: ui, time and check
 
-`ui`: `el(tag, attrs, ...children)`, `icon(name)`, `ICONS`, `toast(text)`, `dialog({ title, className, size, onClose })` → `{ open, close, setContent, setTitle, isOpen, element, content }` (a pop-up that fills the screen, with its title bar staying at the top; pulling it down from the top closes it; `size: 'box'` makes it a small box in the middle instead, for something quick), `errorBox()` → element with `.show(text)`, `hint(text, { small })`, `missing(reason, attrs)` → a "Missing content" box saying what's missing, `select(options, { value, id, onChange })`, `toggle({ checked, label, onChange })`, `filePicker(accept)` → `{ pick() }`, `onSwipe(element, fn)` (fn(±1, startElement)), `ownsSwipe(node, stop)`, `loadScript(url)`.
+`ui`: `el(tag, attrs, ...children)`, `icon(name)`, `ICONS`, `toast(text)`, `dialog({ title, className, size, onClose })` → `{ open, close, setContent, setTitle, isOpen, element, content }` (a pop-up that fills the screen, with its title bar staying at the top; pulling it down from the top closes it; `size: 'box'` makes it a small box in the middle instead, for something quick), `errorBox()` → element with `.show(text)`, `hint(text, { small })`, `missing(reason, attrs)` → a "Missing content" box saying what's missing, `select(options, { value, id, onChange })`, `toggle({ checked, label, onChange })`, `filePicker(accept)` → `{ pick() }`, `onSwipe(element, fn)` (fn(±1, startElement)), `followSwipe(element, { accept(startElement), move(dx), end(direction) })` (a sideways drag that follows the finger; direction is ±1, or 0 to spring back), `swipeDirection(dx, { fast })` (the rule it uses), `reduceMotion()`, `ownsSwipe(node, stop)`, `loadScript(url)`.
 
 Icons in `ui.ICONS`: close, refresh, gear, bell, card, pin, clock, note, trash, left, right, plus, check, menu, account, people, calendar, home, book, dots, link, palette, help, info, chat, qr.
 
@@ -331,5 +332,9 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.10.1:** `python build.py ios-project` now deletes the iPhone project's `Podfile.lock` when it adds features' Podfile lines. `npx cap add ios` has already run `pod install`, so the lock listed the Podfile as it was before, and CocoaPods quietly ignored the new lines: a plugin's optional part (`CapacitorFirebaseAuthentication/Google`, which Google sign-in needs) was left out of the app altogether. Features written for 1.10 keep working.
 
 **1.10.0:** the iPhone app. Features' `native.ios` can now also list `files` to add to the iPhone app and `pods` (Podfile lines), alongside `plist`; app.json's `native.ios` can set the iPhone app's own `appId`, app-wide `plist` entries and `devices`. The new `python build.py ios-project` prepares the iPhone project Capacitor makes, like `android-project` does for Android, and `@capacitor/ios` is always in `dist/package.json`. Features written for 1.9 keep working.
+
+**1.14.0:** `web.pages` in feature.json: a feature can put a page of its own on the website (such as `privacy.html`), drawn by a function in its code with the app's styles. Features written for 1.13 keep working.
+
+**1.13.0:** changing tab is smoother: swiping the page leans it with the finger and moves the tab bar's highlight, and every change of tab slides the new one in from its side. New `ui.followSwipe()`, `ui.swipeDirection()` and `ui.reduceMotion()` for features that follow a sideways drag themselves. Features written for 1.12 keep working.
 
 **1.12.0:** two helpers for forms that several features had their own copies of: the new `check` (`import { check } from 'folio'`) with `check.tidy()`, `check.link()` and `check.form()`, and `time.dayKey()` and `time.fromDayKey()` for date boxes and saving by day. Features written for 1.11 keep working.

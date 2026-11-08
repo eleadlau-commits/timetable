@@ -3,7 +3,7 @@
 .steps li {
   counter-increment: step;
   display: grid;
-  grid-template-columns: 26px 1fr;
+  grid-template-columns: 26px minmax(0, 1fr); /* minmax: a wide picture can't push the page sideways */
   gap: 10px;
   margin-bottom: 12px;
   font-size: 15px;
@@ -25,6 +25,13 @@
 .alt b { color: var(--text); }
 .setup .back { margin-top: 16px; }
 
-/* The refresh button on the Planner tab, like the library's: small, with the refresh icon, spinning while loading */
-.tt-refresh { width: 32px; height: 32px; flex: none; }
-.tt-refresh:disabled { cursor: default; }
+/* Pictures under some steps of the guide: under the words, as wide as the column allows. */
+.steps .step-picture {
+  grid-column: 2;
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  border-radius: var(--shape-sm);
+  box-shadow: 0 0 0 1px var(--line);
+}
+.steps code { overflow-wrap: anywhere; } /* a long web address wraps instead of running off the screen */

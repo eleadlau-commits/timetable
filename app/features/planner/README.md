@@ -6,14 +6,17 @@ The **Planner** tab: one calendar you zoom in and out of, like the iPhone's Cale
 - **Zoom out:** tap the purple label at the top left (such as **‹ October**), or pinch with two fingers. Spreading two fingers zooms in.
 - **Jump to a level:** the small **Y M W D** switch.
 - **Upcoming:** the list button next to the switch shows the next four weeks as a list; tap it again to go back.
-- Arrow keys go to the open level's previous or next year, month, week or day; swipes change tab, as everywhere. Animations are skipped when the phone's "reduce motion" setting is on.
+- **Swipe** left or right on Day, Week or Month to go to the next or previous day, week or month. The calendar follows your finger, slides off and the new one slides in from the other side; a short swipe springs back. On Year (and Upcoming) a swipe changes tab, as everywhere else.
+- **Pull down** from the top of the calendar to download the timetable again: a spinner comes down with your finger and spins while it loads (the `planner.refresh` slot; Timetable fills it).
+- Arrow keys go to the open level's previous or next year, month, week or day. Animations are skipped when the phone's "reduce motion" setting is on.
 
-The Planner **opens on Day, on today**, each time the app starts. While the app stays open, it keeps the level and day you were on when you switch tabs and come back.
+The Planner **opens on Day, on today**, each time the app starts, and goes back there when the app comes back after **30 minutes or more** in the background, or on a new day (`rules.js`). Otherwise, it keeps the level and day you were on when you switch tabs and come back.
 
 ## What it adds
 
 - **The Planner tab** (view id `planner`, calendar icon). It only appears when at least one view is inside it.
 - **A bar under the title:** the zoom-out label, the level switch, a button for each view that isn't a level (Upcoming), and features' small buttons (`planner.buttons`, such as Modules).
+- **A pull-down spinner** above the calendar.
 - **Small buttons on the right of its title**, from other features (see `planner.actions` below).
 
 ## What it offers other features
@@ -21,9 +24,11 @@ The Planner **opens on Day, on today**, each time the app starts. While the app 
 - **Slot `planner.views`:** views inside the Planner. Item: `{ id, label, order, mount(container), render(), step?(direction), visible?() }`, as for the framework's `views` slot, plus:
   - `zoom`: makes it a level; bigger is closer. Year 10, Month 20, Week 30, Day 40.
   - `short`: its letter on the level switch (e.g. `'M'`).
+  - `swipe: false`: swiping this level changes tab instead of calling its `step()` (Year uses it). Levels with `step()` move on with a swipe otherwise.
   - `crumb(date)`: the zoom-out label's text while the next level in is open (Month gives the month's name).
   - `buttonIcon`: for a view without `zoom`, the icon of its button (a list if not given).
-- **Slot `planner.actions`:** small round buttons on the right of the Planner's title. Item: `{ order, render() → element or null }`. Timetable adds its refresh button here. Use `icon-btn ghost`.
+- **Slot `planner.actions`:** small round buttons on the right of the Planner's title. Item: `{ order, render() → element or null }`. Nothing uses it at the moment (the timetable's refresh button became pull down to refresh). Use `icon-btn ghost`.
+- **Slot `planner.refresh`:** what pulling the calendar down does. Item: `{ order, ready() → true when there's something to refresh, busy(), refresh() → a promise }`. The first ready item is used; with none, pulling does nothing. Timetable adds one that downloads the timetable again.
 - **Slot `planner.buttons`:** small buttons next to the level switch. Item: `{ order, render() → element or null }`. Modules adds its palette button here. Use `icon-btn` with an `aria-label`.
 - **Service `planner`:** there while Planner is running. Views check for it: `this.add(this.use('planner') ? 'planner.views' : 'views', …)`, so without Planner each becomes a tab of its own. It has `zoomIn()` and `zoomOut()` (one level, on the sessions service's selected day) and `show(id, 'in' | 'out')`.
 - `app.shell.selectView('week')` opens the Planner on Week, because the Planner answers `contains('week')`.
@@ -40,6 +45,7 @@ The Planner **opens on Day, on today**, each time the app starts. While the app 
 
 1. Run `python build.py serve --test` and tap **Planner** at the bottom. It opens on today's Day.
 2. Tap **‹ This week**, then **‹ October**, then **‹ 2026–27**: Week, Month, Year. Tap a month to go back in.
-3. Switch to Home and back: the Planner is still on the level you left.
-4. On a phone (or touch emulation), pinch in and out.
-5. Run `python build.py test`. Try `python build.py --without planner`: the views come back as tabs.
+3. Switch to Home and back: the Planner is still on the level you left. (Leave the app for 30 minutes and it's back on today's Day.)
+4. On a phone (or touch emulation), pull the calendar down from the top and let go: the spinner spins and "Updated just now" appears.
+5. On a phone (or touch emulation), pinch in and out. Swipe left on Day: tomorrow slides in. Do the same on Week and Month. On Year, a swipe goes to the next tab.
+6. Run `python build.py test` (rules in `tests/rules.test.js`). Try `python build.py --without planner`: the views come back as tabs.

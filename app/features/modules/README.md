@@ -11,6 +11,8 @@ Sessions are grouped into modules by their code, e.g. ECON1011. For each module 
 - **Windows:** the modules list and the module editor.
 - **Next to the Planner's level switch** (`planner.buttons`): a small palette button (*Modules: colours and names*) that opens the list, once there's a timetable.
 
+Long names wrap onto more lines in the list, so it never runs off the screen.
+
 **Requires:** sessions.
 
 **Saves:** `names`, `colours` and `hidden`, each per module. Brings these across from version 1 on first start, and forgets them when the timetable is removed.

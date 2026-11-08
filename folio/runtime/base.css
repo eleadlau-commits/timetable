@@ -152,6 +152,18 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
 
 main, .view-host { flex: 1; display: flex; flex-direction: column; }
 .view { flex: 1; display: flex; flex-direction: column; }
+/* Changing tab: the page leans with the finger, then the new tab slides in from its side. */
+main { overflow-x: clip; }
+.view.leaning { transition: none; }
+.view.settle { transition: transform .25s cubic-bezier(.2, .8, .2, 1), opacity .25s; }
+@keyframes view-from-right { from { opacity: 0; transform: translateX(22%); } to { opacity: 1; transform: none; } }
+@keyframes view-from-left { from { opacity: 0; transform: translateX(-22%); } to { opacity: 1; transform: none; } }
+.view.slide-next { animation: view-from-right .3s cubic-bezier(.2, .8, .2, 1); }
+.view.slide-prev { animation: view-from-left .3s cubic-bezier(.2, .8, .2, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .view.settle { transition: none; }
+  .view.slide-next, .view.slide-prev { animation: none; }
+}
 .screen-host { padding: 0 var(--gutter); }
 
 /* Each view's title. Views can add more there (mount's `head`). It's on the page, or on the

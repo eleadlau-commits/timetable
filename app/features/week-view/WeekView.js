@@ -6,6 +6,10 @@ import { Feature, ui, time } from 'folio';
 
 const { el } = ui;
 const HOUR_PX = 52; // keep in sync with the hour lines in week-view.css
+const LINE_PX = 12.6; // one line of a block's text: 10.5px at line-height 1.2, as in week-view.css
+
+// How many lines of the module's name fit in a block this tall (3px padding top and bottom).
+const linesFor = (height) => Math.max(1, Math.floor((height - 6) / LINE_PX));
 
 export default class WeekView extends Feature {
   start() {
@@ -22,12 +26,13 @@ export default class WeekView extends Feature {
       order: 20,
       mount: (container) => this.mount(container),
       render: () => this.render(),
-      step: (direction) => this.move(direction * 7),
+      step: (direction) => this.moveWeek(direction),
     });
   }
 
-  move(days) {
-    this.sessions.select(time.addDays(this.sessions.selected, days));
+  // The next or previous week, opened on its Monday (so zooming in shows Monday).
+  moveWeek(direction) {
+    this.sessions.select(time.addDays(time.startOfWeek(this.sessions.selected), direction * 7));
   }
 
   mount(container) {
@@ -36,10 +41,10 @@ export default class WeekView extends Feature {
     this.grid = el('div');
     container.append(
       el('div', { class: 'weekhead' },
-        el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Previous week', onclick: () => this.move(-7) }, ui.icon('left')),
+        el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Previous week', onclick: () => this.moveWeek(-1) }, ui.icon('left')),
         this.label,
         this.thisWeek,
-        el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Next week', onclick: () => this.move(7) }, ui.icon('right'))),
+        el('button', { type: 'button', class: 'icon-btn ghost', 'aria-label': 'Next week', onclick: () => this.moveWeek(1) }, ui.icon('right'))),
       this.grid);
   }
 
@@ -82,7 +87,7 @@ export default class WeekView extends Feature {
       el('span', { class: 'wk-gutter' }, 'all day'),
       days.map(({ items }) => el('div', { class: 'wk-cell' }, items.filter((s) => s.allDay).map((s) =>
         el('button', { type: 'button', class: `wk-chip${s.outline ? ' outline' : ''}`, style: `--h:${sessions.hue(s)}`, onclick: () => sessions.open(s) },
-          sessions.shortName(s))))));
+          sessions.moduleName(s))))));
 
     const hourLabels = el('div', { class: 'wk-hours' }, Array.from({ length: hours }, (_, i) =>
       el('span', { style: `top:${i * HOUR_PX}px` }, new Date(2000, 0, 1, startH + i).toLocaleTimeString([], { hour: 'numeric' }))));
@@ -94,13 +99,15 @@ export default class WeekView extends Feature {
       }));
       const column = el('div', { class: `wk-col${time.sameDay(day, today) ? ' today' : ''}` }, blocks.map(({ s, top, bottom, lane, lanes }) => {
         const kind = sessions.kind(s);
+        const height = Math.max(18, px(bottom) - px(top) - 2);
+        // The module's name; side by side with a clash there's only room for its code.
         return el('button', {
           type: 'button',
           class: `blk${s.cancelled ? ' cancelled' : ''}${s.end <= now ? ' past' : ''}${s.outline ? ' outline' : ''}${s.others ? ' others' : ''}`,
-          style: `--h:${sessions.hue(s)};--lane:${lane};--lanes:${lanes};top:${px(top)}px;height:${Math.max(18, px(bottom) - px(top) - 2)}px`,
+          style: `--h:${sessions.hue(s)};--lane:${lane};--lanes:${lanes};top:${px(top)}px;height:${height}px;--lines:${linesFor(height)}`,
           'aria-label': `${sessions.name(s)}, ${time.formatTime(s.start)}–${time.formatTime(s.end)}${s.location ? `, ${s.location}` : ''}`,
           onclick: () => sessions.open(s),
-        }, el('b', {}, sessions.shortName(s)), kind && el('small', {}, kind), s.location && el('small', {}, s.location));
+        }, el('b', {}, lanes > 1 ? sessions.shortName(s) : sessions.moduleName(s)), kind && el('small', {}, kind), s.location && el('small', {}, s.location));
       }));
       if (time.sameDay(day, today)) {
         const m = now.getHours() * 60 + now.getMinutes();
@@ -113,5 +120,17 @@ export default class WeekView extends Feature {
     const grid = el('div', { class: 'wk', style: `--cols:${days.length}` }, head, allDayRow, body);
     const empty = !anyTimed && !anyAllDay && el('div', { class: 'empty' }, el('b', {}, 'Nothing scheduled this week'));
     this.grid.replaceChildren(...[empty, grid].filter(Boolean));
+    requestAnimationFrame(() => this.fit(grid));
+  }
+
+  // Leaves out the type or room in a block when it would be cut off at the bottom.
+  fit(grid) {
+    for (const block of grid.querySelectorAll('.blk')) {
+      const bottom = block.getBoundingClientRect().bottom - 2;
+      for (const line of block.querySelectorAll('small')) {
+        line.classList.remove('wont-fit');
+        if (line.getBoundingClientRect().bottom > bottom) line.classList.add('wont-fit');
+      }
+    }
   }
 }

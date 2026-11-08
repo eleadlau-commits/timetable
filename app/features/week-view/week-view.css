@@ -81,8 +81,21 @@
   overflow: hidden;
   cursor: pointer;
 }
-.blk b { font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.blk small { font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* The module's name wraps onto as many lines as the block has (--lines, set by WeekView.js);
+   the type and room come underneath, and are left out when they wouldn't fit whole. */
+.blk b {
+  flex: none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: var(--lines, 2);
+  overflow: hidden;
+  overflow-wrap: break-word;
+  -webkit-hyphens: auto;
+  hyphens: auto; /* long words break with a hyphen ("Micro-economics"), not letter by letter */
+  font-weight: 650;
+}
+.blk small { flex: none; font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.blk small.wont-fit { display: none; }
 .blk.past { opacity: 0.6; }
 .blk.cancelled { opacity: 0.5; }
 .blk.cancelled b { text-decoration: line-through; }
