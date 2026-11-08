@@ -3,7 +3,8 @@
 // 'planner.views' slot with a `zoom` number (bigger is closer). Tapping something in a view zooms
 // in (the view calls planner.zoomIn()); the label at the top left, or pinching, zooms out. Views
 // without a `zoom` (such as Upcoming) are buttons next to the level switch instead.
-// Without Planner the views show up as tabs of their own.
+// Without Planner the views show up as tabs of their own. Swiping left or right moves Day, Week
+// and Month on by a day, week or month; on Year (swipe: false) and Upcoming it changes tab.
 // Other features can put small buttons on the right of the title ('planner.actions'), such as
 // the timetable's refresh button, and small buttons next to the level switch ('planner.buttons'),
 // such as Modules.
@@ -26,7 +27,7 @@ export default class Planner extends Feature {
     this.defineSlot('planner.views',
       'Views inside the Planner tab. Item: { id, label, order, mount(container), render(), step?(direction), visible?() } as for the \'views\' slot, '
       + 'plus zoom? (a number, bigger is closer: Year 10, Month 20, Week 30, Day 40), short? (a letter for the level switch), '
-      + 'crumb?(date) (the text of the zoom-out label when a closer level is open), buttonIcon? (an icon name or drawing for the button of a view without zoom; a list by default).');
+      + 'crumb?(date) (the text of the zoom-out label when a closer level is open), swipe? (false: swiping a level changes tab instead of moving it on; Year), buttonIcon? (an icon name or drawing for the button of a view without zoom; a list by default).');
     this.defineSlot('planner.actions',
       'Small round buttons on the right of the Planner\'s title, for every view in it. Item: { order, render() → element or null }.');
     this.defineSlot('planner.buttons',
@@ -38,6 +39,7 @@ export default class Planner extends Feature {
     this.lastLevel = null; // the zoom level to go back to from a view without zoom
     this.motion = null; // 'in' or 'out' while a zoom is drawn
     this.tap = null; // { x, y, at } of the last tap, so a zoom grows from where you tapped
+    this.pinching = false; // two fingers are down
 
     this.add('views', {
       id: 'planner',
@@ -97,6 +99,19 @@ export default class Planner extends Feature {
     if (view?.step) this.slot('planner.views').run(view, (v) => v.step(direction));
   }
 
+  // Whether swiping the open view moves it on (Day, Week, Month) rather than changing tab: a
+  // zoom level that can step and hasn't said swipe: false (Year).
+  swipes() {
+    const view = this.view;
+    return this.levels.includes(view) && typeof view.step === 'function' && view.swipe !== false;
+  }
+
+  // Tells the page (Folio's ownsSwipe) whether sideways swipes here are the Planner's.
+  claimSwipes() {
+    if (!this.host) return;
+    this.host.toggleAttribute('data-own-swipe', this.pinching || this.swipes());
+  }
+
   mount(container, head, actions) {
     this.actions = actions || null; // frameworks before Folio 1.4 have no place for them
     this.crumb = el('button', { type: 'button', class: 'zoom-crumb', onclick: () => this.zoomOut() });
@@ -108,6 +123,61 @@ export default class Planner extends Feature {
     container.append(this.host);
     this.watchTaps();
     this.watchPinch();
+    this.watchSwipes();
+  }
+
+  // Swiping Day, Week or Month left or right moves to the next or previous day, week or month.
+  // The calendar follows the finger, slides off, and the new one slides in from the other side.
+  watchSwipes() {
+    const node = () => this.sections.get(this.view)?.container;
+    ui.followSwipe(this.host, {
+      accept: (start) => !this.pinching && this.swipes() && !ui.ownsSwipe(start, this.host),
+      move: (dx) => {
+        const n = node();
+        if (!n) return;
+        n.classList.remove('slide-in', 'settle');
+        n.classList.add('dragging');
+        n.style.transform = `translateX(${dx * 0.9}px)`;
+        n.style.opacity = String(1 - Math.min(0.6, Math.abs(dx) / (this.host.offsetWidth || 1)));
+      },
+      end: (direction) => this.slide(node(), direction),
+    });
+  }
+
+  // Finishes a swipe: off to one side, move on, and in from the other; or back where it was.
+  slide(n, direction) {
+    if (!n) return;
+    n.classList.remove('dragging');
+    const clear = () => {
+      n.classList.remove('settle', 'slide-in');
+      n.style.transform = '';
+      n.style.opacity = '';
+    };
+    if (!direction) {
+      n.classList.add('settle');
+      n.style.transform = '';
+      n.style.opacity = '';
+      setTimeout(clear, 260);
+      return;
+    }
+    if (ui.reduceMotion()) {
+      clear();
+      this.step(direction);
+      return;
+    }
+    n.classList.add('settle');
+    n.style.transform = `translateX(${-direction * 45}%)`;
+    n.style.opacity = '0';
+    setTimeout(() => {
+      this.step(direction);
+      n.classList.remove('settle');
+      n.style.transform = `translateX(${direction * 35}%)`;
+      void n.offsetWidth; // from there…
+      n.classList.add('slide-in');
+      n.style.transform = '';
+      n.style.opacity = '';
+      setTimeout(clear, 300);
+    }, 130);
   }
 
   // Remembers where the last tap was, so the next level grows out of the thing you tapped.
@@ -127,7 +197,8 @@ export default class Planner extends Feature {
       start = gap(e);
       done = false;
       // A pinch isn't a swipe: stop the page changing tab when the fingers lift.
-      this.host.setAttribute('data-own-swipe', '');
+      this.pinching = true;
+      this.claimSwipes();
       const x = (e.touches[0].clientX + e.touches[1].clientX) / 2;
       const y = (e.touches[0].clientY + e.touches[1].clientY) / 2;
       this.tap = { x, y, at: Date.now() };
@@ -147,7 +218,10 @@ export default class Planner extends Feature {
     const end = (e) => {
       if (e.touches.length) return;
       start = 0;
-      setTimeout(() => this.host.removeAttribute('data-own-swipe'), 0);
+      setTimeout(() => {
+        this.pinching = false;
+        this.claimSwipes();
+      }, 0);
     };
     this.host.addEventListener('touchend', end, { passive: true });
     this.host.addEventListener('touchcancel', end, { passive: true });
@@ -216,6 +290,7 @@ export default class Planner extends Feature {
       section.container.hidden = v !== current;
     }
     for (const [v, section] of this.sections) if (!views.includes(v)) section.container.hidden = true;
+    this.claimSwipes();
     if (current) slot.run(current, (v) => v.render?.());
     if (current && this.motion) this.animate(this.sections.get(current).container, this.motion);
     this.motion = null;

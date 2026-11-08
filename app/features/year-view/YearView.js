@@ -19,6 +19,7 @@ export default class YearView extends Feature {
       label: 'Year',
       short: 'Y',
       zoom: 10,
+      swipe: false, // swiping the year changes tab instead
       crumb: (day) => this.sessions.layout.academicYear(day).label,
       order: 12,
       mount: (container) => this.mount(container),

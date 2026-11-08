@@ -13,7 +13,7 @@
 //
 // See folio/README.md for details and examples.
 
-import { el, icon, toast, onSwipe, ownsSwipe } from './ui.js';
+import { el, icon, toast, followSwipe, ownsSwipe, reduceMotion } from './ui.js';
 import { Menu } from './Menu.js';
 import { Settings } from './Settings.js';
 import { Tabs } from './Tabs.js';
@@ -48,8 +48,14 @@ export class Shell {
     root.replaceChildren(this.frame);
 
     // Swiping sideways anywhere on the page goes to the next or previous tab, unless the swipe
-    // belongs to something there (see ownsSwipe).
-    onSwipe(this.main, (dir, start) => { if (!ownsSwipe(start, this.main)) this.tabBar.move(dir); });
+    // belongs to something there (see ownsSwipe). The page follows the finger a little, and the
+    // highlight in the tab bar moves with it; the next tab then slides in from that side.
+    this.shown = null; // the view drawn last time, so a change of tab knows which way to slide
+    followSwipe(this.main, {
+      accept: (start) => !ownsSwipe(start, this.main) && this.views.length > 1,
+      move: (dx) => this.dragPage(dx),
+      end: (direction) => this.dropPage(direction),
+    });
     document.addEventListener('keydown', (e) => {
       if (this.main.hidden || document.querySelector('dialog[open]')) return;
       if (e.target.matches?.('input, textarea, select')) return;
@@ -115,6 +121,38 @@ export class Shell {
       this.render();
     }
     return true;
+  }
+
+  // While a finger swipes the page: the open view leans that way (less where there's no tab to
+  // go to) and the tab bar's highlight heads for the next tab.
+  dragPage(dx) {
+    const part = this.sections.get(this.currentView);
+    if (!part) return;
+    const index = this.tabBar.index;
+    const last = this.tabBar.views.length - 1;
+    const width = this.main.offsetWidth || 1;
+    const towards = index + (dx < 0 ? 1 : -1);
+    const open = towards >= 0 && towards <= last;
+    const lean = dx * (open ? 0.35 : 0.12);
+    part.section.classList.remove('slide-next', 'slide-prev', 'settle');
+    part.section.classList.add('leaning');
+    part.section.style.transform = `translateX(${lean}px)`;
+    part.section.style.opacity = String(1 - Math.min(0.5, Math.abs(lean) / width));
+    this.tabBar.place(index + Math.max(-1, Math.min(1, -dx / width)) * (open ? 0.6 : 0.15));
+  }
+
+  // When the finger lifts: go to the next or previous tab, or settle back.
+  dropPage(direction) {
+    const part = this.sections.get(this.currentView);
+    const target = this.tabBar.views[this.tabBar.index + direction];
+    if (part) {
+      part.section.classList.remove('leaning');
+      if (!target) part.section.classList.add('settle');
+      part.section.style.transform = '';
+      part.section.style.opacity = '';
+    }
+    if (target) this.selectView(target.id);
+    else this.tabBar.place(this.tabBar.index);
   }
 
   step(direction) {
@@ -187,6 +225,13 @@ export class Shell {
     }
     for (const [v, part] of this.sections) if (!views.includes(v)) part.section.hidden = true;
 
+    // A new tab slides in from the side it's on: from the right for a tab further along.
+    const before = this.shown;
+    this.shown = current;
+    if (current && before && before !== current && views.includes(before)) {
+      this.slideIn(this.sections.get(current).section, views.indexOf(current) > views.indexOf(before) ? 'next' : 'prev');
+    }
+
     this.empty.hidden = !!current;
     if (!current) {
       this.empty.replaceChildren(el('b', {}, 'Nothing to show yet'),
@@ -198,6 +243,16 @@ export class Shell {
     part.title.textContent = current.label;
     part.subtitle.textContent = slot.run(current, (v) => v.subtitle?.(), null) ?? this.statusText;
     slot.run(current, (v) => v.render?.());
+  }
+
+  slideIn(section, side) {
+    section.classList.remove('slide-next', 'slide-prev', 'settle', 'leaning');
+    section.style.transform = '';
+    section.style.opacity = '';
+    if (reduceMotion()) return;
+    void section.offsetWidth; // start the animation again
+    section.classList.add(`slide-${side}`);
+    section.addEventListener('animationend', () => section.classList.remove(`slide-${side}`), { once: true });
   }
 
   // ---- Menu: who is signed in and the status line, then the rows ----
