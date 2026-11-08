@@ -1,5 +1,5 @@
 import { test, assert } from 'folio/testing';
-import { charWidths, checkChar, numberCodes, digitsOf, telepenWidths, readTelepen } from '../telepen.js';
+import { charWidths, checkChar, numberCodes, digitsOf, telepenWidths, readTelepen, readTelepenRuns } from '../telepen.js';
 import { findTelepen } from '../scan.js';
 import { barcodeSVG, checkBarcode, drawableFormat } from '../barcode.js';
 
@@ -132,4 +132,65 @@ test('a Telepen barcode is found in a picture, straight or sideways', () => {
 
 test('a picture without a barcode finds nothing', () => {
   assert.equal(findTelepen(photo([])), null);
+});
+
+// A camera picture of a card: the barcode small (a few pixels per bar), out of focus, a bit
+// dim and noisy, and slanted by some degrees.
+function cameraPicture(widths, { unit = 2.5, blur = 1.2, slant = 0, seed = 7 } = {}) {
+  const sharp = document.createElement('canvas');
+  sharp.width = 960;
+  sharp.height = 540;
+  const g = sharp.getContext('2d');
+  g.fillStyle = '#5a5a5a';
+  g.fillRect(0, 0, 960, 540);
+  g.translate(480, 270);
+  g.rotate((slant * Math.PI) / 180);
+  const length = widths.reduce((a, b) => a + b, 0) * unit;
+  g.fillStyle = '#d2d2d2';
+  g.fillRect(-length / 2 - 60, -110, length + 120, 220);
+  g.fillStyle = '#3c3c3c';
+  let x = -length / 2;
+  widths.forEach((w, i) => {
+    if (i % 2 === 0) g.fillRect(x, -35, w * unit, 70);
+    x += w * unit;
+  });
+  const blurred = document.createElement('canvas');
+  blurred.width = 960;
+  blurred.height = 540;
+  const b = blurred.getContext('2d');
+  b.filter = `blur(${blur}px)`;
+  b.drawImage(sharp, 0, 0);
+  const image = b.getImageData(0, 0, 960, 540);
+  let s = seed;
+  for (let i = 0; i < image.data.length; i += 4) {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    const n = (s / 2 ** 32 - 0.5) * 10;
+    for (let c = 0; c < 3; c++) image.data[i + c] += n;
+  }
+  return image;
+}
+
+test('a small, blurry camera picture is read (thin bars look like faint grey dips)', () => {
+  const widths = telepenWidths('01234567890123', { numeric: true });
+  assert.equal(findTelepen(cameraPicture(widths, { unit: 2.5, blur: 1.2 }))?.value, '01234567890123');
+  assert.equal(findTelepen(cameraPicture(widths, { unit: 3.5, blur: 1.6 }))?.value, '01234567890123');
+});
+
+test('a card that isn\'t quite straight is read', () => {
+  const widths = telepenWidths('01234567890123', { numeric: true });
+  assert.equal(findTelepen(cameraPicture(widths, { unit: 3, blur: 0.8, slant: 7 }))?.value, '01234567890123');
+  assert.equal(findTelepen(cameraPicture(widths, { unit: 3, blur: 0.8, slant: -11 }))?.value, '01234567890123');
+});
+
+test('a blurry picture without a barcode finds nothing', () => {
+  assert.equal(findTelepen(cameraPicture([], { blur: 1.2 })), null);
+});
+
+test('bars blurred wider and spaces narrower are still read', () => {
+  // Out of focus, a thin bar between two wide spaces looks much wider than it is.
+  const widths = telepenWidths('01234567890123', { numeric: true });
+  const spread = widths.map((w, i) => [i % 2 === 0, w * 4 + (w === 1 ? (i % 2 === 0 ? 2.4 : -1.2) : (i % 2 === 0 ? 1.2 : -2.4))]);
+  spread[spread.length - 1][1] += 80; // the last space runs into the white after the barcode
+  const runs = [[false, 80], ...spread].map(([dark, length]) => ({ dark, length }));
+  assert.equal(readTelepenRuns(runs)?.value, '01234567890123');
 });

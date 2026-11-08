@@ -41,7 +41,6 @@ export function charWidths(code) {
 }
 
 const CHARS = Array.from({ length: 128 }, (_, code) => charWidths(code));
-const BY_PATTERN = new Map(CHARS.map((w, code) => [w.join(''), code]));
 
 // The check character for some data characters.
 export function checkChar(codes) {
@@ -91,9 +90,13 @@ export function telepenWidths(value, { numeric = false } = {}) {
 // Returns { codes, numeric, value }: the data characters, and the value as digits (number mode)
 // or text. Null if there's no barcode, or its check character is wrong.
 export function readTelepen(row) {
-  const size = row.getSize();
-  const forward = runsOf((i) => row.get(i), size);
-  return fromRuns(forward) || fromRuns(runsOf((i) => row.get(size - 1 - i), size));
+  return readTelepenRuns(runsOf((i) => row.get(i), row.getSize()));
+}
+
+// The same, from a line already split into dark and light runs ({ dark, length }; lengths can
+// be fractions of a pixel, see scan.js).
+export function readTelepenRuns(runs) {
+  return fromRuns(runs) || fromRuns([...runs].reverse());
 }
 
 function runsOf(get, size) {
@@ -127,12 +130,11 @@ function decodeFrom(runs, s) {
       // The start character is 12 parts: ten narrow, then a wide bar and a wide space.
       if (i + 12 > runs.length) return null;
       unit = runs.slice(i, i + 12).reduce((a, r) => a + r.length, 0) / 16;
-      if (unit < 1) return null;
+      if (unit < 0.6) return null; // too small to be a real barcode
       if (s > 0 && runs[s - 1].length < unit * 4) return null; // no white space before
     }
-    const char = readChar(runs, i, unit);
+    const char = readChar(runs, i, unit, codes.length ? undefined : START);
     if (!char) return null;
-    if (!codes.length && char.code !== START) return null;
     codes.push(char.code);
     unit = char.size / 16; // follow the size along the barcode (photos are rarely flat)
     i = char.next;
@@ -147,33 +149,38 @@ function decodeFrom(runs, s) {
   }
 }
 
-// One character from runs[i]: parts that are each 1 or 3 units and add up to 16. The last
-// part is a space, which may run on into white space after the barcode: then only what the
-// character needs is counted, and `after` says how much white space was left over.
-function readChar(runs, i, unit) {
-  const widths = [];
-  let units = 0;
-  let size = 0;
-  let after = 0;
-  let k = i;
-  while (units < 16) {
-    const run = runs[k];
-    if (!run || run.dark !== (widths.length % 2 === 0)) return null;
-    const need = 16 - units;
-    const w = run.length / unit;
-    let width = w < 2 ? 1 : 3;
-    if (!run.dark && (need === 1 || need === 3) && w > need + 1.5) {
-      width = need; // the space runs on into white space
-      after = run.length - need * unit;
-    } else if (w < 0.4 || w > 4.5) {
-      return null;
+// One character from runs[i]: the character whose bars and spaces (each 1 or 3 units, 16 in all)
+// fit the runs best. Blur makes thin bars look thicker and thick ones thinner, so rather than
+// sorting each run into thin or thick on its own, every character is tried and the closest
+// wins (the first character must be the start, so only that is tried there). The last part is a space, which may run on into white space after the barcode: then
+// only what the character needs is counted, and `after` says how much white space was left.
+function readChar(runs, i, unit, only) {
+  if (!runs[i]?.dark) return null;
+  let best = null;
+  for (const [code, widths] of only === undefined ? CHARS.entries() : [[only, CHARS[only]]]) {
+    const n = widths.length;
+    if (i + n > runs.length) continue;
+    const last = runs[i + n - 1];
+    // The character's size: from its first bar to the next character's first bar, unless the
+    // last space runs on into white space (then from the parts before it).
+    let before = 0;
+    for (let k = 0; k < n - 1; k++) before += runs[i + k].length;
+    const runsOn = last.length > (before / (16 - widths[n - 1])) * (widths[n - 1] + 2);
+    const u = runsOn ? before / (16 - widths[n - 1]) : (before + last.length) / 16;
+    if (u < unit * 0.8 || u > unit * 1.25) continue; // characters are all the same size
+    // Mostly judged by a bar and the space after it together (and a space and the bar after
+    // it): blur makes bars wider and spaces narrower by the same amount, so their sums stay
+    // right. The single widths count a little too, to tell otherwise equal patterns apart.
+    let error = 0;
+    const width = (k) => (k === n - 1 && runsOn ? widths[k] : runs[i + k].length / u);
+    for (let k = 0; k < n && error !== Infinity; k++) {
+      const one = Math.abs(width(k) - widths[k]);
+      const two = k + 1 < n ? Math.abs(width(k) + width(k + 1) - widths[k] - widths[k + 1]) : 0;
+      if (one > 1.5 || two > 1) error = Infinity;
+      else error += two * two + one * one / 4;
     }
-    widths.push(width);
-    units += width;
-    size += after ? width * unit : run.length;
-    k++;
+    if (error === Infinity || (best && error >= best.error)) continue;
+    best = { code, error, size: u * 16, next: i + n, after: runsOn ? last.length - widths[n - 1] * u : 0 };
   }
-  if (units !== 16) return null;
-  const code = BY_PATTERN.get(widths.join(''));
-  return code === undefined ? null : { code, size, next: k, after };
+  return best;
 }

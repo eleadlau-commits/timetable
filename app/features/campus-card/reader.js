@@ -1,9 +1,9 @@
 // Reads barcodes from a camera frame or a photo: [{ value, format }].
 //
-// It uses the browser's own barcode reader (BarcodeDetector) where there is one, then looks for
-// Telepen (which UK university cards use, and neither of the others reads; see scan.js), then
-// the ZXing library. ZXing is downloaded the first time it's needed, and two of its bugs are
-// fixed as it loads (see zxing-fixes.js).
+// It looks for Telepen first (which UK university cards use, Durham's included, and neither of
+// the others reads; see scan.js), then uses the browser's own barcode reader (BarcodeDetector)
+// where there is one, then the ZXing library. ZXing is downloaded the first time it's needed,
+// and two of its bugs are fixed as it loads (see zxing-fixes.js).
 //
 // For a photo, which is read only once, it tries harder: if the browser's reader finds
 // nothing, ZXing has a go too, then reads a large photo at a higher resolution (for a card far
@@ -12,14 +12,15 @@
 
 import { ui } from 'folio';
 import { fixZXing } from './zxing-fixes.js';
-import { findTelepen } from './scan.js';
+import { findTelepen, SLANTS } from './scan.js';
 
 // Barcode reader for phones whose browser has no built-in one (BarcodeDetector).
 const ZXING_LIB = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js';
 // What Telepen and ZXing try, in turn: how big the picture is made (its longest side, at
-// most), and turned how far.
+// most), and turned how far. The camera's pictures are read at full size (it's asked for a
+// sharp one, see CampusCard.js): thin bars blur together when a picture is made smaller.
 const TRIES = {
-  frame: [{ size: 1280, turn: 0 }],
+  frame: [{ size: 1920, turn: 0 }],
   photo: [{ size: 1280, turn: 0 }, { size: 2400, turn: 0 }, { size: 1280, turn: 30 }, { size: 1280, turn: -30 }],
 };
 
@@ -27,20 +28,33 @@ export class BarcodeReader {
   constructor() {
     this.detector = undefined; // the browser's BarcodeDetector, or null once we know to use ZXing
     this.zxing = null;
+    this.frames = 0; // camera pictures read so far, to try different slants on each
   }
 
   // source: a <video>, an ImageBitmap or a canvas. photo: true for a photo (try harder).
+  // Telepen goes first: it's quick, and it checks itself, so it's never a wrong reading. (The
+  // browser's reader used to go first, and when it mistook a Durham card for some other kind of
+  // barcode, Telepen was never tried on that picture.)
   async read(source, { photo = false } = {}) {
-    const found = await this.detect(source);
-    if (found.length) return found;
     const tries = photo ? TRIES.photo : TRIES.frame;
-    const telepen = this.readTelepen(source, tries);
-    if (telepen.length || (found.tried && !photo)) return telepen;
-    return this.readWithZXing(source, tries);
+    const telepen = this.readTelepen(source, tries, photo);
+    if (telepen.length) return telepen;
+    const found = await this.detect(source);
+    if (found.length || (found.tried && !photo)) return found;
+    return this.readWithZXing(source, tries, photo);
+  }
+
+  // The slants to try: all of them for a photo; for the camera, straight plus one pair, a
+  // different pair each time, so each picture is read quickly.
+  slants(photo) {
+    if (photo) return SLANTS;
+    const pairs = (SLANTS.length - 1) / 2;
+    const k = 1 + 2 * (this.frames++ % pairs);
+    return [0, SLANTS[k], SLANTS[k + 1]];
   }
 
   // Telepen, read here (see scan.js and telepen.js).
-  readTelepen(source, tries) {
+  readTelepen(source, tries, photo) {
     if (!this.canvas) {
       this.canvas = document.createElement('canvas');
       this.canvas.getContext('2d', { willReadFrequently: true }); // its pixels are read every time
@@ -48,7 +62,8 @@ export class BarcodeReader {
     const { canvas } = this;
     for (const { size, turn } of this.sized(source, tries)) {
       this.draw(canvas, source, size.width, size.height, turn);
-      const found = findTelepen(canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height));
+      const image = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height);
+      const found = findTelepen(image, { slants: turn ? [0] : this.slants(photo) });
       if (found) return [{ value: found.value, format: found.numeric ? 'telepen_numeric' : 'telepen' }];
     }
     return [];
@@ -88,8 +103,20 @@ export class BarcodeReader {
     }
   }
 
-  async readWithZXing(source, tries) {
-    if (!window.ZXing) await ui.loadScript(ZXING_LIB);
+  // ZXing, downloaded the first time. If it can't be (no internet), the camera carries on
+  // looking for Telepen, which doesn't need it; a photo says so (it throws).
+  async readWithZXing(source, tries, photo) {
+    if (!window.ZXing) {
+      if (this.noZXing && !photo) return [];
+      try {
+        await ui.loadScript(ZXING_LIB);
+      } catch (err) {
+        this.noZXing = true;
+        if (photo) throw err;
+        return [];
+      }
+      this.noZXing = false;
+    }
     const Z = window.ZXing;
     fixZXing(Z);
     if (!this.zxing) {

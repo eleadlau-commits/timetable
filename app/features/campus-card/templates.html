@@ -14,12 +14,19 @@
     <div class="card-panel" data-part="add" hidden>
       <p class="hint">Scan the barcode on your campus card so you can show it on your phone if you lose the card. It's stored only on this phone.</p>
       <div class="card-scan" data-part="scan" hidden>
-        <video data-part="video" playsinline muted></video>
-        <p class="hint small">Hold the barcode flat, in good light, so it fills the middle of the picture.</p>
-        <button class="btn" data-part="stop" type="button">Stop camera</button>
+        <div class="card-video">
+          <video data-part="video" playsinline muted></video>
+          <span class="card-aim" aria-hidden="true"></span>
+        </div>
+        <p class="hint small">Hold the card about a hand's width away, with the barcode along the line. Keep still for a moment while it focuses.</p>
+        <div class="row">
+          <button class="btn" data-part="torch" type="button" hidden>Light on</button>
+          <button class="btn" data-part="stop" type="button">Stop camera</button>
+        </div>
       </div>
       <button class="btn primary" data-part="camera" type="button">Scan with camera</button>
-      <button class="btn" data-part="photo" type="button">Use a photo of the card</button>
+      <button class="btn" data-part="snap" type="button">Take a photo of the card</button>
+      <button class="btn" data-part="photo" type="button">Choose a photo</button>
       <details class="advanced">
         <summary>Type the number instead</summary>
         <div class="group">

@@ -137,8 +137,10 @@ export function toggle({ checked = false, label = '', disabled = false, onChange
 }
 
 // A hidden file picker. pick() opens it and resolves with the chosen File, or null.
-export function filePicker(accept) {
-  const input = el('input', { type: 'file', accept, hidden: true });
+// capture: 'environment' (back camera) or 'user' (front) opens the camera straight away to take
+// a photo, rather than asking where the file should come from.
+export function filePicker(accept, { capture } = {}) {
+  const input = el('input', { type: 'file', accept, hidden: true, capture });
   document.body.append(input);
   return {
     pick() {
