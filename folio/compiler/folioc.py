@@ -441,6 +441,14 @@ class Project:
                     return f'"native.android.files" can only use paths inside the project and the feature: "{path}"'
             if not (f.path / source).is_file():
                 return f'its Android file "{source}" is missing'
+        application = android.get('application', [])
+        if not (isinstance(application, list) and all(isinstance(x, str) for x in application)):
+            return '"native.android.application" must look like [ "native/widget-receiver.xml" ]'
+        for source in application:
+            if source.startswith(('/', '\\')) or '..' in Path(source).parts or ':' in source:
+                return f'"native.android.application" can only use files inside the feature: "{source}"'
+            if not (f.path / source).is_file():
+                return f'its Android manifest part "{source}" is missing'
         gradle = android.get('gradle', {})
         if not (isinstance(gradle, dict) and all(isinstance(k, str) and GRADLE_NAME.match(k) for k in gradle)
                 and all(isinstance(v, (bool, int, str)) for v in gradle.values())):
@@ -892,7 +900,7 @@ fetch('/__folio_report', {{ method: 'POST', body: JSON.stringify({{ kind: 'tests
         deep_merge(capacitor, app['native'].get('capacitor', {}))
         (out / 'capacitor.config.json').write_text(json.dumps(capacitor, indent=2) + '\n', 'utf-8')
 
-        android = {'permissions': [], 'features': [], 'files': [], 'gradle': {}}
+        android = {'permissions': [], 'features': [], 'files': [], 'gradle': {}, 'application': []}
         app_ios = app['native'].get('ios', {})
         ios = {'appId': app_ios.get('appId', app['native']['appId']), 'version': app['version'], 'devices': app_ios.get('devices', 'iphone-and-ipad'),
                'plist': merge_plist({}, app_ios.get('plist', {})), 'files': [], 'pods': []}
@@ -907,6 +915,9 @@ fetch('/__folio_report', {{ method: 'POST', body: JSON.stringify({{ kind: 'tests
                     (out / kept).parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(f.path / source, out / kept)
                     android['files'].append({'from': kept.as_posix(), 'to': to})
+                # Parts of the manifest's <application> (e.g. a home-screen widget's <receiver>).
+                for source in a.get('application', []):
+                    android['application'].append((f.path / source).read_text('utf-8').strip())
                 for name, value in a.get('gradle', {}).items():
                     if name in android['gradle'] and android['gradle'][name] != value:
                         warnings.append(f'{f.id} wants the Android setting {name} = {value!r}, '
@@ -1338,6 +1349,19 @@ def cmd_android_manifest(project: Project, args) -> int:
             added.append(name)
     if lines:
         text = text.replace('<application', '\n'.join(lines).lstrip() + '\n\n    <application', 1)
+    # Features' parts of <application>, such as a home-screen widget's <receiver>.
+    indent = lambda part: '\n'.join('        ' + line if line.strip() else '' for line in part.splitlines())
+    parts = [indent(part) for part in native.get('application', [])]
+    parts = [part for part in parts if part not in text]
+    if parts:
+        if '</application>' not in text:
+            print('The Android manifest has no </application> to add features\' parts to.')
+            return 1
+        start = text.index('</application>')
+        start = text.rindex('\n', 0, start) + 1   # the start of that line
+        text = text[:start] + '\n'.join(parts) + '\n' + text[start:]
+        added.append(f'{len(parts)} part(s) of <application>')
+    if lines or parts:
         path.write_text(text, 'utf-8')
     print('Added to the Android manifest: ' + (', '.join(added) if added else 'nothing'))
     return 0

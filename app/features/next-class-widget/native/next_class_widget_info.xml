@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- About 3 by 2 squares on the home screen; people can stretch it. It redraws by itself when a
+     class starts or ends (an alarm set by NextClassWidget.java), and at least every 30 minutes. -->
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="180dp"
+    android:minHeight="110dp"
+    android:minResizeWidth="110dp"
+    android:minResizeHeight="70dp"
+    android:targetCellWidth="3"
+    android:targetCellHeight="2"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="1800000"
+    android:initialLayout="@layout/next_class_widget"
+    android:previewLayout="@layout/next_class_widget"
+    android:description="@string/next_class_widget_description"
+    android:widgetCategory="home_screen" />

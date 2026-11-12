@@ -1,0 +1,22 @@
+{
+  "name": "Next class widget",
+  "description": "A widget for the phone's home screen showing your next class, its time and room.",
+  "version": "1.0.0",
+  "main": "NextClassWidget.js",
+  "requires": ["sessions"],
+  "uses": ["timetable", "help"],
+  "platforms": ["android"],
+  "native": {
+    "packages": { "@capacitor/preferences": "^7.0.0" },
+    "android": {
+      "application": ["native/receiver.xml"],
+      "files": {
+        "app/src/main/java/io/github/timetable/app/widget/NextClassWidget.java": "native/NextClassWidget.java",
+        "app/src/main/res/layout/next_class_widget.xml": "native/next_class_widget.xml",
+        "app/src/main/res/xml/next_class_widget_info.xml": "native/next_class_widget_info.xml",
+        "app/src/main/res/drawable/next_class_widget_bg.xml": "native/next_class_widget_bg.xml",
+        "app/src/main/res/values/next_class_widget_strings.xml": "native/next_class_widget_strings.xml"
+      }
+    }
+  }
+}

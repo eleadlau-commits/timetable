@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The widget: a small label (Now · until 11:00, or when the next class is), the class's name,
+     where it is, and the class after it. The words here are what the widget picker shows. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ncw_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/next_class_widget_bg"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    android:padding="14dp">
+
+    <TextView
+        android:id="@+id/ncw_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Up next · 10:00"
+        android:textAllCaps="true"
+        android:textColor="#c9b8e6"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:letterSpacing="0.06"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/ncw_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Your next class"
+        android:textColor="#ffffff"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/ncw_where"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:text="Lecture · Calman Learning Centre"
+        android:textColor="#e6deef"
+        android:textSize="13sp"
+        android:maxLines="1"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/ncw_then"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Then 12:00 · Seminar"
+        android:textColor="#a597bb"
+        android:textSize="12sp"
+        android:maxLines="1"
+        android:ellipsize="end" />
+</LinearLayout>

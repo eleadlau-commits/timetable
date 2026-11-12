@@ -91,6 +91,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
     "android": {
       "permissions": ["CAMERA"], "features": [{ "name": "android.hardware.camera", "required": false }],
       "files": { "app/google-services.json": "native/google-services.json" },
+      "application": ["native/widget-receiver.xml"],
       "gradle": { "rgcfaIncludeGoogle": true }
     },
     "ios": {
@@ -115,7 +116,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
 | `enabled` | no | `false` switches the feature off without deleting it. |
 | `web.manifest` | no | Merged into the web app manifest, e.g. a `share_target`. |
 | `web.pages` | no | Pages of their own on the website, outside the app, e.g. a privacy policy a store needs a link to: `{ "privacy": { "title": "Privacy notice", "module": "privacy.js", "render": "privacyNotice" } }` makes `privacy.html` next to `index.html`. It loads the app's styles and shows what the module's `render` function returns (an element), so the page and the app say the same thing. Keep that module free of anything that needs the app running. Names are small letters, numbers and dashes (not `index` or `tests`). |
-| `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). For iPhone also `files` (added to the app: its name in the app → the file in `native/`, e.g. Firebase's `GoogleService-Info.plist`) and `pods` (lines added to the Podfile's app target, e.g. a plugin's optional part). iPhone `plist` entries are merged: lists are added to, dictionaries combined. |
+| `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) `application` (files in `native/` holding parts of the manifest's `<application>`, such as a home-screen widget's `<receiver>`) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). For iPhone also `files` (added to the app: its name in the app → the file in `native/`, e.g. Firebase's `GoogleService-Info.plist`) and `pods` (lines added to the Podfile's app target, e.g. a plugin's optional part). iPhone `plist` entries are merged: lists are added to, dictionaries combined. |
 
 The folder name is the feature's id: lowercase words joined by dashes.
 
@@ -235,7 +236,7 @@ this.storage.once('import-v1', fn);    // runs fn only the first time, on each d
 | `python build.py serve` | Compiles, then runs the app at http://localhost:8000. Add `--test` for sample data and the tests page (`/tests.html`). |
 | `python build.py test` | Runs every test, including the delete-a-folder test (see [9](#9-tests)). `--quick` skips that one. |
 | `python build.py --without notes,maps` | Compiles without some features, to see what happens. |
-| `python build.py android-manifest PATH` / `android-project PATH` | Used by GitHub: add features' Android permissions to the manifest, and copy their Android `files` and `gradle` settings into the Android project. |
+| `python build.py android-manifest PATH` / `android-project PATH` | Used by GitHub: add features' Android permissions and `application` parts to the manifest, and copy their Android `files` and `gradle` settings into the Android project. |
 | `python build.py ios-project PATH --build N --team TEAM` | Used by GitHub: prepare the iPhone project Capacitor made (`dist/ios/App`): features' Info.plist entries, `files` (copied in and listed in the Xcode project; needs `pip install pbxproj`) and Podfile lines (dropping `Podfile.lock`, so the `npx cap sync ios` that follows really installs them), and the app's id, version, build number, devices and Apple team. |
 
 The compiler only needs Python 3.9 or newer. The browser tests also need Chrome or Edge.
@@ -336,6 +337,8 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 **1.15.0:** `ui.onSeen(element, fn)` runs `fn` once, the first time the element is actually on screen (scrolled into view, in an open pop-up or tab). Features that count what people saw use it instead of counting everything they draw. Features written for 1.14 keep working.
 
 **1.14.0:** `web.pages` in feature.json: a feature can put a page of its own on the website (such as `privacy.html`), drawn by a function in its code with the app's styles. Features written for 1.13 keep working.
+
+**1.17.0:** a feature can add to the Android manifest's `<application>` with `native.android.application` in feature.json: a list of files in its `native/` folder, each holding a piece such as a home-screen widget's `<receiver>`. `python build.py android-manifest` puts them in. Features written for 1.16 keep working.
 
 **1.16.0:** `ui.filePicker(accept, { capture: 'environment' })` opens the camera straight away to take a photo. Features written for 1.15 keep working.
 
