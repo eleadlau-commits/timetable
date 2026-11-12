@@ -1,0 +1,17 @@
+{
+  "name": "To-dos in the Planner",
+  "description": "The to-do list in the Planner: a To do card on each day, ticks on days with to-dos, and the chosen day's to-dos in Month.",
+  "version": "1.0.0",
+  "main": "PlannerTodos.js",
+  "styles": [
+    "style.css"
+  ],
+  "requires": [
+    "todo"
+  ],
+  "uses": [
+    "day-view",
+    "month-view",
+    "help"
+  ]
+}

@@ -9,6 +9,11 @@ A month at a time. Each day shows a coloured dot for each module on it (up to fo
 
 - **Month** inside the Planner tab (view id `month`, zoom level 20, letter M), or a Month tab of its own without the Planner. Its zoom-out label is the month's name, e.g. **‹ October**.
 
+## What it offers other features
+
+- **Slot `month.marks`:** small marks in the top right corner of a day in the grid, such as the to-do tick. Item: `{ order, render(day) → small element or null, label?(day) → words added to the day's spoken name, or null }`. Purple unless they set their own colour.
+- **Slot `month.cards`:** cards above the chosen day's classes. Item: `{ order, render(day) → element, or null }`. To-dos in the Planner puts the day's To do card here.
+
 ## What it needs
 
 - **Requires:** sessions. **Uses if present:** planner.

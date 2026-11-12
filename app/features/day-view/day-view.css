@@ -94,3 +94,9 @@
 /* Friends' classes (others: true): faint and dashed, so your own stand out. */
 .tl-blk.others { background: var(--surface); box-shadow: none; border: 1.5px dashed hsl(var(--h) 45% var(--ring-l, 58%)); opacity: .7; }
 .tl-blk.others .title-text { font-weight: 500; }
+
+/* Marks from other features (slot day.marks), in the day button's top right corner. */
+.daybtn { position: relative; }
+.daybtn-marks { position: absolute; top: 3px; right: 3px; display: flex; gap: 1px; line-height: 1; pointer-events: none; }
+.daybtn-marks { color: var(--accent); }
+.daybtn.sel .daybtn-marks, .daybtn.sel .daybtn-marks > * { color: var(--accent-ink); }

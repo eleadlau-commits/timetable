@@ -12,6 +12,8 @@ A list of things to do, with tags and due dates. Saved on this phone only.
   - **The list:** a round tick box, the to-do, its tag as a small pill, and its due date (*Today*, *Tomorrow*, a weekday, or the date). Ticked to-dos are crossed out. The bin deletes one. Sorted by due date, soonest first, with to-dos without a date last. Overdue ones (not ticked, and the date has gone by) say **Overdue** in red.
   - **+ Add a to-do:** the text, an optional tag (the tag you're looking at is picked for you) and an optional due date. The form stays open so you can add several; **Done** closes it.
 
+- **Service `todos`**, for other features: `items()` (a copy of the to-dos), `tagName(id)`, `setDone(id, done)` (ticks or unticks one and saves it) and `open({ due })` (opens the list; with a due date, `'YYYY-MM-DD'`, the add form is open with that date). It sends the event `todo:changed` whenever the to-dos change. `planner-todos` uses it to show to-dos on their days in the Planner.
+
 ## What it needs
 
 - **Requires:** nothing.
@@ -21,7 +23,7 @@ A list of things to do, with tags and due dates. Saved on this phone only.
 
 | Key | What |
 |---|---|
-| `items` | The to-dos: `[{ id, text, tag, due, done, added }]`. `tag` is a tag's id or `null`; `due` is `'YYYY-MM-DD'` or `null`. |
+| `items` | The to-dos: `[{ id, text, tag, due, done, doneOn, added }]`. `tag` is a tag's id or `null`; `due` is `'YYYY-MM-DD'` or `null`; `doneOn` is the day it was ticked (`'YYYY-MM-DD'`), `null` when it isn't, and missing on to-dos ticked before version 3.12. |
 | `tags` | The tags: `[{ id, name }]`. Until you change them, the starting tags (Academic and Society). Renaming a tag keeps its id, so its to-dos keep it. |
 
 Nothing is sent anywhere.
