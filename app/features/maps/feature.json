@@ -5,7 +5,7 @@
   "main": "Maps.js",
   "styles": ["maps.css"],
   "requires": ["sessions"],
-  "uses": ["durham-rooms"],
+  "uses": ["university"],
   "native": {
     "capacitor": {
       "server": { "allowNavigation": ["www.openstreetmap.org"] }

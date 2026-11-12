@@ -4,5 +4,5 @@
   "version": "2.1.0",
   "main": "Library.js",
   "styles": ["library.css"],
-  "uses": ["web-relay", "home", "study"]
+  "uses": ["web-relay", "home", "study", "university"]
 }

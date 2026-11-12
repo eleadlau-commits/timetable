@@ -1,5 +1,5 @@
 import { test, assert } from 'folio/testing';
-import { lookupPlace } from '../places.js';
+import { lookupPlace } from '../rooms.js';
 
 const building = (location) => lookupPlace(location)?.building ?? null;
 

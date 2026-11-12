@@ -74,9 +74,9 @@ export function monthGrid(date) {
 
 // The academic year `date` is in, September to August: { start, months (12 first-of-month
 // dates), label ("2026–27") }.
-export function academicYear(date) {
-  const year = date.getMonth() >= 8 ? date.getFullYear() : date.getFullYear() - 1;
-  const months = Array.from({ length: 12 }, (_, i) => new Date(year, 8 + i, 1));
+export function academicYear(date, startMonth = 8) {
+  const year = date.getMonth() >= startMonth ? date.getFullYear() : date.getFullYear() - 1;
+  const months = Array.from({ length: 12 }, (_, i) => new Date(year, startMonth + i, 1));
   return { start: months[0], months, label: `${year}–${String(year + 1).slice(-2)}` };
 }
 

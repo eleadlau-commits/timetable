@@ -1,4 +1,4 @@
-// Reads the Bill Bryson Library occupancy page and works out free seats per floor.
+// Reads a library's occupancy page (made for Bill Bryson Library's; the address is in the university's pack) and works out free seats per floor.
 // No screen code here, so it can be tested on its own.
 //
 // The page lists each area as "free/total" under a "Level N" heading, for example
@@ -7,8 +7,6 @@
 // even when it doesn't match the areas added up (the page itself is sometimes out). Each floor's
 // numbers are its areas added up. The reader only looks at the page's words, not its layout, so
 // small changes to the page's design shouldn't break it.
-
-export const SOURCE = 'https://apps.dur.ac.uk/study-spaces/library/bill-bryson/occupancy/display';
 
 // Words that label numbers rather than name an area.
 const NOISE = /^(?:free|spaces?|seats?|study|available|of|out|total|capacity|occupancy|high|average|low|full|busy|quiet|level|floor|wing|area|zone|and|the|[-–:•|])(?:\s+|$)/i;

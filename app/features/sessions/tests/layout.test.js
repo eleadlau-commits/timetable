@@ -43,6 +43,9 @@ test('the academic year runs from September to August', () => {
   assert.equal(academicYear(new Date(2026, 9, 28)).label, '2026–27');
   assert.equal(academicYear(new Date(2027, 7, 31)).label, '2026–27');
   assert.equal(academicYear(new Date(2027, 8, 1)).label, '2027–28');
+  // A university whose year starts in October (month 9)
+  assert.equal(academicYear(new Date(2027, 8, 15), 9).label, '2026–27');
+  assert.equal(academicYear(new Date(2027, 8, 15), 9).months[0].getMonth(), 9);
   const { months } = academicYear(new Date(2027, 2, 1));
   assert.equal(months.length, 12);
   assert.equal(months[0].getMonth(), 8);

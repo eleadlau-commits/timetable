@@ -78,7 +78,7 @@ export default class Welcome extends Feature {
         el('h1', {}, this.app.config.name || 'Mobile Durham'),
         el('p', { class: 'welcome-line' }, 'By students, for students. Who are you using it as?')),
       el('div', { class: 'welcome-choices' },
-        choice('student', "I'm a student", 'Your timetable, the library, study and deals around Durham', 'book'),
+        choice('student', "I'm a student", `Your timetable, the library, study and deals around ${this.use('university')?.town() || 'town'}`, 'book'),
         choice('business', 'I run a business', 'Put your café, pub or club on Spots and keep your student deal up to date', 'pin')),
       ui.hint('You can change this later in Settings.', { small: true }));
     this.app.shell.showScreen(this.id, node);

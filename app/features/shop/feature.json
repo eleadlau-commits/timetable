@@ -5,5 +5,5 @@
   "main": "Shop.js",
   "styles": ["style.css"],
   "requires": ["account", "card-owners"],
-  "uses": ["welcome", "home", "spots", "help"]
+  "uses": ["welcome", "home", "spots", "help", "university"]
 }

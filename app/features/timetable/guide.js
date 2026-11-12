@@ -1,28 +1,35 @@
-// The guide to connecting your timetable: on the setup screen, and as a page in Help.
-// Change the words here and both change. In the text, **bold**, _slanted_ and `code` work.
+// The guide to connecting your timetable: on the setup screen, and as a page in Help. The words
+// come from the university's pack (Durham's are in uni-durham/guide.js); without one, the general
+// guide below is used. In the text, **bold**, _slanted_ and `code` work.
 
 import { ui } from 'folio';
 
 const { el } = ui;
 
-export const INTRO = 'Durham lets you export your timetable as a personal calendar link. You switch the export on once in My Timetable, copy the link, and paste it here. After that the app keeps itself up to date.';
-
-export const STEPS = [
-  '**Open My Timetable** at `mytimetable.durham.ac.uk` and sign in with your Durham account. This is often easiest on a laptop.',
-  '**Open the menu** (the three lines at the top left) and choose _Settings / Export_.',
-  '**Switch the export on.** Under _Subscribe / Export Settings_, set _Publish Calendar_ to _Yes_.',
-  '**Copy the link** in _Calendar Link_ with the copy button next to it. It starts with `https://mytimetable.durham.ac.uk/calendar/export/`. On a phone, you can also press and hold the box and choose _Copy_.',
-  '**Paste it below** and tap _Load timetable_.',
-];
-
-// Pictures under some steps (by step number, from 0), from Durham's My Timetable with personal
-// details left out. The files are in guide/.
-const PICTURES = {
-  1: { file: 'guide/menu.png', alt: 'The My Timetable menu, with Week View, Month View, Settings / Export, FAQ and Logout.', width: 400, height: 373, max: 240 },
-  2: { file: 'guide/export.png', alt: 'Subscribe / Export Settings: Publish Calendar set to Yes, and the Calendar Link box with its copy button.', width: 925, height: 250, max: 420 },
+// For a university without a pack: what most timetable sites call it.
+export const GENERAL = {
+  intro: 'Most universities let you export your timetable as a personal calendar link. You find it once on your university\'s timetable website, copy it, and paste it here. After that the app keeps itself up to date.',
+  steps: [
+    '**Open your university\'s timetable website** and sign in. This is often easiest on a laptop.',
+    '**Look for an option to export or subscribe**, often called _Export_, _Subscribe_, _Calendar feed_ or _Add to calendar_ (sometimes under _Settings_).',
+    '**Copy the link** it gives you. It usually starts with `webcal://` or `https://` and often ends in `.ics`.',
+    '**Paste it below** and tap _Load timetable_.',
+  ],
+  pictures: {},
+  private: 'Keep this link private, because anyone who has it can see your timetable. The app stores it only on this device.',
 };
 
-export const PRIVATE = 'Keep this link private, because anyone who has it can see your timetable. If you set Publish Calendar back to No, the link stops working. The app stores it only on this device.';
+// The guide to show: the pack's, filled in where it leaves something out, or the general one.
+export function guideFor(pack) {
+  const g = pack || {};
+  const steps = Array.isArray(g.steps) && g.steps.length ? g.steps : GENERAL.steps;
+  return {
+    intro: g.intro || GENERAL.intro,
+    steps,
+    pictures: (steps === g.steps && g.pictures) || {},
+    private: g.private || GENERAL.private,
+  };
+}
 
 const TAGS = { '**': 'b', _: 'i', '`': 'code' };
 
@@ -36,14 +43,15 @@ export function rich(text) {
   });
 }
 
-// The numbered steps. `last` replaces the final step, e.g. for Help, where there's no box below.
-export function steps(last) {
-  const list = last ? [...STEPS.slice(0, -1), last] : STEPS;
-  return el('ol', { class: 'steps' }, ...list.map((step, i) => el('li', {}, el('span', {}, ...rich(step)), picture(i))));
+// The numbered steps of a guide (from guideFor). `last` replaces the final step, e.g. for Help,
+// where there's no box below.
+export function steps(guide, last) {
+  const list = last ? [...guide.steps.slice(0, -1), last] : guide.steps;
+  return el('ol', { class: 'steps' }, ...list.map((step, i) => el('li', {}, el('span', {}, ...rich(step)), picture(guide.pictures[i]))));
 }
 
-function picture(i) {
-  const p = PICTURES[i];
-  if (!p) return null;
-  return el('img', { class: 'step-picture', src: new URL(p.file, import.meta.url).href, alt: p.alt, width: p.width, height: p.height, style: `max-width:${p.max}px`, loading: 'lazy' });
+// A picture under a step: { src, alt, width, height, max }.
+function picture(p) {
+  if (!p?.src) return null;
+  return el('img', { class: 'step-picture', src: p.src, alt: p.alt || '', width: p.width, height: p.height, style: p.max ? `max-width:${p.max}px` : null, loading: 'lazy' });
 }

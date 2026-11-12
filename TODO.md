@@ -33,7 +33,7 @@ _Statuses checked against the code on 16 October 2026, after the sliding menu an
 - [x] **Plan Today** button under the "Next:" line, on the left, opening the to-do list — *`todo` feature; was "To-do list"; now a big outlined button with the count inside*
 - [x] Clock smaller (40 px), so Plan Today fits as a big button
 - [x] Swipeable pages on the dark area, with small knife-shaped dots: Today · Explore (opens Spots) · Plan your journey (coming soon) — *`home` slot `home.pages`, `spots`, new `journey` feature*
-- [~] Durham photo behind the pages, half see-through, clearest at the bottom right — *the place is ready (`app/features/home/photos/durham.jpg`, see the README there); the photo itself is still to be added*
+- [~] Durham photo behind the pages, half see-through, clearest at the bottom right — *the place is ready (`app/features/uni-durham/photos/durham.jpg`, see the README there); the photo itself is still to be added*
 - [ ] Plan your journey: the real thing (directions to your next class?)
 - [x] Under it, how many things are due today ("Nothing due today" / "1 thing due today" / "3 things due today"), updating as to-dos change and when the day changes
 - [ ] Free-time detection: gaps between classes ("free until 16:00") — used by the countdown and future features
@@ -117,7 +117,7 @@ _Built in version 3.10.0 (8 November 2026), except reworking the to-do list._
 - [x] **Planner: the Next button goes to Monday** — *moving forward from a week should land on the next Monday*
 - [x] **Planner: swipe** left and right to move between days and weeks — *today only pinch, taps and the Y M W D switch*
 - [x] **Fix the module layout: allow names on more than one line** so long module names don't run off the screen
-- [x] **Fix the Google Map for Mill Hill Lane** — *room code `MHL` in `app/features/durham-rooms/places.js`*
+- [x] **Fix the Google Map for Mill Hill Lane** — *room code `MHL` in `app/features/uni-durham/rooms.js`*
 - [x] **Week view: show the module's name instead of its code**, and **stop text being cut off** in the blocks — *`week-view` uses `sessions.shortName()` today*
 - [~] **Rework the to-do list** — *first step done in 3.12.0: to-dos on their days in the Planner (`planner-todos`, E chose option A of three). Planning a time for a to-do (option C) could come next*
 - [x] **Better instructions** — *the timetable setup guide rework E asked for on 29 October (`timetable/guide.js`, also a page in Help)*

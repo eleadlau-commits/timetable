@@ -1,4 +1,4 @@
-// Year view: the academic year at a glance, September to August, as twelve small months. Days
+// Year view: the academic year at a glance, September to August (the start month comes from the university's pack), as twelve small months. Days
 // with classes are dark and the rest faded, so term time stands out; today is circled. Tapping a
 // month zooms in to it.
 //
@@ -20,7 +20,7 @@ export default class YearView extends Feature {
       short: 'Y',
       zoom: 10,
       swipe: false, // swiping the year changes tab instead
-      crumb: (day) => this.sessions.layout.academicYear(day).label,
+      crumb: (day) => this.sessions.layout.academicYear(day, this.yearStart()).label,
       order: 12,
       mount: (container) => this.mount(container),
       render: () => this.render(),
@@ -62,10 +62,10 @@ export default class YearView extends Feature {
   render() {
     const sessions = this.sessions;
     const { academicYear, monthGrid } = sessions.layout;
-    const year = academicYear(sessions.selected);
+    const year = academicYear(sessions.selected, this.yearStart());
     const today = time.startOfDay(new Date());
     this.label.textContent = year.label;
-    this.todayButton.hidden = academicYear(today).label === year.label;
+    this.todayButton.hidden = academicYear(today, this.yearStart()).label === year.label;
 
     this.grid.replaceChildren(...year.months.map((month) => {
       const thisMonth = month.getMonth() === today.getMonth() && month.getFullYear() === today.getFullYear();
@@ -82,5 +82,10 @@ export default class YearView extends Feature {
         onclick: () => this.open(month),
       }, el('b', {}, name), el('span', { class: 'yr-days', 'aria-hidden': 'true' }, days));
     }));
+  }
+
+  // The academic year's first month (0–11): the university's, September without one.
+  yearStart() {
+    return this.use('university')?.yearStart() ?? 8;
   }
 }

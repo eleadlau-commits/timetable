@@ -1,0 +1,8 @@
+{
+  "name": "Durham University",
+  "description": "Durham's pack: the timetable setup guide, room codes and buildings, Bill Bryson Library, the Home photo and Durham's names.",
+  "version": "1.0.0",
+  "main": "Durham.js",
+  "kind": "pack",
+  "requires": ["university"]
+}
