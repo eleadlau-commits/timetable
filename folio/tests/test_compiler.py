@@ -11,7 +11,7 @@ ROOT = Path(os.path.abspath(__file__)).parents[2]
 sys.path.insert(0, str(ROOT / 'folio' / 'compiler'))
 
 import plistlib  # noqa: E402
-from folioc import Log, Project, cmd_android_project, cmd_ios_project, deep_merge, merge_plist  # noqa: E402
+from folioc import Log, Project, cmd_android_manifest, cmd_android_project, cmd_ios_project, deep_merge, merge_plist  # noqa: E402
 
 
 def make_app(tmp: Path, features: dict) -> Path:
@@ -212,6 +212,30 @@ class CompilerTests(unittest.TestCase):
         self.assertIn('includeGoogle = true', gradle)
         self.assertIn("someVersion = '1.2.0'", gradle)
 
+    def test_android_manifest_parts(self):
+        receiver = '<receiver android:name=".Widget" android:exported="false">\n    <intent-filter />\n</receiver>\n'
+        app = make_app(self.tmp, {
+            'widget': (feature(native={'android': {'permissions': ['VIBRATE'], 'application': ['native/receiver.xml']}}),
+                       {'native/receiver.xml': receiver}),
+        })
+        out = self.tmp / 'dist'
+        code, _ = Project(ROOT, app).build(out, Log(quiet=True))
+        self.assertEqual(code, 0)
+        native = json.loads((out / 'native.json').read_text('utf-8'))['android']
+        self.assertEqual(native['application'], [receiver.strip()])
+
+        manifest = self.tmp / 'AndroidManifest.xml'
+        manifest.write_text('<manifest>\n    <application android:label="x">\n        <activity />\n    </application>\n</manifest>\n')
+        args = type('Args', (), {'out': str(out), 'manifest': str(manifest)})()
+        self.assertEqual(cmd_android_manifest(None, args), 0)
+        text = manifest.read_text()
+        self.assertIn('        <receiver android:name=".Widget" android:exported="false">\n            <intent-filter />', text)
+        self.assertLess(text.index('<activity />'), text.index('<receiver'))
+        self.assertLess(text.index('</receiver>'), text.index('</application>'))
+        self.assertLess(text.index('VIBRATE'), text.index('<application'))
+        self.assertEqual(cmd_android_manifest(None, args), 0)  # running it again adds nothing twice
+        self.assertEqual(manifest.read_text(), text)
+
     def test_mistakes_in_web_pages(self):
         page = {'title': 'Privacy', 'module': 'privacy.js', 'render': 'notice'}
         files = {'privacy.js': 'export function notice() {}\n'}
@@ -240,7 +264,11 @@ class CompilerTests(unittest.TestCase):
             'outside': (feature(native={'android': {'files': {'../x.json': 'native/x.json'}}}), {'native/x.json': '{}'}),
             'badname': feature(native={'android': {'gradle': {'not a name': True}}}),
             'badvalue': feature(native={'android': {'gradle': {'ok': [1]}}}),
+            'noapp': feature(native={'android': {'application': ['native/receiver.xml']}}),
+            'appshape': feature(native={'android': {'application': '<receiver />'}}),
         })
+        self.assertIn('is missing', found['noapp'].reason)
+        self.assertIn('native.android.application', found['appshape'].reason)
         self.assertIn('is missing', found['missing'].reason)
         self.assertIn('inside the project', found['outside'].reason)
         self.assertIn('native.android.gradle', found['badname'].reason)

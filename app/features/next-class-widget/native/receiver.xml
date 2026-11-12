@@ -1,0 +1,15 @@
+<!-- Mobile Durham's next-class widget for the home screen (feature next-class-widget). -->
+<receiver
+    android:name="io.github.timetable.app.widget.NextClassWidget"
+    android:label="@string/next_class_widget_name"
+    android:exported="false">
+    <intent-filter>
+        <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+        <action android:name="android.intent.action.TIME_SET" />
+        <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+        <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+    </intent-filter>
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/next_class_widget_info" />
+</receiver>
