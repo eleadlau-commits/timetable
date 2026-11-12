@@ -5,5 +5,5 @@
   "main": "CustomiseHome.js",
   "styles": ["style.css"],
   "requires": ["home"],
-  "uses": ["welcome"]
+  "uses": ["welcome", "university"]
 }

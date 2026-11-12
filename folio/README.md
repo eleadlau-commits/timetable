@@ -84,6 +84,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
   "uses": ["durham-rooms"],
   "platforms": ["web", "android", "ios"],
   "enabled": true,
+  "kind": "feature",
   "web": { "manifest": { }, "pages": { } },
   "native": {
     "packages": { "@capacitor/local-notifications": "^7.0.0" },
@@ -114,6 +115,7 @@ Make a new one with `python build.py new-feature study-timer --requires sessions
 | `uses` | no | Features this one works better with. It starts after them if they're there, and works without them. |
 | `platforms` | no | Where it runs: `web`, `android`, `ios`. Default: everywhere. |
 | `enabled` | no | `false` switches the feature off without deleting it. |
+| `kind` | no | `"feature"` (the default) or `"pack"`. A pack holds facts other features ask for, such as one university's rooms and library, and usually has no screens of its own. Packs aren't listed in Settings → Features (switching one off would only break the features that ask it), and the build report marks them. Delete a pack's folder and the app still works, as with any feature. |
 | `web.manifest` | no | Merged into the web app manifest, e.g. a `share_target`. |
 | `web.pages` | no | Pages of their own on the website, outside the app, e.g. a privacy policy a store needs a link to: `{ "privacy": { "title": "Privacy notice", "module": "privacy.js", "render": "privacyNotice" } }` makes `privacy.html` next to `index.html`. It loads the app's styles and shows what the module's `render` function returns (an element), so the page and the app say the same thing. Keep that module free of anything that needs the app running. Names are small letters, numbers and dashes (not `index` or `tests`). |
 | `native` | no | What the phone apps need: npm `packages`, Capacitor config to merge, Android permissions and features, iPhone Info.plist entries. For Android also `files` (copied into the Android project: where it goes in the project → the file in the feature's `native/` folder) `application` (files in `native/` holding parts of the manifest's `<application>`, such as a home-screen widget's `<receiver>`) and `gradle` (settings added to the project's `variables.gradle`, e.g. a plugin's switch). For iPhone also `files` (added to the app: its name in the app → the file in `native/`, e.g. Firebase's `GoogleService-Info.plist`) and `pods` (lines added to the Podfile's app target, e.g. a plugin's optional part). iPhone `plist` entries are merged: lists are added to, dictionaries combined. |

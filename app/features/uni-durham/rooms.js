@@ -1,4 +1,4 @@
-// Durham University room codes → buildings.
+// Durham University room codes → buildings (part of Durham's pack; the University feature offers them as the 'places' service).
 //
 // Rooms and buildings from the AccessAble guides to Durham's learning spaces
 // (https://www.accessable.co.uk/durham-university/learning-spaces), October 2026.

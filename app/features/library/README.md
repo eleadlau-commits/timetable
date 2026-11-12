@@ -1,6 +1,6 @@
 # Library
 
-How busy Bill Bryson Library is right now, with free seats on each floor. It reads the library's public occupancy page (<https://apps.dur.ac.uk/study-spaces/library/bill-bryson/occupancy/display>). It doesn't book anything.
+How busy the university's library is right now, with free seats on each floor. Which library, and the address of its public occupancy page, come from the university's pack (the `university` service): at Durham, Bill Bryson Library (<https://apps.dur.ac.uk/study-spaces/library/bill-bryson/occupancy/display>, in `uni-durham/Durham.js`). Without a pack, or with a pack that has no library, nothing shows anywhere. It doesn't book anything.
 
 ## What it adds
 

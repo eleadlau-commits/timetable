@@ -1,7 +1,7 @@
 // Home: the tab the app opens on. At the top, on the dark area, small pages you swipe between
 // (or pick with the dots under them): the first has the date and the clock; other features add
-// more (Plan Today, Explore, Plan your journey). Behind them, a photo of Durham if there is one
-// (photos/durham.jpg, or the one the person chose). Under that, widgets from other features on
+// more (Plan Today, Explore, Plan your journey). Behind them, the university's photo if its pack
+// has one (Durham's is uni-durham/photos/durham.jpg), or the one the person chose. Under that, widgets from other features on
 // a grid, filling the screen down to the tab bar: Home doesn't scroll. The grid's rules (sizes,
 // where each widget goes) are in grid.js. Home only draws the places; other features fill them.
 // With no widgets at all, it shows "Missing content", so the screen keeps its shape.
@@ -27,7 +27,7 @@
 //
 // Service 'home': widgets() → [{ id, label, sizes }], usual() → [{ id, size }] (what Home shows
 // until someone chooses), rows() → how many rows fit on this phone, pack/fits (grid.js), and
-// photo (the address of Home's own photo).
+// photo (the address of Home's own photo, from the university's pack, or null).
 //
 // Saved data: none. Home always opens on the first page.
 
@@ -36,9 +36,6 @@ import { Pages } from './pages.js';
 import { pack, fits, rowsFor, SIZES } from './grid.js';
 
 const { el } = ui;
-// The photo behind the pages. Replace this file to change it (see photos/README.md); without
-// it, the dark area simply has no photo.
-const PHOTO = new URL('photos/durham.jpg', import.meta.url).href;
 
 export default class Home extends Feature {
   start() {
@@ -50,8 +47,9 @@ export default class Home extends Feature {
     this.rowCount = 8; // how many rows fit, measured once Home is on screen
     this.photoShown = undefined; // the address of the photo on screen
 
+    const home = this;
     this.provide('home', {
-      photo: PHOTO,
+      get photo() { return home.ownPhoto(); },
       sizes: SIZES,
       widgets: () => this.widgetItems().map((w) => ({ id: w.id, label: w.label || w.id, sizes: w.sizes || [] })),
       usual: () => this.usual(),
@@ -170,12 +168,21 @@ export default class Home extends Feature {
     }, ui.icon(t.icon))));
   }
 
+  // Home's own photo: the university's, or null for none.
+  ownPhoto() {
+    return this.use('university')?.photo() || null;
+  }
+
   // The photo the person chose, or Home's own.
   showPhoto() {
     const layout = this.slot('home.layout').items[0];
-    const url = (layout?.photo && this.slot('home.layout').run(layout, (l) => l.photo())) || PHOTO;
+    const url = (layout?.photo && this.slot('home.layout').run(layout, (l) => l.photo())) || this.ownPhoto();
     if (url === this.photoShown) return;
     this.photoShown = url;
+    if (!url) {
+      this.photo.classList.remove('shown');
+      return;
+    }
     const img = new Image();
     img.onload = () => {
       if (url !== this.photoShown) return; // another photo was chosen meanwhile

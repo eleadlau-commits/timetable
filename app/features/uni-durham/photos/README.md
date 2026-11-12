@@ -23,5 +23,5 @@ Replace `durham.jpg` with the new photo, using the same name. Then put it on Git
 
 ## Getting it onto GitHub
 
-- **GitHub Desktop:** copy the photo into this folder on your computer (`app/features/home/photos/`), named `durham.jpg`. GitHub Desktop shows it as a new file. Write a short summary (such as "Add the Durham photo") and press **Commit**, then **Push origin**.
-- **GitHub website:** open `app/features/home/photos/` in the repository, choose **Add file → Upload files**, drop the photo in (named `durham.jpg`), and press **Commit changes**.
+- **GitHub Desktop:** copy the photo into this folder on your computer (`app/features/uni-durham/photos/`), named `durham.jpg`. GitHub Desktop shows it as a new file. Write a short summary (such as "Add the Durham photo") and press **Commit**, then **Push origin**.
+- **GitHub website:** open `app/features/uni-durham/photos/` in the repository, choose **Add file → Upload files**, drop the photo in (named `durham.jpg`), and press **Commit changes**.

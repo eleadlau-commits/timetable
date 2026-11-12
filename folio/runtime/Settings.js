@@ -65,7 +65,10 @@ export class Settings {
 
   featuresSection() {
     const disabled = new Set(this.prefs.get('disabled', []));
-    const features = [...this.app.features.values()].filter((f) => f.status !== 'not-for-platform');
+    // Packs (e.g. one university's facts) aren't offered: switching one off would only break the
+    // features that ask it.
+    const features = [...this.app.features.values()]
+      .filter((f) => f.status !== 'not-for-platform' && f.manifest.kind !== 'pack');
     const rows = features.map((f) => {
       const on = !disabled.has(f.manifest.id);
       const note = {

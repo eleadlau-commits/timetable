@@ -5,5 +5,5 @@
   "main": "YearView.js",
   "styles": ["year-view.css"],
   "requires": ["sessions"],
-  "uses": ["planner"]
+  "uses": ["planner", "university"]
 }

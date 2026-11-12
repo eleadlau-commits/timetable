@@ -294,7 +294,7 @@ export default class Shop extends Feature {
   shopCard() {
     if (this.step !== 'linked') {
       return el('div', { class: 'shop-intro' },
-        el('p', {}, 'Put your café, pub or club on Spots, where Durham students find places and deals. It\'s free.'),
+        el('p', {}, `Put your café, pub or club on Spots, where ${this.use('university')?.town() || 'local'} students find places and deals. It's free.`),
         el('p', { class: 'hint' }, 'Sign in, then type the shop code we gave you. No code? You can ask to be listed.'));
     }
     const preview = this.preview();

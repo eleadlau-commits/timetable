@@ -48,7 +48,8 @@ FRAMEWORK_EVENTS = {'app:ready', 'app:resume', 'app:tick', 'app:online', 'app:of
 FRAMEWORK_SERVICES: set[str] = set()
 
 FEATURE_KEYS = {'name', 'description', 'version', 'main', 'styles', 'templates', 'requires', 'uses',
-                'platforms', 'enabled', 'web', 'native'}
+                'platforms', 'enabled', 'kind', 'web', 'native'}
+KINDS = ('feature', 'pack')  # a pack holds facts (e.g. one university's) that other features ask for
 NATIVE_KEYS = {'packages', 'capacitor', 'android', 'ios'}
 FOLDER_NAME = re.compile(r'^[a-z][a-z0-9]*(-[a-z0-9]+)*$')
 NOT_SHIPPED = {'tests', 'extras', 'native'}  # feature subfolders that never go into the app
@@ -385,6 +386,8 @@ class Project:
             return f.leave_out('mistake', f'"platforms" can only contain {", ".join(PLATFORMS)}')
         if 'enabled' in m and not isinstance(m['enabled'], bool):
             return f.leave_out('mistake', '"enabled" must be true or false')
+        if m.get('kind', 'feature') not in KINDS:
+            return f.leave_out('mistake', f'"kind" can only be {" or ".join(KINDS)}')
         native = m.get('native', {})
         if not isinstance(native, dict) or any(k not in NATIVE_KEYS for k in native):
             return f.leave_out('mistake', f'"native" can only contain {", ".join(sorted(NATIVE_KEYS))}')
@@ -635,6 +638,7 @@ class Project:
         registry = [{
             'id': f.id, 'name': f.name, 'description': f.manifest['description'], 'version': f.version,
             'requires': f.requires, 'uses': f.uses, 'platforms': f.platforms,
+            'kind': f.manifest.get('kind', 'feature'),
             'path': f'features/{f.id}/{f.manifest["main"]}',
         } for f in included]
         config = {'id': app['id'], 'name': app['name'], 'description': app.get('description', ''), 'version': app['version'],
@@ -952,6 +956,8 @@ fetch('/__folio_report', {{ method: 'POST', body: JSON.stringify({{ kind: 'tests
         rows = []
         for f in included + [f for f in features if f.reason]:
             status = 'Included' if f.id in included_ids else f'Left out: {f.reason}'
+            if isinstance(f.manifest, dict) and f.manifest.get('kind') == 'pack':
+                status = f'Pack · {status}'
             native = f.native
             extras = []
             if native.get('packages'):

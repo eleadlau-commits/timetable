@@ -5,5 +5,5 @@
   "main": "Explore.js",
   "styles": ["style.css"],
   "requires": [],
-  "uses": ["home"]
+  "uses": ["home", "university"]
 }

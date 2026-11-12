@@ -5,5 +5,5 @@
   "main": "Timetable.js",
   "styles": ["timetable.css"],
   "templates": "templates.html",
-  "uses": ["welcome"]
+  "uses": ["welcome", "university"]
 }

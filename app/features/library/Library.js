@@ -1,4 +1,7 @@
-// Library: how busy Bill Bryson Library is. A thin row on Home (name, free seats, a bar) and a
+// Library: how busy the university's library is (Bill Bryson Library at Durham). Which library,
+// and the address of its page of free seats, come from the university's pack (the 'university'
+// service); without one, there's no library card anywhere.
+// A thin row on Home (name, free seats, a bar) and a
 // small folded bar on the Study tab (busy or not, free seats, a bar). Tap it for a full-screen pop-up with free seats on each floor.
 // Read from the library's public occupancy page whenever the app comes to the front (opened or
 // switched back to), and every 5 minutes while it's open. No booking.
@@ -11,7 +14,7 @@
 //             'open' → no longer used (the card used to unfold in place; the floors are now in a pop-up)
 
 import { Feature, ui, time } from 'folio';
-import { SOURCE, textOf, readOccupancy, busyness } from './occupancy.js';
+import { textOf, readOccupancy, busyness } from './occupancy.js';
 import { shouldCheck, isOld } from './freshness.js';
 
 const { el } = ui;
@@ -29,7 +32,7 @@ export default class Library extends Feature {
       id: 'library', label: 'Library', order: 10, sizes: ['wide', 'tall'],
       render: (size) => (size === 'tall' ? this.tall() : this.thin()),
     });
-    this.add('study.cards', { order: 10, render: () => this.folded('Bill Bryson Library') });
+    this.add('study.cards', { order: 10, render: () => this.folded(this.name()) });
     this.add('settings', { id: 'library', title: 'Library', order: 70, render: () => this.settingsSection() });
 
     // Fresh numbers without anyone tapping refresh: a check when the app opens or comes back to
@@ -40,14 +43,25 @@ export default class Library extends Feature {
     this.on('app:tick', () => this.freshen('tick'));
   }
 
+  // The library to show: the first in the university's pack, or null.
+  library() {
+    return this.use('university')?.libraries()[0] || null;
+  }
+
+  name() {
+    return this.library()?.name || 'Library';
+  }
+
   async download() {
+    const page = this.library()?.page;
+    if (!page) throw new Error('unreachable');
     try {
-      return await this.getText(SOURCE);
+      return await this.getText(page);
     } catch {
       // Blocked or offline: try the relay below.
     }
     const relay = this.use('relay');
-    if (relay?.address && relay.fetchThroughRelay) return relay.fetchThroughRelay(SOURCE);
+    if (relay?.address && relay.fetchThroughRelay) return relay.fetchThroughRelay(page);
     throw new Error(this.native || relay?.address ? 'unreachable' : 'blocked');
   }
 
@@ -75,7 +89,7 @@ export default class Library extends Feature {
   // Loads a new reading when it's due (see freshness.js). Nothing is checked while the bars are
   // switched off.
   freshen(why = 'tick') {
-    if (!this.show || this.loading || !navigator.onLine) return;
+    if (!this.show || this.loading || !navigator.onLine || !this.library()) return;
     if (shouldCheck({ now: Date.now(), tried: this.tried, why })) this.load();
   }
 
@@ -99,20 +113,20 @@ export default class Library extends Feature {
   // On the Study tab (and on Home before the first reading): a small folded bar with how busy
   // it is, the free seats and a bar. Tap it to open the floors.
   folded(name) {
-    if (!this.show) return null;
+    if (!this.show || !this.library()) return null;
     this.freshen();
     const o = this.last?.occupancy;
     const open = () => this.openWindow();
     if (!o) {
       return el('button', { type: 'button', class: 'missing lib-missing', onclick: open },
         el('b', {}, name),
-        el('span', {}, this.loading ? 'Checking how busy Bill Bryson Library is…' : this.problem()));
+        el('span', {}, this.loading ? `Checking how busy ${this.name()} is…` : this.problem()));
     }
     const band = busyness(o.free, o.seats);
     return el('button', {
       type: 'button',
       class: `lib-home${this.oldClass()}`,
-      'aria-label': `Bill Bryson Library, ${band.label.toLowerCase()}, ${o.free} seats free${this.ageSpoken()}. Show each floor`,
+      'aria-label': `${this.name()}, ${band.label.toLowerCase()}, ${o.free} seats free${this.ageSpoken()}. Show each floor`,
       onclick: open,
     },
       el('span', { class: 'lib-line' },
@@ -125,13 +139,13 @@ export default class Library extends Feature {
 
   // On Home: one thin row with the name, the free seats and the bar. Tap it to open the floors.
   thin() {
-    if (!this.show) return null;
+    if (!this.show || !this.library()) return null;
     const o = this.last?.occupancy;
     if (!o) return this.folded('Library');
     return el('button', {
       type: 'button',
       class: `lib-home lib-thin${this.oldClass()}`,
-      'aria-label': `Bill Bryson Library, ${busyness(o.free, o.seats).label.toLowerCase()}, ${o.free} seats free${this.ageSpoken()}. Show each floor`,
+      'aria-label': `${this.name()}, ${busyness(o.free, o.seats).label.toLowerCase()}, ${o.free} seats free${this.ageSpoken()}. Show each floor`,
       onclick: () => this.openWindow(),
     },
       el('b', {}, 'Library'),
@@ -142,14 +156,14 @@ export default class Library extends Feature {
 
   // On Home, as a tall widget: the free seats in big numbers, how busy it is, and the bar.
   tall() {
-    if (!this.show) return null;
+    if (!this.show || !this.library()) return null;
     const o = this.last?.occupancy;
     if (!o) return this.folded('Library');
     const band = busyness(o.free, o.seats);
     return el('button', {
       type: 'button',
       class: `lib-home lib-tall${this.oldClass()}`,
-      'aria-label': `Bill Bryson Library, ${band.label.toLowerCase()}, ${o.free} seats free${this.ageSpoken()}. Show each floor`,
+      'aria-label': `${this.name()}, ${band.label.toLowerCase()}, ${o.free} seats free${this.ageSpoken()}. Show each floor`,
       onclick: () => this.openWindow(),
     },
       el('b', {}, 'Library'),
@@ -160,7 +174,7 @@ export default class Library extends Feature {
   }
 
   openWindow() {
-    if (!this.window) this.window = ui.dialog({ title: 'Bill Bryson Library' });
+    if (!this.window) this.window = ui.dialog({ title: this.name() });
     this.freshen('front');
     this.drawWindow();
     this.window.open();
@@ -176,7 +190,7 @@ export default class Library extends Feature {
     }, ui.icon('refresh'));
     const status = o
       ? [`Updated ${time.ago(this.last.at)}.`, this.failed && ` ${this.problem()}`]
-      : [this.loading ? 'Checking how busy Bill Bryson Library is…' : this.problem()];
+      : [this.loading ? `Checking how busy ${this.name()} is…` : this.problem()];
     this.window.setContent(el('section', { class: 'lib-detail' },
       el('div', { class: 'lib-line' },
         band && el('span', { class: `lib-tag ${band.id}` }, band.label),
@@ -217,12 +231,14 @@ export default class Library extends Feature {
   }
 
   pageLink() {
-    return el('a', { href: SOURCE, target: '_blank', rel: 'noopener' }, 'Open the library\'s page');
+    const page = this.library()?.page;
+    return page && el('a', { href: page, target: '_blank', rel: 'noopener' }, 'Open the library\'s page');
   }
 
   settingsSection() {
+    if (!this.library()) return null;
     return el('label', { class: 'lib-setting' },
-      el('span', {}, 'Show how busy Bill Bryson Library is, on Home and the Study tab'),
+      el('span', {}, `Show how busy ${this.name()} is, on Home and the Study tab`),
       ui.toggle({
         checked: this.show,
         label: 'Show the library card',
@@ -238,7 +254,7 @@ export default class Library extends Feature {
   addHelp() {
     for (const item of [
       { group: 'study', order: 10, question: 'Where do the library numbers come from?', answer: () => [
-        'From the library\'s own page of free seats at Bill Bryson Library, and the total is the library\'s own count. The app checks it every time you open the app or switch back to it, and every 5 minutes while it\'s open, so you don\'t need to refresh. Under the number it says how long ago it was checked, and if that\'s more than 15 minutes (say, you\'re offline) the numbers are greyed out. Tap the bar to see each floor.',
+        `From the library's own page of free seats at ${this.name()}, and the total is the library's own count. The app checks it every time you open the app or switch back to it, and every 5 minutes while it's open, so you don't need to refresh. Under the number it says how long ago it was checked, and if that's more than 15 minutes (say, you're offline) the numbers are greyed out. Tap the bar to see each floor.`,
       ] },
     ]) this.add('help.questions', item);
   }
