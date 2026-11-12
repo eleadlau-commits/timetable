@@ -1,5 +1,5 @@
 // Maps: shows which building a session is in, a small map with a pin on it, and opens Google
-// Maps when you tap the location. Buildings come from the 'places' service (Durham rooms) when
+// Maps when you tap the location. Buildings come from the 'places' service (the University feature, from the university's pack) when
 // it's installed, or from building names the person types in themselves.
 //
 // Saved data: 'typed' → { [building text]: full name }, 'area' → text added to map searches
@@ -21,7 +21,7 @@ export default class Maps extends Feature {
   start() {
     this.addHelp();
     this.sessions = this.use('sessions');
-    this.places = this.use('places'); // null if Durham rooms isn't installed
+    this.places = this.use('places'); // null without the University feature
     this.typedNames = this.storage.get('typed', {});
     this.area = this.storage.get('area', '');
     this.importOldData();

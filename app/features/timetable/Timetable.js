@@ -22,7 +22,7 @@
 
 import { Feature, ui, time } from 'folio';
 import { parseICS, expandEvents } from './ics.js';
-import { INTRO, PRIVATE, steps } from './guide.js';
+import { guideFor, steps } from './guide.js';
 
 const { el } = ui;
 const STALE_MS = 30 * time.MINUTE;
@@ -272,6 +272,11 @@ export default class Timetable extends Feature {
     return "Your university's server stopped this app from reading the link directly (a browser security rule). Import the .ics file instead, under Other ways to get the link in.";
   }
 
+  // The setup guide: the university's (from its pack), or the general one.
+  guide() {
+    return guideFor(this.use('university')?.guide());
+  }
+
   // ---- Help ----
 
   addHelp() {
@@ -280,12 +285,12 @@ export default class Timetable extends Feature {
       group: 'start', order: 10, page: true,
       question: 'How do I connect my timetable?',
       answer: () => [
-        INTRO,
-        steps('**Paste it into the app.** Tap the button below, paste the link and tap _Load timetable_.'),
+        this.guide().intro,
+        steps(this.guide(), '**Paste it into the app.** Tap the button below, paste the link and tap _Load timetable_.'),
         el('p', {}, el('b', {}, 'Copied it on a computer?'),
           ' Email or message the link to yourself, open it on your phone, then press and hold the link and choose ', el('i', {}, 'Copy'), '.'),
         el('p', {}, el('b', {}, 'Got a file instead of a link?'), ' Import it on the setup screen. A file won\'t update by itself, so import it again when your timetable changes.'),
-        PRIVATE,
+        this.guide().private,
       ],
       action: {
         get label() { return timetable.hasData ? 'Change my timetable link' : 'Set up my timetable'; },
@@ -312,7 +317,7 @@ export default class Timetable extends Feature {
     this.add('help.questions', {
       group: 'privacy', order: 10,
       question: 'Who can see my timetable link?',
-      answer: () => [PRIVATE],
+      answer: () => [this.guide().private],
     });
   }
 
@@ -322,9 +327,10 @@ export default class Timetable extends Feature {
     const page = this.template('setup');
     const part = (name) => page.querySelector(`[data-part="${name}"]`);
     this.setupNode = page.querySelector('.setup');
-    part('intro').textContent = INTRO;
-    part('guide').replaceWith(steps());
-    part('private').textContent = PRIVATE;
+    const guide = this.guide();
+    part('intro').textContent = guide.intro;
+    part('guide').replaceWith(steps(guide));
+    part('private').textContent = guide.private;
     this.linkInput = part('link');
     this.received = part('received');
     this.loadButton = part('load');

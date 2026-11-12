@@ -2,7 +2,7 @@
 // can be tested. A choice is a list, in order: [{ id, size }], e.g. [{ id: 'library', size: 'wide' }].
 // Nothing saved (null) means Home's usual widgets.
 
-// The photo choices: Home's own Durham photo, or one from the phone.
+// The photo choices: Home's own (the university's photo; saved as 'durham'), or one from the phone.
 export const PHOTOS = ['durham', 'own'];
 
 // A saved list made safe: only { id, size } pairs of names, each widget once. null if it isn't a list.

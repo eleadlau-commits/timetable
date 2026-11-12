@@ -12,7 +12,7 @@ Shows which building a session is in, and how to get there:
 
 **What it needs:**
 - **Requires:** sessions.
-- **Uses if present:** durham-rooms, through its `places` service. Without it, maps still work from the location text and any building names you type.
+- **Uses if present:** university, through its `places` service (room codes from the university's pack, such as `uni-durham`). Without it, maps still work from the location text and any building names you type.
 - **In the phone app:** it lets the OpenStreetMap preview load (see `native.capacitor` in `feature.json`).
 
 **Saves:** `typed`, the building names you typed, and `area`. Brings these across from version 1, and forgets them when the timetable is removed.

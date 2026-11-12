@@ -1,4 +1,4 @@
-// Spots: places around Durham. A card on the Explore tab (the explore feature) opens a window
+// Spots: places around town (Durham, from the university's pack). A card on the Explore tab (the explore feature) opens a window
 // with a card for each kind of place (cafés, pubs and clubs). Without Explore, Spots has its own
 // tab instead, as it used to. Each card has a dark bar along the bottom; give a spot a `photo` (e.g.
 // new URL('photos/cafes.jpg', import.meta.url).href) to show it in the bar, fading into the
@@ -39,7 +39,7 @@ const { el } = ui;
 const SPOTS = [
   { id: 'cafes', label: 'Cafés', line: 'Coffee, cake and somewhere to sit', photo: null },
   { id: 'pubs', label: 'Pubs', line: 'A drink and a catch-up', photo: null },
-  { id: 'clubs', label: 'Clubs', line: 'Nights out in Durham', photo: null },
+  { id: 'clubs', label: 'Clubs', line: 'Nights out in {town}', photo: null },
 ];
 
 export default class Spots extends Feature {
@@ -62,7 +62,7 @@ export default class Spots extends Feature {
       icon: 'pin',
       order: 40,
       visible: () => !this.hasExplore,
-      subtitle: () => 'Places around Durham',
+      subtitle: () => this.inTown('Places around {town}'),
       mount: (container) => {
         this.box = el('div', { class: 'spot-tab' });
         container.append(this.box);
@@ -180,7 +180,7 @@ export default class Spots extends Feature {
   card(spot) {
     const n = this.places(spot.id).length;
     return el('button', { type: 'button', class: 'spot-card', onclick: () => this.openKind(spot) },
-      el('span', { class: 'spot-card-text' }, el('b', {}, spot.label), el('span', {}, spot.line)),
+      el('span', { class: 'spot-card-text' }, el('b', {}, spot.label), el('span', {}, this.inTown(spot.line))),
       el('span', { class: 'spot-card-bar', style: spot.photo ? `--photo: url("${encodeURI(spot.photo)}")` : null },
         el('span', {}, n ? `${n} ${n === 1 ? 'place' : 'places'}` : 'Coming soon'),
         ui.icon('right')));
@@ -247,11 +247,16 @@ export default class Spots extends Feature {
       : ui.missing(`${spot.label} to show`));
   }
 
+  // Words with {town} filled in from the university's pack ('Durham'), or 'town' without one.
+  inTown(text) {
+    return text.replace('{town}', this.use('university')?.town() || 'town');
+  }
+
   // Questions and answers for the Help page.
   addHelp() {
     for (const item of [
       { group: 'around', order: 20, question: 'What\'s on Spots?', answer: () => [
-        'Cafés, pubs and clubs around Durham, with student deals on now at the top. Open it from the Explore tab. We\'re adding places over time, and kinds with none yet say Coming soon.',
+        this.inTown('Cafés, pubs and clubs around {town}, with student deals on now at the top. Open it from the Explore tab. We\'re adding places over time, and kinds with none yet say Coming soon.'),
       ] },
     ]) this.add('help.questions', item);
   }

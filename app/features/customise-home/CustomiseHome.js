@@ -1,6 +1,6 @@
 // Customise Home: choose Home's widgets and photo. A pencil on Home (at the right of the dots
 // under the clock), or Settings → Home, opens a pop-up with:
-//   - the photo behind the clock: Home's Durham photo, or one from your phone
+//   - the photo behind the clock: Home's own (the university's, Durham's for now), or one from your phone
 //   - a small picture of Home's grid, showing how much room is left
 //   - the widgets on Home: change their size (wide, tall, large), move them, remove them
 //   - the other widgets, in each of their sizes: tap one to add it. If it won't fit, it says so.
@@ -14,7 +14,7 @@
 // Saved data (on this phone only):
 //   'widgets'   → [{ id, size }] in order, or nothing for Home's usual ones
 //   'business-widgets' → the same, for the business version
-//   'photo'     → 'durham' (Home's own, the default) or 'own'
+//   'photo'     → 'durham' (Home's own, the default; the name stays although it's the university's photo) or 'own'
 //   'own-photo' → the photo chosen from the phone, shrunk, as a data: address (a JPEG)
 
 import { Feature, ui } from 'folio';
@@ -122,7 +122,9 @@ export default class CustomiseHome extends Feature {
     return el('section', { class: 'ch-section' },
       el('h3', { class: 'sub-head' }, 'Photo'),
       el('div', { class: 'ch-photos' },
-        tile('durham', 'Durham', picture(this.home.photo), () => this.choosePhoto('durham')),
+        // 'durham' is the saved name for Home's own photo, whichever university's it is.
+        tile('durham', this.home.photo ? (this.use('university')?.short() || 'Usual') : 'Plain',
+          this.home.photo ? picture(this.home.photo) : el('span', { class: 'ch-photo-pic' }), () => this.choosePhoto('durham')),
         tile('own', this.ownPhoto ? 'Yours' : 'Choose your own',
           this.ownPhoto ? picture(this.ownPhoto) : el('span', { class: 'ch-photo-pic ch-photo-add' }, ui.icon('plus')),
           () => (this.ownPhoto ? this.choosePhoto('own') : this.pickPhoto()))),

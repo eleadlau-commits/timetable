@@ -111,6 +111,11 @@ class CompilerTests(unittest.TestCase):
         self.assertEqual(found['a'].kind, 'off')
         self.assertEqual(found['c'].kind, 'off')
 
+    def test_packs(self):
+        order, found = self.resolve({'a': feature(kind='pack'), 'b': feature(kind='feature'), 'c': feature(kind='plugin')})
+        self.assertEqual(sorted(order), ['a', 'b'])
+        self.assertIn('kind', found['c'].reason)
+
     def test_mistakes_in_feature_json(self):
         _, found = self.resolve({
             'broken-json': '{ "name": "x", }',

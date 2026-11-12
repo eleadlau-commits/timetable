@@ -1,4 +1,4 @@
-// Explore: the tab for things to discover around Durham (it used to be the Spots tab). Big cards,
+// Explore: the tab for things to discover around town (Durham, from the university's pack; it used to be the Spots tab). Big cards,
 // one for each thing, added by other features: Spots (cafés, pubs and clubs, with student deals)
 // and Societies. Each card has its name and a short line at the top, and a dark bar along the
 // bottom with a short detail (e.g. "2 student deals on now"); tapping it opens that feature's
@@ -28,7 +28,7 @@ export default class Explore extends Feature {
       label: 'Explore',
       icon: 'pin',
       order: 40,
-      subtitle: () => 'Around Durham',
+      subtitle: () => this.around(),
       mount: (container) => {
         this.box = el('div', { class: 'explore-cards' });
         container.append(this.box);
@@ -56,7 +56,13 @@ export default class Explore extends Feature {
       const line = slot.run(card, (c) => c.homeLine?.(), '');
       if (line) return line;
     }
-    return cards.length ? cards.map((c) => c.label).join(', ') : 'Around Durham';
+    return cards.length ? cards.map((c) => c.label).join(', ') : this.around();
+  }
+
+  // 'Around Durham': the town from the university's pack, or 'Around you' without one.
+  around() {
+    const town = this.use('university')?.town();
+    return town ? `Around ${town}` : 'Around you';
   }
 
   render() {

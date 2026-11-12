@@ -4,5 +4,5 @@
   "version": "1.0.0",
   "main": "Home.js",
   "styles": ["home.css"],
-  "uses": ["welcome"]
+  "uses": ["welcome", "university"]
 }

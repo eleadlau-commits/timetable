@@ -3,5 +3,6 @@
   "description": "The first screen after installing: I'm a student, or I run a business. Other features ask it which version to show.",
   "version": "1.0.0",
   "main": "Welcome.js",
-  "styles": ["style.css"]
+  "styles": ["style.css"],
+  "uses": ["university"]
 }
