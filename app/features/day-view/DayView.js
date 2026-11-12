@@ -12,6 +12,9 @@ export default class DayView extends Feature {
     this.sessions = this.use('sessions');
     this.defineSlot('day.cards',
       'Cards above the day\'s sessions. Item: { order, render(day) → element, or null to show nothing }.');
+    this.defineSlot('day.marks',
+      'Small marks in the top corner of a day in the week strip, such as a tick for to-dos. '
+      + 'Item: { order, render(day) → small element or null, label?(day) → words added to the day\'s spoken name, or null }.');
     // Inside the Planner tab if it's installed, otherwise a tab of its own.
     this.add(this.use('planner') ? 'planner.views' : 'views', {
       icon: 'calendar',
@@ -62,16 +65,19 @@ export default class DayView extends Feature {
       const day = time.addDays(week, i);
       const isSelected = time.sameDay(day, selected);
       const busy = sessions.onDay(day).some((s) => !s.cancelled);
+      const marks = this.slot('day.marks').map((m) => m.render(day)).filter(Boolean);
+      const said = this.slot('day.marks').map((m) => m.label?.(day)).filter(Boolean);
       return el('button', {
         type: 'button',
         class: `daybtn${isSelected ? ' sel' : ''}${time.sameDay(day, today) ? ' today' : ''}${busy ? ' has' : ''}`,
-        'aria-label': time.formatLongDate(day),
+        'aria-label': [time.formatLongDate(day), ...said].join(', '),
         'aria-pressed': String(isSelected),
         onclick: () => sessions.select(day),
       },
         el('span', {}, day.toLocaleDateString([], { weekday: 'short' })),
         el('b', {}, day.getDate()),
-        el('i', { class: 'dot' }));
+        el('i', { class: 'dot' }),
+        marks.length ? el('span', { class: 'daybtn-marks', 'aria-hidden': 'true' }, marks) : null);
     }));
 
     this.title.replaceChildren(time.dayLabel(selected), ' ', el('span', {}, time.formatDate(selected)));

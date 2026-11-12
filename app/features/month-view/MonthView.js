@@ -11,6 +11,11 @@ export default class MonthView extends Feature {
   start() {
     this.sessions = this.use('sessions');
     this.planner = this.use('planner');
+    this.defineSlot('month.marks',
+      'Small marks in the top corner of a day in the month grid, such as a tick for to-dos. '
+      + 'Item: { order, render(day) → small element or null, label?(day) → words added to the day\'s spoken name, or null }.');
+    this.defineSlot('month.cards',
+      'Cards above the chosen day\'s classes, under the month. Item: { order, render(day) → element, or null to show nothing }.');
     // Inside the Planner tab if it's installed, otherwise a tab of its own.
     this.add(this.planner ? 'planner.views' : 'views', {
       icon: 'calendar',
@@ -46,6 +51,7 @@ export default class MonthView extends Feature {
     this.todayButton = el('button', { type: 'button', class: 'link-btn', onclick: () => this.sessions.select(new Date()) }, 'Today');
     this.grid = el('div', { class: 'mo-grid', role: 'grid' });
     this.dayTitle = el('h3');
+    this.cards = el('div', { class: 'mo-cards' });
     this.list = el('div', { class: 'mo-list' });
     const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2026, 9, 26 + i)); // a Monday to Sunday
     container.append(
@@ -61,6 +67,7 @@ export default class MonthView extends Feature {
         el('div', { class: 'mo-open' },
           el('button', { type: 'button', class: 'link-btn', onclick: () => this.open(this.sessions.selected) }, 'Week'),
           el('button', { type: 'button', class: 'link-btn', onclick: () => this.open(this.sessions.selected, 'day') }, 'Day'))),
+      this.cards,
       this.list);
   }
 
@@ -76,19 +83,23 @@ export default class MonthView extends Feature {
       const isSelected = time.sameDay(day, selected);
       const hues = sessions.hues(day);
       const count = sessions.onDay(day).filter((s) => !s.cancelled).length;
+      const marks = this.slot('month.marks').map((m) => m.render(day)).filter(Boolean);
+      const said = this.slot('month.marks').map((m) => m.label?.(day)).filter(Boolean);
       return el('button', {
         type: 'button',
         role: 'gridcell',
         class: `mo-day${day.getMonth() !== selected.getMonth() ? ' other' : ''}${time.sameDay(day, today) ? ' today' : ''}${isSelected ? ' sel' : ''}`,
-        'aria-label': `${time.formatLongDate(day)}${count ? `, ${count} session${count > 1 ? 's' : ''}` : ''}`,
+        'aria-label': [time.formatLongDate(day), count && `${count} session${count > 1 ? 's' : ''}`, ...said].filter(Boolean).join(', '),
         'aria-selected': String(isSelected),
         onclick: () => (isSelected ? this.open(day, 'day') : sessions.select(day)),
       },
         el('b', {}, day.getDate()),
-        el('span', { class: 'mo-dots', 'aria-hidden': 'true' }, hues.map((h) => el('i', { style: `--h:${h}` }))));
+        el('span', { class: 'mo-dots', 'aria-hidden': 'true' }, hues.map((h) => el('i', { style: `--h:${h}` }))),
+        marks.length ? el('span', { class: 'mo-marks', 'aria-hidden': 'true' }, marks) : null);
     }))));
 
     this.dayTitle.textContent = `${time.dayLabel(selected)} · ${time.formatDate(selected)}`;
+    this.cards.replaceChildren(...this.slot('month.cards').map((card) => card.render(selected)).filter(Boolean));
     const items = sessions.onDay(selected);
     const hidden = sessions.hiddenNote(selected);
     this.list.replaceChildren(...[

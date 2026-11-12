@@ -9,13 +9,19 @@
 // The rules (sorting, overdue, due today, tags) are in rules.js, with tests.
 //
 // Saved data (on this phone only):
-//   'items' → [{ id, text, tag, due: 'YYYY-MM-DD' or null, done, added }]
+//   'items' → [{ id, text, tag, due: 'YYYY-MM-DD' or null, done, doneOn: 'YYYY-MM-DD' or null, added }]
 //   'tags'  → [{ id, name }]   (until changed, the starting tags: Academic and Society)
+//
+// Service 'todos', for other features (such as planner-todos, which shows them on the Planner's
+// days): items(), tagName(id), setDone(id, done), open({ due }) and the event 'todo:changed'.
 
 import { Feature, ui } from 'folio';
-import { DEFAULT_TAGS, isOverdue, sortItems, filterItems, addTag, renameTag, deleteTag, dueLabel, dueToday, dueTodayText } from './rules.js';
+import { DEFAULT_TAGS, dayKey, isOverdue, sortItems, filterItems, addTag, renameTag, deleteTag, dueLabel, dueToday, dueTodayText } from './rules.js';
 
 const { el } = ui;
+// Ticking or unticking, with the day it was ticked (so today's Planner can still show an overdue
+// to-do you've just ticked off).
+const ticked = (done) => ({ done: !!done, doneOn: done ? dayKey(new Date()) : null });
 
 export default class Todo extends Feature {
   start() {
@@ -25,6 +31,13 @@ export default class Todo extends Feature {
     this.filter = 'all'; // 'all' or a tag id
     this.editing = null; // null, 'add-tag' or 'rename'
     this.adding = false; // the add-a-to-do form is open
+    this.addDue = ''; // the due date the add form starts with ('YYYY-MM-DD' or '')
+    this.provide('todos', {
+      items: () => [...this.items],
+      tagName: (id) => this.tagName(id),
+      setDone: (id, done) => this.setDone(id, done),
+      open: (options) => this.open(options),
+    });
 
     this.add('home.pages', {
       id: 'plan-today',
@@ -58,15 +71,30 @@ export default class Todo extends Feature {
   save() {
     this.storage.set('items', this.items);
     this.storage.set('tags', this.tags);
+    this.emit('todo:changed');
     this.refresh();
   }
 
-  open() {
+  // Ticks or unticks a to-do.
+  setDone(id, done) {
+    this.items = this.items.map((x) => (x.id === id ? { ...x, ...ticked(done) } : x));
+    this.save();
+    if (this.window?.isOpen) this.render();
+  }
+
+  // Opens the list. With { due: 'YYYY-MM-DD' }, the add form is open with that due date.
+  open({ due } = {}) {
     if (!this.window) {
-      this.window = ui.dialog({ title: 'To-do list', className: 'todo-dialog', onClose: () => { this.editing = null; this.adding = false; } });
+      this.window = ui.dialog({ title: 'To-do list', className: 'todo-dialog', onClose: () => { this.editing = null; this.adding = false; this.addDue = ''; } });
+    }
+    if (due) {
+      this.adding = true;
+      this.addDue = due;
+      this.filter = 'all';
     }
     this.render();
     this.window.open();
+    if (due) this.window.element.querySelector('.todo-form input[type="text"]')?.focus();
   }
 
   render(focus = null) {
@@ -205,7 +233,7 @@ export default class Todo extends Feature {
         role: 'checkbox',
         'aria-checked': String(!!item.done),
         'aria-label': `Done: ${item.text}`,
-        onclick: () => update({ done: !item.done }),
+        onclick: () => update(ticked(!item.done)),
       }, ui.icon('check')),
       el('div', { class: 'todo-main' },
         el('span', { class: 'todo-text' }, item.text),
@@ -242,7 +270,7 @@ export default class Todo extends Feature {
     const tag = ui.select([['', 'No tag'], ...this.tags.map((t) => [t.id, t.name])],
       { value: this.filter === 'all' ? '' : this.filter });
     tag.setAttribute('aria-label', 'Tag');
-    const due = el('input', { type: 'date', 'aria-label': 'Due date (optional)' });
+    const due = el('input', { type: 'date', 'aria-label': 'Due date (optional)', value: this.addDue });
     return el('form', {
       class: 'todo-form',
       onsubmit: (e) => {
@@ -277,7 +305,7 @@ export default class Todo extends Feature {
   addHelp() {
     for (const item of [
       { group: 'home', order: 30, question: 'Where\'s my to-do list?', answer: () => [
-        'On Home, swipe the dark area at the top to Plan Today and tap Open. You can also add a To-do widget to Home.',
+        'On Home, swipe the dark area at the top to Plan Today and tap Open. You can also add a To-do widget to Home. To-dos with a due date also show on their day in the Planner.',
       ] },
     ]) this.add('help.questions', item);
   }

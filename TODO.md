@@ -99,6 +99,7 @@ _Statuses checked against the code on 16 October 2026, after the sliding menu an
 - [x] Sorted by due date, no date last; overdue ones marked in red
 - [x] Add a to-do with an optional tag and due date
 - [x] Saved on the phone only; rules tested in `app/features/todo/tests`
+- [x] To-dos on their due days in the Planner: a To do card in Day and Month, ticks on days — *`planner-todos` feature, version 3.12.0*
 - [ ] Reminders for to-dos that are due (could use the `reminders` feature)
 
 ## 10. Later / ideas
@@ -118,5 +119,5 @@ _Built in version 3.10.0 (8 November 2026), except reworking the to-do list._
 - [x] **Fix the module layout: allow names on more than one line** so long module names don't run off the screen
 - [x] **Fix the Google Map for Mill Hill Lane** — *room code `MHL` in `app/features/durham-rooms/places.js`*
 - [x] **Week view: show the module's name instead of its code**, and **stop text being cut off** in the blocks — *`week-view` uses `sessions.shortName()` today*
-- [ ] **Rework the to-do list** — *details to agree with E*
+- [~] **Rework the to-do list** — *first step done in 3.12.0: to-dos on their days in the Planner (`planner-todos`, E chose option A of three). Planning a time for a to-do (option C) could come next*
 - [x] **Better instructions** — *the timetable setup guide rework E asked for on 29 October (`timetable/guide.js`, also a page in Help)*
