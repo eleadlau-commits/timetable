@@ -5,5 +5,5 @@
   "main": "Societies.js",
   "styles": ["style.css"],
   "requires": ["account"],
-  "uses": ["explore", "help"]
+  "uses": ["explore", "help", "university"]
 }

@@ -45,6 +45,7 @@ export const PLACES = {
   most: 200,
   removeUsed: false,
   list: 'spots',
+  groupBy: 'town',
 };
 
 // ---- Asking to be listed ----

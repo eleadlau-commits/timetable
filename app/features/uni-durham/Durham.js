@@ -18,6 +18,8 @@ export default class Durham extends Feature {
       name: 'Durham University',
       short: 'Durham',
       town: 'Durham',
+      townId: 'durham', // Spots with no `town`, or town 'durham', in the database
+      uniId: 'durham', // Societies with no `uni`, or uni 'durham'
       timetableHosts: ['mytimetable.durham.ac.uk'],
       guide: { intro: INTRO, steps: STEPS, pictures: PICTURES, private: PRIVATE },
       rooms: { lookup: lookupPlace },

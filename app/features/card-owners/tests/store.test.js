@@ -1,7 +1,7 @@
 // The shared database steps, against a small stand-in for the database that records every
 // write, so we can see each kind of card keeps exactly the names it always had.
 import { test, assert } from 'folio/testing';
-import { makeStore, isAdmin } from '../store.js';
+import { makeStore, isAdmin, listName, groupOf } from '../store.js';
 
 function fakeDb(start = {}) {
   const docs = new Map(Object.entries(start));
@@ -205,4 +205,32 @@ test('the team\'s phones make the list again only now and then', async () => {
   assert.equal(await store.freshenList(db, fields, storage), false); // just made
   saved.set('listed', { spots: Date.now() - 4 * 60 * 60 * 1000 });
   assert.ok(await store.freshenList(db, fields, storage));
+});
+
+test('one list per town: cards without a town are Durham\'s and keep the old list name', async () => {
+  const db = fakeDb({
+    'spots/cafe1': { name: 'Flat White', published: true },
+    'spots/cafe2': { name: 'Cafe Nero', published: true, town: 'durham' },
+    'spots/far': { name: 'Quayside', published: true, town: 'Newcastle' },
+    'spots/odd': { name: 'Odd', published: true, town: 'not a town!' },
+  });
+  const store = makeStore({ cards: 'spots', codes: 'c', owners: 'o', changes: 'ch', stats: 's', link: 'place', toStore: (c) => c, list: 'spots', groupBy: 'town' });
+  await store.allCards(db);
+  assert.ok(await store.saveList(db, fields));
+  assert.deepEqual(Object.keys(db.docs.get('lists/spots').items).sort(), ['cafe1', 'cafe2', 'odd']);
+  assert.deepEqual(Object.keys(db.docs.get('lists/spots-newcastle').items), ['far']);
+  // Newcastle's only place is taken down: its list is emptied, not left showing it.
+  db.docs.set('spots/far', { name: 'Quayside', published: false, town: 'newcastle' });
+  await store.allCards(db);
+  await store.saveList(db, fields);
+  assert.deepEqual(db.docs.get('lists/spots-newcastle').items, {});
+});
+
+test('list names and groups', () => {
+  assert.equal(listName('spots', 'durham'), 'spots');
+  assert.equal(listName('spots', null), 'spots');
+  assert.equal(listName('societies', 'york'), 'societies-york');
+  assert.equal(groupOf({}, 'uni'), 'durham');
+  assert.equal(groupOf({ uni: ' York ' }, 'uni'), 'york');
+  assert.equal(groupOf({ uni: 'York' }, undefined), 'durham');
 });

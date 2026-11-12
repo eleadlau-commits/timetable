@@ -19,10 +19,12 @@
 // 'societies:tapped' with a society id when someone taps its Instagram or Join button. The
 // society-committee feature counts them (once a day per phone), so committees see How it's going.
 //
-// Saved data: 'saved' → { at (ms), list: [{ id, type, name, line, meets, fee, instagram, join, photo, order }] }
+// Each university has its own list, from its pack (Durham's is lists/societies; see areaOf in rules.js).
+//
+// Saved data: 'saved' → { at (ms), area (the university's id; missing means Durham), list: [{ id, type, name, line, meets, fee, instagram, join, photo, order }] }
 
 import { Feature, ui } from 'folio';
-import { toSociety, pick, typesIn, isStale, fromList, MOST, TYPES, typeName } from './rules.js';
+import { toSociety, pick, typesIn, isStale, fromList, MOST, TYPES, typeName, areaOf, listFor, inArea, savedFor } from './rules.js';
 
 const { el } = ui;
 
@@ -53,15 +55,21 @@ export default class Societies extends Feature {
     });
   }
 
+  // The university whose societies to show, or null when no university is set.
+  get area() {
+    return areaOf(this.use('university'), 'uni');
+  }
+
   get list() {
-    return Array.isArray(this.saved?.list) ? this.saved.list : [];
+    return savedFor(this.saved, this.area) && Array.isArray(this.saved?.list) ? this.saved.list : [];
   }
 
   // ---- From the database ----
 
   // Asks the database again if the saved copy is old (at most once at a time, and not offline).
   update() {
-    if (this.loading || !navigator.onLine || !this.account || !isStale(this.saved)) return;
+    if (this.loading || !navigator.onLine || !this.account || !this.area) return;
+    if (savedFor(this.saved, this.area) && !isStale(this.saved)) return;
     if (this.failedAt && Date.now() - this.failedAt < 5 * 60000) return;
     this.loading = this.load()
       .catch(() => { this.failedAt = Date.now(); })
@@ -69,11 +77,12 @@ export default class Societies extends Feature {
   }
 
   async load() {
+    const area = this.area;
     const db = await this.account.publicDatabase();
-    const list = (await this.fromList(db) || await this.oneByOne(db))
+    const list = (await this.fromList(db, area) || await this.oneByOne(db, area))
       .map(([id, data]) => toSociety(id, data, import.meta.url)).filter(Boolean);
     const changed = JSON.stringify(list) !== JSON.stringify(this.list);
-    this.saved = { at: Date.now(), list };
+    this.saved = { at: Date.now(), area, list };
     this.storage.set('saved', this.saved);
     if (changed) {
       this.refresh();
@@ -82,15 +91,15 @@ export default class Societies extends Feature {
   }
 
   // Every published society in one document (1 read), or null if there's no list yet.
-  async fromList(db) {
-    const snap = await db.doc('lists/societies').get().catch(() => null);
+  async fromList(db, area) {
+    const snap = await db.doc(`lists/${listFor('societies', area)}`).get().catch(() => null);
     return snap?.exists ? fromList(snap.data()) : null;
   }
 
   // The societies one by one (a read each): before the team's phone has made the list.
-  async oneByOne(db) {
+  async oneByOne(db, area) {
     const snap = await db.collection('societies').where('published', '==', true).limit(MOST).get();
-    return snap.docs.map((d) => [d.id, d.data()]);
+    return snap.docs.map((d) => [d.id, d.data()]).filter(([, data]) => inArea(data, 'uni', area));
   }
 
   // ---- The window ----

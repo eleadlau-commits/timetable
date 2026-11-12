@@ -515,9 +515,17 @@ service cloud.firestore {
     // public anyway). Only the team's phones make them, when someone in 'admins' opens the app or
     // Approve changes (the card-owners feature); nobody else can write them.
 
+    // Each town has its own list of places and each university its own list of societies:
+    // Durham keeps lists/spots and lists/societies (cards from before there were others), and
+    // the rest are lists/spots-{town} and lists/societies-{university}, e.g. lists/spots-newcastle.
+
+    function listName(name) {
+      return name.matches('(spots|societies)(-[a-z0-9-]{1,40})?');
+    }
+
     match /lists/{name} {
-      allow get: if name in ['spots', 'societies'];
-      allow create, update: if isAdmin() && name in ['spots', 'societies']
+      allow get: if listName(name);
+      allow create, update: if isAdmin() && listName(name)
         && request.resource.data.keys().hasOnly(['items', 'at'])
         && request.resource.data.items is map
         && request.resource.data.at == request.time;

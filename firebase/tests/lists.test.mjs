@@ -1,4 +1,5 @@
-// Tests for the lists in firestore.rules (lists/spots and lists/societies): every published card in
+// Tests for the lists in firestore.rules (lists/spots and lists/societies, and one per other town
+// or university, e.g. lists/spots-newcastle): every published card in
 // one document, so phones read 1 document instead of one per card. Everyone can read them; only
 // the team (admins) can write them. Run with `npm test`.
 
@@ -41,6 +42,21 @@ test('everyone can read the lists, signed in or not, but no other names', async 
     await assertSucceeds(getDoc(doc(db, 'lists', 'societies')));
     await assertFails(getDoc(doc(db, 'lists', 'secret')));
   }
+});
+
+test('each town and university has its own list, by name', async () => {
+  for (const db of [nobody(), as('sam')]) {
+    await assertSucceeds(getDoc(doc(db, 'lists', 'spots-newcastle')));
+    await assertSucceeds(getDoc(doc(db, 'lists', 'societies-york')));
+    await assertFails(getDoc(doc(db, 'lists', 'spots-')));
+    await assertFails(getDoc(doc(db, 'lists', 'spots-New Castle')));
+    await assertFails(getDoc(doc(db, 'lists', 'secret-york')));
+  }
+  const eve = as('eve');
+  await assertSucceeds(setDoc(doc(eve, 'lists', 'spots-newcastle'), LIST()));
+  await assertSucceeds(setDoc(doc(eve, 'lists', 'societies-york'), LIST()));
+  await assertFails(setDoc(doc(eve, 'lists', 'secret-york'), LIST()));
+  await assertFails(setDoc(doc(as('sam'), 'lists', 'spots-newcastle'), LIST()));
 });
 
 test('the team can make, replace and delete a list', async () => {

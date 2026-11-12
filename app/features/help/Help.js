@@ -5,7 +5,8 @@
 // built yet, so it says it's coming soon.
 //
 // Slot 'help.questions': Item: { group, order, question, answer() → text, list of paragraphs
-//   or element, page?, action? }. group is an id from groups.js (e.g. 'timetable'); page: true
+//   or element, page?, action?, visible?() }. visible() → false leaves it out (e.g. the library's
+//   question at a university without one). group is an id from groups.js (e.g. 'timetable'); page: true
 //   opens the answer as its own page; action: { label, run() } adds a button under the answer,
 //   which closes Help first.
 //
@@ -20,7 +21,7 @@ const { el } = ui;
 export default class Help extends Feature {
   start() {
     this.defineSlot('help.questions',
-      'Questions and answers on the Help page. Item: { group, order, question, answer() → text, paragraphs or element, page?, action?: { label, run() } }.');
+      'Questions and answers on the Help page. Item: { group, order, question, answer() → text, paragraphs or element, page?, action?: { label, run() }, visible?() → false to leave it out }.');
     this.add('header.buttons', {
       id: 'help',
       label: 'Help',
@@ -39,8 +40,12 @@ export default class Help extends Feature {
 
   open() {
     if (!this.window) this.window = ui.dialog({ title: 'Help', className: 'help-dialog' });
-    const own = QUESTIONS.map((q) => ({ ...q, answer: () => q.answer }));
-    const groups = arrange([...own, ...this.slot('help.questions').items]);
+    const uni = this.use('university');
+    const names = { short: uni?.short() || '', town: uni?.town() || '' };
+    const own = QUESTIONS.map((q) => ({ ...q, answer: () => (typeof q.answer === 'function' ? q.answer(names) : q.answer) }));
+    const slot = this.slot('help.questions');
+    const shown = slot.items.filter((q) => !q.visible || slot.run(q, (x) => x.visible() !== false, true));
+    const groups = arrange([...own, ...shown]);
     this.window.setContent(groups.length
       ? el('div', { class: 'help' }, ...groups.map((g) => this.group(g)))
       : ui.missing('Help\'s questions'));

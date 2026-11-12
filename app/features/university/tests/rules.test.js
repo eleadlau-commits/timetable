@@ -1,5 +1,5 @@
 import { test, assert } from 'folio/testing';
-import { choosePack, yearStart, packForLink } from '../rules.js';
+import { choosePack, yearStart, packForLink, shouldAsk } from '../rules.js';
 
 const durham = { id: 'durham', order: 10, timetableHosts: ['mytimetable.durham.ac.uk'] };
 const york = { id: 'york', order: 20, timetableHosts: ['york.ac.uk'] };
@@ -23,4 +23,11 @@ test('a timetable link points at its university', () => {
   assert.equal(packForLink([durham, york], 'https://timetable.york.ac.uk/x.ics'), york);
   assert.equal(packForLink([durham, york], 'https://example.com/x.ics'), null);
   assert.equal(packForLink([durham, york], 'not a link'), null);
+});
+
+test('someone new is asked only when there\'s a choice to make', () => {
+  assert.equal(shouldAsk({ packs: 1, chosen: false, kind: 'student' }), false);
+  assert.equal(shouldAsk({ packs: 2, chosen: false, kind: 'student' }), true);
+  assert.equal(shouldAsk({ packs: 2, chosen: true, kind: 'student' }), false);
+  assert.equal(shouldAsk({ packs: 2, chosen: false, kind: 'business' }), false);
 });

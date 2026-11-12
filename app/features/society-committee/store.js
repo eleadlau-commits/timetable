@@ -34,4 +34,5 @@ export const SOCIETIES = {
   most: 300,
   removeUsed: true,
   list: 'societies',
+  groupBy: 'uni',
 };

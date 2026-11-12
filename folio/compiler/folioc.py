@@ -553,7 +553,7 @@ class Project:
                     by_id[member].leave_out('mistake', f'its "requires" go round in a circle: {cycle}')
 
     def _order(self, candidates: dict) -> list[FeatureInfo]:
-        """Orders features so each starts after what it requires and uses."""
+        """Orders features so each starts after what it requires and uses, and packs as early as they can."""
         order, state = [], {}
 
         def visit(f, path):
@@ -572,7 +572,15 @@ class Project:
                     visit(candidates[dep], path + [f.id])
             state[f.id] = 'done'
             order.append(f)
+            # A pack starts as soon as everything it requires has, so the features that ask it
+            # (which can't name it) already find its facts when they start.
+            for pid in packs:
+                p = candidates[pid]
+                if state.get(pid) is None and all(state.get(d) == 'done' for d in p.requires if d in candidates):
+                    visit(p, [])
 
+        packs = sorted(fid for fid, f in candidates.items()
+                       if isinstance(f.manifest, dict) and f.manifest.get('kind') == 'pack')
         for fid in sorted(candidates):
             if state.get(fid) is None:
                 visit(candidates[fid], [])

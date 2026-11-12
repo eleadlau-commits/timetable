@@ -40,7 +40,7 @@ const { el } = ui;
 export default class Home extends Feature {
   start() {
     this.defineSlot('home.pages', 'More pages at the top of Home, swiped to after the clock. Item: { id, order, audience?: \'business\' or \'everyone\' (students only without it), render() → element or null }. One short row: use home-page-row, home-page-title, home-page-line and home-button.');
-    this.defineSlot('home.widgets', "Widgets on Home's grid. Item: { id, label, order, sizes: ['wide' | 'tall' | 'large', …] (the first is how it starts), start?: false to leave it off until added, audience?: 'business' or 'everyone' (students only without it), render(size) → element or null }.");
+    this.defineSlot('home.widgets', "Widgets on Home's grid. Item: { id, label, order, sizes: ['wide' | 'tall' | 'large', …] (the first is how it starts), start?: false to leave it off until added, audience?: 'business' or 'everyone' (students only without it), render(size) → element or null, available?() → false to leave it out everywhere (Home and Customise Home) while it has nothing to show here }.");
     this.defineSlot('home.layout', "The person's choice of widgets and photo. Only the first item is used. Item: { widgets() → [{ id, size }] or undefined; photo() → address or undefined for Home's own }.");
     this.defineSlot('home.tools', 'Small buttons on the dark area of Home, at the right of the dots. Item: { id, label, icon, order, onClick() }.');
     this.timer = 0;
@@ -105,9 +105,11 @@ export default class Home extends Feature {
     return item.audience !== 'business';
   }
 
-  // The widgets for this version of the app.
+  // The widgets for this version of the app, leaving out any that say they have nothing to
+  // show here (available() → false, e.g. the library at a university without one).
   widgetItems() {
-    return this.slot('home.widgets').items.filter((w) => this.isFor(w));
+    const slot = this.slot('home.widgets');
+    return slot.items.filter((w) => this.isFor(w) && (!w.available || slot.run(w, (x) => x.available() !== false, true)));
   }
 
   // The widgets Home shows until someone chooses: each in its first size, unless it says not.
