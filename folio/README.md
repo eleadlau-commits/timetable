@@ -340,7 +340,9 @@ Folio's version is in `folio/VERSION`. When the framework changes in a way featu
 
 **1.14.0:** `web.pages` in feature.json: a feature can put a page of its own on the website (such as `privacy.html`), drawn by a function in its code with the app's styles. Features written for 1.13 keep working.
 
-**1.18.0:** the iPhone app keeps the top bar and tab bar in place: the page no longer stretches past its top or bottom on iPhones (`overscroll-behavior: none`), the page is put back if the keyboard left it pushed up, and the top bar's and tab bar's colours carry on past the screen's edges. `<html>` now has `data-platform` (`web`, `android` or `ios`) for styles that only one version needs. Features written for 1.17 keep working.
+**1.19.0:** the iPhone app keeps the top bar and tab bar in place: the page no longer stretches past its top or bottom on iPhones (`overscroll-behavior: none`), the page is put back if the keyboard left it pushed up, and the top bar's and tab bar's colours carry on past the screen's edges. `<html>` now has `data-platform` (`web`, `android` or `ios`) for styles that only one version needs. Features written for 1.18 keep working.
+
+**1.18.0:** `"kind": "pack"` in feature.json, for features that hold facts other features ask for (such as one university's rooms and library). Packs aren't listed in Settings → Features, and the build report marks them. Features written for 1.17 keep working.
 
 **1.17.0:** a feature can add to the Android manifest's `<application>` with `native.android.application` in feature.json: a list of files in its `native/` folder, each holding a piece such as a home-screen widget's `<receiver>`. `python build.py android-manifest` puts them in. Features written for 1.16 keep working.
 
