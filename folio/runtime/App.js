@@ -52,6 +52,7 @@ export class App {
   async start() {
     const html = document.documentElement;
     html.dataset.folio = 'starting';
+    html.dataset.platform = this.platform.name; // 'web', 'android' or 'ios', for styles
     this.catchStrayErrors();
     this.shell = new Shell(this);
 
@@ -206,6 +207,20 @@ export class App {
 
   // ---- Device ----
 
+  // On iPhones, the keyboard pushes the whole page up to show the text box, and the page can
+  // stay pushed up after it closes: the top bar goes under the camera, and the tab bar floats
+  // with the page showing below it. Once nothing is being typed in, put the page back.
+  keepIphonePageInPlace() {
+    const typing = () => document.activeElement?.matches?.('input, textarea, select, [contenteditable="true"]');
+    const putBack = () => {
+      if (typing()) return;
+      const most = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      window.scrollTo(window.scrollX, Math.min(window.scrollY, most));
+    };
+    document.addEventListener('focusout', () => setTimeout(putBack, 150));
+    window.visualViewport?.addEventListener('resize', () => setTimeout(putBack, 150));
+  }
+
   listenToDevice() {
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState !== 'visible') return;
@@ -219,6 +234,7 @@ export class App {
     }, 60000);
     window.addEventListener('online', () => { this.emit('app:online'); this.refresh(); });
     window.addEventListener('offline', () => { this.emit('app:offline'); this.refresh(); });
+    if (this.platform.name === 'ios') this.keepIphonePageInPlace();
   }
 
   // Lets the web version open without internet. Not needed inside the Android/iPhone app.
