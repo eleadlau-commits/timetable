@@ -70,6 +70,11 @@ body {
 
 [hidden] { display: none !important; }
 
+/* iPhones stretch the whole page when it's pulled past its top or bottom, and the top bar and tab
+   bar went with it, leaving the page showing above and below them. Stop that stretch there
+   (features that want a pull, like pull to refresh, follow the finger themselves). */
+html[data-platform="ios"], html[data-platform="ios"] body { overscroll-behavior: none; }
+
 svg {
   width: 20px;
   height: 20px;
@@ -114,6 +119,17 @@ h1, h2, h3 { margin: 0; line-height: 1.2; }
   padding: calc(10px + env(safe-area-inset-top)) var(--gutter) 6px;
   background: linear-gradient(180deg, var(--top), var(--top-2));
   color: var(--on-top);
+}
+/* The dark colour carries on above the bar, so the page never shows behind the phone's clock. */
+.topbar::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: var(--top);
+  pointer-events: none;
 }
 /* Under the top bar, the dark area fades into the page, unless the view's title is on it too. */
 .topbar::after {
@@ -220,6 +236,17 @@ main { overflow-x: clip; }
   right: 0;
   height: 3px;
   background: linear-gradient(90deg, transparent calc(var(--glow-x) - 55%), var(--glow) var(--glow-x), transparent calc(var(--glow-x) + 55%));
+}
+/* Its colour carries on below it, so the page never shows under the tab bar. */
+.tabbar::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 200px;
+  background: var(--surface);
+  pointer-events: none;
 }
 .tab-track {
   position: relative;
