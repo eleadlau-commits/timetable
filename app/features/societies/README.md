@@ -32,6 +32,7 @@ Phones read `lists/societies`, every published society in one document (**1 read
 | `join` | string | no | `https://…`, the society's sign-up page (only `https://` links show) |
 | `photo` | string | no | a file in `app/features/societies/photos/` (e.g. `hiking.jpg`, comes with the app) or an `https://` address |
 | `order` | number | no | `1` comes first; without it, 50; then by name |
+| `uni` | string | no | which university it belongs to, for when there's more than one: leave it out for Durham. Another university's id (small letters, e.g. `york`) puts it in that university's list (`lists/societies-york`), shown to students whose university's pack has that `uniId` |
 
 People see changes the next time their app asks, within 12 hours, once the list students read has been made again: when someone in `admins` opens the app (at most every 3 hours) or opens **Approve changes**. After editing in the console, open Approve changes once to send it out straight away.
 

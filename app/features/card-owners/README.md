@@ -27,7 +27,7 @@ Checking what people type uses Folio's `check.form()` (each kind keeps its own f
 
 ## The list students read
 
-Reading each card separately costs one database read per card, so 300 societies would be 300 reads every time a phone refreshes them, and the free plan's 50,000 reads a day would run out at about 150 students. So the published cards are also copied into **one document**, `lists/spots` or `lists/societies` (`{ items: { id: card as stored }, at }`), and phones read just that (1 read). If it's missing, phones read the cards one by one as before.
+Reading each card separately costs one database read per card, so 300 societies would be 300 reads every time a phone refreshes them, and the free plan's 50,000 reads a day would run out at about 150 students. So the published cards are also copied into **one document**, `lists/spots` or `lists/societies` (`{ items: { id: card as stored }, at }`), and phones read just that (1 read). With `groupBy` (`town` for places, `uni` for societies) there's one such list per town or university: cards without the field are Durham's and stay in `lists/spots` / `lists/societies`; others go in `lists/spots-<town>` / `lists/societies-<uni>` (`listName` and `groupOf` in `store.js`; the database's rules allow these names). If it's missing, phones read the cards one by one as before.
 
 The team's phones make it, so it needs no server:
 - **Opening Approve changes** reads every card anyway, so the list is written then (only if it changed), and again after each approve.

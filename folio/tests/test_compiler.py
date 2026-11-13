@@ -116,6 +116,11 @@ class CompilerTests(unittest.TestCase):
         self.assertEqual(sorted(order), ['a', 'b'])
         self.assertIn('kind', found['c'].reason)
 
+    def test_packs_start_as_early_as_they_can(self):
+        # 'base' is what packs fill in; 'user' asks it. The pack starts straight after 'base'.
+        order, _ = self.resolve({'base': feature(), 'user': feature(uses=['base']), 'zz-pack': feature(kind='pack', requires=['base'])})
+        self.assertEqual(order, ['base', 'zz-pack', 'user'])
+
     def test_mistakes_in_feature_json(self):
         _, found = self.resolve({
             'broken-json': '{ "name": "x", }',

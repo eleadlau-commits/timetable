@@ -18,7 +18,7 @@ The **Help** and **Feedback** rows in the menu. Help is a page of questions and 
 
 ## What it offers other features
 
-- **Slot `help.questions`:** Item: `{ group, order, question, answer() → text, a list of paragraphs (text or elements) or an element, page?, action? }`. `group` is an id from `groups.js` (`start`, `timetable`, `home`, `study`, `around`, `friends`, `account`, `privacy`, `app`). Lower `order` comes first within a group. `page: true` opens the answer as its own page. `action: { label, run() }` adds a button under the answer; Help closes first, then `run()` is called. The answer is drawn when it's opened, so it can show what's true now.
+- **Slot `help.questions`:** Item: `{ group, order, question, answer() → text, a list of paragraphs (text or elements) or an element, page?, action?, visible?() }`. `visible()` returning false leaves the question out (e.g. the library's, at a university without one). `group` is an id from `groups.js` (`start`, `timetable`, `home`, `study`, `around`, `friends`, `account`, `privacy`, `app`). Lower `order` comes first within a group. `page: true` opens the answer as its own page. `action: { label, run() }` adds a button under the answer; Help closes first, then `run()` is called. The answer is drawn when it's opened, so it can show what's true now.
 
 ## What it needs
 

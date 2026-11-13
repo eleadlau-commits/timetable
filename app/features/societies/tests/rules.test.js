@@ -1,5 +1,5 @@
 import { test, assert } from 'folio/testing';
-import { toSociety, typeOf, typeName, instagramLink, photoOf, pick, typesIn, isStale, fromList, FRESH_FOR } from '../rules.js';
+import { toSociety, typeOf, typeName, instagramLink, photoOf, pick, typesIn, isStale, fromList, FRESH_FOR, areaOf, listFor, inArea, savedFor } from '../rules.js';
 
 const soc = (extra = {}) => ({ published: true, type: 'sport', name: 'Hiking Society', line: 'Walks in the Dales', ...extra });
 
@@ -72,4 +72,20 @@ test('the list of every society in one document: published ones only, or null wi
   assert.deepEqual(fromList({ items: {} }), []);
   assert.equal(fromList(undefined), null);
   assert.equal(fromList({ items: 'nope' }), null);
+});
+
+test('each uni reads its own list; Durham keeps the old name and cards without a uni are Durham\'s', () => {
+  const uni = (id) => ({ townId: () => id, uniId: () => id });
+  assert.equal(areaOf(null, 'uni'), 'durham');
+  assert.equal(areaOf(uni('durham'), 'uni'), 'durham');
+  assert.equal(areaOf(uni(null), 'uni'), null);
+  assert.equal(listFor('societies', 'durham'), 'societies');
+  assert.equal(listFor('societies', 'york'), 'societies-york');
+  assert.ok(inArea({}, 'uni', 'durham'));
+  assert.ok(inArea({ uni: 'York' }, 'uni', 'york'));
+  assert.ok(!inArea({ uni: 'york' }, 'uni', 'durham'));
+  assert.ok(savedFor({ at: 1 }, 'durham'));
+  assert.ok(!savedFor({ at: 1 }, 'york'));
+  assert.ok(savedFor({ at: 1, area: 'york' }, 'york'));
+  assert.ok(!savedFor(null, 'durham'));
 });

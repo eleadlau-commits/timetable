@@ -11,7 +11,7 @@ The places on the **Spots** tab: cafés, pubs and clubs around Durham, with thei
 
 The database's `spots` collection, one document per place. Everyone can read the published ones, signed in or not. The team adds places in the Firebase console, which only people added to the Firebase project can open. **Owners can't change their place directly**: with a shop code they send changes from the app, and the team approves them in the app's *Approve changes* (the shop feature). Only the team's accounts (the `admins` collection) can change places from the app.
 
-The places are kept on the phone, so they show straight away and offline. The app asks the database again only when its copy is more than 6 hours old (`FRESH_FOR` in `rules.js`). Each ask reads `lists/spots`, every published place in one document, so it costs **1 read** however many places there are. The team's phones keep that list up to date (see the card-owners feature's README). Only if the list isn't there does the app read the places one by one (one read each, as before).
+The places are kept on the phone, so they show straight away and offline. The app asks the database again only when its copy is more than 6 hours old (`FRESH_FOR` in `rules.js`). Each ask reads `lists/spots` (Durham's; another town's is `lists/spots-<town>`, from the university's pack), every published place in one document, so it costs **1 read** however many places there are. The team's phones keep that list up to date (see the card-owners feature's README). Only if the list isn't there does the app read the places one by one (one read each, as before).
 
 ### Adding a place (in the Firebase console)
 
@@ -34,6 +34,7 @@ The places are kept on the phone, so they show straight away and offline. The ap
 | `photo` | string | no | a picture across the top of the card: the name of a file in `app/features/listings/photos/` (e.g. `flat-white.jpg`, comes with the app, free; see the README there), or an `https://` address of a picture |
 | `menu` | string | no | `https://…`, a page or PDF with the menu |
 | `order` | number | no | `1` comes first; without it, 50; then by name |
+| `town` | string | no | which town it's in, for when there's more than one: leave it out for Durham. Another town's id (small letters, e.g. `newcastle`) puts it in that town's list (`lists/spots-newcastle`), shown to students whose university's pack has that `townId` |
 
 To change a deal, click the place and edit the field (or, once the owner has a shop code, they can send the change themselves and you approve it in the app). To take a place down, set `published` to `false` (or delete the document). People see changes the next time their app asks, within 6 hours, once the list students read has been made again: that happens when someone in `admins` opens the app (at most every 3 hours) or opens **Approve changes**. So after editing in the console, open Approve changes once to send it out straight away.
 

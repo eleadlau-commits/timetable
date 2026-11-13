@@ -20,3 +20,9 @@ export function packForLink(packs, link) {
   try { host = new URL(link).hostname.toLowerCase(); } catch { return null; }
   return packs.find((p) => (p.timetableHosts || []).some((h) => host === h || host.endsWith(`.${h}`))) || null;
 }
+
+// Whether to ask someone new which university they're at: only with two packs or more, only
+// students (businesses aren't at a university), and only if they haven't chosen.
+export function shouldAsk({ packs, chosen, kind }) {
+  return packs > 1 && !chosen && kind === 'student';
+}

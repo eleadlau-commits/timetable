@@ -126,3 +126,25 @@ export function fromList(data) {
   if (!items || typeof items !== 'object' || Array.isArray(items)) return null;
   return Object.entries(items).filter(([, d]) => d && typeof d === 'object' && d.published === true);
 }
+
+// Which town's (or university's) list to read. With the University feature, its pack's id
+// ('durham'), or null when no university is set (then there's nothing to read); without that
+// feature, Durham's, as before there were other universities. The list names are the same rule
+// the team's phones write them by (card-owners' listName): Durham keeps lists/{base}, others are
+// lists/{base}-{id}.
+export function areaOf(university, kind) {
+  if (!university) return 'durham';
+  return (kind === 'town' ? university.townId() : university.uniId()) || null;
+}
+export function listFor(base, area) {
+  return area === 'durham' ? base : `${base}-${area}`;
+}
+// Whether a card (as stored) belongs to an area: cards without the field are Durham's.
+export function inArea(data, field, area) {
+  const own = typeof data?.[field] === 'string' && data[field].trim() ? data[field].trim().toLowerCase() : 'durham';
+  return own === area;
+}
+// The saved copy is for this area (copies saved before there were areas are Durham's).
+export function savedFor(saved, area) {
+  return !!saved && (saved.area || 'durham') === area;
+}

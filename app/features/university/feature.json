@@ -2,5 +2,6 @@
   "name": "University",
   "description": "Which university the app is set up for, and what it knows about it (rooms, library, timetable guide, photo, names), from a university pack such as uni-durham.",
   "version": "1.0.0",
-  "main": "University.js"
+  "main": "University.js",
+  "styles": ["style.css"]
 }

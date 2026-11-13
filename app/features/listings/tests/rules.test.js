@@ -1,7 +1,5 @@
 import { test, assert } from 'folio/testing';
-import {
-  kindOf, webLink, toMillis, toPlace, openTimes, photoOf, liveDeal, placesOf, withDeals, dealUntil, isStale, fromList, FRESH_FOR,
-} from '../rules.js';
+import { kindOf, webLink, toMillis, toPlace, openTimes, photoOf, liveDeal, placesOf, withDeals, dealUntil, isStale, fromList, FRESH_FOR, areaOf, listFor, inArea, savedFor } from '../rules.js';
 
 const cafe = (extra = {}) => ({ published: true, kind: 'cafe', name: 'Flat White', line: 'Coffee on Elvet Bridge', ...extra });
 
@@ -125,4 +123,20 @@ test('the list of every place in one document: published places only, or null wi
   assert.equal(fromList(null), null);
   assert.equal(fromList({ items: [] }), null);
   assert.equal(fromList({}), null);
+});
+
+test('each town reads its own list; Durham keeps the old name and cards without a town are Durham\'s', () => {
+  const uni = (id) => ({ townId: () => id, uniId: () => id });
+  assert.equal(areaOf(null, 'town'), 'durham');
+  assert.equal(areaOf(uni('durham'), 'town'), 'durham');
+  assert.equal(areaOf(uni(null), 'town'), null);
+  assert.equal(listFor('spots', 'durham'), 'spots');
+  assert.equal(listFor('spots', 'york'), 'spots-york');
+  assert.ok(inArea({}, 'town', 'durham'));
+  assert.ok(inArea({ town: 'York' }, 'town', 'york'));
+  assert.ok(!inArea({ town: 'york' }, 'town', 'durham'));
+  assert.ok(savedFor({ at: 1 }, 'durham'));
+  assert.ok(!savedFor({ at: 1 }, 'york'));
+  assert.ok(savedFor({ at: 1, area: 'york' }, 'york'));
+  assert.ok(!savedFor(null, 'durham'));
 });

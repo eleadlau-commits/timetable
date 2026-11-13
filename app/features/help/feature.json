@@ -3,5 +3,6 @@
   "description": "Help in the menu: questions and answers in groups, some from other features, a few opening a page of their own. Feedback says Coming soon.",
   "version": "2.0.0",
   "main": "Help.js",
-  "styles": ["help.css"]
+  "styles": ["help.css"],
+  "uses": ["university"]
 }
