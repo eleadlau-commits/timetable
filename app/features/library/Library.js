@@ -30,6 +30,7 @@ export default class Library extends Feature {
 
     this.add('home.widgets', {
       id: 'library', label: 'Library', order: 10, sizes: ['wide', 'tall'],
+      available: () => !!this.library(),
       render: (size) => (size === 'tall' ? this.tall() : this.thin()),
     });
     this.add('study.cards', { order: 10, render: () => this.folded(this.name()) });
@@ -253,7 +254,7 @@ export default class Library extends Feature {
   // Questions and answers for the Help page.
   addHelp() {
     for (const item of [
-      { group: 'study', order: 10, question: 'Where do the library numbers come from?', answer: () => [
+      { group: 'study', order: 10, question: 'Where do the library numbers come from?', visible: () => !!this.library(), answer: () => [
         `From the library's own page of free seats at ${this.name()}, and the total is the library's own count. The app checks it every time you open the app or switch back to it, and every 5 minutes while it's open, so you don't need to refresh. Under the number it says how long ago it was checked, and if that's more than 15 minutes (say, you're offline) the numbers are greyed out. Tap the bar to see each floor.`,
       ] },
     ]) this.add('help.questions', item);

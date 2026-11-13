@@ -1,6 +1,7 @@
 // Help's own questions: the ones about the whole app rather than one feature. Features add
 // their own through the 'help.questions' slot, so they go when the feature does.
-// An answer is a list of paragraphs.
+// An answer is a list of paragraphs, or a function ({ short, town }) → paragraphs for answers that
+// name the university (from its pack; '' without one).
 
 // Where people can write to us. The same address as in the account's privacy notice.
 export const CONTACT = 'mobiledurham.help@gmail.com';
@@ -9,9 +10,10 @@ export const QUESTIONS = [
   {
     group: 'start', order: 1,
     question: 'What can Mobile Durham do?',
-    answer: [
-      'It puts your Durham timetable on your phone, and adds the things around it: what\'s on today, how busy the library is, a study timer, a to-do list, your campus card, places and student deals around Durham, and your friends\' timetables.',
-      'The tabs along the bottom are Study, Planner, Home, Spots and More. The menu (top left) has Account, Reminders, Settings, Help and About.',
+    // Names from the university's pack ({ short: 'Durham', town: 'Durham' }), or '' without one.
+    answer: ({ short, town }) => [
+      `It puts your ${short ? `${short} ` : ''}timetable on your phone, and adds the things around it: what's on today, how busy the library is, a study timer, a to-do list, your campus card, places and student deals around ${town || 'town'}, and your friends' timetables.`,
+      'The tabs along the bottom are Study, Planner, Home, Explore and More. The menu (top left) has Account, Reminders, Settings, Help and About.',
     ],
   },
   {

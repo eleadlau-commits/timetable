@@ -1,0 +1,19 @@
+/* Choosing a university (only shown once there are two packs or more). */
+.uni-ask, .uni-setting { display: grid; gap: 12px; }
+.uni-choices { display: grid; gap: 8px; }
+.uni-choice {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 14px 16px;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--shape-btn);
+  cursor: pointer;
+}
+.uni-choice span { color: var(--muted); font-size: 14px; }
+.uni-choice:hover, .uni-choice:focus-visible { border-color: var(--accent); }
+.uni-choice[aria-checked="true"] { border-color: var(--accent); background: var(--accent-soft); }

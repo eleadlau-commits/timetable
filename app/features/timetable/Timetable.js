@@ -272,6 +272,18 @@ export default class Timetable extends Feature {
     return "Your university's server stopped this app from reading the link directly (a browser security rule). Import the .ics file instead, under Other ways to get the link in.";
   }
 
+  // The setup screen's guide, drawn again when the university changes.
+  fillGuide() {
+    const parts = this.guideParts;
+    if (!parts) return;
+    const guide = this.guide();
+    parts.intro.textContent = guide.intro;
+    const list = steps(guide);
+    parts.steps.replaceWith(list);
+    parts.steps = list;
+    parts.private.textContent = guide.private;
+  }
+
   // The setup guide: the university's (from its pack), or the general one.
   guide() {
     return guideFor(this.use('university')?.guide());
@@ -327,10 +339,11 @@ export default class Timetable extends Feature {
     const page = this.template('setup');
     const part = (name) => page.querySelector(`[data-part="${name}"]`);
     this.setupNode = page.querySelector('.setup');
-    const guide = this.guide();
-    part('intro').textContent = guide.intro;
-    part('guide').replaceWith(steps(guide));
-    part('private').textContent = guide.private;
+    this.guideParts = { intro: part('intro'), steps: part('guide'), private: part('private') };
+    this.fillGuide();
+    // The university's pack starts after this feature, and can change: draw the guide again then.
+    this.on('app:ready', () => this.fillGuide());
+    this.on('university:changed', () => this.fillGuide());
     this.linkInput = part('link');
     this.received = part('received');
     this.loadButton = part('load');

@@ -14,6 +14,8 @@
 //     most: 200,               how many cards Approve changes asks for at once
 //     list: 'spots',           lists/{list}: every published card in one document, which
 //                              students' phones read instead of each card (see saveList)
+//     groupBy: 'town',         the card's field saying which town or university it's for: one
+//                              list per town or university (see listName); optional
 //     removeUsed: false,       whether the team can delete a used code (which also unlinks the
 //                              person who used it)
 //   })
@@ -31,6 +33,19 @@ export { toMs };
 export const LIST_MOST = 900000;
 export const LIST_EVERY = 3 * 60 * 60 * 1000;
 
+// Which list a card goes in, by the town or university it's for (its `groupBy` field). Cards
+// without one are Durham's, from before there were other universities, and Durham keeps the
+// list's original name: lists/spots for Durham, lists/spots-newcastle for Newcastle. Phones read
+// the same names (the listings and societies features), and the database's rules allow them.
+export const FIRST_GROUP = 'durham';
+export function groupOf(data, field) {
+  const group = field && typeof data?.[field] === 'string' ? data[field].trim().toLowerCase() : '';
+  return /^[a-z0-9-]{1,40}$/.test(group) ? group : FIRST_GROUP;
+}
+export function listName(base, group) {
+  return !group || group === FIRST_GROUP ? base : `${base}-${group}`;
+}
+
 // Whether this account approves changes: made by hand in the Firebase console (admins/{uid}).
 export async function isAdmin(db, uid) {
   const snap = await db.doc(`admins/${uid}`).get();
@@ -44,7 +59,7 @@ export function makeStore(config) {
   // The published cards as stored, from the last allCards(), for saveList: { id: data }, or null
   // if there were more than allCards asks for (then the list can't be complete).
   let published = null;
-  let savedList = null; // what saveList last wrote, so the same list isn't written twice
+  let savedLists = {}; // what saveList last wrote to each list, so the same list isn't written twice
 
   // A change as stored → the same with `at` in ms.
   const read = (snap) => {
@@ -175,21 +190,47 @@ export function makeStore(config) {
     // allCards() found, so it costs no extra reads. If the cards don't all fit (more than allCards
     // asks for, or too big for one document), the list is deleted and phones read the cards one
     // by one as before. Returns true if it wrote or deleted something.
+    // With `groupBy`, there's one list per town or university (listName), each made the same way.
     async saveList(db, fields) {
       if (!config.list) return false;
-      const ref = db.doc(`lists/${config.list}`);
-      const size = published ? JSON.stringify(published).length : Infinity;
-      if (!published || size > LIST_MOST) {
-        if (savedList === 'none') return false;
-        await ref.delete();
-        savedList = 'none';
-        return true;
+      if (!published) {
+        // Not all the cards were found, so no list can be complete: phones read them one by one.
+        // The lists this phone knows of go; Durham's always, as it always used to.
+        const names = new Set([config.list, ...Object.keys(savedLists)]);
+        let wrote = false;
+        for (const name of names) {
+          if (savedLists[name] === 'none') continue;
+          await db.doc(`lists/${name}`).delete();
+          savedLists[name] = 'none';
+          wrote = true;
+        }
+        return wrote;
       }
-      const print = JSON.stringify(published);
-      if (print === savedList) return false;
-      await ref.set({ items: published, at: fields.serverTimestamp() });
-      savedList = print;
-      return true;
+      // Durham's list, and any this phone made before, are written even when empty, so a town
+      // whose cards were all taken down doesn't keep showing them.
+      const groups = { [config.list]: {} };
+      for (const name of Object.keys(savedLists)) groups[name] = {};
+      for (const [id, data] of Object.entries(published)) {
+        const name = listName(config.list, groupOf(data, config.groupBy));
+        (groups[name] ||= {})[id] = data;
+      }
+      let wrote = false;
+      for (const [name, items] of Object.entries(groups)) {
+        const ref = db.doc(`lists/${name}`);
+        const print = JSON.stringify(items);
+        if (print.length > LIST_MOST) {
+          if (savedLists[name] === 'none') continue;
+          await ref.delete();
+          savedLists[name] = 'none';
+          wrote = true;
+          continue;
+        }
+        if (print === savedLists[name]) continue;
+        await ref.set({ items, at: fields.serverTimestamp() });
+        savedLists[name] = print;
+        wrote = true;
+      }
+      return wrote;
     },
 
     // For the team's phones: makes the list again if it hasn't been made for `every` ms on this

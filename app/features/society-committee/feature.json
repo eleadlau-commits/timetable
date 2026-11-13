@@ -5,5 +5,5 @@
   "main": "SocietyCommittee.js",
   "styles": ["style.css"],
   "requires": ["account", "card-owners"],
-  "uses": ["societies", "storefront", "shop", "welcome", "home", "help"]
+  "uses": ["societies", "storefront", "shop", "welcome", "home", "help", "university"]
 }
